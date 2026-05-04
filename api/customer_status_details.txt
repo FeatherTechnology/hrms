@@ -1,0 +1,18 @@
+Customer status Details:
+1 = customer profile insert;
+2 = Loan Calculation insert;
+3 = In Approval;
+4 = Approve in Approval || In Loan Issue;
+5 = Cancel in Approval;
+6 = Revoke in Approval;
+7 = Loan Issued || Collection;
+8 = To Closed [When Loan Balance Amount is 0, status has to change to '8' on collection screen. To Move Closed.];
+9 = Closed;
+10 = Move to NOC;
+11 = NOC Completed;
+12 = Removed From NOC;
+13 = Cancel in Loan Issue;
+14 = Revoke in Loan Issue;
+/////////////////////////////////////////////////////////////
+Link used for auto-updating customer status in collection
+http://marudhamcapitals-001-site5.ntempurl.com/include/views/monthly_customer_update.php
