@@ -1,0 +1,30 @@
+<?php
+require '../../ajaxconfig.php';
+$staff_id = $_POST['staff_id'];
+$experience_list_arr = array();
+$i = 0;
+$experience_type = ['1'=>'Fresher','2'=>'Experienced']; 
+$qry = $pdo->query("SELECT * FROM experience_info WHERE staff_id = '$staff_id' ");
+
+if ($qry->rowCount() > 0) {
+
+    while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
+        // Construct action buttons
+         $experience_list_arr[$i]['id'] = $row['id'];
+        $experience_list_arr[$i]['exp_type'] = $experience_type[$row['exp_type']];
+        $experience_list_arr[$i]['total_experience'] = $row['total_experience'];
+        $experience_list_arr[$i]['pre_company'] = $row['pre_company'];
+        $experience_list_arr[$i]['pre_designation'] = $row['pre_designation'];
+        $experience_list_arr[$i]['work_duration'] = $row['work_duration'];
+        $experience_list_arr[$i]['last_salary'] = $row['last_salary'];
+        $experience_list_arr[$i]['reason_for_leaving'] = $row['reason_for_leaving'];
+        $action_buttons = "<span class='icon-border_color expActionBtn' value='" . $row['id'] . "'></span>&nbsp;&nbsp;&nbsp;";
+        $action_buttons .= "<span class='icon-delete expDeleteBtn' value='" . $row['id'] . "'></span>";
+        $experience_list_arr[$i]['action'] = $action_buttons;
+
+        $i++;
+    }
+}
+
+echo json_encode($experience_list_arr);
+$pdo = null; // Close Connection
