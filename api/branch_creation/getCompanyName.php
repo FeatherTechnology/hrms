@@ -1,18 +1,17 @@
 <?php
-//Also Using in User creation.
 require '../../ajaxconfig.php';
 
 $response = array();
 
 try {
-    $qry =  $pdo->query("SELECT company_name FROM company_creation");
+    $qry = $pdo->query("SELECT id , company_name FROM company_creation");
+
     if ($qry->rowCount() > 0) {
-        $row = $qry->fetch(PDO::FETCH_ASSOC);
-        $response['company_name'] = $row['company_name'];
+        $response = $qry->fetchAll(PDO::FETCH_ASSOC);
     }
 } catch (PDOException $e) {
     $response['error'] = $e->getMessage();
 }
 
-$pdo = null; // Close Connection
+$pdo = null;
 echo json_encode($response);

@@ -56,6 +56,7 @@ $team = $_POST['team'];
 $reporting_person = $_POST['reporting_person'];
 $branch_admin = $_POST['branch_admin'];
 $branch = $_POST['branch'];
+$off_type = $_POST['off_type'];
 $total_ctc = $_POST['total_ctc'];
 $annual_ctc = $_POST['annual_ctc'];
 $shift = $_POST['shift'];
@@ -64,7 +65,77 @@ $ot_per_hour = $_POST['ot_per_hour'];
 $ot_per_day = $_POST['ot_per_day'];
 $user_id = $_SESSION['user_id'];
 $staff_profile_id = $_POST['staff_profile_id'];
+$ctcDetails = json_decode($_POST['ctcDetails'], true);
 
+ $qry = $pdo->query("UPDATE `staff_creation` SET `staff_name`='$staff_name',`staff_type`='$staff_type',`address`='$address',`state`='$state',`district`='$district',`place`='$place',`pincode`='$pincode',`dob`='$dob',`blood_group`='$blood_group',`pic`='$picture',`gender`='$gender',`marital_status`='$marital_status',`spouse_name`='$spouse_name',`anniversary_date`='$anniversary_date',`joining_date`='$joining_date',`relieve_date`='$relieve_date',`notice_period`='$notice_period',`email`='$email',`mobile1`='$mobile1',`mobile2`='$mobile2',`whatsapp`='$whatsapp',`instagram`='$instagram',`facebook`='$facebook',`acc_holder_name`='$acc_holder_name',`acc_number`='$acc_number',`bank_name`='$bank_name',`bank_branch`='$bank_branch',`ifsc_code`='$ifsc_code',`status`=1,`update_login_id`='$user_id', `updated_on`=NOW() WHERE `id`= '$staff_profile_id'");
 
-$result = 0;
-echo json_encode($result);
+/* ===============================
+   OCCUPATION INFO
+   INSERT ONLY ONE TIME
+=================================*/
+$check = $pdo->query("SELECT id FROM occupation_info 
+WHERE staff_profile_id='$staff_profile_id'");
+
+if ($check->rowCount() == 0) {
+
+    $pdo->query("INSERT INTO occupation_info SET
+        staff_profile_id='$staff_profile_id',
+        staff_id='$staff_id',
+        company_id='$company_name',
+        branch_id='$branch_name',
+        department='$department',
+        team='$team',
+        designation='$designation',
+        off_type='$off_type',
+        branch_admin='$branch_admin',
+        reporting_person='$reporting_person',
+        branch='$branch',
+        pf_available='$pf_available',
+        esi_available='$esi_available',
+        pt_available='$pt_available',
+        total_ctc='$total_ctc',
+        annual_ctc='$annual_ctc',
+        shift='$shift',
+        ot_payment='$ot_payment',
+        ot_per_hour='$ot_per_hour',
+        ot_per_day='$ot_per_day',
+        insert_login_id='$user_id',
+        created_on=NOW()
+    ");
+}
+
+/* ===============================
+   CTC INFO
+   INSERT ONLY ONE TIME
+=================================*/
+$checkCTC = $pdo->query("SELECT id FROM staff_ctc_info 
+WHERE staff_profile_id='$staff_profile_id'");
+
+if ($checkCTC->rowCount() == 0) {
+
+    foreach ($ctcDetails as $row) {
+
+        $ctc_id         = $row['ctc_id'];
+        $ctc_amount     = $row['ctc_amount'];
+        $ctc_percentage = $row['ctc_percentage'];
+
+        $pdo->query("INSERT INTO staff_ctc_info SET
+            staff_profile_id='$staff_profile_id',
+            staff_id='$staff_id',
+            ctc_id='$ctc_id',
+            ctc_amount='$ctc_amount',
+            ctc_percentage='$ctc_percentage',
+            total_ctc='$total_ctc',
+            insert_login_id='$user_id',
+            created_date=NOW()
+        ");
+    }
+}
+
+$result = 1;
+
+echo json_encode([
+    'result' => $result,
+    'last_id' => $staff_profile_id,
+    'pic' => $picture
+]);

@@ -1,10 +1,69 @@
 <div class="row gutters">
     <div class="col-12">
 
-        <!--Staff Creation List Start-->
-        <div class="text-right">
-            <button type="button" class="btn btn-primary " id="add_staff"><span class="fa fa-plus"></span>&nbsp; Add Staff</button>
-            <button type="button" class="btn btn-primary" id="back_btn" style="display: none;"><span class="icon-arrow-left"></span>&nbsp; Back </button>
+        <div class="row outer_search_card">
+            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                <div class="form-group">
+                    <label for="company_search">Company Name</label><span class="text-danger">*</span>
+                    <select class="form-control" id="company_search" name="company_search" tabindex="1">
+                        <option value="">Select Company Name</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                <div class="form-group">
+                    <label for="branch_search">Branch Name</label><span class="text-danger">*</span>
+                    <select class="form-control" id="branch_search" name="branch_search" tabindex="1">
+                        <option value="">Select Branch Name</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                <div class="form-group">
+                    <label for="department_search">Department</label><span class="text-danger">*</span>
+                    <select class="form-control" id="department_search" name="department_search" tabindex="1">
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                <button type="button" class="btn btn-primary" id="view_staff" style="margin-top:20px;">Search</button>
+            </div>
+        </div>
+        <div class="row align-items-center mb-3">
+
+            <!-- Center Radio Buttons -->
+            <div class="col-md-8 text-center">
+                <div class="form-group mb-0 outer_search_card">
+
+                    <input type="radio" name="staff_status" id="active" value="1" checked>
+
+                    <label for="active">&nbsp;Active</label>
+
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <input type="radio" name="staff_status" id="inactive" value="2">
+
+                    <label for="inactive">&nbsp;In-Active</label>
+
+                </div>
+            </div>
+
+            <!-- Right Side Buttons -->
+            <div class="col-md-4 text-right">
+
+                <button type="button" class="btn btn-primary" id="add_staff">
+                    <span class="fa fa-plus"></span>&nbsp; Add Staff
+                </button>
+
+                <button type="button" class="btn btn-primary" id="back_btn" style="display:none;">
+                    <span class="icon-arrow-left"></span>&nbsp; Back
+                </button>
+
+            </div>
+
         </div>
         <br>
         <div class="card staff_table_content">
@@ -17,8 +76,11 @@
                                 <th>S.NO</th>
                                 <th>Staff ID</th>
                                 <th>Staff Name</th>
-                                <th>Area</th>
-                                <th>Occupation</th>
+                                <th>Company</th>
+                                 <th>Branch</th>
+                                <th>Department</th>
+                                <th>Team</th>
+                                <th>Designation</th>
                                 <th>Mobile</th>
                                 <th>Action</th>
                             </tr>
@@ -46,6 +108,14 @@
                                 <div class="row">
                                     <div class="col-8">
                                         <div class="row">
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="form-group">
+                                                    <label for="company_name">Company Name</label><span class="text-danger">*</span>
+                                                    <select class="form-control personal_info_disble" id="company_name" name="company_name" tabindex="1">
+                                                        <option value="">Select Company Name</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                                 <div class="form-group">
                                                     <label for="staff_auto_id">Staff ID</label><span class="text-danger">*</span>
@@ -167,36 +237,6 @@
                                                     <input type="text" class="form-control personal_info_disble" id="notice_period" name="notice_period" placeholder="Notice Period" tabindex="15">
                                                 </div>
                                             </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="form-group">
-                                                    <label for="pf_available">PF Available</label>
-                                                    <select class="form-control personal_info_disble" id="pf_available" name="pf_available" tabindex="16">
-                                                        <option value="">Select PF Availability</option>
-                                                        <option value="1">Yes</option>
-                                                        <option value="2">No</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="form-group">
-                                                    <label for="esi_available">ESI Available</label>
-                                                    <select class="form-control personal_info_disble" id="esi_available" name="esi_available" tabindex="17">
-                                                        <option value="">Select ESI Availability</option>
-                                                        <option value="1">Yes</option>
-                                                        <option value="2">No</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="form-group">
-                                                    <label for="pt_available">PT Available</label>
-                                                    <select class="form-control personal_info_disble" id="pt_available" name="pt_available" tabindex="18">
-                                                        <option value="">Select PT Availability</option>
-                                                        <option value="1">Yes</option>
-                                                        <option value="2">No</option>
-                                                    </select>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-4">
@@ -212,6 +252,93 @@
 
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h5 class="card-title">Communication Info</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Fields -->
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="mailid">Mail ID</label><span class="text-danger">*</span>
+                                            <input type="email" class="form-control personal_info_disble" id="mailid" name="mailid" placeholder="Enter Mail ID" tabindex="21">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="mobile1"> Mobile Number 1</label><span class="text-danger">*</span>
+                                            <input type="number" class="form-control personal_info_disble" id="mobile1" name="mobile1" placeholder="Enter Mobile Number 1" onKeyPress="if(this.value.length==10) return false;" tabindex="22">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="mobile2"> Mobile Number 2</label>
+                                            <input type="number" class="form-control personal_info_disble" id="mobile2" name="mobile2" placeholder="Enter Mobile Number 2" onKeyPress="if(this.value.length==10) return false;" tabindex="23">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="whatsapp"> Whatsapp Number</label>
+                                            <input type="number" class="form-control personal_info_disble" id="whatsapp" name="whatsapp" placeholder="Enter Whatsapp Number" onKeyPress="if(this.value.length==10) return false;" tabindex="24">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="instagram">Instagram ID</label>
+                                            <input type="text" class="form-control personal_info_disble" id="instagram" name="instagram" placeholder="Enter instagram ID" tabindex="25">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="facebook">Facebook ID</label>
+                                            <input type="text" class="form-control personal_info_disble" id="facebook" name="facebook" placeholder="Enter Facebook ID" tabindex="26">
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h5 class="card-title">Bank Info</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Fields -->
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="acc_holder_name">Account Holder Name</label><span class="text-danger">*</span>
+                                            <input type="text" class="form-control personal_info_disble" id="acc_holder_name" name="acc_holder_name" placeholder="Enter Account Holder Name" tabindex="28">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="bank_name"> Bank Name</label><span class="text-danger">*</span>
+                                            <input type="text" class="form-control personal_info_disble" id="bank_name" name="bank_name" placeholder="Enter Bank Name" tabindex="29">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="acc_number"> Account Number </label><span class="text-danger">*</span>
+                                            <input type="number" class="form-control personal_info_disble" id="acc_number" name="acc_number" placeholder="Enter Account Number" tabindex="30">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="ifsc_code"> IFSC Code</label><span class="text-danger">*</span>
+                                            <input type="text" class="form-control personal_info_disble" id="ifsc_code" name="ifsc_code" placeholder="Enter IFSC Code" tabindex="31">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="bank_branch">Branch</label><span class="text-danger">*</span>
+                                            <input type="text" class="form-control personal_info_disble" id="bank_branch" name="bank_branch" placeholder="Enter Branch" tabindex="32">
+                                        </div>
+                                    </div>
                                     <div class="col-md-12 ">
                                         <div class="text-right">
                                             <button type="submit" name="submit_staff" id="submit_staff" class="btn btn-primary" value="Submit"><span class="icon-check"></span>&nbsp;Next</button>
@@ -220,7 +347,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="staff_contents" style="display:block;">
+                        <div class="staff_content" style="display:none;">
                             <div class="card">
                                 <div class="card-header">
                                     <div class="card-title">Documents Info
@@ -238,7 +365,7 @@
                                                             <th>Document Name</th>
                                                             <th>Document Type</th>
                                                             <th>Document</th>
-                                                            <th>Submiited Date</th>
+                                                            <th>Submitted Date</th>
                                                             <th>Returned Date</th>
                                                         </tr>
                                                     </thead>
@@ -250,57 +377,11 @@
                                 </div>
                             </div>
 
-                            <div class="card mt-3">
-                                <div class="card-header">
-                                    <h5 class="card-title">Communication Info</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <!-- Fields -->
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="mailid">Mail ID</label><span class="text-danger">*</span>
-                                                <input type="email" class="form-control" id="mailid" name="mailid" placeholder="Enter Mail ID" tabindex="21">
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="mobile1"> Mobile Number 1</label><span class="text-danger">*</span>
-                                                <input type="number" class="form-control" id="mobile1" name="mobile1" placeholder="Enter Mobile Number 1" onKeyPress="if(this.value.length==10) return false;" tabindex="22">
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="mobile2"> Mobile Number 2</label>
-                                                <input type="number" class="form-control" id="mobile2" name="mobile2" placeholder="Enter Mobile Number 2" onKeyPress="if(this.value.length==10) return false;" tabindex="23">
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="whatsapp"> Whatsapp Number</label>
-                                                <input type="number" class="form-control" id="whatsapp" name="whatsapp" placeholder="Enter Whatsapp Number" onKeyPress="if(this.value.length==10) return false;" tabindex="24">
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="instagram">Instagram ID</label>
-                                                <input type="text" class="form-control" id="instagram" name="instagram" placeholder="Enter instagram ID" tabindex="25">
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="facebook">Facebook ID</label>
-                                                <input type="text" class="form-control" id="facebook" name="facebook" placeholder="Enter Facebook ID" tabindex="26">
-                                            </div>
-                                        </div>
-                                       
-                                    </div>
-                                </div>
-                            </div>
+
                             <div class="card">
                                 <div class="card-header">
                                     <div class="card-title">Family Info <span class="text-danger">*</span>
-                                        <button type="button" class="btn btn-primary" id="add_group" name="add_group" data-toggle="modal" data-target="#add_fam_info_modal" onclick="getFamilyTable()" style="padding: 5px 35px; float: right;" tabindex='13'><span class="icon-add"></span></button>
+                                        <button type="button" class="btn btn-primary" id="add_family" name="add_family" data-toggle="modal" data-target="#add_fam_info_modal" onclick="getFamilyTable()" style="padding: 5px 35px; float: right;" tabindex='13'><span class="icon-add"></span></button>
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -384,46 +465,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card mt-3">
-                                <div class="card-header">
-                                    <h5 class="card-title">Bank Info</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <!-- Fields -->
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="acc_holder_name">Account Holder Name</label><span class="text-danger">*</span>
-                                                <input type="text" class="form-control" id="acc_holder_name" name="acc_holder_name" placeholder="Enter Account Holder Name" tabindex="28">
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="bank_name"> Bank Name</label><span class="text-danger">*</span>
-                                                <input type="text" class="form-control" id="bank_name" name="bank_name" placeholder="Enter Bank Name" tabindex="29">
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="acc_number"> Account Number </label><span class="text-danger">*</span>
-                                                <input type="number" class="form-control" id="acc_number" name="acc_number" placeholder="Enter Account Number" tabindex="30">
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="ifsc_code"> IFSC Code</label><span class="text-danger">*</span>
-                                                <input type="text" class="form-control" id="ifsc_code" name="ifsc_code" placeholder="Enter IFSC Code" tabindex="31">
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="bank_branch">Branch</label><span class="text-danger">*</span>
-                                                <input type="text" class="form-control" id="bank_branch" name="bank_branch" placeholder="Enter Branch" tabindex="32">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
                             <div class="card mt-3">
                                 <div class="card-header">
                                     <h5 class="card-title">Occupation Info</h5>
@@ -433,10 +475,8 @@
                                         <!-- Fields -->
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                             <div class="form-group">
-                                                <label for="company_name">Company Name</label><span class="text-danger">*</span>
-                                                <select class="form-control" id="company_name" name="company_name" tabindex="33">
-                                                    <option value="">Select Company Name</option>
-                                                </select>
+                                                <label for="company">Company Name</label><span class="text-danger">*</span>
+                                                <input type="text" class="form-control" id="company" name="company" readonly tabindex="27">
                                             </div>
                                         </div>
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -471,9 +511,19 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="off_type">Type</label><span class="text-danger">*</span>
+                                                <select class="form-control" id="off_type" name="off_type" tabindex="38">
+                                                    <option value="">Select Type</option>
+                                                    <option value="1">Office</option>
+                                                    <option value="2">Field</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 reporting_person_div" style="display: none;">
                                             <div class="form-group">
-                                                <label for="reporting_person">Reporting Person</label>
+                                                <label for="reporting_person">Reporting Person</label><span class="text-danger">*</span>
                                                 <select class="form-control" id="reporting_person" name="reporting_person" tabindex="38">
                                                     <option value="">Select Reporting Person</option>
                                                 </select>
@@ -497,6 +547,36 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="pf_available">PF Available</label><span class="text-danger">*</span>
+                                                <select class="form-control" id="pf_available" name="pf_available" tabindex="16">
+                                                    <option value="">Select PF Availability</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="2">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="esi_available">ESI Available</label><span class="text-danger">*</span>
+                                                <select class="form-control" id="esi_available" name="esi_available" tabindex="17">
+                                                    <option value="">Select ESI Availability</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="2">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="pt_available">PT Available</label><span class="text-danger">*</span>
+                                                <select class="form-control" id="pt_available" name="pt_available" tabindex="18">
+                                                    <option value="">Select PT Availability</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="2">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -510,13 +590,13 @@
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                             <div class="form-group">
                                                 <label for="total_ctc">Total CTC Per Month</label><span class="text-danger">*</span>
-                                                <input type="number" class="form-control" id="total_ctc" name="total_ctc" placeholder="Enter Total CTC Per Month" tabindex="41">
+                                                <input type="text" class="form-control" id="total_ctc" name="total_ctc" placeholder="Enter Total CTC Per Month" tabindex="41">
                                             </div>
                                         </div>
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                             <div class="form-group">
                                                 <label for="annual_ctc"> Annual CTC</label>
-                                                <input type="number" class="form-control" id="annual_ctc" name="annual_ctc" placeholder="Annual CTC" tabindex="42" readonly>
+                                                <input type="text" class="form-control" id="annual_ctc" name="annual_ctc" placeholder="Annual CTC" tabindex="42" readonly>
                                             </div>
                                         </div>
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -588,7 +668,7 @@
                                 <div class="text-right">
 
                                     <button type="submit" name="submit_staff_creation" id="submit_staff_creation" class="btn btn-primary" value="Submit" tabindex="6"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" class="btn btn-outline-secondary" tabindex="7">Clear</button>
+                                    <button type="reset" id="clear_staff" class="btn btn-outline-secondary" tabindex="7">Clear</button>
                                 </div>
                             </div>
                         </div>
@@ -598,7 +678,7 @@
         </div>
         </form>
     </div>
-    <!----------------------------- CARD END  BRANCH CREATION FORM------------------------------>
+    <!----------------------------- CARD END  STAFF CREATION FORM------------------------------>
 
 </div>
 </div>

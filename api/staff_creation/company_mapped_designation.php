@@ -1,35 +1,32 @@
 <?php
-
 require "../../ajaxconfig.php";
 
-$company_id = $_POST['company_id']; 
-
-if (isset($_POST['designation_level'])) {
-    $designation_level = $_POST['designation_level'];
-} else {
-    $designation_level = '';
-}
-
-$designation_level_condition = '';
-if ($designation_level != '') {
-    $designation_level_condition = "AND designation_level > '$designation_level'";
-}
+$company_id = $_POST['company_id'];
+$selected_designation = $_POST['selected_designation'];
 
 $result = array();
 
 $qry = $pdo->query("
-    SELECT id, designation, designation_level
-    FROM designation
-    WHERE company_id = '$company_id'
-    $designation_level_condition
-    ORDER BY designation_level ASC
+    SELECT DISTINCT 
+        des.id,
+        des.designation,
+        des.designation_level
+    FROM designation_info des
+    LEFT JOIN company_designation_mapping cd 
+        ON des.id = cd.designation_id
+    WHERE des.designation_status = 0
+    AND (
+        cd.company_id = '$company_id'
+        OR des.id = '$selected_designation'
+    )
+    ORDER BY des.designation_level ASC
 ");
 
 if ($qry->rowCount() > 0) {
-
     $result = $qry->fetchAll(PDO::FETCH_ASSOC);
 }
 
 echo json_encode($result);
 
 $pdo = null;
+?>
