@@ -1,12 +1,19 @@
+
 <?php
 require "../../ajaxconfig.php";
 
 $id = $_POST['id'];
-$qry = $pdo->query("DELETE FROM `users` WHERE id = '$id' ");
-if ($qry) {
-    $result = '0';
-} else {
-    $result = '1';
+
+try {
+    $qry = $pdo->prepare("UPDATE `users` SET status = 1 WHERE id = :id");
+    $qry->bindParam(':id', $id, PDO::PARAM_INT);
+    $qry->execute();
+
+    $result = '1'; // Disabled successfully
+} catch (PDOException $e) {
+    $result = '0'; // General error
 }
+
+$pdo = null; // Close Connection
 
 echo json_encode($result);

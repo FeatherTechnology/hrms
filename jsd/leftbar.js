@@ -1,6 +1,7 @@
 $(document).ready(function () {
     // Define the mapping of current_page values to current_module values
     const moduleMapping = {
+        'home_page':'home',
         'dashboard':'dashboard',
         'company_creation': 'organization_management',
         'branch_creation': 'organization_management',
@@ -12,18 +13,20 @@ $(document).ready(function () {
         'staff_creation': 'staff_management',
         'staff_exit_management': 'staff_management',
         'manage_user': 'staff_management',
-        'leave_permission_regularization': 'leave_permission_regularization',
+        'regularization': 'regularization',
         'location_access': 'attendance_Management',
-        'daily_attendance': 'attendance_Management',
+        'attendance': 'attendance_Management',
         'promotion_transfer': 'promotion_transfer',
         'payroll_processing': 'payroll_management',
-        'pay_slip': 'payroll_management'
+        'pay_slip': 'payroll_management',
+        'feedback': 'my_feedbacks',
+        'attendance_ot_monitor': 'monitoring_chart'
         
     };
 
     const current_page = localStorage.getItem('currentPage');
     // Assign the current_module based on the current_page value
-    const current_module = moduleMapping[current_page] || 'dashboard';
+    const current_module = moduleMapping[current_page] || 'home_page';
 
     // Call the function with the current module
     setTimeout(() => {
