@@ -11,8 +11,9 @@ if ($userid != "") {
 include "include/common/dashboardhead.php";
 ?>
 <script>
-    localStorage.setItem('currentPage', 'dashboard');
+    localStorage.setItem('currentPage', 'home_page');
 </script>
+
 
 <body class="authentication">
 
