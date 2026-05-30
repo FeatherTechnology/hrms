@@ -3,22 +3,25 @@ require "../../ajaxconfig.php";
 @session_start();
 $user_id = $_SESSION['user_id'];
 
-$name = $_POST['name'];
 $user_code = $_POST['user_code'];
+$company_name = $_POST['company_name'];
 $role = $_POST['role'];
-$designation = $_POST['designation'];
-$address = $_POST['address'];
-$place = $_POST['place'];
-$email = $_POST['email'];
-$mobile_no = $_POST['mobile_no'];
+$staff_name = $_POST['staff_name'];
+$staff_id = $_POST['staff_id'];
 $user_name = $_POST['user_name'];
 $password = $_POST['password'];
-$branch_name = implode(',', $_POST['branch_name']);
-$line_name = implode(',', $_POST['line_name']);
-$loan_category = implode(',', $_POST['loan_category']);
-$collection_access = $_POST['collection_access'];
+$confirm_password = $_POST['confirm_password'];
 $download_access = $_POST['download_access'];
-$submenus = implode(',', $_POST['submenus']);
+$report_access = $_POST['report_access'];
+$home_access = $_POST['home_access'];
+$submenus = $_POST['submenus'];
+
+if (!empty($submenus)) {
+    array_unshift($submenus, '1');
+}
+
+$submenus = implode(',', $submenus);
+
 $id = $_POST['id'];
 try {
     // Begin transaction
@@ -31,7 +34,7 @@ try {
         $last_id = '0'; //Already exists.
     } else {
         if ($id != '0' && $id != '') {
-            $qry = $pdo->query("UPDATE `users` SET `name`='$name',`user_code`='$user_code',`role`='$role',`designation`='$designation',`address`='$address',`place`='$place',`email`='$email',`mobile`='$mobile_no',`user_name`='$user_name',`password`='$password',`branch`='$branch_name',`loan_category`='$loan_category',`line`='$line_name', `collection_access`= '$collection_access',`download_access`='$download_access',`screens`='$submenus',`update_login_id`='$user_id',`updated_on`=now() WHERE `id`='$id'");
+            $qry = $pdo->query("UPDATE `users` SET `user_code`='$user_code',`company_id`='$company_name',`role`='$role',`staff_name_id`='$staff_name', `staff_id`='$staff_id',`user_name`='$user_name',`password`='$password',`confirm_password`='$confirm_password',`download_access`='$download_access', `report_access`= '$report_access', `home_access`='$home_access',`screens`='$submenus', `status` = '0', `update_login_id`='$user_id',`updated_on`=now() WHERE `id`='$id'");
             if ($qry) {
                 $status = '1';
                 $last_id = $id;
@@ -46,7 +49,7 @@ try {
             } else {
                 $user_code_final = "US-" . "001";
             }
-            $qry = $pdo->query("INSERT INTO `users`(`name`, `user_code`, `role`, `designation`, `address`, `place`, `email`, `mobile`, `user_name`, `password`, `branch`, `loan_category`, `line`, `collection_access`,`download_access`, `screens`, `insert_login_id`, `created_on`) VALUES ('$name','$user_code','$role','$designation','$address','$place','$email','$mobile_no','$user_name','$password','$branch_name','$loan_category','$line_name', '$collection_access','$download_access', '$submenus','$user_id',now())");
+            $qry = $pdo->query("INSERT INTO `users`(`user_code`, `company_id`, `role`, `staff_name_id`, `staff_id`, `user_name`, `password`, `confirm_password`, `download_access`, `report_access`,`home_access`, `screens`, `insert_login_id`, `created_on`) VALUES ('$user_code', '$company_name', '$role','$staff_name', '$staff_id', '$user_name', '$password', '$confirm_password', '$download_access','$report_access','$home_access', '$submenus','$user_id',now())");
             if ($qry) {
                 $status = '2';
                 $last_id = $pdo->lastInsertId();

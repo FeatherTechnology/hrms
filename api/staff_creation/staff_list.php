@@ -39,23 +39,26 @@ $query = "SELECT
           LEFT JOIN company_creation cc 
                  ON sc.company_id = cc.id
 
-          LEFT JOIN occupation_info oc 
-                 ON oc.id = (
-                        SELECT MAX(id)
-                        FROM occupation_info
-                        WHERE staff_profile_id = sc.id
-                 )
+          INNER JOIN (
+                SELECT *
+                FROM occupation_info oi1
+                WHERE oi1.id = (
+                    SELECT MAX(oi2.id)
+                    FROM occupation_info oi2
+                    WHERE oi2.staff_profile_id = oi1.staff_profile_id
+                )
+          ) oc ON oc.staff_profile_id = sc.id
 
           LEFT JOIN branch_creation bc 
                  ON oc.branch_id = bc.id
 
-          LEFT JOIN department_info d 
+          LEFT JOIN department_creation d 
                  ON oc.department = d.id
 
           LEFT JOIN team_name_creation ti 
                  ON oc.team = ti.id
 
-          LEFT JOIN designation_info des 
+          LEFT JOIN designation_creation des 
                  ON oc.designation = des.id
 
           WHERE 1=1 ";

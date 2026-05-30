@@ -1,7 +1,7 @@
 <?php
 require '../../ajaxconfig.php';
 $company_id = $_POST['company_id'];
-$qry = $pdo->query("SELECT * FROM ctc_info where company_id = '$company_id' ORDER BY id ASC");
+$qry = $pdo->query("SELECT * FROM ctc_creation where company_id = '$company_id' and status = 0 ORDER BY id ASC");
 
 $data = array();
 
@@ -16,7 +16,7 @@ while($row = $qry->fetch(PDO::FETCH_ASSOC)) {
         $classification = 'NON CTC';
     }
 
-    if($row['component_cat'] == '1') {
+    if($row['component_category'] == '1') {
         $category = 'Salary';
     } else {
         $category = 'Reimbursement';
@@ -26,7 +26,7 @@ while($row = $qry->fetch(PDO::FETCH_ASSOC)) {
         'id' => $row['id'],
         'salary_component' => $row['salary_component'],
         'component_classification' => $classification,
-        'component_cat' => $category
+        'component_category' => $category
     );
 }
 

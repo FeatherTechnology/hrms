@@ -1,5 +1,6 @@
 <?php
 require '../../ajaxconfig.php';
+include "../../moneyFormatIndia.php";
 $staff_id = $_POST['staff_id'];
 $experience_list_arr = array();
 $i = 0;
@@ -16,7 +17,7 @@ if ($qry->rowCount() > 0) {
         $experience_list_arr[$i]['pre_company'] = $row['pre_company'];
         $experience_list_arr[$i]['pre_designation'] = $row['pre_designation'];
         $experience_list_arr[$i]['work_duration'] = $row['work_duration'];
-        $experience_list_arr[$i]['last_salary'] = $row['last_salary'];
+        $experience_list_arr[$i]['last_salary'] = moneyFormatIndia($row['last_salary']);
         $experience_list_arr[$i]['reason_for_leaving'] = $row['reason_for_leaving'];
         $action_buttons = "<span class='icon-border_color expActionBtn' value='" . $row['id'] . "'></span>&nbsp;&nbsp;&nbsp;";
         $action_buttons .= "<span class='icon-delete expDeleteBtn' value='" . $row['id'] . "'></span>";

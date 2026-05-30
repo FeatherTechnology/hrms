@@ -11,7 +11,7 @@ $qry = $pdo->query("
         des.id,
         des.designation,
         des.designation_level
-    FROM designation_info des
+    FROM designation_creation des
     LEFT JOIN company_designation_mapping cd 
         ON des.id = cd.designation_id
     WHERE des.designation_status = 0

@@ -2,15 +2,15 @@
 require '../../ajaxconfig.php';
 @session_start();
 
-$company_name = $_POST['company_name'];
-$branch_code=$_POST['branch_code'];
-$branch_name=$_POST['branch_name'];
+$company_id = $_POST['company_name'];
+$branch_code = $_POST['branch_code'];
+$branch_name = $_POST['branch_name'];
 $address = $_POST['address'];
 $state = $_POST['state'];
 $district = $_POST['district'];
-$taluk = $_POST['taluk'];
 $place = $_POST['place'];
 $pincode = $_POST['pincode'];
+$location = $_POST['location'];
 $email_id = $_POST['email_id'];
 $mobile_number = $_POST['mobile_number'];
 $whatsapp = $_POST['whatsapp'];
@@ -24,26 +24,45 @@ try {
     // Begin transaction
     $pdo->beginTransaction();
     // Get the latest Branch code
-    $selectIC = $pdo->query("SELECT branch_code FROM branch_creation WHERE branch_code != '' ORDER BY id DESC LIMIT 1 FOR UPDATE");
-    if ($branchid !='0' && $branchid !='') {
-        $qry = $pdo->query("UPDATE `branch_creation` SET `company_name`='$company_name',`branch_code`='$branch_code',`branch_name`='$branch_name',`address`='$address',`state`='$state',`district`='$district',`taluk`='$taluk',`place`='$place',`pincode`='$pincode',`email_id`='$email_id',`mobile_number`='$mobile_number',`whatsapp`='$whatsapp',`landline_code`='$landline_code',`landline`='$landline',`update_login_id`='$user_id',updated_date = now() WHERE `id`='$branchid'");
+    if ($branchid != '0' && $branchid != '') {
+        $qry = $pdo->query("UPDATE `branch_creation` SET `company_id`='$company_id',`branch_code`='$branch_code',`branch_name`='$branch_name',`address`='$address',`state`='$state',`district`='$district',`place`='$place',`pincode`='$pincode', `location`='$location',`email_id`='$email_id',`mobile_number`='$mobile_number',`whatsapp`='$whatsapp',`landline_code`='$landline_code',`landline`='$landline',`update_login_id`='$user_id',updated_date = now() WHERE `id`='$branchid'");
         if ($qry) {
             $result = 1; //update
         }
     } else {
-        $str = preg_replace('/\s+/', '', $company_name);
-        $myStr = mb_substr($str, 0, 1);
-        if ($selectIC->rowCount() > 0) {
-            $row = $selectIC->fetch();
+
+        $qry1 = $pdo->query("SELECT company_name FROM company_creation WHERE id = '$company_id'");
+        $qry_info = $qry1->fetch();
+        $company_name = trim($qry_info["company_name"]);
+        // Split words
+        $words = preg_split('/\s+/', $company_name);
+        // Generate prefix
+        $prefix = '';
+        if (count($words) > 1) {
+            // Multiple words
+            foreach ($words as $word) {
+                $prefix .= strtoupper(mb_substr($word, 0, 1));
+            }
+        } else {
+            // Single word
+            $prefix = strtoupper(mb_substr($company_name, 0, 1));
+        }
+
+        // Get last branch code
+        $qry = $pdo->query("SELECT MAX(branch_code) as branch_code FROM branch_creation WHERE company_id = '$company_id'");
+        $row = $qry->fetch(PDO::FETCH_ASSOC);
+        if ($row["branch_code"] != '') {
+            // Example: MC-101
             $ac2 = $row["branch_code"];
             $appno2 = ltrim(strstr($ac2, '-'), '-');
-            $appno2 = $appno2 + 1;
-            $branch_code = $myStr . "-" . $appno2;
+            $appno2 = (int)$appno2 + 1;
+            $branch_code = $prefix . "-" . $appno2;
         } else {
-            $initialapp = $myStr . "-101";
-            $branch_code = $initialapp;
+            // Initial code
+            $branch_code = $prefix . "-101";
         }
-        $qry = $pdo->query("INSERT INTO `branch_creation`(`company_name`, `branch_code`,`branch_name`,`address`, `state`, `district`, `taluk`, `place`, `pincode`,`email_id`, `mobile_number`, `whatsapp`, `landline_code`,`landline`, `insert_login_id`,`created_date`) VALUES ('$company_name','$branch_code', '$branch_name','$address','$state','$district','$taluk','$place','$pincode','$email_id','$mobile_number','$whatsapp','$landline_code','$landline','$user_id',now())");
+
+        $qry = $pdo->query("INSERT INTO `branch_creation`(`company_id`, `branch_code`,`branch_name`,`address`, `state`, `district`, `place`, `pincode`,`location`, `email_id`, `mobile_number`, `whatsapp`, `landline_code`,`landline`, `insert_login_id`,`created_date`) VALUES ('$company_id','$branch_code', '$branch_name','$address','$state','$district','$place','$pincode','$location','$email_id','$mobile_number','$whatsapp','$landline_code','$landline','$user_id',now())");
 
         if ($qry) {
             $result = 2; //Insert

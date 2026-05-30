@@ -565,10 +565,7 @@ $(document).ready(function () {
         let company_id = $('#company_search').val();
         let branch_id = $('#branch_search').val();
         let department_id = $('#department_search').val();
-
-        console.log(company_id)
-        console.log(branch_id)
-        console.log(department_id)
+        let total_ctc_amount = $('#total_ctc_amount').val();
 
         var data = ['staff_auto_id', 'staff_name', 'staff_type', 'address', 'state', 'district', 'place', 'pincode', 'gender', 'marital_status', 'joining_date', `mailid`, 'mobile1', 'acc_holder_name', 'bank_name', 'acc_number', 'ifsc_code', 'bank_branch', 'company_name', 'branch_name', 'department', 'designation', 'team', 'branch_admin', 'total_ctc', 'annual_ctc', 'shift', 'ot_payment', 'off_type', 'pt_available', 'esi_available', 'pf_available']
         if (ot_payment == '1') {
@@ -698,6 +695,7 @@ $(document).ready(function () {
             staffDetail.append('ot_per_hour', ot_per_hour);
             staffDetail.append('ot_per_day', ot_per_day);
             staffDetail.append('off_type', off_type);
+            staffDetail.append('total_ctc_amount', total_ctc_amount);
             let ctcDetails = [];
 
             $('#ctc_info_table tbody tr').each(function () {
@@ -725,7 +723,7 @@ $(document).ready(function () {
                 'Are you sure?',
                 'Do you want to submit this Staff Creation?',
                 function () {
-
+                 $('#submit_staff_creation').attr('disabled', true);
                     $.ajax({
                         url: 'api/staff_creation/submit_staff_info.php',
                         type: 'POST',
@@ -745,12 +743,13 @@ $(document).ready(function () {
                                 swapTableAndCreation()
                                 getStaffTable(company_id, branch_id, department_id)
                                 clearStaffProfileForm()
-                                $('#submit_staff_creation').attr('disabled', true);
                             }
+                             $('#submit_staff_creation').attr('disabled', false);
                         },
 
                         error: function () {
                             swalError('Error', 'Something went wrong!');
+                             $('#submit_staff_creation').attr('disabled', false);
                         }
                     });
                 }
@@ -1456,7 +1455,7 @@ function getCTCInfoTable(company_id) {
                         <td>${row.component_classification}</td>
 
                         <td>
-                            ${row.component_cat}
+                            ${row.component_category}
                         </td>
 
                         <td>
@@ -1507,6 +1506,12 @@ function calculateTotals(currentInput) {
         }
     });
 
+   totalPercentage = Math.round(totalPercentage * 100) / 100;
+
+    if (totalPercentage > 100) {
+        totalPercentage = 100;
+    }
+
     $('#total_ctc_amount').val(totalAmount);
     $('#total_ctc_percentage').val(totalPercentage);
 
@@ -1522,6 +1527,7 @@ function calculateTotals(currentInput) {
         return false;
     }
     // Salary % should not exceed 100
+    salaryPercentage = Math.min(enteredCTC > 0 ? (salaryAmount / enteredCTC) * 100 : 0, 100);
     if (salaryPercentage > 100) {
 
         swalError('Warning', 'Salary Percentage should not exceed 100');
@@ -1534,7 +1540,6 @@ function calculateTotals(currentInput) {
     }
 }
 function recalculateTotals() {
-
     let totalAmount = 0;
     let totalPercentage = 0;
 
@@ -1547,6 +1552,12 @@ function recalculateTotals() {
 
         totalPercentage += parseFloat($(this).val()) || 0;
     });
+    // Round to 2 decimal places to avoid 100.01, 99.999, etc.
+    totalPercentage = Math.round(totalPercentage * 100) / 100;
+    // Optional: cap at 100% (if you want max 100 shown)
+    if (totalPercentage > 100) {
+        totalPercentage = 100;
+    }
 
     $('#total_ctc_amount').val(totalAmount);
 
@@ -1853,7 +1864,7 @@ function resetStaffData() {
     $('.spouse-div').hide();
     $('.branch_div').hide();
     $('.ot_per_day_div').hide();
-     $('.ot_per_hour_div').hide();
+    $('.ot_per_hour_div').hide();
     $('.reporting_person_div').hide();
 
 }

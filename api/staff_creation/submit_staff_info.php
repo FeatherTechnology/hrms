@@ -65,6 +65,7 @@ $ot_per_hour = $_POST['ot_per_hour'];
 $ot_per_day = $_POST['ot_per_day'];
 $user_id = $_SESSION['user_id'];
 $staff_profile_id = $_POST['staff_profile_id'];
+$total_amount = $_POST['total_ctc_amount'];
 $ctcDetails = json_decode($_POST['ctcDetails'], true);
 
  $qry = $pdo->query("UPDATE `staff_creation` SET `staff_name`='$staff_name',`staff_type`='$staff_type',`address`='$address',`state`='$state',`district`='$district',`place`='$place',`pincode`='$pincode',`dob`='$dob',`blood_group`='$blood_group',`pic`='$picture',`gender`='$gender',`marital_status`='$marital_status',`spouse_name`='$spouse_name',`anniversary_date`='$anniversary_date',`joining_date`='$joining_date',`relieve_date`='$relieve_date',`notice_period`='$notice_period',`email`='$email',`mobile1`='$mobile1',`mobile2`='$mobile2',`whatsapp`='$whatsapp',`instagram`='$instagram',`facebook`='$facebook',`acc_holder_name`='$acc_holder_name',`acc_number`='$acc_number',`bank_name`='$bank_name',`bank_branch`='$bank_branch',`ifsc_code`='$ifsc_code',`status`=1,`update_login_id`='$user_id', `updated_on`=NOW() WHERE `id`= '$staff_profile_id'");
@@ -126,6 +127,7 @@ if ($checkCTC->rowCount() == 0) {
             ctc_amount='$ctc_amount',
             ctc_percentage='$ctc_percentage',
             total_ctc='$total_ctc',
+            total_amount='$total_amount',
             insert_login_id='$user_id',
             created_date=NOW()
         ");
@@ -137,5 +139,4 @@ $result = 1;
 echo json_encode([
     'result' => $result,
     'last_id' => $staff_profile_id,
-    'pic' => $picture
 ]);
