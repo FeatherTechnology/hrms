@@ -32,10 +32,14 @@
                 <button type="button" class="btn btn-primary" id="view_staff" style="margin-top:20px;">Search</button>
             </div>
         </div>
-        <div class="row align-items-center mb-3">
-
+         <div class="col-12 text-right">
+            <button class="btn btn-primary radio-card" id="add_staff" style="display: none;"><span class="icon-add"></span> Add Staff</button>
+            <button class="btn btn-primary" id="back_btn" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
+        </div></br>
+        <div class="card staff_table_content">
             <!-- Center Radio Buttons -->
-            <div class="col-md-8 text-center">
+             <br>
+            <div class="col-md-12 text-center radio-card" style="display: none;">
                 <div class="form-group mb-0 outer_search_card">
 
                     <input type="radio" name="staff_status" id="active" value="1" checked>
@@ -50,23 +54,6 @@
 
                 </div>
             </div>
-
-            <!-- Right Side Buttons -->
-            <div class="col-md-4 text-right">
-
-                <button type="button" class="btn btn-primary" id="add_staff">
-                    <span class="fa fa-plus"></span>&nbsp; Add Staff
-                </button>
-
-                <button type="button" class="btn btn-primary" id="back_btn" style="display:none;">
-                    <span class="icon-arrow-left"></span>&nbsp; Back
-                </button>
-
-            </div>
-
-        </div>
-        <br>
-        <div class="card staff_table_content">
             <div class="card-body">
                 <div class="col-12">
 
@@ -77,7 +64,7 @@
                                 <th>Staff ID</th>
                                 <th>Staff Name</th>
                                 <th>Company</th>
-                                 <th>Branch</th>
+                                <th>Branch</th>
                                 <th>Department</th>
                                 <th>Team</th>
                                 <th>Designation</th>
@@ -347,7 +334,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="staffs_content" style="display:block;">
+                        <div class="staff_content" style="display:none;">
                             <div class="card">
                                 <div class="card-header">
                                     <div class="card-title">Documents Info

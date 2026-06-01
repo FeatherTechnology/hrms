@@ -64,7 +64,10 @@ $(document).ready(function () {
               department_id,
             },
             function (response) {
-              if (response === "2") {
+              if (response === "3") {
+                swalError("Warning", "Department Name already exists!");
+              }
+              else if (response === "2") {
                 swalSuccess("Success", "Department Added Successfully!");
               } else if (response === "1") {
                 swalSuccess("Success", "Department Updated Successfully!");
@@ -140,7 +143,10 @@ $(document).ready(function () {
               designation_id,
             },
             function (response) {
-              if (response === "2") {
+              if (response === "3") {
+                swalError("Warning", "Designation Name already exists!");
+              }
+              else if (response === "2") {
                 swalSuccess("Success", "Designation Added Successfully!");
               } else if (response === "1") {
                 swalSuccess("Success", "Designation Updated Successfully!");
@@ -276,7 +282,9 @@ $(document).ready(function () {
           }
 
           $("#companyid").val("");
-          $("#company_creation").trigger("reset");
+          $("#department_name2").val("");
+          $("#designation_name2").val("");
+           $("#company_creation").trigger("reset");
           getCompanyTable();
           swapTableAndCreation(); //to change to div to table content.
         },
@@ -531,11 +539,15 @@ function getDepartmentDelete(id) {
       if (response == "1") {
         swalSuccess("Success", "Department Info Delete Successfully!");
         getDepartmentNameTable();
+
+      } else if (response == "2") {
+        swalError("Warning", "Department already used in Team Creation!");
+
       } else {
         swalError("Warning", "Error occur While Delete Department Info.");
       }
     },
-    "json",
+    "json"
   );
 }
 
@@ -546,6 +558,7 @@ async function getDepartmentNameDropdown() {
     const response = await $.ajax({
       url: "api/company_creation_files/get_department_name_dropdown.php",
       type: "POST",
+      data: { screen: "company_creation" },
       dataType: "json",
     });
 
@@ -595,6 +608,9 @@ function getDesignationDelete(id) {
       if (response == "1") {
         swalSuccess("Success", "Designation Info Delete Successfully!");
         getDesignationNameTable();
+      } else if (response == "2") {
+        swalError("Warning", "Designation already used in Staff Creation!");
+
       } else {
         swalError("Warning", "Error occur While Delete Designation Info.");
       }

@@ -9,6 +9,7 @@ $result = array();
 $qry = $pdo->query("
     SELECT DISTINCT di.id, di.department_name
     FROM department_creation di
+
     LEFT JOIN company_department_mapping cd ON di.id = cd.department_id
     WHERE di.department_status = 0
     AND (

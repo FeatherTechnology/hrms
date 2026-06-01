@@ -87,6 +87,7 @@ $(document).ready(function () {
 
               getHolidayTable();
               clearFields();
+              $("#holiday_id").val('');
             },
           );
         },

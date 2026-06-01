@@ -68,7 +68,10 @@ $(document).ready(function () {
               ctc_id,
             },
             function (response) {
-              if (response === "2") {
+              if (response === "3") {
+                swalError("Warning", "CTC Info already exists!");
+              }
+              else if (response === "2") {
                 swalSuccess("Success", "CTC Info Added Successfully!");
               } else if (response === "1") {
                 swalSuccess("Success", "CTC Info Updated Successfully!");
@@ -196,6 +199,9 @@ function getctcDelete(id) {
         swalSuccess("Success", "CTC Info Deleted Successfully!");
         getctcTable();
         clearFields();
+      }
+      else if (response == "2") {
+        swalError("Warning", "CTC Info is already used in Staff Creation!");
       } else {
         swalError("Warning", "Error occur While Delete CTC Info.");
       }

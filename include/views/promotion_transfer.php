@@ -1,3 +1,4 @@
+
 <div class="row gutters">
     <div class="col-12">
 
@@ -50,26 +51,21 @@
             </div>
         </div>
 
-        <!-- Center Buttons -->
+        <div class="col-12 text-right">
+            <button class="btn btn-primary" id="back_btn" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
+        </div></br>
         <br>
-        <div class="row align-items-center">
+        <div class="card promotion_transfer_table_content">
 
             <!-- Center Buttons -->
-            <div class="col-md-8 text-center">
-                <div class="form-group mb-0 outer_status_card" style="display: none;">
+             <br>
+            <div class="col-md-12 text-center">
+                <div class="form-group mb-0 outer_status_card justify-content-center" style="display: none;">
                     <button type="button" class="btn btn-primary staff_status_btn promo_status" data-value="1"> Promotion </button>&nbsp;&nbsp;
-                    <button type="button" class="btn btn-primary staff_status_btn trans_status"  data-value="2"> Transfer </button> &nbsp;&nbsp;
+                    <button type="button" class="btn btn-primary staff_status_btn trans_status" data-value="2"> Transfer </button> &nbsp;&nbsp;
                     <button type="button" class="btn btn-primary staff_status_btn inc_status" data-value="3"> Increment </button>
                 </div>
             </div>
-            <!-- Back Button Right Side -->
-            <div class="col-md-4 text-right"> 
-                <button type="button" class="btn btn-primary" id="back_btn" style="display:none;"> <span class="icon-arrow-left"></span>&nbsp; Back</button>
-            </div>
-
-        </div>
-        <br>
-        <div class="card promotion_transfer_table_content">
             <div class="card-body">
                 <div class="col-12 overflow-x-cls">
 
@@ -172,7 +168,7 @@
                                             <input type="date" class="form-control" id="effective_date" name="effective_date" tabindex="15">
                                         </div>
                                     </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 transfer-card">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="branch_name">Branch Name</label><span class="text-danger">*</span>
                                             <select class="form-control" id="branch_name" name="branch_name" tabindex="7">
@@ -180,7 +176,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12  transfer-card">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="department">Department</label><span class="text-danger">*</span>
                                             <select class="form-control" id="department" name="department" tabindex="8">
@@ -188,7 +184,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12  transfer-card">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="team">Team</label><span class="text-danger">*</span>
                                             <select class="form-control" id="team" name="team" tabindex="9">
@@ -197,7 +193,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 promotion-card">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="designation">Designation</label><span class="text-danger">*</span>
                                             <select class="form-control" id="designation" name="designation" tabindex="37">
@@ -214,7 +210,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12  transfer-card">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="branch_admin">Branch Admin</label><span class="text-danger">*</span>
                                             <select class="form-control" id="branch_admin" name="branch_admin" tabindex="11">
@@ -240,7 +236,7 @@
                 </div>
 
 
-                <div class="card mt-3 increment-card">
+                <div class="card mt-3">
                     <div class="card-header">
                         <h5 class="card-title">CTC Info</h5>
                     </div>

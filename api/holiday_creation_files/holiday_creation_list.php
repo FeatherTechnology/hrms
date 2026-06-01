@@ -15,15 +15,22 @@ if ($qry->rowCount() > 0) {
     while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
 
         // Format Dates
+        $current_date = date('Y-m-d');
+        $to_date = $row['to_date'];
         $row['from_date'] = date('d-m-Y', strtotime($row['from_date']));
         $row['to_date'] = date('d-m-Y', strtotime($row['to_date']));
 
-        // Action Button
-        $row['action'] = "
-            <span class='icon-border_color holidayActionBtn' value='" . $row['id'] . "'></span>
+        if ($current_date > $to_date) {
+            // Action Button
+            $row['action'] = "<span class='icon-border_color text-secondary' style='pointer-events:none; opacity:0.5;'></span> &nbsp;
+            <span class='icon-delete text-secondary' style='pointer-events:none; opacity:0.5;'></span>";
+        } else {
+            // Action Button
+            $row['action'] = "<span class='icon-border_color holidayActionBtn' value='" . $row['id'] . "'></span>
             &nbsp;&nbsp;&nbsp;
             <span class='icon-delete holidayDeleteBtn' value='" . $row['id'] . "'></span>
         ";
+        }
 
         $holiday_list_arr[$i] = $row;
 
