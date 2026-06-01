@@ -329,7 +329,7 @@ function getBranchDelete(id) {
         swalSuccess("Success", "Branch Deleted Successfully!");
         getBranchTable();
       } else if (response == "2") {
-        swalError("Access Denied", "Used in User Creation");
+        swalError("Access Denied", "Used in Staff Creation");
       } else {
         swalError("Error", "Failed to Delete Branch");
       }

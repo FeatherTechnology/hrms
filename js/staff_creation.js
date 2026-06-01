@@ -723,7 +723,7 @@ $(document).ready(function () {
                 'Are you sure?',
                 'Do you want to submit this Staff Creation?',
                 function () {
-                 $('#submit_staff_creation').attr('disabled', true);
+                    $('#submit_staff_creation').attr('disabled', true);
                     $.ajax({
                         url: 'api/staff_creation/submit_staff_info.php',
                         type: 'POST',
@@ -744,12 +744,12 @@ $(document).ready(function () {
                                 getStaffTable(company_id, branch_id, department_id)
                                 clearStaffProfileForm()
                             }
-                             $('#submit_staff_creation').attr('disabled', false);
+                            $('#submit_staff_creation').attr('disabled', false);
                         },
 
                         error: function () {
                             swalError('Error', 'Something went wrong!');
-                             $('#submit_staff_creation').attr('disabled', false);
+                            $('#submit_staff_creation').attr('disabled', false);
                         }
                     });
                 }
@@ -819,7 +819,14 @@ $(document).ready(function () {
 
     // Radio Change
     $('input[name="staff_status"]').on('change', function () {
-        getStaffTable();
+        let company_id = $('#company_search').val();
+        let branch_id = $('#branch_search').val();
+        let department_id = $('#department_search').val();
+        if (!company_id && !branch_id && !department_id) {
+            swalError('Warning', 'Please Select Atleast One Fields!');
+            return;
+        }
+        getStaffTable(company_id, branch_id, department_id);
     });
     // Radio Change
     $('#view_staff').on('click', function () {
@@ -827,7 +834,7 @@ $(document).ready(function () {
         let company_id = $('#company_search').val();
         let branch_id = $('#branch_search').val();
         let department_id = $('#department_search').val();
-
+        $('.radio-card').show();
         if (!company_id && !branch_id && !department_id) {
             swalError('Warning', 'Please Select Atleast One Fields!');
             return;
@@ -1294,7 +1301,7 @@ async function getBranchList(company_id, selector) {
             dataType: 'json'
         });
 
-        let appendBranchOption = '<option value="">Select Branch</option>';
+        let appendBranchOption = '<option value="">Select Branch Name</option>';
 
         $.each(response, function (index, val) {
 
@@ -1506,7 +1513,7 @@ function calculateTotals(currentInput) {
         }
     });
 
-   totalPercentage = Math.round(totalPercentage * 100) / 100;
+    totalPercentage = Math.round(totalPercentage * 100) / 100;
 
     if (totalPercentage > 100) {
         totalPercentage = 100;
@@ -1720,7 +1727,15 @@ async function editStaffProfile(id) {
 
             $('#ctc_amount_' + row.ctc_id).val(moneyFormatIndia(row.ctc_amount));
             $('#ctc_percentage_' + row.ctc_id).val(row.ctc_percentage);
+            console.log(
+                'Amount:',
+                $('#ctc_amount_' + row.ctc_id).val()
+            );
 
+            console.log(
+                'Percentage:',
+                $('#ctc_percentage_' + row.ctc_id).val()
+            );
             totalAmt += parseFloat(row.ctc_amount || 0);
             totalPer += parseFloat(row.ctc_percentage || 0);
         });
@@ -1747,6 +1762,7 @@ function enableEditMode() {
 
     /* Company Name Readonly / Disable */
     $('#company_name').prop('disabled', true);
+    $('#staff_type').prop('disabled', true);
 
     /* Occupation Card Fields Readonly */
     $('#branch_name').prop('disabled', true);
@@ -1823,6 +1839,7 @@ function resetStaffData() {
 
     $('#submit_staff').show();
     $('#company_name').prop('disabled', false);
+    $('#staff_type').prop('disabled', false);
     $('#staff_auto_id').val('');
     $('.personal_info_disble').attr("disabled", false);
     /* Occupation Card Fields */

@@ -11,6 +11,8 @@ $column = array(
     'sc.id'
 );
 
+$applicable = [1 => 'Yes', 2 => 'No'];
+
 $query = "SELECT sc.id as statutory_compliance_id, cc.company_name, st.state_name, sc.pf_applicable, sc.esi_applicable
 FROM statutory_compliance sc 
 LEFT JOIN company_creation cc ON sc.company_id = cc.id 
@@ -59,8 +61,8 @@ foreach ($result as $row) {
     $sub_array[] = $sno++;
     $sub_array[] = isset($row['company_name']) ? $row['company_name'] : '';
     $sub_array[] = isset($row['state_name']) ? $row['state_name'] : '';
-    $sub_array[] = isset($row['pf_applicable']) ? $row['pf_applicable'] . '%' : '';
-    $sub_array[] = isset($row['esi_applicable']) ? $row['esi_applicable'] . '%' : '';
+    $sub_array[] = isset($applicable[$row['pf_applicable']]) ? $applicable[$row['pf_applicable']] : '';
+    $sub_array[] = isset($applicable[$row['esi_applicable']]) ? $applicable[$row['esi_applicable']] : '';
 
     $action = "<span class='icon-border_color statutoryComplianceActionBtn' value='" . $row['statutory_compliance_id'] . "'></span>";
     $sub_array[] = $action;

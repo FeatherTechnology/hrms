@@ -5,7 +5,7 @@ $id = $_POST['id'];
 
 $cnt = '0';
 
-$qry = $pdo->query("SELECT * FROM `users` WHERE branch = '$id'");
+$qry = $pdo->query("SELECT * FROM `occupation_info` WHERE branch_id = '$id'");
 
 if ($qry->rowCount() > 0) {
     $cnt = '1';

@@ -62,7 +62,10 @@ $(document).ready(function () {
               leave_criteria_id,
             },
             function (response) {
-              if (response === "2") {
+              if (response === "3") {
+                swalError("Warning", "Leave Type already exists!");
+              }
+             else if (response === "2") {
                 swalSuccess("Success", "Leave Criteria Added Successfully!");
               } else if (response === "1") {
                 swalSuccess("Success", "Leave Criteria Updated Successfully!");
@@ -338,10 +341,13 @@ function getLeaveInfoDelete(id) {
     { id },
     function (response) {
       if (response == "1") {
-        swalSuccess("Success", "Leave Info Deleted Successfully!");
+        swalSuccess("Success", "Leave Type Deleted Successfully!");
         getLeaveInfoTable();
+      }else if (response == "2") {
+        swalError("Warning", "Leave Type is already used in Regularization!");
+
       } else {
-        swalError("Warning", "Error occur While Delete Leave Info.");
+        swalError("Warning", "Error occur While Delete Leave Type.");
       }
     },
     "json",
@@ -443,6 +449,8 @@ function getShiftInfoDelete(id) {
       if (response == "1") {
         swalSuccess("Success", "Shift Info Deleted Successfully!");
         getShiftInfoTable();
+      }else if (response == "2") {
+        swalError("Warning", "Shift is already used in Staff Creation!");
       } else {
         swalError("Warning", "Error occur While Delete Shift Info.");
       }

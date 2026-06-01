@@ -57,7 +57,9 @@ $(document).ready(function () {
               team_id,
             },
             function (response) {
-              if (response === "2") {
+              if (response === "3") {
+                swalError("Warning", "Team already exists!");
+              } else if (response === "2") {
                 swalSuccess("Success", "Team Added Successfully!");
               } else if (response === "1") {
                 swalSuccess("Success", "Team Updated Successfully!");
@@ -152,6 +154,7 @@ $(document).ready(function () {
           }
 
           $("#team_creation_id").val("");
+          $("#team_name2").val("");
           $("#team_creation").trigger("reset");
           getTeamTable();
           swapTableAndCreation(); //to change to div to table content.
@@ -353,7 +356,9 @@ function getTeamModalDelete(id) {
       if (response == "1") {
         swalSuccess("Success", "Team Info Delete Successfully!");
         getTeamNameTable();
-      } else {
+      }else if (response == "2") {
+        swalError("Warning", "Team is already used in Staff Creation!");
+      }  else {
         swalError("Warning", "Error occur While Delete Team Info.");
       }
     },

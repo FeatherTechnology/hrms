@@ -10,7 +10,7 @@ $location_mapping_arr = array();
 
 $qry = $pdo->query("SELECT lam.id, bc.branch_name, bcs.branch_name AS assigned_branch_name, lam.from_date, lam.to_date, lam.lattitude_longitude , lam.staff_profile_id
         FROM location_access_mapping lam
-        LEFT JOIN occupation_info oi ON lam.staff_profile_id = oi.staff_profile_id
+        LEFT JOIN occupation_info oi ON oi.id = (SELECT MAX(id) FROM occupation_info WHERE staff_profile_id = lam.staff_profile_id)
         LEFT JOIN branch_creation bc ON oi.branch_id = bc.id 
         LEFT JOIN staff_creation sc ON oi.staff_profile_id = sc.id
         LEFT JOIN branch_creation bcs ON lam.assigned_branch = bcs.id

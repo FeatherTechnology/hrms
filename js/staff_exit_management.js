@@ -67,12 +67,14 @@ $(document).ready(function () {
         }
 
     });
-    $('#submit_staff_exit').click(async function (event) {
+    $('#submit_staff_exit').click(function (event) {
 
         event.preventDefault();
+
         let company_id = $('#company_search').val();
         let branch_id = $('#branch_search').val();
         let department_id = $('#department_search').val();
+
         // Check document rows and return date before submit
         let rowCount = $('#doc_info_table').DataTable().rows().count();
 
@@ -82,7 +84,7 @@ $(document).ready(function () {
 
             $('#doc_info_table tbody tr').each(function () {
 
-                let returnDate = $(this).find('td:eq(5)').text().trim(); // return_date column
+                let returnDate = $(this).find('td:eq(5)').text().trim();
 
                 if (returnDate === '' || returnDate === '-' || returnDate == null) {
                     allReturned = false;
@@ -115,36 +117,46 @@ $(document).ready(function () {
             }
         });
 
-        if (isValid) {
-
-            $.post(
-                'api/staff_creation/submit_staff_exit.php',
-                {
-                    staff_profile_id,
-                    notice_per_served,
-                    last_wrk_day,
-                    exit_type,
-                    reason
-                },
-                function (response) {
-
-                    if (response == '1') {
-
-                        swalSuccess('Success', 'Staff Exit Added Successfully!');
-
-                    } else {
-
-                        swalError('Error', 'Something Went Wrong');
-                    }
-
-
-
-                    getStaffTable(company_id, branch_id, department_id);
-
-                    swapTableAndCreation();
-                }
-            );
+        if (!isValid) {
+            return false;
         }
+
+        swalConfirm(
+            'Are you sure?',
+            'Do you want to submit this Staff Exit?',
+            function () {
+
+                $('#submit_staff_exit').prop('disabled', true);
+
+                $.post(
+                    'api/staff_creation/submit_staff_exit.php',
+                    {
+                        staff_profile_id: staff_profile_id,
+                        notice_per_served: notice_per_served,
+                        last_wrk_day: last_wrk_day,
+                        exit_type: exit_type,
+                        reason: reason
+                    },
+                    function (response) {
+
+                        $('#submit_staff_exit').prop('disabled', false);
+
+                        if (response == '1') {
+
+                            swalSuccess('Success', 'Staff Exit Added Successfully!');
+
+                            getStaffTable(company_id, branch_id, department_id);
+                            swapTableAndCreation();
+
+                        } else {
+
+                            swalError('Error', 'Something Went Wrong');
+                        }
+                    }
+                );
+            }
+        );
+
     });
 
 });
@@ -282,7 +294,7 @@ async function getBranchList(company_id, selector) {
             dataType: 'json'
         });
 
-        let appendBranchOption = '<option value="">Select Branch</option>';
+        let appendBranchOption = '<option value="">Select Branch Name</option>';
 
         $.each(response, function (index, val) {
 

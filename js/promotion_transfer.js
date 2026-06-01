@@ -1,133 +1,56 @@
 $(document).ready(function () {
 
-    // Initially hide all contents
+    // Initially disable all editable sections
+    disableAllSections();
+
+    // Hide form initially
     $('#promotion_transfer_content').hide();
-    $('.promotion-card').hide();
-    $('.transfer-card').hide();
-    $('.increment-card').hide();
     $('#back_btn').hide();
 
-    // Button click event
+    // Common Button Click
     $('.staff_status_btn').click(function () {
-
-        let buttonClass = $(this).attr('class');
-        $('.outer_search_card').hide();
-
-
-        // Hide table list
-        $('.promotion_transfer_table_content').hide();
-        $('.outer_status_card').hide();
-
-        // Show form content
+        // Show form
         $('#promotion_transfer_content').show();
-
+        // Hide list
+        $('.promotion_transfer_table_content').hide();
+        $('.outer_search_card').hide();
+        $('.outer_status_card').hide();
         // Show back button
         $('#back_btn').show();
-
-        // First hide all sections
-        $('.promotion-card').hide();
-        $('.transfer-card').hide();
-        $('.increment-card').hide();
-
-        // Promotion
-        if ($(this).hasClass('promo_status')) {
-
-            $('.promotion-card').show();
-            $('.branch_div').hide();
-
-        }
-
-        // Transfer
-        else if ($(this).hasClass('trans_status')) {
-
-            $('.transfer-card').show();
-            $('.reporting_person_div').hide();
-             $('.branch_div').hide();
-
-        }
-
-        // Increment
-        else if ($(this).hasClass('inc_status')) {
-
-            $('.increment-card').show();
-            $('.reporting_person_div').hide();
-            $('.branch_div').hide();
-
-        }
+        // Disable everything first
+        disableAllSections();
     });
 
-    // Promotion
     $('.promo_status').click(async function () {
-
-        $('.promotion_transfer_table_content').hide();
-
-        $('#promotion_transfer_content').show();
-
-        $('#back_btn').show();
-
-        // Hide all cards first
-        $('.promotion-card').hide();
-        $('.transfer-card').hide();
-        $('.increment-card').hide();
-        $('#effective_date').val('');
-
-        // Show promotion section
-        $('.promotion-card').show();
-
-        // Call Edit Function
         await editStaffProfile();
-
+        enablePromotionSection();
     });
 
-
-    // Transfer
     $('.trans_status').click(async function () {
-        $('.promotion_transfer_table_content').hide();
-        $('#promotion_transfer_content').show();
-        $('#back_btn').show();
-        $('#effective_date').val('');
-        // Hide all cards first
-        $('.promotion-card').hide();
-        $('.transfer-card').hide();
-        $('.increment-card').hide();
-        // Show transfer section
-        $('.transfer-card').show();
-        // Call Edit Function
         await editStaffProfile();
+        enableTransferSection();
     });
 
-
-    // Increment
     $('.inc_status').click(async function () {
-
-        $('.promotion_transfer_table_content').hide();
-        $('#promotion_transfer_content').show();
-        $('#back_btn').show();
-        // Hide all cards first
-        $('.promotion-card').hide();
-        $('.transfer-card').hide();
-        $('.increment-card').hide();
-        $('#effective_date').val('');
-        // Show increment section
-        $('.increment-card').show();
-        // Call Edit Function
         await editStaffProfile();
+        enableIncrementSection();
     });
 
 
     // Back Button
     $('#back_btn').click(function () {
+
         $('#promotion_transfer_content').hide();
-        $('.promotion-card').hide();
-        $('.transfer-card').hide();
-        $('.increment-card').hide();
+
         $('.promotion_transfer_table_content').show();
         $('.outer_search_card').show();
         $('.outer_status_card').show();
+
         $('#back_btn').hide();
 
-    });
+        disableAllSections();
 
+    });
 
     // Company Change
     $('#company_search').on('change', function () {
@@ -187,7 +110,6 @@ $(document).ready(function () {
     });
 
     $('#designation').on('change', async function () {
-
         let selectedLevel = parseInt($('#designation option:selected').data('level'));
         let company_id = $('#company_name').val();
         await getReportingPerson(company_id, selectedLevel);
@@ -252,8 +174,10 @@ $(document).ready(function () {
         let staff_id = $('#staff_auto_id').val();
         let staff_type = $('#staff_type').val();
         let data = ['company_name', 'effective_date'];
+        let occStatusText = '';
         // Promotion
         if (occ_status == 1) {
+            occStatusText = 'Promotion';
             data.push('designation');
             if ($('#staff_type').val() != '1') {
                 data.push('reporting_person');
@@ -261,6 +185,7 @@ $(document).ready(function () {
         }
         // Transfer
         else if (occ_status == 2) {
+            occStatusText = 'Transfer';
             data.push('branch_name', 'department', 'team', 'branch_admin');
             if ($('#branch_admin').val() == '1') {
                 data.push('branch');
@@ -268,6 +193,7 @@ $(document).ready(function () {
         }
         // Increment
         else if (occ_status == 3) {
+            occStatusText = 'Increment';
             data.push(
                 'pf_available', 'esi_available', 'pt_available', 'total_ctc');
         }
@@ -375,34 +301,47 @@ $(document).ready(function () {
             if (occ_status == 3) {
                 postData.ctcDetails = JSON.stringify(ctcDetails);
             }
+            swalConfirm(
+                'Are you sure?',
+                `Do you want to submit this ${occStatusText}?`,
+                async function () {
 
-            try {
-                const response = await $.post('api/promotion_transfer/submit_staff_data.php', postData);
-                let result = JSON.parse(response);
-                if (result.result == '1') {
-                    swalSuccess('Success', 'Submitted Successfully!');
-                    getStaffTable(company_id, status, department_id, id);
-                    $('#promotion_transfer_content').hide();
+                    $('#submit_staff_data').attr('disabled', true);
 
-                    $('.promotion-card').hide();
-                    $('.transfer-card').hide();
-                    $('.increment-card').hide();
+                    try {
+                        const response = await $.post(
+                            'api/promotion_transfer/submit_staff_data.php',
+                            postData
+                        );
 
-                    $('.promotion_transfer_table_content').show();
-                    $('.outer_search_card').show();
-                    $('.outer_status_card').show();
-                    $('#back_btn').hide();
-                } else {
-                    swalError('Error', 'Something Went Wrong');
+                        let result = JSON.parse(response);
 
+                        if (result.result == '1') {
+                            swalSuccess('Success', 'Submitted Successfully!');
+
+                            getStaffTable(company_id, status, department_id, id);
+
+                            $('#promotion_transfer_content').hide();
+                            $('.promotion_transfer_table_content').show();
+                            $('.outer_search_card').show();
+                            $('.outer_status_card').show();
+                            $('#back_btn').hide();
+
+                        } else {
+                            swalError('Error', 'Something Went Wrong');
+                        }
+
+                    } catch (error) {
+                        console.error(error);
+                        swalError('Error', 'Ajax Error Occurred');
+
+                    } finally {
+                        $('#submit_staff_data').attr('disabled', false);
+                    }
                 }
-
-            } catch (error) {
-                console.error(error);
-                swalError('Error', 'Ajax Error Occurred');
-            }
+            );
         }
-    });
+        });
 
 
     // Active Button Class
@@ -522,46 +461,102 @@ async function getStaffList(company_id, dept_id, status) {
 }
 
 async function editStaffProfile() {
+
     let staff_id = $('#staff_search').val();
+
     try {
-        const response = await $.post('api/staff_creation/staff_profile_data.php', { id: staff_id }, null, 'json');
+
+        const response = await $.post(
+            'api/staff_creation/staff_profile_data.php',
+            { id: staff_id },
+            null,
+            'json'
+        );
+
         if (!response || response.length === 0) {
             console.error("No customer data returned.");
             return;
         }
+
         const data = response.staff;
         const ctcData = response.ctc;
+
         $('#staff_profile_id').val(data.id);
+
         $('#staff_auto_id').val(data.staff_id);
-        await getCompanyName('#company_name')
+
+        await getCompanyName('#company_name');
+
         $('#company_name').val(data.company_id);
         $('#company_name').trigger('change');
+
         await getBranchList(data.company_id, '#branch_name,#branch');
         await getDepartmentList(data.company_id, '#department', data.department);
         await getDesignationList(data.company_id, data.designation);
+        await getCTCInfoTable(data.company_id);
+        setCTCTableReadonly(true);
+        $('#designation').val(data.designation);
+        // General Info
         $('#staff_name').val(data.staff_name);
         $('#staff_type').val(data.staff_type);
-        let occ_status = $('.staff_status_btn.active').data('value');
-        if (occ_status == 1) {
-            $('#staff_type').trigger('change');
-        }
         $('#joining_date').val(data.joining_date);
+
+        // Occupation Info
+        $('#branch_name').val(data.branch_id);
+        $('#department').val(data.department);
+        $('#team').val(data.team);
+
+
+
+        let selectedLevel = parseInt(
+            $('#designation option:selected').data('level')
+        );
+        await getReportingPerson(data.company_id, selectedLevel);
+
+        $('#reporting_person').val(data.reporting_person);
+        $('#branch_admin').val(data.branch_admin);
+        $('#branch').val(data.branch);
+        $('#staff_type').trigger('change');
+        $('#branch_admin').trigger('change');
+        // Increment Info
+        $('#pf_available').val(data.pf_available);
+        $('#esi_available').val(data.esi_available);
+        $('#pt_available').val(data.pt_available);
+        $('#total_ctc').val(moneyFormatIndia(data.total_ctc));
+        await getTeamList(data.department, data.team)
+
+        /* then set selected team */
+        $('#team').val(data.team);
+        let totalAmt = 0;
+        let totalPer = 0;
+
+        $.each(ctcData, function (index, row) {
+
+            $('#ctc_amount_' + row.ctc_id).val(moneyFormatIndia(row.ctc_amount));
+            $('#ctc_percentage_' + row.ctc_id).val(row.ctc_percentage);
+
+            totalAmt += parseFloat(row.ctc_amount || 0);
+            totalPer += parseFloat(row.ctc_percentage || 0);
+        });
+
+        $('#total_ctc_amount').val(moneyFormatIndia(totalAmt));
+        $('#total_ctc_percentage').val(totalPer);
+
+        // Disable readonly fields
         $('#company_name').prop('disabled', true);
         $('#staff_type').prop('disabled', true);
-        $('#team').val('')
-        $('#branch_admin').val('')
-        $('#pf_available').val('')
-        $('#pt_available').val('')
-        $('#esi_available').val('')
-        $('#total_ctc').val('')
-        $('#total_ctc_percentage').val('')
-        $('#total_ctc_amount').val('')
-        await getCTCInfoTable(data.company_id);
-    } catch (error) {
-        console.error('Error in editStaffProfile:', error);
-    }
-}
 
+
+    } catch (error) {
+
+        console.error(
+            'Error in editStaffProfile:',
+            error
+        );
+
+    }
+
+}
 
 function getCTCInfoTable(company_id) {
     return $.ajax({
@@ -622,7 +617,7 @@ async function getBranchList(company_id, selector) {
             dataType: 'json'
         });
 
-        let appendBranchOption = '<option value="">Select Branch</option>';
+        let appendBranchOption = '<option value="">Select Branch Name</option>';
 
         $.each(response, function (index, val) {
 
@@ -699,7 +694,6 @@ async function getTeamList(dep_id, selected_team = '') {
 }
 
 async function getReportingPerson(company_id, selectedLevel) {
-
     try {
 
         if (!selectedLevel) {
@@ -754,7 +748,6 @@ function toggleBranchField() {
 }
 
 function toggleReportingField() {
-      $('#reporting_person').val('');
     if ($('#staff_type').val() != '1') {   // Yes
         $('.reporting_person_div').show();
     } else {
@@ -853,6 +846,7 @@ function calculateTotals(currentInput) {
         return false;
     }
 }
+
 function recalculateTotals() {
 
     let totalAmount = 0;
@@ -878,4 +872,88 @@ function recalculateTotals() {
     $('#total_ctc_amount').val(totalAmount);
 
     $('#total_ctc_percentage').val(totalPercentage);
+}
+
+function disableAllSections() {
+    // Transfer Fields - disable and keep value
+    $('#branch_name').prop('disabled', true);
+    $('#department').prop('disabled', true);
+    $('#team').prop('disabled', true);
+    $('#reporting_person').prop('disabled', true);
+    $('#branch_admin').prop('disabled', true);
+    $('#branch').prop('disabled', true);
+    $('#effective_date').val('');
+
+    // Promotion Fields - disable and keep value
+    $('#designation').prop('disabled', true);
+
+    // Increment Fields - disable and keep value
+    $('#pf_available').prop('disabled', true);
+    $('#esi_available').prop('disabled', true);
+    $('#pt_available').prop('disabled', true);
+    $('#total_ctc').prop('disabled', true);
+    $('.ctc_amount').prop('readonly', true);
+    $('.ctc_percentage').prop('readonly', true);
+
+    $('.branch_div').hide();
+
+    // Table Inputs
+    $('#ctc_info_table').find('input, select').prop('disabled', true);
+}
+
+function enablePromotionSection() {
+    // Enable ONLY designation, clear it for new selection
+    setCTCTableReadonly(true);
+    $('#designation').prop('disabled', false);
+    $('#reporting_person').prop('disabled', false);
+    $('#designation').val(''); // Clear to force new selection
+    $('#reporting_person').val(''); // Clear to force new selection
+}
+
+function enableTransferSection() {
+    // Enable ONLY transfer fields, clear them for new selection
+    setCTCTableReadonly(true);
+    $('#branch_name').prop('disabled', false);
+    $('#branch').prop('disabled', false);
+    $('#department').prop('disabled', false);
+    $('#team').prop('disabled', false);
+    $('#branch_admin').prop('disabled', false);
+    $('.branch_div').hide();
+
+    // Clear values for new selection
+    $('#branch_name').val('');
+    $('#branch').val('');
+    $('#department').val('');
+    $('#team').val('');
+    $('#branch_admin').val('');
+
+}
+
+function enableIncrementSection() {
+    // Enable ONLY increment fields, clear them for new selection
+    $('#pf_available').prop('disabled', false);
+    $('#esi_available').prop('disabled', false);
+    $('#pt_available').prop('disabled', false);
+    $('#total_ctc').prop('disabled', false);
+
+    // Enable CTC Table
+    $('#ctc_info_table').find('input, select').prop('disabled', false);
+    $('.ctc_amount').prop('readonly', false);
+
+    // Clear values for new selection
+    $('#pf_available').val('');
+    $('#esi_available').val('');
+    $('#pt_available').val('');
+    $('#total_ctc').val('');
+    $('.ctc_amount').prop('readonly', false).val('');
+    $('.ctc_percentage').val('');
+
+    $('#total_ctc_amount').val('');
+    $('#total_ctc_percentage').val('');
+}
+
+function setCTCTableReadonly(isReadonly) {
+    $('#ctc_info_table tbody .ctc_amount').prop('readonly', isReadonly);
+    $('#ctc_info_table tbody .ctc_percentage').prop('readonly', true);
+
 }

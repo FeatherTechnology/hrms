@@ -100,7 +100,7 @@ $(document).ready(function () {
     let percentage = $("#percentage").val();
     let slab = $("#slab").val();
     let statutory_compliance_id = $("#statutory_compliance_id").val();
-
+    console.log('ADSD', company_id);
     var data = ["company_name", "state", "pf_applicable", "esi_applicable"];
 
     var isValid = true;
@@ -182,6 +182,8 @@ $(document).ready(function () {
 
       await swapTableAndCreation();
       $("#statutory_compliance_id").val(id);
+      await getCompanyName(response[0].company_id);
+
       $("#company_name").val(response[0].company_id);
       $("#state").val(response[0].state);
       $("#pf_applicable").val(response[0].pf_applicable);
@@ -286,33 +288,66 @@ async function swapTableAndCreation() {
   }
 }
 
-async function getCompanyName() {
+async function getCompanyName(editCompanyId = "") {
+
   return new Promise((resolve, reject) => {
+
+    // Get all companies
     $.post(
       "api/branch_creation/getCompanyName.php",
       {},
+      function (companyResponse) {
 
-      function (response) {
-        let dropdown = $("#company_name");
-        dropdown.empty();
-        dropdown.append('<option value="">Select Company Name</option>');
-        $.each(response, function (index, item) {
-          dropdown.append(
-            `<option value="${item.id}">${item.company_name}
-                        </option>`,
-          );
+        // Get already used company ids
+        $.post(
+          "api/statutory_compliance_files/getStatutoryCompanyIds.php",
+          {},
+          function (usedCompanies) {
+
+            let usedIds = usedCompanies.map(String);
+
+            let dropdown = $("#company_name");
+
+            dropdown.empty();
+            dropdown.append('<option value="">Select Company Name</option>');
+
+            $.each(companyResponse, function (index, item) {
+
+              let companyId = item.id.toString();
+
+              let isDisabled =
+                usedIds.includes(companyId) &&
+                companyId !== editCompanyId.toString();
+
+              dropdown.append(`
+                                <option value="${companyId}"
+                                    ${isDisabled ? "disabled" : ""}>
+                                    ${item.company_name}
+                                    ${isDisabled ? "" : ""}
+                                </option>
+                            `);
+            });
+
+            if (editCompanyId !== "") {
+              dropdown.val(editCompanyId);
+            }
+
+            resolve();
+
+          },
+          "json"
+        ).fail(function (xhr, status, error) {
+          reject(error);
         });
 
-        resolve();
       },
-
-      "json",
+      "json"
     ).fail(function (xhr, status, error) {
       reject(error);
     });
+
   });
 }
-
 async function getStateList() {
   return new Promise((resolve, reject) => {
     $.post(
