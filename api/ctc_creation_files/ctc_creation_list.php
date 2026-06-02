@@ -1,37 +1,51 @@
 <?php
 
+/** CTC Component List **
+ * Purpose:
+ * - Fetches all active CTC components for the selected company.
+ * - Converts classification, category, and pay frequency codes to display values.
+ * - Adds Edit and Delete action buttons for each record.
+ * - Returns CTC component data in JSON format for DataTable/Grid display.
+ */
+
 require '../../ajaxconfig.php';
 
 $company_id = $_POST['company_id'];
 
-$ctc_list_arr = array();
+$ctc_list_arr = [];
 
 $i = 0;
 
-$qry = $pdo->query("SELECT * FROM ctc_creation WHERE company_id = '$company_id' AND status = 0");
+$stmt = $pdo->prepare("SELECT *
+    FROM ctc_creation
+    WHERE company_id = ?
+    AND status = ?
+");
 
-if ($qry->rowCount() > 0) {
+$stmt->execute([$company_id, 0]);
 
-    while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
+if ($stmt->rowCount() > 0) {
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
         // Component Classification
         if ($row['component_classification'] == 1) {
             $row['component_classification'] = 'CTC';
-        } else if ($row['component_classification'] == 2) {
+        } elseif ($row['component_classification'] == 2) {
             $row['component_classification'] = 'NON CTC';
         }
 
         // Component Category
         if ($row['component_category'] == 1) {
             $row['component_category'] = 'Salary';
-        } else if ($row['component_category'] == 2) {
+        } elseif ($row['component_category'] == 2) {
             $row['component_category'] = 'Reimbursement';
         }
 
         // Pay Frequency
         if ($row['pay_frequency'] == 1) {
             $row['pay_frequency'] = 'Per Month';
-        } else if ($row['pay_frequency'] == 2) {
+        } elseif ($row['pay_frequency'] == 2) {
             $row['pay_frequency'] = 'Per Day';
         }
 
@@ -48,6 +62,6 @@ if ($qry->rowCount() > 0) {
     }
 }
 
-$pdo = null;
+$pdo = null; // Close Connection
 
 echo json_encode($ctc_list_arr);

@@ -23,7 +23,7 @@
             <button class="btn btn-primary addcompanyBtn" id="add_company"><span class="icon-add"></span> Add Company Creation</button>
             <button class="btn btn-primary backBtn" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
         </div></br>
-        <!----------------------------- CARD START COMPANY CREATION TABLE------------------------------>
+        <!--- CARD START COMPANY CREATION TABLE --->
         <div class="card company_table_content">
             <div class="card-body">
                 <div class="row">
@@ -45,10 +45,10 @@
                 </div>
             </div>
         </div>
-        <!----------------------------- CARD END COMPANY CREATION TABLE------------------------------>
+        <!--- CARD END COMPANY CREATION TABLE ---->
 
 
-        <!----------------------------- CARD START COMPANY CREATION FORM------------------------------>
+        <!--- CARD START COMPANY CREATION FORM --->
         <div id="company_creation_content" style="display:none;">
             <form id="company_creation" name="company_creation" method="post" enctype="multipart/form-data">
                 <input type="hidden" id="companyid">
@@ -110,27 +110,27 @@
                                     <div class="col-md-4 col-sm-6">
                                         <div class="form-group">
                                             <label for="pincode">Pincode</label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control" id="pincode" name="pincode" placeholder="Enter Pincode" onKeyPress="if(this.value.length==6) return false;" tabindex="7">
+                                            <input type="number" class="form-control" id="pincode" name="pincode" placeholder="Enter Pincode" onKeyPress="if(this.value.length==6) return false;" tabindex="8">
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-6">
                                         <div class="form-group">
                                             <label for="mobile">Mobile No.</label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile Number" onKeyPress="if(this.value.length==10) return false;" tabindex="8">
+                                            <input type="number" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile Number" onKeyPress="if(this.value.length==10) return false;" tabindex="9">
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-6">
                                         <div class="form-group">
                                             <label for="whatsapp">Whatsapp No.</label>
-                                            <input type="number" class="form-control" id="whatsapp" name="whatsapp" placeholder="Enter whatsapp Vumber" onKeyPress="if(this.value.length==10) return false;" tabindex="9">
+                                            <input type="number" class="form-control" id="whatsapp" name="whatsapp" placeholder="Enter whatsapp Vumber" onKeyPress="if(this.value.length==10) return false;" tabindex="10">
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="landline">Landline Number</label>
                                             <div class="input-group" style="gap:12px">
-                                                <input type="number" class="form-control" id="landline_code" name="landline_code" onKeyPress="if(this.value.length==5) return false;" tabindex="12" placeholder="Enter Code" style="max-width: 95px;">
-                                                <input type="number" class="form-control" id="landline" name="landline" onKeyPress="if(this.value.length==8) return false;" placeholder="Enter Landline Number" tabindex="10">
+                                                <input type="number" class="form-control" id="landline_code" name="landline_code" onKeyPress="if(this.value.length==5) return false;" tabindex="11" placeholder="Enter Code" style="max-width: 95px;">
+                                                <input type="number" class="form-control" id="landline" name="landline" onKeyPress="if(this.value.length==8) return false;" placeholder="Enter Landline Number" tabindex="12">
                                             </div>
                                         </div>
                                     </div>
@@ -148,24 +148,24 @@
                                         <div class="form-group">
                                             <label for="department_name">Department</label><span class="text-danger">*</span>
                                             <input type="hidden" id="department_name2">
-                                            <select class="form-control" id="department_name" name="department_name[]" tabindex="4" multiple></select>
+                                            <select class="form-control" id="department_name" name="department_name[]" tabindex="13" multiple></select>
                                         </div>
                                     </div>
                                     <div class="col-md-1 col-sm-2" style="margin-top: 18px;">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary modalBtnCss" tabindex="5" data-toggle="modal" data-target="#add_department_info" onclick="getDepartmentNameTable()"><span class="icon-add"></span></button>
+                                            <button type="button" class="btn btn-primary modalBtnCss" id="add_department" tabindex="14" data-toggle="modal" data-target="#add_department_info" onclick="getDepartmentNameTable()"><span class="icon-add"></span></button>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-sm-4">
                                         <div class="form-group">
                                             <label for="designation_name">Designation</label><span class="text-danger">*</span>
                                             <input type="hidden" id="designation_name2">
-                                            <select class="form-control" id="designation_name" name="designation_name[]" tabindex="4" multiple></select>
+                                            <select class="form-control" id="designation_name" name="designation_name[]" tabindex="15" multiple></select>
                                         </div>
                                     </div>
                                     <div class="col-md-1 col-sm-2" style="margin-top: 18px;">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary modalBtnCss" tabindex="5" data-toggle="modal" data-target="#add_designation_info" onclick="getDesignationNameTable()"><span class="icon-add"></span></button>
+                                            <button type="button" class="btn btn-primary modalBtnCss" tabindex="16" data-toggle="modal" data-target="#add_designation_info" onclick="getDesignationNameTable()"><span class="icon-add"></span></button>
                                         </div>
                                     </div>
                                 </div>
@@ -183,37 +183,37 @@
                                     <div class="col-md-4 col-sm-6">
                                         <div class="form-group">
                                             <label for="website">Website</label>
-                                            <input type="text" class="form-control" id="website" name="website" placeholder="Enter Website Name" tabindex="11">
+                                            <input type="text" class="form-control" id="website" name="website" placeholder="Enter Website Name" tabindex="17">
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-6">
                                         <div class="form-group">
                                             <label for="mailid">Mail ID</label>
-                                            <input type="email" class="form-control" id="mailid" name="mailid" placeholder="Enter Mail ID" tabindex="12">
+                                            <input type="email" class="form-control" id="mailid" name="mailid" placeholder="Enter Mail ID" tabindex="18">
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-6">
                                         <div class="form-group">
                                             <label for="instagram">Instagram ID</label>
-                                            <input type="text" class="form-control" id="instagram" name="instagram" placeholder="Enter instagram ID" tabindex="13">
+                                            <input type="text" class="form-control" id="instagram" name="instagram" placeholder="Enter instagram ID" tabindex="19">
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-6">
                                         <div class="form-group">
                                             <label for="youtube_link">Youtube Link</label>
-                                            <input type="text" class="form-control" id="youtube_link" name="youtube_link" placeholder="Enter Youtube Link" tabindex="14">
+                                            <input type="text" class="form-control" id="youtube_link" name="youtube_link" placeholder="Enter Youtube Link" tabindex="20">
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-6">
                                         <div class="form-group">
                                             <label for="facebook">Facebook ID</label>
-                                            <input type="text" class="form-control" id="facebook" name="facebook" placeholder="Enter Facebook ID" tabindex="15">
+                                            <input type="text" class="form-control" id="facebook" name="facebook" placeholder="Enter Facebook ID" tabindex="21">
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-6">
                                         <div class="form-group">
                                             <label for="twitter">Twitter</label>
-                                            <input type="text" class="form-control" id="twitter" name="twitter" placeholder="Enter Twitter " tabindex="16">
+                                            <input type="text" class="form-control" id="twitter" name="twitter" placeholder="Enter Twitter " tabindex="22">
                                         </div>
                                     </div>
                                 </div>
@@ -221,21 +221,19 @@
                         </div>
 
                         <div class="col-12 mt-3 text-right">
-                            <button name="submit_company_creation" id="submit_company_creation" class="btn btn-primary" tabindex="14"><span class="icon-check"></span>&nbsp;Submit</button>
-                            <button type="reset" class="btn btn-outline-secondary" tabindex="17">Clear</button>
+                            <button name="submit_company_creation" id="submit_company_creation" class="btn btn-primary" tabindex="23"><span class="icon-check"></span>&nbsp;Submit</button>
+                            <button type="reset" class="btn btn-outline-secondary" tabindex="24">Clear</button>
                         </div>
 
                     </div>
                 </div>
             </form>
         </div>
-        <!----------------------------- CARD END  COMPANY CREATION FORM------------------------------>
-
+        <!--- CARD END  COMPANY CREATION FORM ---->
     </div>
 </div>
 
-<!------------------------------------------------------------------ Department Info Modal start  ----------------------------------------------------------------------------->
-
+<!--- Department Info Modal start --->
 <div class="modal fade" id="add_department_info" tabindex="1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document">
         <div class="modal-content" style="background-color: white">
@@ -295,11 +293,9 @@
         </div>
     </div>
 </div>
+<!--- Department Info Modal End --->
 
-<!----------------------------------------------------------------- Department Info Modal End ----------------------------------------------------------------------------->
-
-<!------------------------------------------------------------------ Designation Info Modal start  ----------------------------------------------------------------------------->
-
+<!--- Designation Info Modal start --->
 <div class="modal fade" id="add_designation_info" tabindex="1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document">
         <div class="modal-content" style="background-color: white">
@@ -360,5 +356,4 @@
         </div>
     </div>
 </div>
-
-<!----------------------------------------------------------------- Family Modal End ----------------------------------------------------------------------------->
+<!--- Designation Info Modal End --->

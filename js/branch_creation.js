@@ -1,8 +1,10 @@
 $(document).ready(function () {
+  /* --- Add Company Button & Back Button Click --- */
   $(document).on("click", "#add_branch, #back_btn", function () {
     swapTableAndCreation();
   });
 
+  /* --- Branch Creation On Change Events --- */
   $("#company_name").on("change", function () {
     getBranchCode();
   });
@@ -23,6 +25,7 @@ $(document).ready(function () {
     validateEmail($(this).val(), $(this).attr("id"));
   });
 
+  /* --- Submit Branch Creation --- */
   $("#submit_branch_creation").click(function () {
     event.preventDefault();
     //Validation
@@ -41,6 +44,7 @@ $(document).ready(function () {
     let landline_code = $("#landline_code").val();
     let location = $("#location").val();
     let branchid = $("#branchid").val();
+
     var data = [
       "company_name",
       "branch_code",
@@ -51,6 +55,7 @@ $(document).ready(function () {
       "pincode",
       "location",
     ];
+
     var isValid = true;
     data.forEach(function (entry) {
       var fieldIsValid = validateField($("#" + entry).val(), entry);
@@ -86,6 +91,7 @@ $(document).ready(function () {
           } else {
             swalError("Error", "Error Occurs!");
           }
+
           $("#branchid").val("");
           $("#branch_creation").trigger("reset");
           getBranchTable();
@@ -95,6 +101,7 @@ $(document).ready(function () {
     }
   });
 
+  /* --- Edit Branch Creation --- */
   $(document).on("click", ".branchActionBtn", async function () {
     var id = $(this).attr("value"); // Get value attribute
 
@@ -131,6 +138,7 @@ $(document).ready(function () {
     }
   });
 
+  /* --- Delete Branch Creation --- */
   $(document).on("click", ".branchDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -142,6 +150,7 @@ $(document).ready(function () {
     return;
   });
 
+  /* --- Branch Creation Reset --- */
   $('button[type="reset"], #back_btn').click(function () {
     event.preventDefault();
     $("input").each(function () {
@@ -160,10 +169,12 @@ $(document).ready(function () {
   });
 }); //Document END///
 
+/* --- On Load --- */
 $(function () {
   getBranchTable();
 });
 
+/* --- Swap Table and hide/show --- */
 function swapTableAndCreation() {
   if ($(".branch_table_content").is(":visible")) {
     $(".branch_table_content").hide();
@@ -175,13 +186,13 @@ function swapTableAndCreation() {
     getStateList();
   } else {
     $(".branch_table_content").show();
-    // Check limit and show/hide button properly
-    toggleAddButton();
+    getBranchLimit(); // Check limit and show/hide button properly
     $("#branch_creation_content").hide();
     $(".backBtn").hide();
   }
 }
 
+/* --- Branch Creation Outer List Table --- */
 async function getBranchTable() {
   await new Promise((resolve) => {
     serverSideTable(
@@ -197,10 +208,11 @@ async function getBranchTable() {
     });
   });
 
-  toggleAddButton();
+  getBranchLimit();
 }
 
-function toggleAddButton() {
+/* --- Get Branch Limit --- */
+function getBranchLimit() {
   $.ajax({
     url: "api/common_files/get_limit.php",
     type: "GET",
@@ -234,6 +246,7 @@ function toggleAddButton() {
   });
 }
 
+/* --- Get Company Name --- */
 async function getCompanyName() {
   return new Promise((resolve, reject) => {
     $.post(
@@ -261,6 +274,7 @@ async function getCompanyName() {
   });
 }
 
+/* --- Get Branch Code --- */
 function getBranchCode() {
   var company_name = $("#company_name").val();
 
@@ -285,6 +299,7 @@ function getBranchCode() {
   });
 }
 
+/* --- Get State List --- */
 function getStateList() {
   $.post(
     "api/common_files/get_state_list.php",
@@ -300,6 +315,8 @@ function getStateList() {
     "json",
   );
 }
+
+/* --- Get District List --- */
 async function getDistrictList(state_id) {
   return new Promise((resolve, reject) => {
     $.post(
@@ -320,6 +337,7 @@ async function getDistrictList(state_id) {
   });
 }
 
+/* --- Get Branch Delete --- */
 function getBranchDelete(id) {
   $.post(
     "api/branch_creation/delete_branch_creation.php",

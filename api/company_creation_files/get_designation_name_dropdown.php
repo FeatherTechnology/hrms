@@ -1,18 +1,34 @@
 <?php
-require '../../ajaxconfig.php';
 
-$qry = $pdo->query("SELECT id, designation FROM designation_creation WHERE designation_status = 0 ORDER BY designation ASC");
+/** Designation Dropdown List **
+ * Purpose:
+ * - Fetches all active designations.
+ * - Returns designation data for dropdown selection.
+ * - Returns data in JSON format.
+ */
+
+require '../../ajaxconfig.php';
 
 $result = [];
 
-while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
+$stmt = $pdo->prepare("SELECT
+        id,
+        designation
+    FROM designation_creation
+    WHERE designation_status = ?
+    ORDER BY designation ASC
+");
+
+$stmt->execute([0]);
+
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
     $result[] = [
-        'id' => $row['id'],
+        'id'          => $row['id'],
         'designation' => $row['designation']
     ];
 }
 
-echo json_encode($result);
+$pdo = null; // Close Connection
 
-$pdo = null;
+echo json_encode($result);

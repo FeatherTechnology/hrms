@@ -62,7 +62,7 @@
                                     <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                         <div class="form-group">
                                             <label for="company_name">Company Name</label><span class="text-danger">*</span>
-                                            <select class="form-control" id="company_name" name="company_name" tabindex="6">
+                                            <select class="form-control" id="company_name" name="company_name" tabindex="1">
                                                 <option value="">Select Company Name</option>
                                             </select>
                                         </div>
@@ -79,12 +79,12 @@
                                         <div class="form-group">
                                             <label for="team_name">Team Name</label><span class="text-danger">*</span>
                                             <input type="hidden" id="team_name2">
-                                            <select class="form-control" id="team_name" name="team_name[]" tabindex="4" multiple></select>
+                                            <select class="form-control" id="team_name" name="team_name[]" tabindex="3" multiple></select>
                                         </div>
                                     </div>
                                     <div class="col-md-1 col-sm-2" style="margin-top: 18px;">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary modalBtnCss" tabindex="5" data-toggle="modal" data-target="#add_team_info" onclick="getTeamNameTable()"><span class="icon-add"></span></button>
+                                            <button type="button" class="btn btn-primary modalBtnCss" tabindex="4" data-toggle="modal" data-target="#add_team_info" onclick="getTeamNameTable()"><span class="icon-add"></span></button>
                                         </div>
                                     </div>
                                 </div>
@@ -92,8 +92,8 @@
                         </div>
 
                         <div class="col-12 mt-3 text-right">
-                            <button name="submit_team_creation" id="submit_team_creation" class="btn btn-primary" tabindex="6"><span class="icon-check"></span>&nbsp;Submit</button>
-                            <button type="reset" class="btn btn-outline-secondary" tabindex="7">Clear</button>
+                            <button name="submit_team_creation" id="submit_team_creation" class="btn btn-primary" tabindex="5"><span class="icon-check"></span>&nbsp;Submit</button>
+                            <button type="reset" class="btn btn-outline-secondary" tabindex="6">Clear</button>
                         </div>
 
                     </div>

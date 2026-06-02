@@ -19,8 +19,12 @@ $(document).ready(function () {
         'promotion_transfer': 'promotion_transfer',
         'payroll_processing': 'payroll_management',
         'pay_slip': 'payroll_management',
+        'analytics_dashboard': 'feedback_management',
+        'feedback_engagement': 'feedback_management',
         'feedback': 'my_feedbacks',
-        'attendance_ot_monitor': 'monitoring_chart'
+        'rating': 'my_feedbacks',
+        'poll': 'my_feedbacks',
+        'monitoring_chart': 'monitoring_chart'
         
     };
 

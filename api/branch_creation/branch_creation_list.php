@@ -14,7 +14,12 @@ $column = array(
     'bc.email_id',
     'bc.id'
 );
-$query = "SELECT bc.id, bc.branch_code, cc.company_name, bc.branch_name, bc.place, st.state_name, dt.district_name, bc.mobile_number, bc.email_id  FROM branch_creation bc LEFT JOIN States st ON bc.state = st.id LEFT JOIN districts dt ON bc.district = dt.id LEFT JOIN company_creation cc ON bc.company_id = cc.id WHERE 1 ";
+$query = "SELECT bc.id, bc.branch_code, cc.company_name, bc.branch_name, bc.place, st.state_name, dt.district_name, bc.mobile_number, bc.email_id  
+FROM branch_creation bc 
+LEFT JOIN States st ON bc.state = st.id 
+LEFT JOIN districts dt ON bc.district = dt.id 
+LEFT JOIN company_creation cc ON bc.company_id = cc.id 
+WHERE 1 ";
 
 if (isset($_POST['search'])) {
     if ($_POST['search'] != "") {
@@ -27,15 +32,18 @@ if (isset($_POST['search'])) {
                       OR bc.email_id LIKE '%" . $search . "%')";
     }
 }
+
 if (isset($_POST['order'])) {
     $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
 } else {
     $query .= ' ';
 }
+
 $query1 = '';
 if (isset($_POST['length']) && $_POST['length'] != -1) {
     $query1 = ' LIMIT ' . intval($_POST['start']) . ', ' . intval($_POST['length']);
 }
+
 $statement = $pdo->prepare($query);
 
 $statement->execute();

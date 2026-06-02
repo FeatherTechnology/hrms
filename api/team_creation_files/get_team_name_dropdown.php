@@ -1,18 +1,34 @@
 <?php
-require '../../ajaxconfig.php';
 
-$qry = $pdo->query("SELECT id, team_name FROM team_name_creation WHERE team_status = 0 ORDER BY team_name ASC");
+/** Team Dropdown List **
+ * Purpose:
+ * - Fetches all active teams.
+ * - Returns team ID and team name for dropdown selection.
+ * - Returns data in JSON format.
+ */
+
+require '../../ajaxconfig.php';
 
 $result = [];
 
-while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
+$stmt = $pdo->prepare("SELECT
+        id,
+        team_name
+    FROM team_name_creation
+    WHERE team_status = ?
+    ORDER BY team_name ASC
+");
+
+$stmt->execute([0]);
+
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
     $result[] = [
-        'id' => $row['id'],
+        'id'        => $row['id'],
         'team_name' => $row['team_name']
     ];
 }
 
-echo json_encode($result);
+$pdo = null; // Close Connection
 
-$pdo = null;
+echo json_encode($result);

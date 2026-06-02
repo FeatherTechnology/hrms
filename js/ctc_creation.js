@@ -1,6 +1,7 @@
 $(document).ready(function () {
   getCompanyName();
 
+  /* --- CTC Creation On Change & Click Events --- */
   $("#company_name").on("change", function () {
     // Get selected option text
     let companyName = $("#company_name option:selected").text();
@@ -25,8 +26,7 @@ $(document).ready(function () {
     $("#ctc_settings").show();
   });
 
-  // <--------------------------------------------- Submit CTC Settings Info Start --------------------------------------------->
-
+  /* --- Submit CTC Creation --- */
   $("#submit_ctc_settings_info").click(function (event) {
     event.preventDefault();
     // Validation
@@ -70,8 +70,7 @@ $(document).ready(function () {
             function (response) {
               if (response === "3") {
                 swalError("Warning", "CTC Info already exists!");
-              }
-              else if (response === "2") {
+              } else if (response === "2") {
                 swalSuccess("Success", "CTC Info Added Successfully!");
               } else if (response === "1") {
                 swalSuccess("Success", "CTC Info Updated Successfully!");
@@ -91,10 +90,7 @@ $(document).ready(function () {
     }
   });
 
-  // <--------------------------------------------- Submit CTC Settings Info End --------------------------------------------->
-
-  // <--------------------------------------------- Edit CTC Settings Info Start --------------------------------------------->
-
+  /* --- Edit CTC Creation --- */
   $(document).on("click", ".ctcActionBtn", function () {
     var id = $(this).attr("value"); // Get value attribute
     $.post(
@@ -113,10 +109,7 @@ $(document).ready(function () {
     );
   });
 
-  // <--------------------------------------------- Edit CTC Settings Info End --------------------------------------------->
-
-  // <--------------------------------------------- Delete CTC Settings Info Start ----------------------------------------->
-
+  /* --- Delete CTC Creation --- */
   $(document).on("click", ".ctcDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -127,12 +120,9 @@ $(document).ready(function () {
     );
     return;
   });
-
-  // <--------------------------------------------- Delete CTC Settings Info End ----------------------------------------->
 });
 
-// <--------------------------------------------- Get Company Name Start ----------------------------------------------------->
-
+/* --- Get Company Name --- */
 function getCompanyName() {
   $.ajax({
     url: "api/branch_creation/getCompanyName.php",
@@ -160,10 +150,7 @@ function getCompanyName() {
   });
 }
 
-// <--------------------------------------------- Get Company Name End ----------------------------------------------------->
-
-// <--------------------------------------------- Get CTC Table Start ----------------------------------------------------->
-
+/* --- Get CTC Table --- */
 function getctcTable() {
   let company_id = $("#company_name").val();
 
@@ -186,10 +173,7 @@ function getctcTable() {
   );
 }
 
-// <--------------------------------------------- Get CTC Table End ----------------------------------------------------->
-
-// <--------------------------------------------- Get CTC Table Delete Start ----------------------------------------------->
-
+/* --- Get CTC Delete --- */
 function getctcDelete(id) {
   $.post(
     "api/ctc_creation_files/delete_ctc_info.php",
@@ -199,8 +183,7 @@ function getctcDelete(id) {
         swalSuccess("Success", "CTC Info Deleted Successfully!");
         getctcTable();
         clearFields();
-      }
-      else if (response == "2") {
+      } else if (response == "2") {
         swalError("Warning", "CTC Info is already used in Staff Creation!");
       } else {
         swalError("Warning", "Error occur While Delete CTC Info.");
@@ -210,10 +193,7 @@ function getctcDelete(id) {
   );
 }
 
-// <--------------------------------------------- Get CTC Table Delete End ----------------------------------------------->
-
-// <--------------------------------------------- CTC Input Clear Fields Start --------------------------------------------->
-
+/* --- Clear CTC Input Fields --- */
 function clearFields() {
   $("#salary_component").val("");
   $("#component_classification").val("");
@@ -221,5 +201,3 @@ function clearFields() {
   $("#pay_frequency").val("");
   $("#ctc_id").val("");
 }
-
-// <--------------------------------------------- CTC Input Clear Fields End ----------------------------------------------->

@@ -1,16 +1,29 @@
 <?php
 
+/** Department List **
+ * Purpose:
+ * - Fetches all active departments.
+ * - Adds Edit and Delete action buttons for each record.
+ * - Returns department data in JSON format for DataTable/Grid display.
+ */
+
 require '../../ajaxconfig.php';
 
 $department_list_arr = array();
 
 $i = 0;
 
-$qry = $pdo->query("SELECT * FROM department_creation WHERE department_status = 0 ORDER BY department_name ASC");
+$stmt = $pdo->prepare("SELECT *
+    FROM department_creation
+    WHERE department_status = ?
+    ORDER BY department_name ASC
+");
 
-if ($qry->rowCount() > 0) {
+$stmt->execute([0]);
 
-    while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
+if ($stmt->rowCount() > 0) {
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
         // Action Button
         $row['action'] = "
@@ -25,6 +38,6 @@ if ($qry->rowCount() > 0) {
     }
 }
 
-$pdo = null;
+$pdo = null; // Close Connection
 
 echo json_encode($department_list_arr);

@@ -1,16 +1,25 @@
 <?php
 
+/** Designation List **
+ * Purpose:
+ * - Fetches all active designations.
+ * - Adds Edit and Delete action buttons for each record.
+ * - Returns designation data in JSON format for DataTable/Grid display.
+ */
+
 require '../../ajaxconfig.php';
 
 $designation_list_arr = array();
 
 $i = 0;
 
-$qry = $pdo->query("SELECT * FROM designation_creation WHERE designation_status = 0 ORDER BY designation ASC");
+$stmt = $pdo->prepare("SELECT * FROM designation_creation WHERE designation_status = ? ORDER BY designation ASC");
 
-if ($qry->rowCount() > 0) {
+$stmt->execute([0]);
 
-    while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
+if ($stmt->rowCount() > 0) {
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
         // Action Button
         $row['action'] = "
@@ -25,6 +34,6 @@ if ($qry->rowCount() > 0) {
     }
 }
 
-$pdo = null;
+$pdo = null; // Close Connection
 
 echo json_encode($designation_list_arr);

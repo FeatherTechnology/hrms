@@ -1,4 +1,4 @@
-// Team Multi Select
+/* --- Team Multi Select --- */
 const teamInstance = new Choices("#team_name", {
   removeItemButton: true,
   placeholder: true,
@@ -9,6 +9,7 @@ const teamInstance = new Choices("#team_name", {
 });
 
 $(document).ready(function () {
+  /* --- Add Team & BackButton Click --- */
   $(document).on(
     "click",
     ".add_team_btn, .back_to_team_btn",
@@ -17,16 +18,100 @@ $(document).ready(function () {
     },
   );
 
+  /* --- Team Creation On Change Events --- */
   $("#company_name").change(function () {
     getDepartmentName();
   });
 
-  $(".modalBtnCss").click(function () {
-    getAutoGenTeamId(0);
+  /* --- Submit Team Modal --- */
+  $("#submit_team_creation").click(function () {
+    event.preventDefault();
+    //Validation
+    let company_name = $("#company_name").val();
+    let department_name = $("#department_name").val();
+    let team_name = $("#team_name").val();
+    let team_name2 = $("#team_name2").val();
+    let team_creation_id = $("#team_creation_id").val();
+
+    var data = ["company_name", "department_name"];
+
+    var isValid = true;
+    data.forEach(function (entry) {
+      var fieldIsValid = validateField($("#" + entry).val(), entry);
+      if (!fieldIsValid) {
+        isValid = false;
+      }
+    });
+
+    let teamValid = validateMultiSelectField("team_name", teamInstance);
+
+    if (isValid && teamValid) {
+      $.post(
+        "api/team_creation_files/submit_team_creation.php",
+        {
+          company_name,
+          department_name,
+          team_name,
+          team_name2,
+          team_creation_id,
+        },
+        function (response) {
+          if (response == "1") {
+            swalSuccess("Success", "Team Added Successfully!");
+          } else {
+            swalSuccess("Success", "Team Updated Successfully!");
+          }
+
+          $("#team_creation_id").val("");
+          $("#team_name2").val("");
+          $("#team_creation").trigger("reset");
+          getTeamTable();
+          swapTableAndCreation(); //to change to div to table content.
+        },
+      );
+    }
   });
 
-  /////////////////////////////////////////////////// Team Modal Start //////////////////////////////////////////////////////////////////////////////////
+  /* --- Edit Team Modal --- */
+  $(document).on("click", ".teamCreationActionBtn", async function () {
+    var id = $(this).attr("value"); // Get value attribute
 
+    try {
+      const response = await $.ajax({
+        url: "api/team_creation_files/get_team_creation_data.php",
+        type: "POST",
+        data: { id },
+        dataType: "json",
+      });
+
+      swapTableAndCreation();
+      await getCompanyName();
+      $("#team_creation_id").val(id);
+      $("#company_name").val(response[0].company_id);
+
+      await getDepartmentName();
+      $("#department_name").val(response[0].department_id);
+
+      $("#team_name2").val(response[0].team_ids);
+      await getTeamNameDropdown();
+    } catch (error) {
+      console.error("Failed to fetch company data:", error);
+    }
+  });
+
+  /* --- Delete Team Modal --- */
+  $(document).on("click", ".teamCreationDeleteBtn", function () {
+    var id = $(this).attr("value");
+    swalConfirm(
+      "Delete",
+      "Do you want to Delete the Team Creation?",
+      getTeamDelete,
+      id,
+    );
+    return;
+  });
+
+  /* --- Submit Team Creation --- */
   $("#submit_team").click(function (event) {
     event.preventDefault();
     // Validation
@@ -76,6 +161,7 @@ $(document).ready(function () {
     }
   });
 
+  /* --- Edit Team Creation --- */
   $(document).on("click", ".teamActionBtn", function () {
     var id = $(this).attr("value"); // Get value attribute
     $.post(
@@ -90,17 +176,7 @@ $(document).ready(function () {
     );
   });
 
-  $(document).on("click", ".departmentDeleteBtn", function () {
-    var id = $(this).attr("value");
-    swalConfirm(
-      "Delete",
-      "Do you want to Delete the Department Details?",
-      getDepartmentDelete,
-      id,
-    );
-    return;
-  });
-
+  /* --- Delete Team Creation --- */
   $(document).on("click", ".teamDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -112,95 +188,7 @@ $(document).ready(function () {
     return;
   });
 
-  /////////////////////////////////////////////////////////////////////////// Team Modal end ////////////////////////////////////////////////////////////
-
-  $("#submit_team_creation").click(function () {
-    event.preventDefault();
-    //Validation
-    let company_name = $("#company_name").val();
-    let department_name = $("#department_name").val();
-    let team_name = $("#team_name").val();
-    let team_name2 = $("#team_name2").val();
-    let team_creation_id = $("#team_creation_id").val();
-
-    var data = ["company_name", "department_name"];
-
-    var isValid = true;
-    data.forEach(function (entry) {
-      var fieldIsValid = validateField($("#" + entry).val(), entry);
-      if (!fieldIsValid) {
-        isValid = false;
-      }
-    });
-
-    let teamValid = validateMultiSelectField("team_name", teamInstance);
-
-    if (isValid && teamValid) {
-      /////////////////////////// submit page AJAX /////////////////////////////////////
-      $.post(
-        "api/team_creation_files/submit_team_creation.php",
-        {
-          company_name,
-          department_name,
-          team_name,
-          team_name2,
-          team_creation_id,
-        },
-        function (response) {
-          if (response == "1") {
-            swalSuccess("Success", "Team Added Successfully!");
-          } else {
-            swalSuccess("Success", "Team Updated Successfully!");
-          }
-
-          $("#team_creation_id").val("");
-          $("#team_name2").val("");
-          $("#team_creation").trigger("reset");
-          getTeamTable();
-          swapTableAndCreation(); //to change to div to table content.
-        },
-      );
-      /////////////////////////// submit page AJAX END/////////////////////////////////////
-    }
-  });
-
-  $(document).on("click", ".teamCreationActionBtn", async function () {
-    var id = $(this).attr("value"); // Get value attribute
-
-    try {
-      const response = await $.ajax({
-        url: "api/team_creation_files/get_team_creation_data.php",
-        type: "POST",
-        data: { id },
-        dataType: "json",
-      });
-
-      swapTableAndCreation();
-      await getCompanyName();
-      $("#team_creation_id").val(id);
-      $("#company_name").val(response[0].company_id);
-
-      await getDepartmentName();
-      $("#department_name").val(response[0].department_id);
-
-      $("#team_name2").val(response[0].team_ids);
-      await getTeamNameDropdown();
-    } catch (error) {
-      console.error("Failed to fetch company data:", error);
-    }
-  });
-
-  $(document).on("click", ".teamCreationDeleteBtn", function () {
-    var id = $(this).attr("value");
-    swalConfirm(
-      "Delete",
-      "Do you want to Delete the Team Creation?",
-      getTeamDelete,
-      id,
-    );
-    return;
-  });
-
+  /* --- Team Creation Reset --- */
   $('button[type="reset"], .back_to_team_btn').click(function (event) {
     event.preventDefault();
 
@@ -221,28 +209,12 @@ $(document).ready(function () {
   });
 });
 
+/* --- On Load --- */
 $(function () {
   getTeamTable();
 });
 
-function getTeamTable() {
-  $.post(
-    "api/team_creation_files/team_creation_list.php",
-    function (response) {
-      var columnMapping = [
-        "sno",
-        "company_name",
-        "department_name",
-        "team_name",
-        "action",
-      ];
-      appendDataToTable("#team_creation_table", response, columnMapping);
-      setdtable("#team_creation_table", "Team Creation List");
-    },
-    "json",
-  );
-}
-
+/* --- Swap Table and hide/show --- */
 function swapTableAndCreation() {
   if ($(".team_table_content").is(":visible")) {
     $(".team_table_content").hide();
@@ -259,6 +231,7 @@ function swapTableAndCreation() {
   }
 }
 
+/* --- Get Company Name --- */
 async function getCompanyName() {
   return new Promise((resolve, reject) => {
     $.post(
@@ -285,6 +258,7 @@ async function getCompanyName() {
   });
 }
 
+/* --- Get Department Name --- */
 async function getDepartmentName() {
   let company_name = $("#company_name").val();
   return new Promise((resolve, reject) => {
@@ -312,6 +286,26 @@ async function getDepartmentName() {
   });
 }
 
+/* --- Team Creation Outer List Table --- */
+function getTeamTable() {
+  $.post(
+    "api/team_creation_files/team_creation_list.php",
+    function (response) {
+      var columnMapping = [
+        "sno",
+        "company_name",
+        "department_name",
+        "team_name",
+        "action",
+      ];
+      appendDataToTable("#team_creation_table", response, columnMapping);
+      setdtable("#team_creation_table", "Team Creation List");
+    },
+    "json",
+  );
+}
+
+/* --- Get Auto Generated Team Id --- */
 function getAutoGenTeamId(id) {
   $.post(
     "api/team_creation_files/get_autoGen_team_id.php",
@@ -325,6 +319,7 @@ function getAutoGenTeamId(id) {
   });
 }
 
+/* --- Get Team Name Modal Table --- */
 function getTeamNameTable() {
   $.post(
     "api/team_creation_files/team_modal_list.php",
@@ -348,6 +343,7 @@ function getTeamNameTable() {
   );
 }
 
+/* --- Get Team Modal Delete --- */
 function getTeamModalDelete(id) {
   $.post(
     "api/team_creation_files/delete_team_modal.php",
@@ -356,9 +352,9 @@ function getTeamModalDelete(id) {
       if (response == "1") {
         swalSuccess("Success", "Team Info Delete Successfully!");
         getTeamNameTable();
-      }else if (response == "2") {
+      } else if (response == "2") {
         swalError("Warning", "Team is already used in Staff Creation!");
-      }  else {
+      } else {
         swalError("Warning", "Error occur While Delete Team Info.");
       }
     },
@@ -366,6 +362,7 @@ function getTeamModalDelete(id) {
   );
 }
 
+/* --- Get Team Name Dropdown --- */
 async function getTeamNameDropdown() {
   const team_name2 = $("#team_name2").val();
 
@@ -393,6 +390,7 @@ async function getTeamNameDropdown() {
   }
 }
 
+/* --- Get Team Creation Delete --- */
 function getTeamDelete(id) {
   $.post(
     "api/team_creation_files/delete_team_creation.php",
