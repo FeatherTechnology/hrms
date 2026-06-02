@@ -8,7 +8,6 @@
     <div class="card statutory_compliance_table_content">
         <div class="card-body">
             <div class="col-12">
-
                 <table id="statutory_compliance_table" class="table custom-table">
                     <thead>
                         <tr>
@@ -21,7 +20,6 @@
                         </tr>
                     </thead>
                     <tbody>
-
                     </tbody>
                 </table>
             </div>
@@ -33,6 +31,7 @@
         <form id="statutory_compliance_creation" name="statutory_compliance_creation" action="" method="post" enctype="multipart/form-data">
             <input type="hidden" id="statutory_compliance_id">
             <div class="row gutters">
+
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
@@ -60,6 +59,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
@@ -127,6 +127,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
@@ -160,6 +161,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
@@ -203,13 +205,14 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-md-12 ">
                     <div class="text-right">
-
                         <button type="submit" name="submit_statutory_compliance" id="submit_statutory_compliance" class="btn btn-primary" value="Submit" tabindex="7"><span class="icon-check"></span>&nbsp;Submit</button>
                         <button type="reset" class="btn btn-outline-secondary" tabindex="8">Clear</button>
                     </div>
                 </div>
+
             </div>
         </form>
     </div>

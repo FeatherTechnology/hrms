@@ -1,25 +1,37 @@
 <?php
+
+/** Fetch Company Details **
+ * Purpose:
+ * - Retrieves company information based on the provided company ID.
+ * - Fetches mapped department IDs and designation IDs.
+ * - Returns company details in JSON format for edit/view screens.
+ */
+
 require '../../ajaxconfig.php';
 
 $id = $_POST['id'];
 
-$qry = $pdo->query("SELECT 
+$result = [];
+
+$stmt = $pdo->prepare("SELECT
         cc.*,
         GROUP_CONCAT(DISTINCT cdm.department_id) AS department_ids,
         GROUP_CONCAT(DISTINCT dm.designation_id) AS designation_ids
     FROM company_creation cc
-    LEFT JOIN company_department_mapping cdm 
+    LEFT JOIN company_department_mapping cdm
         ON cc.id = cdm.company_id
-    LEFT JOIN company_designation_mapping dm 
+    LEFT JOIN company_designation_mapping dm
         ON cc.id = dm.company_id
-    WHERE cc.id = '$id'
+    WHERE cc.id = ?
     GROUP BY cc.id
 ");
 
-if ($qry->rowCount() > 0) {
-    $result = $qry->fetchAll(PDO::FETCH_ASSOC);
+$stmt->execute([$id]);
+
+if ($stmt->rowCount() > 0) {
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$pdo = null; //Close connection.
+$pdo = null; // Close Connection
 
 echo json_encode($result);

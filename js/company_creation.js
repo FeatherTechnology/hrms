@@ -1,4 +1,4 @@
-// Department Multi Select
+/* --- Department Multi Select --- */
 const departmentInstance = new Choices("#department_name", {
   removeItemButton: true,
   placeholder: true,
@@ -8,6 +8,7 @@ const departmentInstance = new Choices("#department_name", {
   searchEnabled: false,
 });
 
+/* --- Designation Multi Select --- */
 const designationInstance = new Choices("#designation_name", {
   removeItemButton: true,
   placeholder: true,
@@ -18,22 +19,31 @@ const designationInstance = new Choices("#designation_name", {
 });
 
 $(document).ready(function () {
-  $(document).on("click", ".addcompanyBtn, .backBtn", async function () {
-    swapTableAndCreation();
+  /* --- Add Company Button Click --- */
+  $(document).on("click", ".addcompanyBtn", async function () {
+    await swapTableAndCreation();
     getDepartmentNameDropdown();
     getDesignationNameDropdown();
   });
 
-  $(".modalBtnCss").click(function () {
-    getAutoGenDepartmentId(0);
-  });
-
+  /* --- Company Creation On Change & Click Events --- */
   $("#state").change(function () {
     getDistrictList($(this).val());
   });
 
-  /////////////////////////////////////////////////// Department Modal Start //////////////////////////////////////////////////////////////////////////////////
+  $("#mobile, #whatsapp").change(function () {
+    checkMobileNo($(this).val(), $(this).attr("id"));
+  });
 
+  $("#landline").change(function () {
+    checkLandlineFormat($(this).val(), $(this).attr("id"));
+  });
+
+  $("#mailid").on("change", function () {
+    validateEmail($(this).val(), $(this).attr("id"));
+  });
+
+  /* --- Submit Department --- */
   $("#submit_department").click(function (event) {
     event.preventDefault();
     // Validation
@@ -66,8 +76,7 @@ $(document).ready(function () {
             function (response) {
               if (response === "3") {
                 swalError("Warning", "Department Name already exists!");
-              }
-              else if (response === "2") {
+              } else if (response === "2") {
                 swalSuccess("Success", "Department Added Successfully!");
               } else if (response === "1") {
                 swalSuccess("Success", "Department Updated Successfully!");
@@ -84,6 +93,7 @@ $(document).ready(function () {
     }
   });
 
+  /* --- Edit Department --- */
   $(document).on("click", ".departmentActionBtn", function () {
     var id = $(this).attr("value"); // Get value attribute
     $.post(
@@ -98,6 +108,7 @@ $(document).ready(function () {
     );
   });
 
+  /* --- Delete Department --- */
   $(document).on("click", ".departmentDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -109,10 +120,7 @@ $(document).ready(function () {
     return;
   });
 
-  /////////////////////////////////////////////////////////////////////////// Department Modal end ////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////// Designation Modal Start //////////////////////////////////////////////////////////////////////////////////
-
+  /* --- Submit Designation --- */
   $("#submit_designation").click(function (event) {
     event.preventDefault();
     // Validation
@@ -145,8 +153,7 @@ $(document).ready(function () {
             function (response) {
               if (response === "3") {
                 swalError("Warning", "Designation Name already exists!");
-              }
-              else if (response === "2") {
+              } else if (response === "2") {
                 swalSuccess("Success", "Designation Added Successfully!");
               } else if (response === "1") {
                 swalSuccess("Success", "Designation Updated Successfully!");
@@ -163,6 +170,7 @@ $(document).ready(function () {
     }
   });
 
+  /* --- Edit Designation --- */
   $(document).on("click", ".designationActionBtn", function () {
     var id = $(this).attr("value"); // Get value attribute
     $.post(
@@ -177,6 +185,7 @@ $(document).ready(function () {
     );
   });
 
+  /* --- Delete Designation --- */
   $(document).on("click", ".designationDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -188,8 +197,7 @@ $(document).ready(function () {
     return;
   });
 
-  /////////////////////////////////////////////////////////////////////////// Designation Modal end ////////////////////////////////////////////////////////////
-
+  /* --- Submit Company Creation --- */
   $("#submit_company_creation").click(function () {
     event.preventDefault();
     //Validation
@@ -246,7 +254,6 @@ $(document).ready(function () {
     );
 
     if (isValid && departmentValid && designationValid) {
-      /////////////////////////// submit page AJAX /////////////////////////////////////
       $.post(
         "api/company_creation_files/submit_company_creation.php",
         {
@@ -284,16 +291,15 @@ $(document).ready(function () {
           $("#companyid").val("");
           $("#department_name2").val("");
           $("#designation_name2").val("");
-           $("#company_creation").trigger("reset");
+          $("#company_creation").trigger("reset");
           getCompanyTable();
           swapTableAndCreation(); //to change to div to table content.
         },
       );
-      /////////////////////////// submit page AJAX END/////////////////////////////////////
     }
   });
 
-  ///////////////////////////////////// EDIT Screen START   ////////////////////////////////////
+  /* --- Edit Company Creation --- */
   $(document).on("click", ".companyActionBtn", async function () {
     var id = $(this).attr("value"); // Get value attribute
 
@@ -305,7 +311,7 @@ $(document).ready(function () {
         dataType: "json",
       });
 
-      swapTableAndCreation();
+      await swapTableAndCreation();
       $("#companyid").val(id);
       $("#company_name").val(response[0].company_name);
       $("#gst_number").val(response[0].gst_num);
@@ -339,22 +345,11 @@ $(document).ready(function () {
     }
   });
 
-  ///////////////////////////////////// EDIT Screen END  /////////////////////////////////////
-
-  $("#mobile, #whatsapp").change(function () {
-    checkMobileNo($(this).val(), $(this).attr("id"));
-  });
-
-  $("#landline").change(function () {
-    checkLandlineFormat($(this).val(), $(this).attr("id"));
-  });
-
-  $("#mailid").on("change", function () {
-    validateEmail($(this).val(), $(this).attr("id"));
-  });
-
+  /* --- Company Creation Reset --- */
   $('button[type="reset"], .backBtn').click(function (event) {
     event.preventDefault();
+
+    swapTableAndCreation();
 
     $("#pageHeaderName").text(" - Company Creation");
     $("input").val("");
@@ -378,14 +373,32 @@ $(document).ready(function () {
       .find(".choices__inner")
       .css("border", "1px solid #cecece");
   });
-}); //Document END.
-
-//OnLoad/////
-$(function () {
-  getCompanyTable();
-  getStateList();
 });
 
+/* --- On Load --- */
+$(function () {
+  getCompanyTable();
+});
+
+/* --- Swap Table and hide/show --- */
+async function swapTableAndCreation() {
+  if ($(".company_table_content").is(":visible")) {
+    $(".company_table_content").hide();
+    $(".addcompanyBtn").hide();
+    $("#company_creation_content").show();
+    $(".backBtn").show();
+
+    await getStateList();
+  } else {
+    await getCompanyLimit(); // Check limit and show/hide button properly
+
+    $(".company_table_content").show();
+    $("#company_creation_content").hide();
+    $(".backBtn").hide();
+  }
+}
+
+/* --- Company Creation Outer List Table --- */
 function getCompanyTable() {
   $.post(
     "api/company_creation_files/company_creation_list.php",
@@ -400,78 +413,70 @@ function getCompanyTable() {
       ];
       appendDataToTable("#company_creation_table", response, columnMapping);
       setdtable("#company_creation_table", "Company Creation List");
-
-      toggleAddButton();
+      getCompanyLimit();
     },
     "json",
   );
 }
 
-function swapTableAndCreation() {
-  if ($(".company_table_content").is(":visible")) {
-    $(".company_table_content").hide();
-    $(".addcompanyBtn").hide();
-    $("#company_creation_content").show();
-    $(".backBtn").show();
-  } else {
-    // Check limit and show/hide button properly
-    toggleAddButton();
-    $(".company_table_content").show();
-    $("#company_creation_content").hide();
-    $(".backBtn").hide();
+/* --- Get Company Limit --- */
+async function getCompanyLimit() {
+  try {
+    const response = await $.ajax({
+      url: "api/common_files/get_limit.php",
+      type: "GET",
+      dataType: "json",
+    });
+
+    let companyLimit = parseInt(response.company_limit);
+
+    $("#pageHeaderName").html(`
+            - Company Creation
+            <span style="padding-left:1200px;">
+                Company Limit: ${companyLimit}
+            </span>
+        `);
+
+    if ($.fn.DataTable.isDataTable("#company_creation_table")) {
+      let table = $("#company_creation_table").DataTable();
+      let rowCount = table.rows().count();
+
+      if (rowCount >= companyLimit) {
+        $(".addcompanyBtn").hide();
+      } else {
+        $(".addcompanyBtn").show();
+      }
+    }
+
+    return companyLimit;
+  } catch (error) {
+    console.error("Error loading company limit:", error);
+    return 0;
   }
 }
 
-function toggleAddButton() {
-  $.ajax({
-    url: "api/common_files/get_limit.php",
-    type: "GET",
-    dataType: "json",
-    success: function (response) {
-      let companyLimit = parseInt(response.company_limit);
+/* --- Get State List --- */
+async function getStateList() {
+  try {
+    const response = await $.ajax({
+      url: "api/common_files/get_state_list.php",
+      type: "POST",
+      dataType: "json",
+    });
 
-      // Set Company Limit in Header
-      $("#pageHeaderName").html(
-        ` - Company Creation
-        <span style="padding-left:1200px;">
-          Company Limit: ${companyLimit}
-        </span>`,
-      );
+    let appendStateOption = "<option value=''>Select State</option>";
 
-      // Check DataTable exists
-      if ($.fn.DataTable.isDataTable("#company_creation_table")) {
-        let table = $("#company_creation_table").DataTable();
+    $.each(response, function (index, val) {
+      appendStateOption += `<option value="${val.id}">${val.state_name}</option>`;
+    });
 
-        // Current row count
-        let rowCount = table.rows().count();
-
-        // Hide if limit reached
-        if (rowCount >= companyLimit) {
-          $(".addcompanyBtn").hide();
-        } else {
-          $(".addcompanyBtn").show();
-        }
-      }
-    },
-  });
+    $("#state").empty().append(appendStateOption);
+  } catch (error) {
+    console.error("Error loading states:", error);
+  }
 }
 
-function getStateList() {
-  $.post(
-    "api/common_files/get_state_list.php",
-    function (response) {
-      let appendStateOption = "";
-      appendStateOption += "<option value=''>Select State</option>";
-      $.each(response, function (index, val) {
-        appendStateOption +=
-          "<option value='" + val.id + "'>" + val.state_name + "</option>";
-      });
-      $("#state").empty().append(appendStateOption);
-    },
-    "json",
-  );
-}
-
+/* --- Get District List --- */
 async function getDistrictList(state_id) {
   return new Promise((resolve, reject) => {
     $.post(
@@ -492,6 +497,7 @@ async function getDistrictList(state_id) {
   });
 }
 
+/* --- Get Auto Generated Department Id --- */
 function getAutoGenDepartmentId(id) {
   $.post(
     "api/company_creation_files/get_autoGen_department_id.php",
@@ -505,6 +511,7 @@ function getAutoGenDepartmentId(id) {
   });
 }
 
+/* --- Get Department Table --- */
 function getDepartmentNameTable() {
   $.post(
     "api/company_creation_files/department_creation_list.php",
@@ -531,26 +538,7 @@ function getDepartmentNameTable() {
   );
 }
 
-function getDepartmentDelete(id) {
-  $.post(
-    "api/company_creation_files/delete_department_creation.php",
-    { id },
-    function (response) {
-      if (response == "1") {
-        swalSuccess("Success", "Department Info Delete Successfully!");
-        getDepartmentNameTable();
-
-      } else if (response == "2") {
-        swalError("Warning", "Department already used in Team Creation!");
-
-      } else {
-        swalError("Warning", "Error occur While Delete Department Info.");
-      }
-    },
-    "json"
-  );
-}
-
+/* --- Get Department Name Dropdown --- */
 async function getDepartmentNameDropdown() {
   const department_name2 = $("#department_name2").val();
 
@@ -580,6 +568,26 @@ async function getDepartmentNameDropdown() {
   }
 }
 
+/* --- Get Department Delete --- */
+function getDepartmentDelete(id) {
+  $.post(
+    "api/company_creation_files/delete_department_creation.php",
+    { id },
+    function (response) {
+      if (response == "1") {
+        swalSuccess("Success", "Department Info Delete Successfully!");
+        getDepartmentNameTable();
+      } else if (response == "2") {
+        swalError("Warning", "Department already used in Team Creation!");
+      } else {
+        swalError("Warning", "Error occur While Delete Department Info.");
+      }
+    },
+    "json",
+  );
+}
+
+/* --- Get Designation Table --- */
 function getDesignationNameTable() {
   $.post(
     "api/company_creation_files/designation_creation_list.php",
@@ -600,25 +608,7 @@ function getDesignationNameTable() {
   );
 }
 
-function getDesignationDelete(id) {
-  $.post(
-    "api/company_creation_files/delete_designation_creation.php",
-    { id },
-    function (response) {
-      if (response == "1") {
-        swalSuccess("Success", "Designation Info Delete Successfully!");
-        getDesignationNameTable();
-      } else if (response == "2") {
-        swalError("Warning", "Designation already used in Staff Creation!");
-
-      } else {
-        swalError("Warning", "Error occur While Delete Designation Info.");
-      }
-    },
-    "json",
-  );
-}
-
+/* --- Get Designation Name Dropdown --- */
 async function getDesignationNameDropdown() {
   const designation_name2 = $("#designation_name2").val();
 
@@ -645,4 +635,23 @@ async function getDesignationNameDropdown() {
   } catch (err) {
     console.error("Error loading designation dropdown:", err);
   }
+}
+
+/* --- Get Designation Delete --- */
+function getDesignationDelete(id) {
+  $.post(
+    "api/company_creation_files/delete_designation_creation.php",
+    { id },
+    function (response) {
+      if (response == "1") {
+        swalSuccess("Success", "Designation Info Delete Successfully!");
+        getDesignationNameTable();
+      } else if (response == "2") {
+        swalError("Warning", "Designation already used in Staff Creation!");
+      } else {
+        swalError("Warning", "Error occur While Delete Designation Info.");
+      }
+    },
+    "json",
+  );
 }

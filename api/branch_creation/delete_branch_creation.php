@@ -1,29 +1,57 @@
 <?php
+
+/** Branch Delete **
+ * Purpose:
+ * - Checks whether the branch is used in occupation information.
+ * - Prevents deletion if the branch is already mapped.
+ * - Deletes the branch if it is not in use.
+ *
+ * Return Values:
+ * 0 = Failed
+ * 1 = Delete Successful
+ * 2 = Branch Already Mapped
+ */
+
 require '../../ajaxconfig.php';
 
 $id = $_POST['id'];
 
-$cnt = '0';
+$result = 0;
 
-$qry = $pdo->query("SELECT * FROM `occupation_info` WHERE branch_id = '$id'");
+try {
 
-if ($qry->rowCount() > 0) {
-    $cnt = '1';
-}
+    /* Check Branch Usage */
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS cnt
+        FROM occupation_info
+        WHERE branch_id = ?
+    ");
 
-if ($cnt == '1') {
+    $stmt->execute([$id]);
 
-    $result = '2'; // Used in User Creation.
+    $count = $stmt->fetch(PDO::FETCH_ASSOC)['cnt'];
 
-} else {
+    if ($count > 0) {
 
-    $qry = $pdo->query("DELETE FROM `branch_creation` WHERE `id` = '$id'");
+        $result = 2; // Branch Already Used
 
-    if ($qry) {
-        $result = '1'; // Success
     } else {
-        $result = '0'; // Failed
+
+        /* Delete Branch */
+        $stmt = $pdo->prepare("DELETE FROM branch_creation
+            WHERE id = ?
+        ");
+
+        $qry = $stmt->execute([$id]);
+
+        if ($qry) {
+            $result = 1; // Delete Successful
+        } else {
+            $result = 0; // Failed
+        }
     }
+} catch (PDOException $e) {
+
+    $result = 0; // Failed
 }
 
 $pdo = null; // Close Connection

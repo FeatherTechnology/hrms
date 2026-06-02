@@ -4,6 +4,7 @@
         <input type="hidden" id="ctc_id">
         <div class="row gutters">
             <div class="col-12">
+
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">CTC Info</div>
@@ -24,10 +25,12 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="card" id="ctc_settings" style="display: none;">
                     <div class="card-header">
                         <div class="card-title">CTC Settings</div>
                     </div>
+
                     <div class="card-body">
                         <form id="ctc_settings_form">
                             <div class="row">
@@ -79,6 +82,7 @@
                             </div>
                         </form>
                     </div>
+
                     <div class="card-body">
                         <div class="row">
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
@@ -101,6 +105,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </form>

@@ -1,4 +1,5 @@
 $(document).ready(function () {
+  /* --- Add Statutory Compliance & Back Button Click --- */
   $(document).on("click", "#add_statutory_compliance, #back_btn", function () {
     swapTableAndCreation();
     $(".pf_apply").find("input").prop("readonly", false);
@@ -10,6 +11,7 @@ $(document).ready(function () {
     $("#slab_div").hide();
   });
 
+  /* --- Statutory Compliance Creation On Change Events --- */
   $("#calculation_type").on("change", function () {
     var calculationType = $(this).val();
     if (calculationType === "1") {
@@ -77,8 +79,7 @@ $(document).ready(function () {
     }
   });
 
-  // <--------------------------------------------- Submit Statutory Compliance Info Start --------------------------------------------->
-
+  /* --- Submit Statutory Compliance Creation --- */
   $("#submit_statutory_compliance").click(function (event) {
     event.preventDefault();
     // Validation
@@ -100,7 +101,7 @@ $(document).ready(function () {
     let percentage = $("#percentage").val();
     let slab = $("#slab").val();
     let statutory_compliance_id = $("#statutory_compliance_id").val();
-    console.log('ADSD', company_id);
+    console.log("ADSD", company_id);
     var data = ["company_name", "state", "pf_applicable", "esi_applicable"];
 
     var isValid = true;
@@ -165,10 +166,7 @@ $(document).ready(function () {
     }
   });
 
-  // <--------------------------------------------- Submit Statutory Compliance Info End --------------------------------------------->
-
-  // <------------------------------------------------------- Edit Statutory Compliance Start ---------------------------------------->
-
+  /* --- Edit Statutory Compliance Creation --- */
   $(document).on("click", ".statutoryComplianceActionBtn", async function () {
     var id = $(this).attr("value"); // Get value attribute
 
@@ -251,8 +249,7 @@ $(document).ready(function () {
     }
   });
 
-  // <------------------------------------------------------ Edit Statutory Compliance End ----------------------------------------------->
-
+  /* --- Statutory Compliance Creation Reset --- */
   $('button[type="reset"], #back_btn').click(function () {
     event.preventDefault();
     $("input").val("");
@@ -265,10 +262,12 @@ $(document).ready(function () {
   });
 });
 
+/* --- On Load --- */
 $(function () {
   getStatutoryComplianceTable();
 });
 
+/* --- Swap Table and hide/show --- */
 async function swapTableAndCreation() {
   if ($(".statutory_compliance_table_content").is(":visible")) {
     $(".statutory_compliance_table_content").hide();
@@ -288,22 +287,19 @@ async function swapTableAndCreation() {
   }
 }
 
+/* --- Get Company Name --- */
 async function getCompanyName(editCompanyId = "") {
-
   return new Promise((resolve, reject) => {
-
     // Get all companies
     $.post(
       "api/branch_creation/getCompanyName.php",
       {},
       function (companyResponse) {
-
         // Get already used company ids
         $.post(
           "api/statutory_compliance_files/getStatutoryCompanyIds.php",
           {},
           function (usedCompanies) {
-
             let usedIds = usedCompanies.map(String);
 
             let dropdown = $("#company_name");
@@ -312,7 +308,6 @@ async function getCompanyName(editCompanyId = "") {
             dropdown.append('<option value="">Select Company Name</option>');
 
             $.each(companyResponse, function (index, item) {
-
               let companyId = item.id.toString();
 
               let isDisabled =
@@ -333,21 +328,20 @@ async function getCompanyName(editCompanyId = "") {
             }
 
             resolve();
-
           },
-          "json"
+          "json",
         ).fail(function (xhr, status, error) {
           reject(error);
         });
-
       },
-      "json"
+      "json",
     ).fail(function (xhr, status, error) {
       reject(error);
     });
-
   });
 }
+
+/* --- Get State List --- */
 async function getStateList() {
   return new Promise((resolve, reject) => {
     $.post(
@@ -368,8 +362,7 @@ async function getStateList() {
   });
 }
 
-// <--------------------------------------------- statutory_compliance Table Start ----------------------------------------------------->
-
+/* --- Get Statutory Compliance Outer List Table --- */
 function getStatutoryComplianceTable() {
   serverSideTable(
     "#statutory_compliance_table",
@@ -378,5 +371,3 @@ function getStatutoryComplianceTable() {
     "Statutory Compliance List",
   );
 }
-
-// <--------------------------------------------- statutory_compliance Table End ----------------------------------------------------->

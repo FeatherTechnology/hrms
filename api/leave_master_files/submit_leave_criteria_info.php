@@ -8,9 +8,9 @@ $no_of_days = $_POST['no_of_days'];
 $leave_criteria_id = $_POST['leave_criteria_id'];
 $user_id = $_SESSION['user_id'];
 
-
+$condition = ($leave_criteria_id != '') ? "AND id != '$leave_criteria_id'" : "";
 $result = 0;
-$qry = $pdo->query("SELECT * FROM `leave_creation` WHERE REPLACE(TRIM(leave_type), ' ', '') = REPLACE(TRIM('$leave_type'), ' ', '') AND company_id = '$company_name' AND status = 0 ");
+$qry = $pdo->query("SELECT * FROM `leave_creation` WHERE REPLACE(TRIM(leave_type), ' ', '') = REPLACE(TRIM('$leave_type'), ' ', '') AND company_id = '$company_name' AND status = 0 $condition");
 if ($qry->rowCount() > 0) {
     $result = 3; //already Exists.
 
