@@ -1,4 +1,6 @@
 <?php
+
+// to get the branch list based on the company we select
 include '../../ajaxconfig.php';
 $cmpy_id = $_POST['cmpy_id'];
 

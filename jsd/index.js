@@ -5,20 +5,26 @@
 // })
 
 $(document).ready(function () {
-    $('#lbutton').click(function (event) {
-        event.preventDefault();
-        let user_name = $('#lusername').val();
-        let password = $('#lpassword').val();
-        $.post('api/base_api/login.php', { user_name, password }, function (response) {
-            if (response == 'Success') {
-                swalSuccess('Login Successful', 'Welcome to HRMS Software');
-                setTimeout(() => {
-                    window.location.href = 'home.php';
-                }, 2000);
-            } else {
-                swalError('Invalid Credentials', 'Try Login Again');
-                $('#loginform input').val('');//clears data inside inputs
-            }
-        }, 'json')
-    })
-})  
+  $("#lbutton").click(function (event) {
+    event.preventDefault();
+    let user_name = $("#lusername").val();
+    let password = $("#lpassword").val();
+    $.post(
+      "api/base_api/login.php",
+      { user_name, password },
+      function (response) {
+        if (response == "Success") {
+          $("#portal").addClass("open");
+
+          setTimeout(() => {
+              window.location.href = 'home.php';
+          }, 1000);
+        } else {
+          swalError("Invalid Credentials", "Try Login Again");
+          $("#loginform input").val(""); //clears data inside inputs
+        }
+      },
+      "json",
+    );
+  });
+});

@@ -1,4 +1,6 @@
 <?php
+// Get regularization request list based on status and user access permissions.
+
 include '../../ajaxconfig.php';
 session_start();
 
@@ -6,6 +8,20 @@ $userid = $_SESSION['user_id'] ?? "";
 
 /* ---------- Input ---------- */
 $status = $_POST['sts'] ?? '';
+
+/* ---------- Logged In User Details ---------- */
+$userQry = $pdo->prepare("
+    SELECT sc.staff_type, sc.company_id
+    FROM users u
+    LEFT JOIN staff_creation sc ON sc.id = u.staff_name_id
+    WHERE u.id = ?
+");
+$userQry->execute([$userid]);
+$userData = $userQry->fetch(PDO::FETCH_ASSOC);
+
+$staff_type = $userData['staff_type'] ?? '';
+$company_id = $userData['company_id'] ?? '';
+
 
 /* ---------- Mappings ---------- */
 $Req_type = [1 => 'Leave', 2 => 'Permission', 3 => 'Week Off', 4 => 'OT'];
@@ -40,8 +56,8 @@ $baseQuery = "
 
     LEFT JOIN occupation_info oc 
         ON oc.id = (
-            SELECT MAX(id)  
-            FROM occupation_info  
+            SELECT MAX(id)
+            FROM occupation_info
             WHERE staff_id = reg.staff_profile_id
         )
 
@@ -57,15 +73,32 @@ $baseQuery = "
     LEFT JOIN team_name_creation tc 
         ON tc.id = reg.team_id
 
-    WHERE reg.status = :status  
-      AND (oc.reporting_person = :userid OR reg.insert_login_id = :userid)
+   WHERE reg.status = :status
 ";
 
 /* ---------- Params ---------- */
 $params = [
-    ':status' => $status,
-    ':userid' => $userid
+    ':status' => $status
 ];
+
+if ($staff_type == 1) {
+
+    // Employer/Admin - show all records from same company
+    $baseQuery .= " AND stfcr.company_id = :company_id ";
+    $params[':company_id'] = $company_id;
+
+} else {
+
+    // Existing condition unchanged
+    $baseQuery .= "
+        AND (
+            oc.reporting_person = :userid
+            OR reg.insert_login_id = :userid
+        )
+    ";
+
+    $params[':userid'] = $userid;
+}
 
 /* ---------- Search ---------- */
 if (!empty($_POST['search']['value'])) {

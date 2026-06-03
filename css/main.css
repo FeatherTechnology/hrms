@@ -1211,6 +1211,7 @@ ul.header-tasks:last-child {
   text-overflow: ellipsis;
   padding: 9px 35px 9px 42px;
   font-size: .775rem;
+  border-radius: 10px;
 }
 
 .page-wrapper .sidebar-wrapper .sidebar-menu .sidebar-dropdown .sidebar-submenu ul li a:before {
@@ -1234,7 +1235,7 @@ ul.header-tasks:last-child {
 }
 
 .page-wrapper .page-content {
-  background-color: white;
+  background-color: #f5fcff;
   display: inline-block;
   width: 100%;
   -webkit-transition: padding-left .3s ease;
@@ -7688,7 +7689,7 @@ button:focus {
 
 .card {
   /* background: #f6f8fa; */
-  background-color: #d7ebf747;
+  background-color: #ceecff47;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
   border-radius: 10px;
@@ -9507,7 +9508,7 @@ table.dataTable th {
 }
 
 .salary-table thead th{
-    background:#f1f1f1;
+    background:var(--primary-color);
     text-align:center;
 }
 
@@ -9520,9 +9521,29 @@ table.dataTable th {
     background:#e8e8e8;
 }
 .salary-table thead th{
-   background-color: #0c468c;
+   background-color:var(--primary-color);
 }
 .salary-table tfoot th {
-    background-color: #0c468c; /* Change this color as you need */
+    background-color: var(--primary-color); /* Change this color as you need */
 }
 
+.portal-content h1 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 60px;
+    font-weight: 900;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: #016091;
+    text-shadow:
+        0 0 10px rgba(1, 96, 145, 0.4),
+        0 0 20px rgba(1, 96, 145, 0.2);
+}
+.portal-content p {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 20px;
+    font-weight: 200;
+    color: #016091;
+    text-shadow:
+        0 0 10px rgba(1, 96, 145, 0.4),
+        0 0 20px rgba(1, 96, 145, 0.2);
+}

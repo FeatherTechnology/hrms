@@ -1,4 +1,6 @@
 <?php
+// Fetch active general feedback list for the logged-in user's company.
+
 include '../../ajaxconfig.php';
 session_start();
 

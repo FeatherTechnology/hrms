@@ -1,4 +1,6 @@
 <?php
+// Save attendance regularization details (Insert/Update).
+
 require "../../ajaxconfig.php";
 @session_start();
 

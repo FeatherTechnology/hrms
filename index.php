@@ -11,7 +11,7 @@ if ($userid != "") {
 include "include/common/dashboardhead.php";
 ?>
 <script>
-    localStorage.setItem('currentPage', 'home_page');
+	localStorage.setItem('currentPage', 'home_page');
 </script>
 
 
@@ -41,6 +41,12 @@ include "include/common/dashboardhead.php";
 				<div class="actions" style="padding-top: 40px;">
 					<button type="submit" id="lbutton" tabindex="6" name="lbutton" class="form-control btn btn-primary" style="font-size: 1rem;font-weight: bolder;color: white;padding: 10px;border-radius:6px;">Login</button>
 				</div>
+				<div id="portal">
+					<div class="portal-content">
+						<h1 style="color: black;">ACCESS GRANTED</h1>
+						<p style="color: black;">Loading HRMS Dashboard...</p>
+					</div>
+				</div>
 
 			</div>
 		</div>
@@ -49,6 +55,40 @@ include "include/common/dashboardhead.php";
 </body>
 
 
+<style>
+	#portal {
+		position: fixed;
+		width: 0;
+		height: 0;
+		border-radius: 50%;
+		background: #c1ecff;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 99999;
+		overflow: hidden;
+		transition: all 1s ease-in-out;
+	}
 
+	#portal.open {
+		width: 3000px;
+		height: 3000px;
+	}
+
+	.portal-content {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		color: #fff;
+		text-align: center;
+		opacity: 0;
+	}
+
+	#portal.open .portal-content {
+		opacity: 1;
+		transition: opacity .10s ease 0.5s;
+	}
+</style>
 <?php include "include/common/dashboardfooter.php" ?>
 <script src="jsd/index.js"></script>

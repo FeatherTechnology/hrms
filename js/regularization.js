@@ -40,6 +40,9 @@ $(document).ready(function () {
 
   // back button hide and show
   $("#back_btn").click(function () {
+    $('input[name="regularization_type"][value="0"]')
+      .prop("checked", true)
+      .trigger("click");
     $("#back_btn").hide();
     $(".staff_info_div").hide();
     $(".approval_div").hide();
@@ -175,23 +178,30 @@ $(document).ready(function () {
       isValid = false;
     }
 
-    if ($(".approval_div").is(":visible")) {
-      let approvalValidation = [
-        validateField(approval_type, "approval_type"),
+    let approvalValidation = [
+      validateField(approval_type, "approval_type"),
+      validateField(remarks, "remarks"),
+    ];
+
+    if (approval_type == "1") {
+      approvalValidation.push(
         validateField(app_from_date, "app_from_date"),
         validateField(app_to_date, "app_to_date"),
-        validateField(remarks, "remarks"),
-      ];
+      );
+    }
 
-      if (!approvalValidation.every((r) => r)) {
-        isValid = false;
-      }
+    if (!approvalValidation.every((r) => r)) {
+      isValid = false;
+    }
 
-      // optional date check
-      if (app_from_date && app_to_date && app_to_date < app_from_date) {
-        swalError("Error", "Approved To Date cannot be less than From Date");
-        isValid = false;
-      }
+    if (
+      approval_type == "1" &&
+      app_from_date &&
+      app_to_date &&
+      app_to_date < app_from_date
+    ) {
+      swalError("Error", "Approved To Date cannot be less than From Date");
+      isValid = false;
     }
 
     req_type = parseInt($("#req_type").val());
@@ -204,24 +214,30 @@ $(document).ready(function () {
     }
 
     if (isValid) {
-      $.post(
-        "api/regularization_files/submit_regularization.php",
-        collData,
-        function (response) {
-          if (response.result == "1") {
-            swalSuccess("Success", "Regularization Updated Successfully.");
-            $("#back_btn").trigger("click");
-          } else if (response.result == "2") {
-            swalError("Error", "Failed to Update Regularization");
-          } else if (response.result == "3") {
-            swalSuccess("Success", "Regularization Inserted Successfully.");
-            $("#back_btn").trigger("click");
-          } else if (response.result == "4") {
-            swalError("Error", "Failed to Insert Regularization");
-          }
-          $("#pending").prop("checked", true).trigger("click");
+      swalConfirm(
+        "Are you sure?",
+        "Do you want to submit this Regularization?",
+        function () {
+          $.post(
+            "api/regularization_files/submit_regularization.php",
+            collData,
+            function (response) {
+              if (response.result == "1") {
+                swalSuccess("Success", "Regularization Updated Successfully.");
+                $("#back_btn").trigger("click");
+              } else if (response.result == "2") {
+                swalError("Error", "Failed to Update Regularization");
+              } else if (response.result == "3") {
+                swalSuccess("Success", "Regularization Inserted Successfully.");
+                $("#back_btn").trigger("click");
+              } else if (response.result == "4") {
+                swalError("Error", "Failed to Insert Regularization");
+              }
+              $("#pending").prop("checked", true).trigger("click");
+            },
+            "json",
+          );
         },
-        "json",
       );
     }
   }); //submit END.
@@ -241,6 +257,15 @@ $(document).ready(function () {
     );
   });
 
+  $("#approval_type").on("change", function () {
+    let value = $(this).val();
+
+    if (value == "2") {
+      $("#app_from_date, #app_to_date").prop("readonly", true);
+    } else {
+      $("#app_from_date, #app_to_date").prop("readonly", false);
+    }
+  });
   // $("#from_date, #to_date").on("change", function () {
   //   let from = new Date($("#from_date").val());
   //   let to = new Date($("#to_date").val());
@@ -337,7 +362,9 @@ $(function () {
 
 // to get the regularization list
 function getregularizationlist(sts) {
-  $("#regularization_table").DataTable().destroy();
+  if ($.fn.DataTable.isDataTable("#regularization_table")) {
+    $("#regularization_table").DataTable().destroy();
+  }
   getUserAccess(function (downloadAccess) {
     let buttons = [];
 
@@ -483,14 +510,22 @@ function getcmpyleavelist(cmpy_id) {
           selected = "selected";
         }
 
-        $("#leave_type").append( "<option value='" + val["id"] + "' " + selected + ">" +  val["leave_type"] + "</option>", );
+        $("#leave_type").append(
+          "<option value='" +
+            val["id"] +
+            "' " +
+            selected +
+            ">" +
+            val["leave_type"] +
+            "</option>",
+        );
       });
     },
     "json",
   );
 }
 
-// to get the balance request 
+// to get the balance request
 function getbalancerequest(req_type, cmpy_id) {
   let staff_id = $("#stf_prf_id").val();
 
@@ -520,11 +555,15 @@ function deleteregularization(id) {
   );
 }
 
-// to calculate the date difference 
-function calculateDateDiff( fromSelector,  toSelector, totalMinSelector,  totalDaysSelector,) {
+// to calculate the date difference
+function calculateDateDiff(
+  fromSelector,
+  toSelector,
+  totalMinSelector,
+  totalDaysSelector,
+) {
   let fromVal = $(fromSelector).val();
   let toVal = $(toSelector).val();
-
   // empty check
   if (fromVal == "" || toVal == "") {
     $(totalMinSelector).val(0);
@@ -537,21 +576,74 @@ function calculateDateDiff( fromSelector,  toSelector, totalMinSelector,  totalD
 
   let diffMs = to - from;
 
-  // invalid or negative
-  if (diffMs <= 0) {
-    $(totalMinSelector).val(0);
-    $(totalDaysSelector).val("0 Days 0 Hours 0 Minutes");
-    return;
+  // invalid date
+  let reqType = $("#req_type").val();
+
+  // Permission type
+  if (reqType == "2") {
+    // less than 1 minute
+    if (diffMs < 1000 * 60) {
+      alert("Permission must have at least 1 minute difference");
+
+      $(toSelector).val("");
+
+      $(totalMinSelector).val(0);
+
+      $(totalDaysSelector).val("0 Days 0 Hours 0 Minutes");
+
+      return;
+    }
+  } else {
+    // other request types
+    if (diffMs < 0) {
+      alert("To Date must be greater than From Date");
+
+      $(toSelector).val("");
+
+      $(totalMinSelector).val(0);
+
+      $(totalDaysSelector).val("0 Days 0 Hours 0 Minutes");
+
+      return;
+    }
   }
+
+  // detect datetime or date only
+  let hasTime = fromVal.includes(":") || toVal.includes(":");
 
   // total minutes
   let totalMinutes = Math.floor(diffMs / (1000 * 60));
+
+  // DATE ONLY → inclusive calculation
+  if (!hasTime) {
+    totalMinutes += 24 * 60;
+  }
+
   $(totalMinSelector).val(totalMinutes);
 
   // breakdown
   let days = Math.floor(totalMinutes / (24 * 60));
-  let hours = Math.floor((totalMinutes % (24 * 60)) / 60);
-  let minutes = totalMinutes % 60;
+
+  let remainingMinutes = totalMinutes % (24 * 60);
+
+  let hours = Math.floor(remainingMinutes / 60);
+
+  let minutes = remainingMinutes % 60;
+
+  // balance check
+  let balanceDays = parseInt($("#balance_req").val());
+
+  if (days > balanceDays) {
+    alert("You only have " + balanceDays + " leave days balance");
+
+    $(toSelector).val("");
+
+    $(totalMinSelector).val(0);
+
+    $(totalDaysSelector).val("0 Days 0 Hours 0 Minutes");
+
+    return;
+  }
 
   // display
   $(totalDaysSelector).val(
@@ -559,7 +651,7 @@ function calculateDateDiff( fromSelector,  toSelector, totalMinSelector,  totalD
   );
 }
 
-// to set the validation for the from and to date 
+// to set the validation for the from and to date
 function setDateValidation(fromSelector, toSelector) {
   $(fromSelector).on("change", function () {
     let fromDateTime = $(this).val();
@@ -576,13 +668,14 @@ function setDateValidation(fromSelector, toSelector) {
     }
   });
 
-  $(toSelector).on("change", function () {
-    let fromDateTime = $(fromSelector).val();
-    let toDateTime = $(this).val();
+  // $(toSelector).on("change", function () {
+  //   let fromDateTime = $(fromSelector).val();
+  //   console.log("fromDateTime",fromDateTime)
+  //   let toDateTime = $(this).val();
 
-    if (toDateTime < fromDateTime) {
-      alert("To Date/Time cannot be less than From Date/Time");
-      $(this).val("");
-    }
-  });
+  //   if (toDateTime < fromDateTime) {
+  //     alert("To Date/Time cannot be less than From Date/Time");
+  //     $(this).val("");
+  //   }
+  // });
 }
