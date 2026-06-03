@@ -1,4 +1,6 @@
 <?php
+// to delete the regularization request
+
 require "../../ajaxconfig.php";
 
 $id = $_POST['id'];

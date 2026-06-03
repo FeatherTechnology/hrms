@@ -1,4 +1,5 @@
 <?php
+// Get staff and attendance details based on Staff ID or Attendance ID.
 require "../../ajaxconfig.php";
 session_start();
 $userid = $_SESSION['user_id'] ?? "";

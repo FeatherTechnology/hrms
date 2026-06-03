@@ -1,4 +1,5 @@
 <?php
+// Get leave, permission, or week-off balance for the selected staff.
 
 require "../../ajaxconfig.php";
 
@@ -8,19 +9,26 @@ $staff_id = $_POST['staff_id'];
 
 $query = "";
 // to get the leave balance
-if ($req_type == '1') { 
-    
-$query = " SELECT 
-    clp.no_of_days,
-    COUNT(reg.id) AS used_count,
-    (clp.no_of_days - COUNT(reg.id)) AS balance
+if ($req_type == '1') {
 
-FROM  company_leave_policies clp
-LEFT JOIN regularization reg  ON reg.company_id = clp.company_id  AND reg.req_type = :req_type AND reg.staff_profile_id = :staff_id AND YEAR(reg.from_date) = YEAR(CURDATE()) AND YEAR(reg.to_date) = YEAR(CURDATE())
+    $query = " SELECT 
+    lc.no_of_days,
+    COALESCE(SUM(DATEDIFF(reg.to_date, reg.from_date) + 1), 0) AS used_count,
+    (lc.no_of_days - COALESCE(SUM(DATEDIFF(reg.to_date, reg.from_date) + 1), 0)) AS balance
 
-WHERE clp.id = :cmpy_id ";
+FROM leave_creation lc
 
-// to get the permission balance
+LEFT JOIN regularization reg  
+    ON reg.company_id = lc.company_id  
+    AND reg.req_type = :req_type 
+    AND reg.staff_profile_id = :staff_id 
+    AND YEAR(reg.from_date) = YEAR(CURDATE())
+    AND YEAR(reg.to_date) = YEAR(CURDATE())
+    AND reg.leave_type = :cmpy_id
+
+WHERE lc.id = :cmpy_id; ";
+
+    // to get the permission balance
 } else if ($req_type == '2') {
 
     $query = "  SELECT 
@@ -34,20 +42,33 @@ LEFT JOIN regularization reg  ON reg.company_id = cp.company_id  AND reg.req_typ
 WHERE cp.company_id = :cmpy_id
 GROUP BY cp.max_permission ";
 
-// to get the week off balance
+    // to get the week off balance
 } else {
     $query = " SELECT 
-    sum(cw.week_off),
-    COUNT(reg.id) AS used_count,
-    (sum(cw.week_off) - COUNT(reg.id)) AS balance
+    SUM(cw.week_off),
+    
+    COALESCE(
+        SUM(DATEDIFF(reg.to_date, reg.from_date) + 1), 0
+    ) AS used_count,
 
-FROM company_weekoffs  cw
-left join company_policies cp on cp.id = cw.leave_master_id
+    (
+        SUM(cw.week_off) - 
+        COALESCE(SUM(DATEDIFF(reg.to_date, reg.from_date) + 1), 0)
+    ) AS balance
 
-LEFT JOIN regularization reg  ON reg.company_id = cp.company_id AND reg.req_type = :req_type AND reg.staff_profile_id = :staff_id AND MONTH(reg.from_date) = MONTH(CURDATE())
-AND MONTH(reg.to_date) = MONTH(CURDATE())
+FROM company_weekoffs cw
 
-WHERE cp.company_id = :cmpy_id ";
+LEFT JOIN company_policies cp 
+    ON cp.id = cw.company_policies_id
+
+LEFT JOIN regularization reg  
+    ON reg.company_id = cp.company_id 
+    AND reg.req_type = :req_type 
+    AND reg.staff_profile_id = :staff_id 
+    AND MONTH(reg.from_date) = MONTH(CURDATE())
+    AND MONTH(reg.to_date) = MONTH(CURDATE())
+
+WHERE cp.company_id = :cmpy_id; ";
 }
 
 $stmt = $pdo->prepare($query);
@@ -61,5 +82,3 @@ $stmt->execute();
 $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
 echo json_encode($result);
-
-?>

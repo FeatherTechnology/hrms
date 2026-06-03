@@ -32,13 +32,16 @@
                 <button type="button" class="btn btn-primary" id="view_staff" style="margin-top:20px;">Search</button>
             </div>
         </div>
-         <div class="col-12 text-right">
+        <div class="col-12 text-right">
             <button class="btn btn-primary radio-card" id="add_staff" style="display: none;"><span class="icon-add"></span> Add Staff</button>
             <button class="btn btn-primary" id="back_btn" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
         </div></br>
         <div class="card staff_table_content">
+            <div class="card-header">
+                <div class="card-title">Staff List</div>
+            </div>
             <!-- Center Radio Buttons -->
-             <br>
+            <br>
             <div class="col-md-12 text-center radio-card" style="display: none;">
                 <div class="form-group mb-0 outer_search_card">
 
@@ -55,8 +58,6 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="col-12">
-
                     <table id="staff_create" class="table custom-table">
                         <thead>
                             <tr>
@@ -76,7 +77,6 @@
 
                         </tbody>
                     </table>
-                </div>
             </div>
         </div>
 
@@ -180,7 +180,6 @@
                                                         <option value="">Select Gender</option>
                                                         <option value="1">Male</option>
                                                         <option value="2">Female</option>
-                                                        <option value="3">Other</option>
                                                     </select>
                                                 </div>
                                             </div>

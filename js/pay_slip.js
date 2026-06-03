@@ -62,7 +62,7 @@ function getstaffdetails() {
 function getPayslip(company_id, branch_id, stf_prf_id, month) {
   $.post(
     "api/payroll_files/get_payroll.php",
-    { company_id,  branch_id, month, stf_prf_id},
+    { company_id, branch_id, month, stf_prf_id },
     function (response) {
       $(".pay_slip_details").show();
 
@@ -178,14 +178,10 @@ function getPayslip(company_id, branch_id, stf_prf_id, month) {
             <tr>
 
               <td>${earnName}</td>
-              <td>
-                ${earnAmount != "" ? "₹" + earnAmount : ""}
-              </td>
+              <td>${earnName ? "₹" + earnAmount : ""}</td>
 
               <td>${dedName}</td>
-              <td>
-                ${dedAmount != "" ? "₹" + dedAmount : ""}
-              </td>
+              <td>${dedName ? "₹" + dedAmount : ""}</td>
 
             </tr>
           `;

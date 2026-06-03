@@ -156,13 +156,13 @@
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="form-group">
-                            <label for="entry_time">Entry Time</label>
+                            <label for="entry_time">Entry Time</label><span class="text-danger">*</span>
                             <input type="datetime-local" class="form-control" id="entry_time" name="entry_time" placeholder="Team Name" tabindex="14">
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="form-group">
-                            <label for="reason">Reason</label>
+                            <label for="reason">Reason</label><span class="text-danger">*</span>
                             <textarea type="textarea" class="form-control" id="reason" name="reason" placeholder="Enter Reason" tabindex="15"></textarea>
                         </div>
                     </div>

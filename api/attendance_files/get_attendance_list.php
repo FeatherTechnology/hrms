@@ -1,7 +1,10 @@
 <?php
+// Fetch attendance regularization list based on company, branch, and selected date.
+// Shows staff details, attendance entry time, updated by, and reason.
+// Non-admin users can view only their reporting staff records.
+
 include '../../ajaxconfig.php';
 session_start();
-
 $userid = $_SESSION['user_id'] ?? "";
 
 /* ---------- Input ---------- */
@@ -10,6 +13,12 @@ $branch_id  = $_POST['branch_id'] ?? '';
 $att_date   = !empty($_POST['date']) ? date('Y-m-d', strtotime($_POST['date'])) : '';
 
 $staff_type = [1 => 'Employer', 2 => 'Employee'];
+
+/* ---------- Logged In User Details ---------- */ 
+$userQry = $pdo->prepare(" SELECT sc.staff_type, sc.company_id FROM users u LEFT JOIN staff_creation sc ON sc.id = u.staff_name_id WHERE u.id = ? "); 
+$userQry->execute([$userid]);
+$userData = $userQry->fetch(PDO::FETCH_ASSOC);
+$login_staff_type = $userData['staff_type'] ?? '';
 
 /* ---------- Column mapping ---------- */
 $columns = [
@@ -70,6 +79,17 @@ $params = [
     ':att_date'   => $att_date
 ];
 
+// this condition only for the employee to check the reporting person attendance only
+if ($login_staff_type != 1) {
+
+    $baseQuery .= "
+        AND oi.reporting_person = :userid
+    ";
+
+    $params[':userid'] = $userid;
+}
+
+// search
 if (!empty($_POST['search']['value'])) {
     $search = '%' . $_POST['search']['value'] . '%';
 

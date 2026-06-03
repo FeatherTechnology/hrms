@@ -1,20 +1,20 @@
 <?php
+
+// Generate monthly payroll report based on company, branch, and selected month.
+// Calculates attendance, leave, LOP, OT, salary components, statutory deductions, and net salary for each staff.
+
 include '../../ajaxconfig.php';
 
 $company_id = $_POST['company_id'];
 $branch_id  = $_POST['branch_id'];
 $month      = $_POST['month'];
-$stff_con ='';
+$stff_con = '';
 if (isset($_POST['stf_prf_id']) && $_POST['stf_prf_id'] != '') {
     $stf_prf_id = $_POST['stf_prf_id'];
-    $stff_con ="AND o.branch_id = ''$stf_prf_id'";
+    $stff_con = "AND o.branch_id = ''$stf_prf_id'";
 }
-
 $result = array();
-
-///////////////////////////////////////////////////////////
-// GET ALL SALARY COMPONENTS
-///////////////////////////////////////////////////////////
+// GET ALL SALARY COMPONENT
 $componentArr = array();
 
 $getComponents = $pdo->query("
@@ -26,10 +26,7 @@ $getComponents = $pdo->query("
 while ($row = $getComponents->fetch()) {
     $componentArr[$row['id']] = $row['salary_component'];
 }
-
-///////////////////////////////////////////////////////////
-// GET STAFF LIST
-///////////////////////////////////////////////////////////
+// GET STAFF LIS
 $getStaff = $pdo->query("
     SELECT 
         sc.id AS staff_profile_id,
@@ -79,36 +76,44 @@ while ($staff = $getStaff->fetch()) {
     $components = array();
     $gross_total = 0;
 
-    ///////////////////////////////////////////////////////////
     // MONTH CALCULATION
-    ///////////////////////////////////////////////////////////
     $start_date = $month . "-01";
     $end_date   = date("Y-m-t", strtotime($start_date));
     $total_days = date("t", strtotime($start_date));
 
-    ///////////////////////////////////////////////////////////
     // WEEKOFF
-    ///////////////////////////////////////////////////////////
     $weekoffQry = $pdo->query("
         SELECT cw.week_off 
         FROM company_weekoffs cw 
-        JOIN company_leave_policies clp 
-            ON clp.id = cw.leave_master_id  
-        WHERE clp.company_id = '$company_id'
+        JOIN company_policies cp 
+            ON cp.id = cw.company_policies_id  
+        WHERE cp.company_id = '$company_id'
     ");
 
     $weekoff = $weekoffQry->fetch()['week_off'] ?? 0;
-    $working_days = $total_days - $weekoff;
+    // HOLIDAYS
+    $holidayQry = $pdo->query("
+    SELECT IFNULL(SUM(no_of_days),0) as total_holidays
+    FROM holiday_creation
+    WHERE company_id = '$company_id'
+    AND status = 0
+    AND (
+        from_date BETWEEN '$start_date' AND '$end_date'
+        OR to_date BETWEEN '$start_date' AND '$end_date'
+    )
+");
 
-    ///////////////////////////////////////////////////////////
+    $total_holidays = $holidayQry->fetch()['total_holidays'] ?? 0;
+
+    // WORKING DAYS
+    $working_days = $total_days - $weekoff - $total_holidays;
     // SHIFT DETAILS
-    ///////////////////////////////////////////////////////////
     $shift_hours = 0;
 
     $shiftQry = $pdo->query("
         SELECT shift_time
-        FROM shift_schedules
-        WHERE id = '".$staff['shift']."'
+        FROM shift_creation
+        WHERE id = '" . $staff['shift'] . "'
     ");
 
     $shiftData = $shiftQry->fetch();
@@ -118,9 +123,7 @@ while ($staff = $getStaff->fetch()) {
         $shift_hours = $m[1] ?? 0;
     }
 
-    ///////////////////////////////////////////////////////////
     // PRESENT DAYS
-    ///////////////////////////////////////////////////////////
     $attQry = $pdo->query("
         SELECT COUNT(DISTINCT DATE(entry_time)) as present_days
         FROM attendance
@@ -130,9 +133,7 @@ while ($staff = $getStaff->fetch()) {
 
     $present_days = $attQry->fetch()['present_days'] ?? 0;
 
-    ///////////////////////////////////////////////////////////
     // APPROVED LEAVE (req_type = 1)
-    ///////////////////////////////////////////////////////////
     $leaveQry = $pdo->query("
         SELECT approved_from_date, approved_to_date
         FROM regularization
@@ -160,31 +161,22 @@ while ($staff = $getStaff->fetch()) {
             $approved_leave += (($b - $a) / 86400) + 1;
         }
     }
-
-    ///////////////////////////////////////////////////////////
     // TOTAL PAYABLE DAYS
-    ///////////////////////////////////////////////////////////
     $total_payable_days = $present_days + $approved_leave;
 
-    ///////////////////////////////////////////////////////////
     // EXTRA WORKING DAYS
-    ///////////////////////////////////////////////////////////
     $extra_working_days = 0;
     if ($total_payable_days > $working_days) {
         $extra_working_days = $total_payable_days - $working_days;
     }
 
-    ///////////////////////////////////////////////////////////
     // LOP DAYS
-    ///////////////////////////////////////////////////////////
     $lop_days = 0;
     if ($total_payable_days < $working_days) {
         $lop_days = $working_days - $total_payable_days;
     }
 
-    ///////////////////////////////////////////////////////////
     // OT (req_type = 4)
-    ///////////////////////////////////////////////////////////
     $otQry = $pdo->query("
         SELECT approved_from_date, approved_to_date
         FROM regularization
@@ -213,9 +205,7 @@ while ($staff = $getStaff->fetch()) {
 
     $ot_hours_text = floor($total_ot_hours) . " hrs " . ($total_ot_minutes % 60) . " mins";
 
-    ///////////////////////////////////////////////////////////
     // OT AMOUNT
-    ///////////////////////////////////////////////////////////
     $ot_amount = 0;
 
     // CTC BASED OT
@@ -232,9 +222,7 @@ while ($staff = $getStaff->fetch()) {
         $ot_amount = $staff['ot_per_day'] * $ot_days;
     }
 
-    ///////////////////////////////////////////////////////////
     // SALARY COMPONENTS
-    ///////////////////////////////////////////////////////////
     $getSalary = $pdo->query("
         SELECT sci.ctc_id, sci.ctc_amount, cc.salary_component
         FROM staff_ctc_info sci
@@ -260,14 +248,10 @@ while ($staff = $getStaff->fetch()) {
         $gross_total += $amount;
     }
 
-    ///////////////////////////////////////////////////////////
     // ADD OT INTO GROSS
-    ///////////////////////////////////////////////////////////
     $gross_total += $ot_amount;
 
-    ///////////////////////////////////////////////////////////
     // STATUTORY
-    ///////////////////////////////////////////////////////////
     $statQry = $pdo->query("
         SELECT * FROM statutory_compliance
         WHERE company_id = '$company_id'
@@ -279,9 +263,7 @@ while ($staff = $getStaff->fetch()) {
     $employee_pf = $employer_pf = $admin_charge = $pension = 0;
     $employee_esi = $employer_esi = $pt = 0;
 
-    ///////////////////////////////////////////////////////////
     // PF
-    ///////////////////////////////////////////////////////////
     if (!empty($stat) && $staff['pf_available'] == 1 && $stat['pf_applicable'] == 1) {
 
         $pf_salary = $gross_total;
@@ -296,22 +278,18 @@ while ($staff = $getStaff->fetch()) {
         $pension = ($pf_salary * $stat['pension']) / 100;
     }
 
-    ///////////////////////////////////////////////////////////
     // ESI
-    ///////////////////////////////////////////////////////////
     if (!empty($stat) && $staff['esi_available'] == 1 && $stat['esi_applicable'] == 1) {
 
         $employee_esi = ($gross_total * $stat['employee_share']) / 100;
         $employer_esi = ($gross_total * $stat['employer_share']) / 100;
     }
 
-    ///////////////////////////////////////////////////////////
     // PT
-    ///////////////////////////////////////////////////////////
     if (!empty($stat) && $staff['pt_available'] == 1 && $stat['professional_tax_applicable'] == 1) {
 
         if ($stat['calculation_type'] == 1) {
-            $pt = ($gross_total * $stat['percentage']) / 100;
+            $pt = (float)$gross_total * (float)$stat['percentage'] / 100;
         } else {
             $slabs = explode(",", $stat['slab']);
             foreach ($slabs as $slab) {
@@ -327,9 +305,7 @@ while ($staff = $getStaff->fetch()) {
         }
     }
 
-    ///////////////////////////////////////////////////////////
     // STAFF TYPE
-    ///////////////////////////////////////////////////////////
     if ($staff['staff_type'] == 1) {
         $pf_amount = $employer_pf;
         $esi_amount = $employer_esi;
@@ -342,11 +318,9 @@ while ($staff = $getStaff->fetch()) {
 
     $net_salary = $gross_total - $deduction_total;
 
-    ///////////////////////////////////////////////////////////
     // RESULT
-    ///////////////////////////////////////////////////////////
     $result[] = array(
-         'sno' => $sno,
+        'sno' => $sno,
         'staff_id' => $staff['staff_id'],
         'staff_name' => $staff['staff_name'],
         'company_name' => $staff['company_name'],
@@ -374,7 +348,7 @@ while ($staff = $getStaff->fetch()) {
         'net_salary' => number_format($net_salary, 2),
 
         'extra_working' => $extra_working_days,
-        
+
         'ot_hours' => $ot_hours_text,
         'ot_days' => round($ot_days, 2),
         'ot_amount' => number_format($ot_amount, 2),

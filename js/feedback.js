@@ -153,21 +153,37 @@ $(document).ready(function () {
     let feedback_configuration_id = $(this).val();
 
     let answerArr = [];
+    let isValid = true;
 
     //////////////////////////////////////////////////////
-    // GET ALL ANSWERS
+    // VALIDATE ALL ANSWERS
     //////////////////////////////////////////////////////
 
     $(".feedback_answer").each(function () {
       let question_id = $(this).attr("data-question-id");
+      let answer = $(this).val().trim();
 
-      let answer = $(this).val();
+      if (answer == "") {
+        isValid = false;
+        $(this).addClass("is-invalid"); // Bootstrap red border
+      } else {
+        $(this).removeClass("is-invalid");
+      }
 
       answerArr.push({
         question_id: question_id,
         answer: answer,
       });
     });
+
+    //////////////////////////////////////////////////////
+    // SHOW ALERT IF ANY ANSWER IS EMPTY
+    //////////////////////////////////////////////////////
+
+    if (!isValid) {
+      swalError("Validation", "Please answer all questions before submitting.");
+      return false;
+    }
 
     //////////////////////////////////////////////////////
     // INSERT
@@ -181,7 +197,8 @@ $(document).ready(function () {
       },
       function (response) {
         if (response == 1) {
-          swalSuccess("Success", "Feedback Answer Submited Successfully.");
+          swalSuccess("Success", "Feedback Answer Submitted Successfully.");
+
           $('input[name="feedback_type"][value="1"]')
             .prop("checked", true)
             .trigger("click");
