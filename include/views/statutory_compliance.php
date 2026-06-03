@@ -15,7 +15,13 @@
                             <th>Company Name</th>
                             <th>State</th>
                             <th>PF Applicable</th>
+                            <th>PF Employee Contribution</th>
+                            <th>PF Employer Contribution</th>
+                            <th>Admin Charges</th>
+                            <th>Pension</th>
                             <th>ESI Applicable</th>
+                            <th>ESI Employee Share</th>
+                            <th>ESI Employer Share</th>
                             <th>Action</th>
                         </tr>
                     </thead>
