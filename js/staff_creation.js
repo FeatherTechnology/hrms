@@ -834,12 +834,12 @@ $(document).ready(function () {
         let company_id = $('#company_search').val();
         let branch_id = $('#branch_search').val();
         let department_id = $('#department_search').val();
-        $('.radio-card').show();
+       
         if (!company_id && !branch_id && !department_id) {
             swalError('Warning', 'Please Select Atleast One Fields!');
             return;
         }
-
+        $('.radio-card').show();
         getStaffTable(company_id, branch_id, department_id);
     });
 
