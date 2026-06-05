@@ -160,7 +160,7 @@
                         <div class="text-right">
 
                             <button type="submit" name="submit_branch_creation" id="submit_branch_creation" class="btn btn-primary" value="Submit" tabindex="15"><span class="icon-check"></span>&nbsp;Submit</button>
-                            <button type="reset" class="btn btn-outline-secondary" tabindex="16">Clear</button>
+                            <button type="reset" class="btn btn-outline-secondary" id="branch_reset_btn" tabindex="16">Clear</button>
                         </div>
                     </div>
 

@@ -4,8 +4,8 @@
             <div class="radio-container">
                 <div class="selector">
                     <div class="selector-item">
-                        <input type="radio" id="gendral_feedback" name="feedback_type" class="selector-item_radio" value="0" checked>
-                        <label for="gendral_feedback" class="selector-item_label">Gendral Feedback</label>
+                        <input type="radio" id="general_feedback" name="feedback_type" class="selector-item_radio" value="0" checked>
+                        <label for="general_feedback" class="selector-item_label">General Feedback</label>
                     </div>
                     <div class="selector-item">
                         <input type="radio" id="scheduled_feedback" name="feedback_type" class="selector-item_radio" value="1">
@@ -16,15 +16,15 @@
             </div>
             <br> <br>
 
-            <div class="card" id="gendral_feedback_div" style="display: none;">
+            <div class="card" id="general_feedback_div" style="display: none;">
                 <div class="card-header">
-                    <h5 class="card-title">Gendral Feedback</h5>
+                    <h5 class="card-title">General Feedback</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4 col-sm-6">
                             <div class="form-group">
-                                <label for="feedback_name">Feed Back Name</label><span class="text-danger">*</span>
+                                <label for="feedback_name">Feedback Name</label><span class="text-danger">*</span>
                                 <select class="form-control" id="feedback_name" name="feedback_name" tabindex="1">
                                     <option> Select Feedback Name</option>
 

@@ -69,6 +69,7 @@
                                 <input type="hidden" name="des_id" id="des_id" value="" />
                                 <input type="hidden" name="team_id" id="team_id" value="" />
                                 <input type="hidden" name="hidden_id" id="hidden_id" value="" />
+                                <input type="hidden" name="staff_type" id="staff_type" value="" />
 
                         <div class="col-md-4 col-sm-6">
                             <div class="form-group">
@@ -99,14 +100,14 @@
                         <div class="col-md-4 col-sm-6">
                             <div class="form-group">
                                 <label for="department">Department</label>
-                                <input type="text" class="form-control" id="department" name="department" placeholder="Department" tabindex="6" readonly>
+                                <input type="text" class="form-control" id="department" name="department" placeholder="Department" tabindex="5" readonly>
 
                             </div>
                         </div>
                         <div class="col-md-4 col-sm-6">
                             <div class="form-group">
                                 <label for="designation">Designation</label>
-                                <input type="text" class="form-control" id="designation" name="designation" placeholder="Designation" tabindex="5" readonly>
+                                <input type="text" class="form-control" id="designation" name="designation" placeholder="Designation" tabindex="6" readonly>
                             </div>
                         </div>
                         <div class="col-md-4 col-sm-6">
@@ -206,8 +207,8 @@
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
                                     <label for="approval_type">Approval</label><span class="text-danger">*</span>
-                                    <select class="form-control" id="approval_type" name="approval_type" tabindex="9">
-                                        <option value="">Select Approval Type</option>
+                                    <select class="form-control" id="approval_type" name="approval_type" tabindex="16">
+                                        <option value="0">Select Approval Type</option>
                                         <option value="1">Yes</option>
                                         <option value="2">No</option>
                                     </select>
@@ -216,25 +217,25 @@
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
                                     <label for="app_from_date">Approved From Date</label><span class="text-danger">*</span>
-                                    <input type="datetime-local" class="form-control" id="app_from_date" name="app_from_date" placeholder="Enter Approved From Date" tabindex="12">
+                                    <input type="datetime-local" class="form-control" id="app_from_date" name="app_from_date" placeholder="Enter Approved From Date" tabindex="17">
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
                                     <label for="app_to_date">Approved To Date</label><span class="text-danger">*</span>
-                                    <input type="datetime-local" class="form-control" id="app_to_date" name="app_to_date" placeholder="Enter Approved To Date" tabindex="13">
+                                    <input type="datetime-local" class="form-control" id="app_to_date" name="app_to_date" placeholder="Enter Approved To Date" tabindex="18">
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
                                     <label for="total_days_hrs">Total Days/Hrms</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="app_total_days" name="app_total_days" placeholder="Total Days / Hrs" tabindex="14" readonly>
+                                    <input type="text" class="form-control" id="app_total_days" name="app_total_days" placeholder="Total Days / Hrs" tabindex="19" readonly>
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
                                     <label for="remarks">Remarks</label><span class="text-danger">*</span>
-                                    <textarea type="textarea" class="form-control" id="remarks" name="remarks" placeholder="Enter Remarks" tabindex="15"></textarea>
+                                    <textarea type="textarea" class="form-control" id="remarks" name="remarks" placeholder="Enter Remarks" tabindex="20"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -244,7 +245,7 @@
             <!-- approval div end -->
             <div class="col-md-12 ">
                 <div class="text-right">
-                    <button type="submit" name="submit_regularization" id="submit_regularization" class="btn btn-primary" value="Submit">Submit</button>
+                    <button type="submit" name="submit_regularization" id="submit_regularization" class="btn btn-primary" value="Submit" tabindex="21">Submit</button>
                 </div>
             </div>
         </div>

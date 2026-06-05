@@ -9,11 +9,13 @@ $company_id = $_POST['company_id'];
 $branch_id  = $_POST['branch_id'];
 $month      = $_POST['month'];
 $stff_con = '';
+// in pay slip we use this condition to get the seperate pay slip 
 if (isset($_POST['stf_prf_id']) && $_POST['stf_prf_id'] != '') {
     $stf_prf_id = $_POST['stf_prf_id'];
-    $stff_con = "AND o.branch_id = ''$stf_prf_id'";
+    $stff_con = "AND o.staff_profile_id = '$stf_prf_id'";
 }
 $result = array();
+
 // GET ALL SALARY COMPONENT
 $componentArr = array();
 
@@ -26,6 +28,7 @@ $getComponents = $pdo->query("
 while ($row = $getComponents->fetch()) {
     $componentArr[$row['id']] = $row['salary_component'];
 }
+
 // GET STAFF LIS
 $getStaff = $pdo->query("
     SELECT 
@@ -64,7 +67,7 @@ $getStaff = $pdo->query("
     LEFT JOIN team_name_creation tc ON tc.id = o.team
 
     WHERE o.company_id = '$company_id'
-    AND o.branch_id = '$branch_id'
+    AND o.branch_id = '$branch_id' $stff_con
 ");
 
 $sno = 1;
@@ -91,6 +94,7 @@ while ($staff = $getStaff->fetch()) {
     ");
 
     $weekoff = $weekoffQry->fetch()['week_off'] ?? 0;
+
     // HOLIDAYS
     $holidayQry = $pdo->query("
     SELECT IFNULL(SUM(no_of_days),0) as total_holidays
@@ -102,7 +106,6 @@ while ($staff = $getStaff->fetch()) {
         OR to_date BETWEEN '$start_date' AND '$end_date'
     )
 ");
-
     $total_holidays = $holidayQry->fetch()['total_holidays'] ?? 0;
 
     // WORKING DAYS
@@ -133,7 +136,7 @@ while ($staff = $getStaff->fetch()) {
 
     $present_days = $attQry->fetch()['present_days'] ?? 0;
 
-    // APPROVED LEAVE (req_type = 1)
+    // APPROVED LEAVE (req_type = 1) 
     $leaveQry = $pdo->query("
         SELECT approved_from_date, approved_to_date
         FROM regularization
@@ -224,27 +227,59 @@ while ($staff = $getStaff->fetch()) {
 
     // SALARY COMPONENTS
     $getSalary = $pdo->query("
-        SELECT sci.ctc_id, sci.ctc_amount, cc.salary_component
-        FROM staff_ctc_info sci
-        LEFT JOIN ctc_creation cc ON cc.id = sci.ctc_id
-        INNER JOIN (
-            SELECT MAX(id) AS last_id
-            FROM staff_ctc_info
-            WHERE staff_profile_id = '$staff_profile_id'
-            GROUP BY ctc_id, staff_profile_id
-        ) latest ON latest.last_id = sci.id
-    ");
+    SELECT 
+        sci.ctc_id,
+        sci.ctc_amount,
+        cc.salary_component,
+        cc.component_category,
+        cc.pay_frequency
+    FROM staff_ctc_info sci
+
+    LEFT JOIN ctc_creation cc 
+        ON cc.id = sci.ctc_id
+
+    INNER JOIN (
+        SELECT MAX(id) AS last_id
+        FROM staff_ctc_info
+        WHERE staff_profile_id = '$staff_profile_id'
+        GROUP BY ctc_id, staff_profile_id
+    ) latest 
+        ON latest.last_id = sci.id
+");
 
     while ($salary = $getSalary->fetch()) {
 
         $name = $salary['salary_component'];
         $amount = floatval(str_replace(',', '', $salary['ctc_amount']));
 
-        if ($working_days > 0) {
-            $amount = ($amount / $working_days) * $total_payable_days;
+        $component_category = $salary['component_category'];
+        $pay_frequency      = $salary['pay_frequency'];
+
+        /* component_category 1 = Salary 2 = Reimbursement
+        pay_frequency 1 = Monthly  2 = Per Day*/
+
+        // SALARY COMPONENTS
+        if ($component_category == 1) {
+
+            // BASIC, DA, HRA, etc.
+            if ($working_days > 0) {
+                $amount = ($amount / $working_days) * $total_payable_days;
+            }
+        }
+        // REIMBURSEMENT COMPONENTS
+        else if ($component_category == 2) {
+
+            // PER DAY REIMBURSEMENT
+            if ($pay_frequency == 2) {
+                $amount = $amount * $total_payable_days;
+            }
+            else {
+                $amount = $amount;
+            }
         }
 
         $components[$name] = round($amount, 2);
+
         $gross_total += $amount;
     }
 
@@ -362,4 +397,3 @@ echo json_encode([
     'components' => array_values($componentArr),
     'data' => $result
 ]);
-?>

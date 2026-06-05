@@ -236,7 +236,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card mt-3">
+                <div class="card mt-3" id="exit_detail_div">
                     <div class="card-header">
                         <h5 class="card-title">Exit Details</h5>
                     </div>

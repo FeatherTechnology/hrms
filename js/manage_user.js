@@ -1,5 +1,6 @@
 $(document).ready(function () {
   $(".add_user_btn, .back_to_userList_btn").click(function () {
+    $("#reset_btn").show();
     swapTableAndCreation();
   });
 
@@ -83,39 +84,46 @@ $(document).ready(function () {
     });
 
     if (isValid) {
-      if (selectedSubmenuIds.length > 0) {
-        $.post(
-          "api/user_creation_files/submit_user_creation.php",
-          userFormData,
-          function (response) {
-            if (response.status == "") {
-              swalError("Error", "Creation Failed.");
-            } else if (response.status == "1") {
-              swalSuccess("Success", "User Updated Successfully!");
-            } else if (response.status == "2") {
-              swalSuccess("Success", "User Added Successfully!");
-            } else if (response.status == "3") {
-              swalError("Warning", "User Name Already Created.");
-            }
+      swalConfirm(
+        "Are you sure?",
+        "Do you want to submit this Manage User?",
+        function () {
+          if (selectedSubmenuIds.length > 0) {
+            $.post(
+              "api/user_creation_files/submit_user_creation.php",
+              userFormData,
+              function (response) {
+                if (response.status == "") {
+                  swalError("Error", "Creation Failed.");
+                } else if (response.status == "1") {
+                  swalSuccess("Success", "User Updated Successfully!");
+                } else if (response.status == "2") {
+                  swalSuccess("Success", "User Added Successfully!");
+                } else if (response.status == "3") {
+                  swalError("Warning", "User Name Already Created.");
+                }
 
-            if (response.status != "" && response.status != "3") {
-              swapTableAndCreation();
-            }
-            let sessionId = $("#session_user_id").val();
-            if (response.last_id == sessionId) {
-              getLeftbarMenuList(); //After Submit/Update Leftbar want to refresh to view the changes.
-            }
-          },
-          "json",
-        );
-      } else {
-        swalError("Warning", "Please fill out mandatory fields!");
-      }
+                if (response.status != "" && response.status != "3") {
+                  swapTableAndCreation();
+                }
+                let sessionId = $("#session_user_id").val();
+                if (response.last_id == sessionId) {
+                  getLeftbarMenuList(); //After Submit/Update Leftbar want to refresh to view the changes.
+                }
+              },
+              "json",
+            );
+          } else {
+            swalError("Warning", "Please fill out mandatory fields!");
+          }
+        },
+      );
     }
     // }
   });
 
   $(document).on("click", ".userActionBtn", async function () {
+    $("#reset_btn").hide();
     var id = $(this).attr("value"); // Get value attribute
 
     try {
@@ -129,9 +137,9 @@ $(document).ready(function () {
       $("#user_creation_id").val(id);
       swapTableAndCreation();
       await getCompanyName();
-
       $("#user_code").val(response[0].user_code);
-      $("#company_name").val(response[0].company_id);
+      // $("#company_name").val(response[0].company_id);
+      $("#company_name").val(response[0].company_id).trigger("change");
       $("#role").val(response[0].role);
       await getStaffName(response[0].company_id, response[0].role);
       $("#staff_name").val(response[0].staff_name);
@@ -223,6 +231,8 @@ $(document).ready(function () {
     $("#confirm_password").css("border", "1px solid #cecece");
     $("#download_access").css("border", "1px solid #cecece");
     $("#report_access").css("border", "1px solid #cecece");
+    $("#staff_name").css("border", "1px solid #cecece");
+    $("#home_access").css("border", "1px solid #cecece");
   });
 }); //Document END.
 
@@ -387,6 +397,7 @@ function getUserCreationTable() {
         "company_name",
         "role",
         "staff_name",
+        "user_id",
         "branch_name",
         "department_name",
         "team_name",

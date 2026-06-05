@@ -196,11 +196,10 @@ foreach ($result as $row) {
 
     /* action */
     if ($row['insert_login_id'] == $userid) {
-         $action = "<span class='icon-delete delete_reg' data-id='" . $row['id'] . "' data-status = '".$row['status']."'></span>";
+         $action = "<span class='icon-delete delete_reg' data-id='" . $row['id'] . "' data-status = '".$row['status']."' data-appFrom = '".$row['approved_from_date']."' data-appTo = '".$row['approved_to_date']."'></span>";
                     
     } else {
-        $action = "<span class='icon-border_color edit_reg' data-id='{$row['id']}' data-staff_id='{$row['insert_login_id']}  data-status = '".$row['status']."''></span>";
-    }
+        $action = "<span class='icon-border_color edit_reg' data-id='{$row['id']}' data-staff_id='{$row['insert_login_id']}'data-status='{$row['status']}' data-appFrom='{$row['approved_from_date']}' data-appTo='{$row['approved_to_date']}'></span>";    }
 
     $data[] = [
         $sno++,
@@ -211,10 +210,10 @@ foreach ($result as $row) {
         $row['department_name'],
         $row['designation'],
         $row['team_name'],
-        !empty($row['req_date']) ? date('d-m-Y', strtotime($row['req_date'])) : '',
+        !empty($row['req_date']) ? date('d-m-Y H:i:s', strtotime($row['req_date'])) : '',
         $Req_type[$row['req_type']] ?? '',
-        $row['from_date'],
-        $row['to_date'],
+        !empty($row['from_date']) ? date('d-m-Y H:i:s', strtotime($row['from_date'])) : '',
+        !empty($row['to_date']) ? date('d-m-Y H:i:s', strtotime($row['to_date'])) : '',
         $duration,
         $reg_status[$row['status']] ?? '',
         $action

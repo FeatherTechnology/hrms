@@ -13,14 +13,15 @@ $(document).ready(function () {
 
   // to add the new regularization
   $(".add_reg").click(function () {
-    $("#req_type").val("");
-    $("#leave_type").val("");
-    $("#balance_req").val("");
-    $("#from_date").val("");
-    $("#to_date").val("");
-    $("#total_days").val("");
-    $("#reason").val("");
-    $("#hidden_id").val("");
+    setCurrentMonthRestriction("#from_date", "#to_date");
+    // setCurrentMonthRestriction("#app_from_date", "#app_to_date");
+    $(
+      "#req_type,#leave_type,#balance_req,#from_date,#to_date,#total_days,#reason,#hidden_id,#leave_type_id",
+    ).val("");
+
+    $(
+      ".req_div input, .req_div select,.req_div textarea, .approval_div input, .approval_div select,.approval_div textarea",
+    ).css("border", "1px solid #cecece");
 
     $("#to_date").attr("readonly", false);
     $("#req_type").attr("readonly", false);
@@ -28,13 +29,10 @@ $(document).ready(function () {
     $("#from_date").attr("readonly", false);
     $("#reason").attr("readonly", false);
 
-    $("#back_btn").show();
-    $("#balance_req").show();
-    $(".staff_info_div").show();
-    $(".add_reg").hide();
-    $(".regularization_list").hide();
-    $(".approval_div").hide();
-    $("#leveType").hide();
+    $("#back_btn,#balance_req,.staff_info_div").show();
+
+    $(".add_reg,.regularization_list,.approval_div,#leveType").hide();
+
     getuserdetails("");
   });
 
@@ -55,18 +53,33 @@ $(document).ready(function () {
     let id = $(this).data("id");
     let staff_id = $(this).data("staff_id");
     let status = $(this).data("status");
+    let appfrom = $(this).data("appfrom");
+    let currentdate = new Date();
 
     if (status == "1") {
-      swalError("Error", "This request has already been approved");
+      // swalError("Error", "This request has already been approved");
+      let appFromDate = new Date(appfrom);
+
+      if (appFromDate > currentdate) {
+        // app_from date is greater than current date
+        $("#back_btn,.staff_info_div,.approval_div").show();
+
+        $(".add_reg,.regularization_list").hide();
+
+        $("#hidden_id").val(id);
+        getedituserdetails(id, staff_id);
+      } else {
+        swalError("Error", "This request has already Approved.");
+      }
     } else if (status == "2") {
-      swalError("Error", "This request has already been cancelled");
+      swalError("Warning", "This request has already been cancelled");
     } else {
-      $("#back_btn").show();
-      $(".staff_info_div").show();
-      $(".approval_div").show();
-      $(".add_reg").hide();
-      $(".regularization_list").hide();
+      $("#back_btn,.staff_info_div,.approval_div").show();
+
+      $(".add_reg,.regularization_list").hide();
+
       $("#hidden_id").val(id);
+
       getedituserdetails(id, staff_id);
     }
   });
@@ -75,32 +88,28 @@ $(document).ready(function () {
   $("#req_type").change(function () {
     let cmpy_id = $("#cmpy_id").val();
     let value = $(this).val();
+    $(".leveType,#from_date,#to_date,#leave_type_id,#balance_req").val("");
     if (value == "1") {
       $(".leveType").show();
       $(".bal_req").show();
-      $("#from_date").attr("type", "date");
-      $("#to_date").attr("type", "date");
+      $("#from_date,#to_date").attr("type", "date");
 
       getcmpyleavelist(cmpy_id);
     } else if (value == "2") {
       $(".bal_req").show();
       $(".leveType").hide();
-      $("#from_date").attr("type", "datetime-local");
-      $("#to_date").attr("type", "datetime-local");
+      $("#from_date,#to_date").attr("type", "datetime-local");
       getbalancerequest("2", cmpy_id);
     } else if (value == "3") {
       $(".bal_req").show();
       $(".leveType").hide();
-      $("#from_date").attr("type", "date");
-      $("#to_date").attr("type", "date");
+      $("#from_date,#to_date").attr("type", "date");
       getbalancerequest("3", cmpy_id);
     } else if (value == "4") {
       $(".bal_req").hide();
       $(".leveType").hide();
-      $("#balance_req").val("");
-      $("#leave_type").val("");
-      $("#from_date").attr("type", "datetime-local");
-      $("#to_date").attr("type", "datetime-local");
+      $("#leave_type,#leave_type_id,#balance_req").val("");
+      $("#from_date,#to_date").attr("type", "datetime-local");
     }
   });
 
@@ -114,9 +123,19 @@ $(document).ready(function () {
   $(document).on("click", ".delete_reg", function () {
     let id = $(this).data("id");
     let status = $(this).data("status");
+    let appfrom = $(this).data("appfrom");
+    let currentdate = new Date();
 
     if (status == "1") {
-      swalError("Error", "This request has already been approved");
+      // swalError("Error", "This request has already been approved");
+      let appFromDate = new Date(appfrom);
+
+      if (appFromDate > currentdate) {
+        // app_from date is greater than current date
+        deleteregularization(id);
+      } else {
+        swalError("Error", "This request has already Approved.");
+      }
     } else if (status == "2") {
       swalError("Error", "This request has already been cancelled");
     } else {
@@ -134,6 +153,7 @@ $(document).ready(function () {
     let collData = {
       stf_prf_id: $("#stf_prf_id").val(),
       staff_id: $("#staff_id").val(),
+      staff_type: $("#staff_type").val(),
       cmpy_id: $("#cmpy_id").val(),
       branch_id: $("#branch_id").val(),
       dep_id: $("#dep_id").val(),
@@ -177,31 +197,32 @@ $(document).ready(function () {
     if (!validationResults.every((result) => result)) {
       isValid = false;
     }
+    if ($(".approval_div").is(":visible")) {
+      let approvalValidation = [
+        validateField(approval_type, "approval_type"),
+        validateField(remarks, "remarks"),
+      ];
 
-    let approvalValidation = [
-      validateField(approval_type, "approval_type"),
-      validateField(remarks, "remarks"),
-    ];
+      if (approval_type == "1") {
+        approvalValidation.push(
+          validateField(app_from_date, "app_from_date"),
+          validateField(app_to_date, "app_to_date"),
+        );
+      }
 
-    if (approval_type == "1") {
-      approvalValidation.push(
-        validateField(app_from_date, "app_from_date"),
-        validateField(app_to_date, "app_to_date"),
-      );
-    }
+      if (!approvalValidation.every((r) => r)) {
+        isValid = false;
+      }
 
-    if (!approvalValidation.every((r) => r)) {
-      isValid = false;
-    }
-
-    if (
-      approval_type == "1" &&
-      app_from_date &&
-      app_to_date &&
-      app_to_date < app_from_date
-    ) {
-      swalError("Error", "Approved To Date cannot be less than From Date");
-      isValid = false;
+      if (
+        approval_type == "1" &&
+        app_from_date &&
+        app_to_date &&
+        app_to_date < app_from_date
+      ) {
+        swalError("Error", "Approved To Date cannot be less than From Date");
+        isValid = false;
+      }
     }
 
     req_type = parseInt($("#req_type").val());
@@ -233,7 +254,7 @@ $(document).ready(function () {
               } else if (response.result == "4") {
                 swalError("Error", "Failed to Insert Regularization");
               }
-              $("#pending").prop("checked", true).trigger("click");
+              // $("#pending").prop("checked", true).trigger("click");
             },
             "json",
           );
@@ -262,92 +283,12 @@ $(document).ready(function () {
 
     if (value == "2") {
       $("#app_from_date, #app_to_date").prop("readonly", true);
+      $("#app_from_date,#app_to_date,#app_total_days,#app_total_min").val("");
     } else {
       $("#app_from_date, #app_to_date").prop("readonly", false);
     }
   });
-  // $("#from_date, #to_date").on("change", function () {
-  //   let from = new Date($("#from_date").val());
-  //   let to = new Date($("#to_date").val());
 
-  //   let diffMs = to - from;
-
-  //   if (diffMs <= 0) {
-  //     $("#total_days").val("");
-  //     $("#total_min").val("");
-  //     return;
-  //   }
-
-  //   // total minutes (for DB)
-  //   let totalMinutes = Math.floor(diffMs / (1000 * 60));
-  //   $("#total_min").val(totalMinutes);
-
-  //   // breakdown
-  //   let days = Math.floor(totalMinutes / (24 * 60));
-  //   let hours = Math.floor((totalMinutes % (24 * 60)) / 60);
-  //   let minutes = totalMinutes % 60;
-
-  //   // show in UI
-  //   $("#total_days").val(
-  //     days + " Days " + hours + " Hours " + minutes + " Minutes",
-  //   );
-  // });
-
-  // $("#app_from_date, #app_to_date").on("change", function () {
-  //   let from = new Date($("#app_from_date").val());
-  //   let to = new Date($("#app_to_date").val());
-
-  //   let diffMs = to - from;
-
-  //   if (diffMs < 0) {
-  //     $("#app_total_min").val("");
-  //     $("#app_total_days").val("");
-  //     return;
-  //   }
-
-  //   // total minutes (for DB)
-  //   let totalMinutes = Math.floor(diffMs / (1000 * 60));
-  //   $("#app_total_min").val(totalMinutes);
-
-  //   // breakdown
-  //   let days = Math.floor(totalMinutes / (24 * 60));
-  //   let hours = Math.floor((totalMinutes % (24 * 60)) / 60);
-  //   let minutes = totalMinutes % 60;
-
-  //   // show in UI
-  //   $("#app_total_days").val(
-  //     days + " Days " + hours + " Hours " + minutes + " Minutes",
-  //   );
-  // });
-
-  // from date change
-  // $("#from_date").on("change", function () {
-  //   let fromDateTime = $(this).val();
-  //   $("#to_date").attr("min", fromDateTime);
-
-  //   $("#to_date").on("change", function () {
-  //     let toDateTime = $(this).val();
-
-  //     if (toDateTime < fromDateTime) {
-  //       alert("To Date/Time cannot be less than From Date/Time");
-  //       $(this).val("");
-  //     }
-  //   });
-  // });
-
-  // $("#app_from_date").on("change", function () {
-  //   let fromDateTime = $(this).val();
-  //   $("#app_to_date").attr("min", fromDateTime);
-
-  //   $("#app_to_date").on("change", function () {
-  //     let toDateTime = $(this).val();
-
-  //     if (toDateTime < fromDateTime) {
-  //       alert("To Date/Time cannot be less than From Date/Time");
-  //       $(this).val("");
-  //     }
-  //   });
-  // });
   setDateValidation("#from_date", "#to_date");
   setDateValidation("#app_from_date", "#app_to_date");
 });
@@ -418,6 +359,7 @@ function getuserdetails(userid) {
     function (response) {
       console.log("branch_id", response.branch_id);
       $("#staff_id").val(response.staff_id);
+      $("#staff_type").val(response.staff_type);
       $("#stf_prf_id").val(response.id);
       $("#staff_name").val(response.staff_name);
       $("#cmpy_id").val(response.cmpy_id);
@@ -450,8 +392,10 @@ function getedituserdetails(id, userid) {
       $("#leave_type").attr("readonly", true);
       $("#from_date").attr("readonly", true);
       $("#reason").attr("readonly", true);
+      $("#approval_type,#app_from_date,#app_to_date,#app_total_days,#app_total_min,#remarks",).val("");
 
       $("#staff_id").val(response.staff_id);
+      $("#staff_type").val(response.staff_type);
       $("#stf_prf_id").val(response.id);
       $("#staff_name").val(response.staff_name);
       $("#cmpy_id").val(response.cmpy_id);
@@ -465,17 +409,31 @@ function getedituserdetails(id, userid) {
       $("#team_id").val(response.team_id);
       $("#team").val(response.team_name);
       $("#req_type").val(response.req_type);
-      $("#req_date").val(response.req_date);
+      $("#req_date").val( response.req_date.split(" ")[0].split("-").reverse().join("-"),);
       $("#leave_type_id").val(response.leave_type);
       $("#reason").val(response.reason);
       $("#from_date").val(response.from_date.replace(" ", "T").slice(0, 16));
       $("#to_date").val(response.to_date.replace(" ", "T").slice(0, 16));
+      
+      if (response.req_type == 1 || response.req_type == 3) {
+        $("#app_from_date,#app_to_date").attr("type", "date");
+      } else {
+        $("#app_from_date,#app_to_date").attr("type", "datetime-local");
+      }
+      setCurrentMonthRestriction("#app_from_date", "#app_to_date");
+      $("#app_from_date").val(response.approved_from_date.replace(" ", "T").slice(0, 16));
+      $("#app_to_date").val(response.approved_to_date.replace(" ", "T").slice(0, 16));
+      $("#app_total_min").val(response.approved_total_min);
+      $("#approval_type").val(response.status);
+      $("#remarks").val(response.remarks);
+
       if (response.req_type == 1) {
         $(".leveType").show();
         getcmpyleavelist(response.cmpy_id);
       } else {
         $(".leveType").hide();
       }
+
       if (response.req_type != "4") {
         $("#balance_req").show();
         $("#balance_req").val(response.balance_req);
@@ -486,6 +444,13 @@ function getedituserdetails(id, userid) {
       let minutes = response.total_min % 60;
       $("#total_days").val(
         days + " Days " + hours + " Hours " + minutes + " Minutes",
+      );
+
+      let app_days = Math.floor(response.approved_total_min / (24 * 60));
+      let app_hours = Math.floor((response.total_min % (24 * 60)) / 60);
+      let app_minutes = response.total_min % 60;
+      $("#app_total_days").val(
+        app_days + " Days " + app_hours + " Hours " + app_minutes + " Minutes",
       );
     },
     "json",
@@ -667,15 +632,25 @@ function setDateValidation(fromSelector, toSelector) {
       $(toSelector).val("");
     }
   });
+}
 
-  // $(toSelector).on("change", function () {
-  //   let fromDateTime = $(fromSelector).val();
-  //   console.log("fromDateTime",fromDateTime)
-  //   let toDateTime = $(this).val();
+function setCurrentMonthRestriction(fromSelector, toSelector) {
+  console.log("lll", fromSelector);
+  let today = new Date();
 
-  //   if (toDateTime < fromDateTime) {
-  //     alert("To Date/Time cannot be less than From Date/Time");
-  //     $(this).val("");
-  //   }
-  // });
+  // First day of previous month
+  let minMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+
+  let yyyy = minMonth.getFullYear();
+  let mm = String(minMonth.getMonth() + 1).padStart(2, "0");
+  let dd = String(minMonth.getDate()).padStart(2, "0");
+
+  let minDateTime = `${yyyy}-${mm}-${dd}T00:00`;
+  let minDate = `${yyyy}-${mm}-${dd}`;
+
+  if ($(fromSelector).attr("type") === "datetime-local") {
+    $(fromSelector).attr("min", minDateTime);
+  } else {
+    $(fromSelector).attr("min", minDate);
+  }
 }

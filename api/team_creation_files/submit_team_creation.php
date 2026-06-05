@@ -35,22 +35,36 @@ if ($team_creation_id != '') {
         $result = 0; //update successful
     }
 } else {
+    $checkQry = $pdo->query("
+    SELECT id
+    FROM team_creation
+    WHERE company_id = '$company_name'
+    AND department_id = '$department_name'
+    AND status='0'
+");
 
-    $qry = $pdo->query("INSERT INTO `team_creation`(`company_id`,`department_id`, `insert_login_id`, `created_date`) VALUES ('$company_name','$department_name','$user_id', now())");
+    if ($checkQry->rowCount() > 0) {
 
-    $team_creation_id = $pdo->lastInsertId();
+        // Already exists
+        $result = 2;
+    } else {
 
-    // Insert into department mapping table
-    foreach ($team_name as $team_id) {
-        $team_id = (int)trim($team_id);
-        if ($team_id > 0) {
-            $teamQry = "INSERT INTO team_creation_mapping (team_creation_id, team_id) VALUES ($team_creation_id, $team_id)";
-            $pdo->query($teamQry) or die("Error inserting team map: " . $pdo->errorInfo());
+        $qry = $pdo->query("INSERT INTO `team_creation`(`company_id`,`department_id`, `insert_login_id`, `created_date`) VALUES ('$company_name','$department_name','$user_id', now())");
+
+        $team_creation_id = $pdo->lastInsertId();
+
+        // Insert into department mapping table
+        foreach ($team_name as $team_id) {
+            $team_id = (int)trim($team_id);
+            if ($team_id > 0) {
+                $teamQry = "INSERT INTO team_creation_mapping (team_creation_id, team_id) VALUES ($team_creation_id, $team_id)";
+                $pdo->query($teamQry) or die("Error inserting team map: " . $pdo->errorInfo());
+            }
         }
-    }
 
-    if ($pdo) {
-        $result = 1; //Insert successfull
+        if ($pdo) {
+            $result = 1; //Insert successfull
+        }
     }
 }
 

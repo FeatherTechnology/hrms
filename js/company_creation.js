@@ -21,6 +21,7 @@ const designationInstance = new Choices("#designation_name", {
 $(document).ready(function () {
   /* --- Add Company Button Click --- */
   $(document).on("click", ".addcompanyBtn", async function () {
+    $("#reset_btn").show();
     await swapTableAndCreation();
     getDepartmentNameDropdown();
     getDesignationNameDropdown();
@@ -62,32 +63,26 @@ $(document).ready(function () {
     });
 
     if (isValid) {
-      swalConfirm(
-        "Are you sure?",
-        "Do you want to submit this Department info?",
-        function () {
-          $.post(
-            "api/company_creation_files/submit_department_info.php",
-            {
-              department_code,
-              department_name,
-              department_id,
-            },
-            function (response) {
-              if (response === "3") {
-                swalError("Warning", "Department Name already exists!");
-              } else if (response === "2") {
-                swalSuccess("Success", "Department Added Successfully!");
-              } else if (response === "1") {
-                swalSuccess("Success", "Department Updated Successfully!");
-              } else {
-                swalError("Error", "Error Occurred!");
-              }
+      $.post(
+        "api/company_creation_files/submit_department_info.php",
+        {
+          department_code,
+          department_name,
+          department_id,
+        },
+        function (response) {
+          if (response === "3") {
+            swalError("Warning", "Department Name already exists!");
+          } else if (response === "2") {
+            swalSuccess("Success", "Department Added Successfully!");
+          } else if (response === "1") {
+            swalSuccess("Success", "Department Updated Successfully!");
+          } else {
+            swalError("Error", "Error Occurred!");
+          }
 
-              // Refresh the department table
-              getDepartmentNameTable();
-            },
-          );
+          // Refresh the department table
+          getDepartmentNameTable();
         },
       );
     }
@@ -139,32 +134,26 @@ $(document).ready(function () {
     });
 
     if (isValid) {
-      swalConfirm(
-        "Are you sure?",
-        "Do you want to submit this Designation info?",
-        function () {
-          $.post(
-            "api/company_creation_files/submit_designation_info.php",
-            {
-              designation,
-              designation_level,
-              designation_id,
-            },
-            function (response) {
-              if (response === "3") {
-                swalError("Warning", "Designation Name already exists!");
-              } else if (response === "2") {
-                swalSuccess("Success", "Designation Added Successfully!");
-              } else if (response === "1") {
-                swalSuccess("Success", "Designation Updated Successfully!");
-              } else {
-                swalError("Error", "Error Occurred!");
-              }
+      $.post(
+        "api/company_creation_files/submit_designation_info.php",
+        {
+          designation,
+          designation_level,
+          designation_id,
+        },
+        function (response) {
+          if (response === "3") {
+            swalError("Warning", "Designation Name already exists!");
+          } else if (response === "2") {
+            swalSuccess("Success", "Designation Added Successfully!");
+          } else if (response === "1") {
+            swalSuccess("Success", "Designation Updated Successfully!");
+          } else {
+            swalError("Error", "Error Occurred!");
+          }
 
-              // Refresh the designation table
-              getDesignationNameTable();
-            },
-          );
+          // Refresh the designation table
+          getDesignationNameTable();
         },
       );
     }
@@ -233,6 +222,7 @@ $(document).ready(function () {
       "district",
       "pincode",
       "mobile",
+      "mailid",
     ];
 
     var isValid = true;
@@ -254,46 +244,52 @@ $(document).ready(function () {
     );
 
     if (isValid && departmentValid && designationValid) {
-      $.post(
-        "api/company_creation_files/submit_company_creation.php",
-        {
-          company_name,
-          gst_number,
-          cin_number,
-          address,
-          state,
-          district,
-          place,
-          pincode,
-          mobile,
-          whatsapp,
-          landline_code,
-          landline,
-          department_name,
-          department_name2,
-          designation_name,
-          designation_name2,
-          website,
-          mailid,
-          instagram,
-          youtube_link,
-          facebook,
-          twitter,
-          companyid,
-        },
-        function (response) {
-          if (response == "1") {
-            swalSuccess("Success", "Company Added Successfully!");
-          } else {
-            swalSuccess("Success", "Company Updated Successfully!");
-          }
+      swalConfirm(
+        "Are you sure?",
+        "Do you want to submit this Company Creation?",
+        function () {
+          $.post(
+            "api/company_creation_files/submit_company_creation.php",
+            {
+              company_name,
+              gst_number,
+              cin_number,
+              address,
+              state,
+              district,
+              place,
+              pincode,
+              mobile,
+              whatsapp,
+              landline_code,
+              landline,
+              department_name,
+              department_name2,
+              designation_name,
+              designation_name2,
+              website,
+              mailid,
+              instagram,
+              youtube_link,
+              facebook,
+              twitter,
+              companyid,
+            },
+            function (response) {
+              if (response == "1") {
+                swalSuccess("Success", "Company Added Successfully!");
+              } else {
+                swalSuccess("Success", "Company Updated Successfully!");
+              }
 
-          $("#companyid").val("");
-          $("#department_name2").val("");
-          $("#designation_name2").val("");
-          $("#company_creation").trigger("reset");
-          getCompanyTable();
-          swapTableAndCreation(); //to change to div to table content.
+              $("#companyid").val("");
+              $("#department_name2").val("");
+              $("#designation_name2").val("");
+              $("#company_creation").trigger("reset");
+              getCompanyTable();
+              swapTableAndCreation(); //to change to div to table content.
+            },
+          );
         },
       );
     }
@@ -301,6 +297,7 @@ $(document).ready(function () {
 
   /* --- Edit Company Creation --- */
   $(document).on("click", ".companyActionBtn", async function () {
+    $("#reset_btn").hide();
     var id = $(this).attr("value"); // Get value attribute
 
     try {
@@ -346,7 +343,7 @@ $(document).ready(function () {
   });
 
   /* --- Company Creation Reset --- */
-  $('button[type="reset"], .backBtn').click(function (event) {
+  $(".backBtn").click(function (event) {
     event.preventDefault();
 
     swapTableAndCreation();

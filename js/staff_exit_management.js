@@ -1,5 +1,8 @@
 $(document).ready(function () {
     $(document).on('click', '#back_btn', function () {
+        $("#exit_detail_div input").css("border", "1px solid #cecece");
+        $("#exit_detail_div select").css("border", "1px solid #cecece");
+        $("#exit_detail_div textarea").css("border", "1px solid #cecece");
         swapTableAndCreation();
 
     });

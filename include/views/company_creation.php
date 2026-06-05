@@ -188,7 +188,7 @@
                                     </div>
                                     <div class="col-md-4 col-sm-6">
                                         <div class="form-group">
-                                            <label for="mailid">Mail ID</label>
+                                            <label for="mailid">Mail ID</label><span class="text-danger">*</span>
                                             <input type="email" class="form-control" id="mailid" name="mailid" placeholder="Enter Mail ID" tabindex="18">
                                         </div>
                                     </div>
@@ -222,7 +222,7 @@
 
                         <div class="col-12 mt-3 text-right">
                             <button name="submit_company_creation" id="submit_company_creation" class="btn btn-primary" tabindex="23"><span class="icon-check"></span>&nbsp;Submit</button>
-                            <button type="reset" class="btn btn-outline-secondary" tabindex="24">Clear</button>
+                            <button type="reset" class="btn btn-outline-secondary" id="reset_btn" tabindex="24">Clear</button>
                         </div>
 
                     </div>
@@ -265,14 +265,13 @@
                                 <div class="form-group">
                                     <label for="" style="visibility:hidden"></label><br>
                                     <button name="submit_department" id="submit_department" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_dept_form" class="btn btn-outline-secondary" tabindex="1">Clear</button>
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="row">
-                    <div class="col-12 overflow-x-cls">
+                    <div class="col-12 overflow-x-cls" style="margin-top:50px">
                         <table id="department_creation_table" class="custom-table">
                             <thead>
                                 <tr>
@@ -319,7 +318,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="modal_designation_level">Designation Level</label><span class="text-danger">*</span>
-                                    <input class="form-control" name="modal_designation_level" id="modal_designation_level" tabindex="1" placeholder="Enter Designation Level">
+                                    <input type="number" class="form-control" name="modal_designation_level" id="modal_designation_level" tabindex="1" placeholder="Enter Designation Level">
                                 </div>
                             </div>
 
@@ -328,14 +327,13 @@
                                 <div class="form-group">
                                     <label for="" style="visibility:hidden"></label><br>
                                     <button name="submit_designation" id="submit_designation" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_designation_form" class="btn btn-outline-secondary" tabindex="1">Clear</button>
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="row">
-                    <div class="col-12 overflow-x-cls">
+                    <div class="col-12 overflow-x-cls" style="margin-top:50px">
                         <table id="designation_creation_table" class="custom-table">
                             <thead>
                                 <tr>

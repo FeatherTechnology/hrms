@@ -1,6 +1,8 @@
 $(document).ready(function () {
   /* --- Add Company Button & Back Button Click --- */
   $(document).on("click", "#add_branch, #back_btn", function () {
+    $("#branch_reset_btn").show();
+    $("#branch_code").val("");
     swapTableAndCreation();
   });
 
@@ -64,38 +66,44 @@ $(document).ready(function () {
       }
     });
     if (isValid) {
-      $.post(
-        "api/branch_creation/submit_branch_creation.php",
-        {
-          company_name,
-          branch_code,
-          branch_name,
-          address,
-          state,
-          district,
-          place,
-          pincode,
-          email_id,
-          mobile_number,
-          whatsapp,
-          landline,
-          landline_code,
-          branchid,
-          location,
-        },
-        function (response) {
-          if (response == "2") {
-            swalSuccess("Success", "Branch Added Successfully!");
-          } else if (response == "1") {
-            swalSuccess("Success", "Branch Updated Successfully!");
-          } else {
-            swalError("Error", "Error Occurs!");
-          }
+      swalConfirm(
+        "Are you sure?",
+        "Do you want to submit this Branch Creation?",
+        function () {
+          $.post(
+            "api/branch_creation/submit_branch_creation.php",
+            {
+              company_name,
+              branch_code,
+              branch_name,
+              address,
+              state,
+              district,
+              place,
+              pincode,
+              email_id,
+              mobile_number,
+              whatsapp,
+              landline,
+              landline_code,
+              branchid,
+              location,
+            },
+            function (response) {
+              if (response == "2") {
+                swalSuccess("Success", "Branch Added Successfully!");
+              } else if (response == "1") {
+                swalSuccess("Success", "Branch Updated Successfully!");
+              } else {
+                swalError("Error", "Error Occurs!");
+              }
 
-          $("#branchid").val("");
-          $("#branch_creation").trigger("reset");
-          getBranchTable();
-          swapTableAndCreation(); //to change to div to table content.
+              $("#branchid").val("");
+              $("#branch_creation").trigger("reset");
+              getBranchTable();
+              swapTableAndCreation(); //to change to div to table content.
+            },
+          );
         },
       );
     }
@@ -103,6 +111,7 @@ $(document).ready(function () {
 
   /* --- Edit Branch Creation --- */
   $(document).on("click", ".branchActionBtn", async function () {
+    $("#branch_reset_btn").hide();
     var id = $(this).attr("value"); // Get value attribute
 
     try {

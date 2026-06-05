@@ -1,13 +1,14 @@
 $(document).ready(function () {
+
   $("input[name=feedback_type]").click(function () {
     let feed_type = $(this).val();
     if (feed_type == "0") {
-      $("#gendral_feedback_div").show();
+      $("#general_feedback_div").show();
       $(".scheduled_feedback_div").hide();
       $(".scheduled_feedback_ans_div").hide();
       getfeedbackname();
     } else if (feed_type == "1") {
-      $("#gendral_feedback_div").hide();
+      $("#general_feedback_div").hide();
       $(".scheduled_feedback_div").show();
       $(".scheduled_feedback_ans_div").hide();
       getSchFeedbackList();
@@ -30,34 +31,40 @@ $(document).ready(function () {
       }
     });
     if (isValid) {
-      let kycDetail = new FormData();
+      swalConfirm(
+        "Are you sure?",
+        "Do you want to submit this Feedback ?",
+        function () {
+          let kycDetail = new FormData();
 
-      kycDetail.append("feedback_name", feedback_name);
-      kycDetail.append("commants", commants);
-      kycDetail.append("attachment", attachment);
+          kycDetail.append("feedback_name", feedback_name);
+          kycDetail.append("commants", commants);
+          kycDetail.append("attachment", attachment);
 
-      $.ajax({
-        url: "api/feedback/submit_gen_feedback.php",
-        type: "post",
-        data: kycDetail,
-        contentType: false,
-        processData: false,
-        cache: false,
-        success: function (response) {
-          if ((response = "1")) {
-            swalSuccess("Success", "Feedback Added Successfully!");
-            $("#feedback_name").val("");
-            $("#commants").val("");
-            $("#attachment").val("");
-            $('input[name="feedback_type"][value="0"]')
-              .prop("checked", true)
-              .trigger("click");
-          } else {
-            swalError("Error", "Error in table");
-          }
-          getKycTable();
+          $.ajax({
+            url: "api/feedback/submit_gen_feedback.php",
+            type: "post",
+            data: kycDetail,
+            contentType: false,
+            processData: false,
+            cache: false,
+            success: function (response) {
+              if ((response = "1")) {
+                swalSuccess("Success", "Feedback Added Successfully!");
+                $("#feedback_name").val("");
+                $("#commants").val("");
+                $("#attachment").val("");
+                $('input[name="feedback_type"][value="0"]')
+                  .prop("checked", true)
+                  .trigger("click");
+              } else {
+                swalError("Error", "Error in table");
+              }
+              getKycTable();
+            },
+          });
         },
-      });
+      );
     }
   });
 
@@ -80,11 +87,7 @@ $(document).ready(function () {
       },
       function (response) {
         let html = "";
-
-        //////////////////////////////////////////////////////
         // TITLE
-        //////////////////////////////////////////////////////
-
         html += `
                 <div class="mb-4">
                     <h3 class="">
@@ -92,11 +95,7 @@ $(document).ready(function () {
                     </h3>
                 </div>
             `;
-
-        //////////////////////////////////////////////////////
         // QUESTIONS
-        //////////////////////////////////////////////////////
-
         response.questions.forEach(function (row) {
           html += `
 
@@ -124,13 +123,8 @@ $(document).ready(function () {
 
                 `;
         });
-
-        //////////////////////////////////////////////////////
         // SUBMIT BUTTON
-        //////////////////////////////////////////////////////
-
         html += `
-
                 <div class="text-end" style="display: flex;justify-content: right;">
 
                     <button 
@@ -140,9 +134,7 @@ $(document).ready(function () {
                     </button>
 
                 </div>
-
             `;
-
         $(".feedbackQuestionDiv").html(html);
       },
       "json",
@@ -153,11 +145,8 @@ $(document).ready(function () {
     let feedback_configuration_id = $(this).val();
 
     let answerArr = [];
-    let isValid = true;
-
-    //////////////////////////////////////////////////////
-    // VALIDATE ALL ANSWERS
-    //////////////////////////////////////////////////////
+    let isValid = true
+    // VALIDATE ALL ANSWE
 
     $(".feedback_answer").each(function () {
       let question_id = $(this).attr("data-question-id");
@@ -174,39 +163,38 @@ $(document).ready(function () {
         question_id: question_id,
         answer: answer,
       });
-    });
-
-    //////////////////////////////////////////////////////
-    // SHOW ALERT IF ANY ANSWER IS EMPTY
-    //////////////////////////////////////////////////////
+    })
+    // SHOW ALERT IF ANY ANSWER IS EMP
 
     if (!isValid) {
       swalError("Validation", "Please answer all questions before submitting.");
       return false;
-    }
+    
+    // INSE
+    swalConfirm(
+      "Are you sure?",
+      "Do you want to submit this Feedback ?",
+      function () {
+        $.post(
+          "api/feedback/submit_sch_feedback.php",
+          {
+            feedback_configuration_id: feedback_configuration_id,
+            answerArr: answerArr,
+          },
+          function (response) {
+            if (response == 1) {
+              swalSuccess("Success", "Feedback Answer Submitted Successfully.");
 
-    //////////////////////////////////////////////////////
-    // INSERT
-    //////////////////////////////////////////////////////
+              $('input[name="feedback_type"][value="1"]')
+                .prop("checked", true)
+                .trigger("click");
 
-    $.post(
-      "api/feedback/submit_sch_feedback.php",
-      {
-        feedback_configuration_id: feedback_configuration_id,
-        answerArr: answerArr,
-      },
-      function (response) {
-        if (response == 1) {
-          swalSuccess("Success", "Feedback Answer Submitted Successfully.");
-
-          $('input[name="feedback_type"][value="1"]')
-            .prop("checked", true)
-            .trigger("click");
-
-          $(".feedbackQuestionDiv").html("");
-        } else {
-          alert("Failed");
-        }
+              $(".feedbackQuestionDiv").html("");
+            } else {
+              alert("Failed");
+            }
+          },
+        );
       },
     );
   });
@@ -226,7 +214,7 @@ function getfeedbackname() {
     function (response) {
       $("#feedback_name").empty();
       $("#feedback_name").append(
-        "<option value=''>Select Feed Back Tittle</option>",
+        "<option value=''>Select Feedback Tittle</option>",
       );
 
       $.each(response, function (index, val) {
