@@ -1,6 +1,7 @@
 $(document).ready(function () {
   /* --- Add Statutory Compliance & Back Button Click --- */
   $(document).on("click", "#add_statutory_compliance, #back_btn", function () {
+    $("#sc_reset_btn").show();
     swapTableAndCreation();
     $(".pf_apply").find("input").prop("readonly", false);
     $(".pf_apply").find("select").prop("disabled", false);
@@ -43,6 +44,9 @@ $(document).ready(function () {
       $(".pf_apply").find("input").prop("readonly", true);
       $(".pf_apply").find("select").val("").prop("disabled", true);
       $("#pf_wage_div").hide();
+
+      $("#pf_components_div input").css("border", "1px solid #cecece");
+      $("#pf_components_div select").css("border", "1px solid #cecece");
     } else {
       $(".pf_apply").find("input").prop("readonly", false);
       $(".pf_apply").find("select").prop("disabled", false);
@@ -58,6 +62,9 @@ $(document).ready(function () {
 
       // Make input fields readonly
       $(".esi_apply").find("input").prop("readonly", true);
+
+      $("#esi_components_div input").css("border", "1px solid #cecece");
+      $("#esi_components_div select").css("border", "1px solid #cecece");
     } else {
       // Enable input fields
       $(".esi_apply").find("input").prop("readonly", false);
@@ -74,6 +81,9 @@ $(document).ready(function () {
         .prop("disabled", true);
       $("#percentage_div").hide().find("input").val("");
       $("#slab_div").hide().find("input").val("");
+
+      $("#profesional_tax_div input").css("border", "1px solid #cecece");
+      $("#profesional_tax_div select").css("border", "1px solid #cecece");
     } else {
       $(".professional_tax_apply").find("select").prop("disabled", false);
     }
@@ -101,8 +111,39 @@ $(document).ready(function () {
     let percentage = $("#percentage").val();
     let slab = $("#slab").val();
     let statutory_compliance_id = $("#statutory_compliance_id").val();
-    console.log("ADSD", company_id);
     var data = ["company_name", "state", "pf_applicable", "esi_applicable"];
+
+    if (pf_applicable == "1") {
+      data.push(
+        "pf_number",
+        "employee_contribution",
+        "employer_contribution",
+        "admin_charge",
+        "pension",
+        "apply_wage_limit",
+      );
+
+      if (apply_wage_limit == "1") {
+        data.push("pf_wage_limit");
+      }
+    }
+    if (esi_applicable == "1") {
+      data.push("employee_share", "employer_share");
+    }
+    // Professional Tax Validation
+    if (professional_tax_applicable == "1") {
+      data.push("calculation_type");
+
+      // Percentage Method
+      if (calculation_type == "1") {
+        data.push("percentage");
+      }
+
+      // Slab Method
+      else if (calculation_type == "2") {
+        data.push("slab");
+      }
+    }
 
     var isValid = true;
     data.forEach(function (entry) {
@@ -169,6 +210,7 @@ $(document).ready(function () {
   /* --- Edit Statutory Compliance Creation --- */
   $(document).on("click", ".statutoryComplianceActionBtn", async function () {
     var id = $(this).attr("value"); // Get value attribute
+     $("#sc_reset_btn").hide();
 
     try {
       const response = await $.ajax({
@@ -259,6 +301,19 @@ $(document).ready(function () {
     });
     $("input").css("border", "1px solid #cecece");
     $("select").css("border", "1px solid #cecece");
+  });
+
+  $(
+    "#employee_contribution, #employer_contribution, #admin_charge, #pension, #employee_share,#employer_share",
+  ).on("blur", function () {
+    let value = parseFloat($(this).val());
+
+    if (value > 100) {
+      alert("Value cannot be greater than 100");
+
+      $(this).val("");
+      $(this).focus();
+    }
   });
 });
 

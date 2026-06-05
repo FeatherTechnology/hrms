@@ -163,20 +163,10 @@ function toggleSidebarSubmenus(current_module) {
       var mainLink = selectedLink
         .closest(".sidebar-dropdown")
         .querySelector("a");
-
-      // Set the background color of the 'Master' link
-      // mainLink.style.backgroundColor = 'rgba(193, 236, 255, 1)';
-
-      // link.style.backgroundColor = 'rgba(193, 236, 255, 1)';
-      // link.style.border-right = '4px solid rgba(0, 132, 255, 60)';
-      // link.style.borderRight = '4px solid rgba(1, 96, 145, 1)';
       link.style.background =
         "linear-gradient(90deg, rgba(193, 236, 255, 1) 0%, rgb(85, 179, 223) 50%, rgba(1, 96, 145, 1) 100%)";
-    //   link.style.borderRight = "4px solid rgba(1, 96, 145, 1)";
       link.style.color = "#fff";
     }
   });
-  // if (current_page == 'dashboard') {
-  //     $('.dashboard').css('backgroundColor', 'rgba(193, 236, 255, 1)');
-  // }
+  
 }

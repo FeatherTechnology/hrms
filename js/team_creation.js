@@ -46,27 +46,36 @@ $(document).ready(function () {
     let teamValid = validateMultiSelectField("team_name", teamInstance);
 
     if (isValid && teamValid) {
-      $.post(
-        "api/team_creation_files/submit_team_creation.php",
-        {
-          company_name,
-          department_name,
-          team_name,
-          team_name2,
-          team_creation_id,
-        },
-        function (response) {
-          if (response == "1") {
-            swalSuccess("Success", "Team Added Successfully!");
-          } else {
-            swalSuccess("Success", "Team Updated Successfully!");
-          }
+      swalConfirm(
+        "Are you sure?",
+        "Do you want to submit this Team Creation?",
+        function () {
+          $.post(
+            "api/team_creation_files/submit_team_creation.php",
+            {
+              company_name,
+              department_name,
+              team_name,
+              team_name2,
+              team_creation_id,
+            },
+            function (response) {
+              if (response == "1") {
+                swalSuccess("Success", "Team Added Successfully!");
+              } else if(response == "2") {
+                swalError("Warning", "Company And Department Name already exists!");
+              }
+               else {
+                swalSuccess("Success", "Team Updated Successfully!");
+              }
 
-          $("#team_creation_id").val("");
-          $("#team_name2").val("");
-          $("#team_creation").trigger("reset");
-          getTeamTable();
-          swapTableAndCreation(); //to change to div to table content.
+              $("#team_creation_id").val("");
+              $("#team_name2").val("");
+              $("#team_creation").trigger("reset");
+              getTeamTable();
+              swapTableAndCreation(); //to change to div to table content.
+            },
+          );
         },
       );
     }

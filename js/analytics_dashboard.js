@@ -1,11 +1,13 @@
 $(document).ready(function () {
+  // to get the active counts
   getActiveCount("feedback", ".active_feedback");
   getActiveCount("rating", ".active_rating");
   getActiveCount("poll", ".active_poll");
 
-
+// to get the average ratings
   getAverageRating();
 
+  // to get the active feedback list and total response
   getDashboardList("feedback", "#feedback_table", "feedback-hidden");
   getDashboardList("rating", "#ratings_table", "rating-hidden");
   getDashboardList("poll", "#polls_table", "poll-hidden");
@@ -18,10 +20,8 @@ $(document).ready(function () {
   toggleRows("#pollViewAll", "poll-hidden", "#polls_table_div");
 });
 
-//////////////////////////////////////////////////////
 // COMMON VIEW ALL / VIEW LESS
-//////////////////////////////////////////////////////
-
+// function start
 function toggleRows(buttonId, hiddenClass, scrollDiv) {
   $(document).on("click", buttonId, function () {
     if ($(this).data("expanded") == 1) {
@@ -47,9 +47,10 @@ function toggleRows(buttonId, hiddenClass, scrollDiv) {
   });
 }
 
+
 function getAverageRating() {
   $.ajax({
-    url: "api/analytics_dashboard_filer/get_average_rating.php",
+    url: "api/analytics_dashboard_files/get_average_rating.php",
     type: "POST",
     success: function (response) {
       $(".average_rating").text(response);
@@ -61,18 +62,13 @@ function getAverageRating() {
 function getDashboardList(type, tableId, hiddenClass) {
   $.ajax({
     url: "api/analytics_dashboard_files/get_active_list.php",
-
     type: "POST",
-
     data: {
       type: type,
     },
-
     dataType: "json",
-
     success: function (response) {
       let html = "";
-
       $.each(response, function (index, row) {
         let hideClass = index >= 5 ? hiddenClass + " d-none" : "";
 
@@ -86,28 +82,20 @@ function getDashboardList(type, tableId, hiddenClass) {
                     </tr>
                 `;
       });
-
       $(tableId + " tbody").html(html);
     },
   });
 }
 
 function getActiveCount(type, element) {
-
     $.ajax({
-
         url: "api/analytics_dashboard_files/get_active_counts.php",
-
         type: "POST",
-
         data: {
             type: type
         },
-
         success: function (response) {
-
             $(element).text(response);
-
         }
 
     });

@@ -15,11 +15,15 @@ $req_type = $_POST['req_type'];
 $leave_type = $_POST['leave_type'];
 $balance_req = $_POST['balance_req'];
 $total_min = $_POST['total_min'];
+$staff_type = $_POST['staff_type'];
 $req_date = date('Y-m-d', strtotime($_POST['req_date']));
 $from_date = date('Y-m-d H:i:s', strtotime($_POST['from_date']));
 $to_date = date('Y-m-d H:i:s', strtotime($_POST['to_date']));
 
 $reason = $_POST['reason'];
+$app_frmomdate = '';
+$app_todate   = '';
+$app_min = '';
 
 
 
@@ -30,6 +34,11 @@ $remarks = $_POST['remarks'];
 $app_total_min = $_POST['app_total_min'];
 if (isset($_POST['approval_type']) && !empty($_POST['approval_type'])) {
     $approval_type = $_POST['approval_type'];
+} else if ($staff_type == 1) {
+    $app_frmomdate = $from_date;
+    $app_todate   = $to_date;
+    $app_min = $total_min;
+    $approval_type = 1;
 } else {
     $approval_type = 0;
 }
@@ -45,9 +54,10 @@ try {
             $result = '2';
         }
     } else {
-        $qry = $pdo->query("INSERT INTO `regularization` (`staff_profile_id`, `company_id`, `branch_id`, `dep_id`, `des_id`, `team_id`, `req_type`, `leave_type`,  `balance_req`, `req_date`, `from_date`, `to_date`,`total_min`, `reason`, `status`, `insert_login_id`, `created_date`)
+        $qry = $pdo->query("INSERT INTO `regularization` (`staff_profile_id`, `company_id`, `branch_id`, `dep_id`, `des_id`, `team_id`, `req_type`, `leave_type`,  `balance_req`, `req_date`, `from_date`, `to_date`,`total_min`,`approved_from_date`,`approved_to_date`,`approved_total_min`,`reason`, `status`, `insert_login_id`, `created_date`)
         VALUES
-        ('$stf_prf_id','$cmpy_id','$branch_id','$dep_id', '$des_id','$team_id','$req_type','$leave_type', '$balance_req','$req_date','$from_date','$to_date','$total_min','$reason','$approval_type',$user_id,now())");
+        ('$stf_prf_id','$cmpy_id','$branch_id','$dep_id', '$des_id','$team_id','$req_type','$leave_type', '$balance_req','$req_date','$from_date','$to_date','$total_min',
+        '$app_frmomdate','$app_todate','$app_min','$reason','$approval_type',$user_id,now())");
 
         if ($qry) {
             $result = '3';

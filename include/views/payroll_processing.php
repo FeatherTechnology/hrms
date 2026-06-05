@@ -19,7 +19,7 @@
                     <div class="col-md-4 col-sm-6">
                         <div class="form-group">
                             <label for="branch_name">Branch Name</label><span class="text-danger">*</span>
-                            <select class="form-control" id="branch_name" name="branch_name" tabindex="1">
+                            <select class="form-control" id="branch_name" name="branch_name" tabindex="2">
                                 <option value="">Select Branch Name</option>
 
                             </select>
@@ -29,11 +29,11 @@
                     <div class="col-md-4 col-sm-6">
                         <div class="form-group">
                             <label for="date">Month & Year</label> <span class="text-danger">*</span>
-                            <input type="month" class="form-control" id="date" name="date" tabindex="2">
+                            <input type="month" class="form-control" id="date" name="date" tabindex="3">
                         </div>
                     </div>
                     <div class="col-md-12 col-sm-6" style="display: flex;justify-content:right; align-items:center">
-                        <button name="gen_pay_roll" id="gen_pay_roll" class="btn btn-primary" tabindex="5"></span>&nbsp;Gendrate Pay Roll</button>
+                        <button name="gen_pay_roll" id="gen_pay_roll" class="btn btn-primary" tabindex="4"></span>&nbsp;Gendrate Pay Roll</button>
                     </div>
 
 

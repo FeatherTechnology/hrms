@@ -23,6 +23,7 @@ if ($status == '0') {
                 sc.id,
                 sc.staff_id,
                 sc.staff_name,
+                sc.staff_type,
                 cc.company_name,
                 cc.id as cmpy_id,
                 bc.id as branch_id,

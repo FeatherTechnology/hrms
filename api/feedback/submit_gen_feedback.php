@@ -4,7 +4,7 @@
 require '../../ajaxconfig.php';
 @session_start();
 if (!empty($_FILES['attachment']['name'])) {
-    $path = "../../uploads/gendral_feedback";
+    $path = "../../uploads/general_feedback";
     $attachment = $_FILES['attachment']['name'];
     $pic_temp = $_FILES['attachment']['tmp_name'];
     $picfolder = $path . $attachment;

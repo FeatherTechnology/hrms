@@ -28,6 +28,7 @@
                                     <th>Company Name</th>
                                     <th>Role</th>
                                     <th>Staff Name</th>
+                                    <th>User ID</th>
                                     <th>Branch Name</th>
                                     <th>Department Name</th>
                                     <th>Team Name</th>

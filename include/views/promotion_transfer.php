@@ -1,69 +1,93 @@
-
-<div class="row gutters">
-    <div class="col-12">
-
-        <div class="row outer_search_card">
-
-            <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
-
+<div class="row gutters" >
+    <div class="col-12" id="Overall_outer_shell">
+        <div class="card outer_search_card">
+            <div class="card-header">
+                <h5 class="card-title">Staff Selection</h5>
             </div>
-            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                <div class="form-group">
-                    <label for="company_search">Company Name</label><span class="text-danger">*</span>
-                    <select class="form-control" id="company_search" name="company_search" tabindex="1">
-                        <option value="">Select Company Name</option>
-                    </select>
+            <div class="card-body">
+
+                <div class="row ">
+
+                    <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                        <div class="form-group">
+                            <label for="company_search">Company Name</label><span class="text-danger">*</span>
+                            <select class="form-control" id="company_search" name="company_search" tabindex="1">
+                                <option value="">Select Company Name</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                        <div class="form-group">
+                            <label for="department_search">Department</label><span class="text-danger">*</span>
+                            <select class="form-control" id="department_search" name="department_search" tabindex="1">
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                        <div class="form-group">
+                            <label for="status_search">Status</label><span class="text-danger">*</span>
+                            <select class="form-control" id="status_search" name="status_search" tabindex="1">
+                                <option value="">Select Status</option>
+                                <option value="1">Active</option>
+                                <option value="2">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                        <div class="form-group">
+                            <label for="staff_search">Staff Name</label><span class="text-danger">*</span>
+                            <select class="form-control" id="staff_search" name="staff_search" tabindex="1">
+                                <option value="">Select Staff Name</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                        <button type="button" class="btn btn-primary" id="view_staff" style="margin-top:20px;">Search</button>
+                    </div>
                 </div>
-            </div>
-
-            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                <div class="form-group">
-                    <label for="department_search">Department</label><span class="text-danger">*</span>
-                    <select class="form-control" id="department_search" name="department_search" tabindex="1">
-                        <option value="">Select Department</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                <div class="form-group">
-                    <label for="status_search">Status</label><span class="text-danger">*</span>
-                    <select class="form-control" id="status_search" name="status_search" tabindex="1">
-                        <option value="">Select Status</option>
-                        <option value="1">Active</option>
-                        <option value="2">Inactive</option>
-                    </select>
-                </div>
-            </div>
-
-
-            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                <div class="form-group">
-                    <label for="staff_search">Staff Name</label><span class="text-danger">*</span>
-                    <select class="form-control" id="staff_search" name="staff_search" tabindex="1">
-                        <option value="">Select Staff Name</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                <button type="button" class="btn btn-primary" id="view_staff" style="margin-top:20px;">Search</button>
             </div>
         </div>
 
         <div class="col-12 text-right">
             <button class="btn btn-primary" id="back_btn" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
-        </div></br>
+        </div>
         <br>
         <div class="card promotion_transfer_table_content">
+            <div class="card-header">
+                <h5 class="card-title">Staff Details</h5>
+            </div>
 
             <!-- Center Buttons -->
-             <br>
             <div class="col-md-12 text-center">
-                <div class="form-group mb-0 outer_status_card justify-content-center" style="display: none;">
+                <!-- <div class="form-group mb-0 outer_status_card justify-content-center" style="display: none;">
                     <button type="button" class="btn btn-primary staff_status_btn promo_status" data-value="1"> Promotion </button>&nbsp;&nbsp;
                     <button type="button" class="btn btn-primary staff_status_btn trans_status" data-value="2"> Transfer </button> &nbsp;&nbsp;
                     <button type="button" class="btn btn-primary staff_status_btn inc_status" data-value="3"> Increment </button>
+                </div> -->
+                <div class="radio-container col-12 outer_status_card " style="margin-top: 10px; display: none;">
+                    <div class="selector">
+                        <div class="selector-item">
+                            <input type="radio" id="promo_status" name="action_type" class="selector-item_radio promo_status" value="1">
+                            <label for="promo_status" class="selector-item_label">Promotion</label>
+                        </div>
+                        <div class="selector-item">
+                            <input type="radio" id="trans_status" name="action_type" class="selector-item_radio trans_status" value="2">
+                            <label for="trans_status" class="selector-item_label">Transfer</label>
+                        </div>
+                        <div class="selector-item">
+                            <input type="radio" id="inc_status" name="action_type" class="selector-item_radio inc_status" value="3">
+                            <label for="inc_status" class="selector-item_label">Increment</label>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card-body">

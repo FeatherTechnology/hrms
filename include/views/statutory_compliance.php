@@ -66,7 +66,7 @@
                     </div>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12" id="pf_components_div">
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">PF Components Info</div>
@@ -91,25 +91,25 @@
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
-                                        <label for="employee_contribution">Employee Contribution</label> <span class="text-danger">(%)</span>
-                                        <input type="number" class="form-control" id="employee_contribution" name="employee_contribution" placeholder="Enter Employee Contribution" tabindex="8">
+                                        <label for="employee_contribution">Employee Contribution</label> <span class="text-danger">(0% - 100%)</span>
+                                        <input type="number" class="form-control" id="employee_contribution" name="employee_contribution"   min="0" max="100" step="0.01" placeholder="Enter Employee Contribution" tabindex="8">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
-                                        <label for="employer_contribution">Employer Contribution</label><span class="text-danger">(%)</span>
+                                        <label for="employer_contribution">Employer Contribution</label><span class="text-danger">(0% - 100%)</span>
                                         <input type="number" class="form-control" id="employer_contribution" name="employer_contribution" placeholder="Enter Employer Contribution" tabindex="8">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
-                                        <label for="admin_charge">Admin Charge</label> <span class="text-danger">(%)</span>
+                                        <label for="admin_charge">Admin Charge</label> <span class="text-danger">(0% - 100%)</span>
                                         <input type="number" class="form-control" id="admin_charge" name="admin_charge" placeholder="Enter Admin Charge" tabindex="8">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
-                                        <label for="pension">Pension</label> <span class="text-danger">(%)</span>
+                                        <label for="pension">Pension</label> <span class="text-danger">(0% - 100%)</span>
                                         <input type="number" class="form-control" id="pension" name="pension" placeholder="Enter Pension" tabindex="8">
                                     </div>
                                 </div>
@@ -134,7 +134,7 @@
                     </div>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12" id="esi_components_div">
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">ESI Components Info</div>
@@ -153,13 +153,13 @@
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 esi_apply">
                                     <div class="form-group">
-                                        <label for="employee_share">Employee Share</label> <span class="text-danger">(%)</span>
+                                        <label for="employee_share">Employee Share</label> <span class="text-danger">(0% - 100%)</span>
                                         <input type="number" class="form-control" id="employee_share" name="employee_share" placeholder="Enter Employee Share" tabindex="8">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 esi_apply">
                                     <div class="form-group">
-                                        <label for="employer_share">Employer Share</label> <span class="text-danger">(%)</span>
+                                        <label for="employer_share">Employer Share</label> <span class="text-danger">(0% - 100%)</span>
                                         <input type="number" class="form-control" id="employer_share" name="employer_share" placeholder="Enter Employer Share" tabindex="8">
                                     </div>
                                 </div>
@@ -168,7 +168,7 @@
                     </div>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12" id="profesional_tax_div">
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">Professional Tax Info</div>
@@ -197,7 +197,7 @@
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="percentage_div" style="display:none;">
                                     <div class="form-group">
-                                        <label for="percentage">Percentage</label> <span class="text-danger">(%)</span>
+                                        <label for="percentage">Percentage</label> <span class="text-danger">(0% - 100%)</span>
                                         <input type="number" class="form-control" id="percentage" name="percentage" placeholder="Enter Percentage" tabindex="8">
                                     </div>
                                 </div>
@@ -215,7 +215,7 @@
                 <div class="col-md-12 ">
                     <div class="text-right">
                         <button type="submit" name="submit_statutory_compliance" id="submit_statutory_compliance" class="btn btn-primary" value="Submit" tabindex="7"><span class="icon-check"></span>&nbsp;Submit</button>
-                        <button type="reset" class="btn btn-outline-secondary" tabindex="8">Clear</button>
+                        <button type="reset" class="btn btn-outline-secondary" id="sc_reset_btn" tabindex="8">Clear</button>
                     </div>
                 </div>
 

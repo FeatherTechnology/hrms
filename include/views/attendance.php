@@ -27,7 +27,7 @@
                     <div class="col-md-4 col-sm-6">
                         <div class="form-group">
                             <label for="date">Date</label><span class="text-danger">*</span>
-                            <input type="date" class="form-control" id="date" name="date" placeholder="Staff Name" tabindex="3">
+                            <input type="date" class="form-control" id="date" name="date" max="<?= date('Y-m-d') ?>" value="<?= date('Y-m-d') ?>" tabindex="3">
                         </div>
                     </div>
                     <div class="col-md-12 col-sm-6" style="display: flex;justify-content:right; align-items:center">
@@ -148,7 +148,7 @@
 
                 </div>
                 <br><br><br>
-                <div class="row">
+                <div class="row" id="update_attendance_div">
                     <div class="col-md-12 col-sm-12" style="margin-bottom: 10px;">
 
                         <h5 class="card-title">Attendance Details</h5>
@@ -157,7 +157,7 @@
                     <div class="col-md-4 col-sm-6">
                         <div class="form-group">
                             <label for="entry_time">Entry Time</label><span class="text-danger">*</span>
-                            <input type="datetime-local" class="form-control" id="entry_time" name="entry_time" placeholder="Team Name" tabindex="14">
+                            <input type="datetime-local" class="form-control" id="entry_time" name="entry_time" placeholder="Team Name" tabindex="14" readonly>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">

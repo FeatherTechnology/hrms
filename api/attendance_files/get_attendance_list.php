@@ -70,6 +70,7 @@ $baseQuery = "
 
     WHERE oi.company_id = :company_id
       AND oi.branch_id = :branch_id
+      AND sc.status = 1
 ";
 
 /* ---------- Search ---------- */
@@ -137,6 +138,7 @@ $totalStmt = $pdo->prepare("
         )
     WHERE oi.company_id = :company_id
       AND oi.branch_id = :branch_id
+      AND su.status = 1
 ");
 
 $totalStmt->execute([

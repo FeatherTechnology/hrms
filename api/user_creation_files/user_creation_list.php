@@ -8,7 +8,7 @@ $user_arr = array();
 
 $status_value = ($status == 'active') ? 0 : 1;
 
-$qry = $pdo->query("SELECT u.id, cc.company_name, u.role, sc.staff_name, bc.branch_name, dc.department_name, tnc.team_name, ds.designation
+$qry = $pdo->query("SELECT u.id ,u.user_name as user_id, cc.company_name, u.role, sc.staff_name, bc.branch_name, dc.department_name, tnc.team_name, ds.designation
     FROM users u 
     LEFT JOIN occupation_info oi ON oi.id = (SELECT MAX(id) FROM occupation_info WHERE staff_profile_id = u.staff_name_id)
     LEFT JOIN branch_creation bc ON oi.branch_id = bc.id 
@@ -34,11 +34,18 @@ if ($qry->rowCount() > 0) {
             $user_info['role'] = 'Employee';
         }
 
-        $user_info['action'] = "
-            <span class='icon-border_color userActionBtn' value='" . $user_info['id'] . "'></span>
+        if ($status_value == 0) {
 
-            <span class='icon-trash-2 userDeleteBtn' value='" . $user_info['id'] . "'></span>
-        ";
+            $user_info['action'] = "
+        <span class='icon-border_color userActionBtn' value='" . $user_info['id'] . "'></span>
+        <span class='icon-trash-2 userDeleteBtn' value='" . $user_info['id'] . "'></span>
+    ";
+        } else {
+
+            $user_info['action'] = "
+        <span class='icon-border_color userActionBtn' value='" . $user_info['id'] . "'></span>
+    ";
+        }
 
         $user_arr[] = $user_info;
     }
