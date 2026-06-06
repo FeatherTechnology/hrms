@@ -1,6 +1,7 @@
 $(document).ready(function () {
   getCompanyName();
 
+  /* --- Holiday Creation On Change & Click Events --- */
   $("#from_date, #to_date").on("change", function () {
     let from_date = $("#from_date").val();
     let to_date = $("#to_date").val();
@@ -41,7 +42,7 @@ $(document).ready(function () {
     $("#holiday_setup select").css("border", "1px solid #cecece");
   });
 
-  // <--------------------------------------------- Submit Holiday Info Start --------------------------------------------->
+  /* --- Submit Holiday Creation --- */
   $("#submit_holiday_creation").click(function (event) {
     event.preventDefault();
     // Validation
@@ -88,16 +89,15 @@ $(document).ready(function () {
 
               getHolidayTable();
               clearFields();
-              $("#holiday_id").val('');
+              $("#holiday_id").val("");
             },
           );
         },
       );
     }
   });
-  // <--------------------------------------------- Submit Holiday Info End --------------------------------------------->
 
-  // <--------------------------------------------- Edit Holiday Info Start --------------------------------------------->
+  /* --- Edit Holiday Creation --- */
   $(document).on("click", ".holidayActionBtn", function () {
     var id = $(this).attr("value"); // Get value attribute
     $.post(
@@ -113,9 +113,8 @@ $(document).ready(function () {
       "json",
     );
   });
-  // <--------------------------------------------- Edit Holiday Info End --------------------------------------------->
 
-  // <--------------------------------------------- Delete Holiday Info Start ----------------------------------------->
+  /* --- Delete Holiday Creation --- */
   $(document).on("click", ".holidayDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -126,11 +125,9 @@ $(document).ready(function () {
     );
     return;
   });
-
-  // <--------------------------------------------- Delete Holiday Info End ----------------------------------------->
 });
 
-// <--------------------------------------------- Get Company Name Start ----------------------------------------------------->
+/* --- Get Company Name --- */
 function getCompanyName() {
   $.ajax({
     url: "api/branch_creation/getCompanyName.php",
@@ -157,9 +154,8 @@ function getCompanyName() {
     },
   });
 }
-// <--------------------------------------------- Get Company Name End ----------------------------------------------------->
 
-// <--------------------------------------------- Get Holiday Table Start ----------------------------------------------------->
+/* --- Get Holiday Creation Table --- */
 function getHolidayTable() {
   let company_id = $("#company_name").val();
 
@@ -181,9 +177,8 @@ function getHolidayTable() {
     "json",
   );
 }
-// <--------------------------------------------- Get Holiday Table End ----------------------------------------------------->
 
-// <--------------------------------------------- Get Holiday Delete Start ------------------------------------------------->
+/* --- Delete Holiday Creation Table --- */
 function getHolidayDelete(id) {
   $.post(
     "api/holiday_creation_files/delete_holiday_creation.php",
@@ -200,9 +195,8 @@ function getHolidayDelete(id) {
     "json",
   );
 }
-// <--------------------------------------------- Get Holiday Delete End ----------------------------------------------->
 
-// <--------------------------------------------- Holiday Input Clear Fields Start --------------------------------------------->
+/* --- Clear Holiday Creation Fields --- */
 function clearFields() {
   $("#from_date").val("");
   $("#to_date").val("");
@@ -210,4 +204,3 @@ function clearFields() {
   $("#holiday_name").val("");
   $("#holiday_creation").val("");
 }
-// <--------------------------------------------- Holiday Input Clear Fields End ----------------------------------------------->

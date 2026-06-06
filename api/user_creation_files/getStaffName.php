@@ -1,25 +1,45 @@
 <?php
 
+/** Staff Dropdown List **
+ * Purpose:
+ * - Fetches active staff records based on company and role.
+ * - Returns staff ID, name, and staff type.
+ * - Used for dropdown selection in user creation and management screens.
+ */
+
 require '../../ajaxconfig.php';
 
 $company_id = $_POST['company_id'];
-$role = $_POST['role'];
+$role       = $_POST['role'];
 
-$response = array();
+$response = [];
 
 try {
 
-    $qry = $pdo->query("SELECT id, staff_name, staff_type FROM staff_creation WHERE company_id = '$company_id' AND staff_type = '$role' AND status = 1");
+    $stmt = $pdo->prepare("SELECT
+            id,
+            staff_name,
+            staff_type
+        FROM staff_creation
+        WHERE company_id = ?
+        AND staff_type = ?
+        AND status = ?
+    ");
 
-    if ($qry->rowCount() > 0) {
+    $stmt->execute([
+        $company_id,
+        $role,
+        1
+    ]);
 
-        $response = $qry->fetchAll(PDO::FETCH_ASSOC);
+    if ($stmt->rowCount() > 0) {
+        $response = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 } catch (PDOException $e) {
 
     $response['error'] = $e->getMessage();
 }
 
-$pdo = null;
+$pdo = null; // Close Connection
 
 echo json_encode($response);

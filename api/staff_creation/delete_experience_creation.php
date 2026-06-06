@@ -6,7 +6,7 @@ $staff_profile_id = $_POST['staff_profile_id'];
 $staff_id = $_POST['staff_id'];
 
 try {
-    $qry = $pdo->query("SELECT * FROM experience_info WHERE staff_id = '$staff_id' ");
+    $qry = $pdo->query("SELECT * FROM experience_info WHERE staff_profile_id = '$staff_profile_id' ");
     if ($qry->rowCount() == 1 && $staff_profile_id != '') { //If Only one count of experience for the staff then restrict to delete.
         $result = '0';
     } else {

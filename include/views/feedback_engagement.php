@@ -31,9 +31,7 @@
         </div>
     </div>
     <div class="col-12">
-
-        <!-------------------------------------------------------------------- General Feedback Start ------------------------------------------------------->
-
+        <!--- General Feedback --->
         <form id="general_feedback" name="general_feedback" action="" method="post" enctype="multipart/form-data">
             <div class="row gutters">
                 <div class="col-12">
@@ -76,6 +74,7 @@
                             </div>
                         </div>
                     </div>
+                    <!--- General Feedback Table --->
                     <div class="card-body" id="general_feedback_table_content" style="display: none;">
                         <div class="row">
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
@@ -98,10 +97,7 @@
                 </div>
             </div>
         </form>
-        <!-------------------------------------------------------------------- General Feedback End --------------------------------------------------------->
-
-        <!-------------------------------------------------------------------- Scheduled Feedback Start ------------------------------------------------------->
-
+        <!--- Scheduled Feedback Start --->
         <form id="scheduled_feedback_creation" name="scheduled_feedback_creation" action="" method="post" enctype="multipart/form-data">
             <div class="row gutters">
                 <div class="col-12">
@@ -131,9 +127,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!---------------------------------------------------------------- Feedback Configuration Start ----------------------------------------------------------->
-
+                    <!--- Feedback Configuration --->
                     <div class="card" id="scheduled_feedback_configuration" style="display: none;">
                         <div class="card-header">
                             <div class="card-title">Feedback Configuration Info</div>
@@ -235,6 +229,7 @@
                                 <button name="submit_feedback_configuration" id="submit_feedback_configuration" class="btn btn-primary" tabindex="14"><span class="icon-check"></span>&nbsp;Submit</button>
                             </div>
                         </div>
+                        <!--- Feedback Configuration Table --->
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
@@ -258,11 +253,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!----------------------------------------------------------------- Feedback Configuration End ------------------------------------------------------------>
-
-                    <!-------------------------------------------------------------------- Ratings Start ---------------------------------------------------------------------->
-
+                    <!--- Ratings --->
                     <div class="card" id="scheduled_rating" style="display: none;">
                         <div class="card-header">
                             <div class="card-title">Rating Info</div>
@@ -326,6 +317,7 @@
                                 <button name="submit_rating" id="submit_rating" class="btn btn-primary" tabindex="14"><span class="icon-check"></span>&nbsp;Submit</button>
                             </div>
                         </div>
+                        <!--- Ratings Table --->
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
@@ -349,11 +341,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-------------------------------------------------------------------- Ratings End ---------------------------------------------------------------------->
-
-                    <!--------------------------------------------------------------------- Poll Start ---------------------------------------------------------------------->
-
+                    <!--- Poll --->
                     <div class="card" id="scheduled_poll" style="display: none;">
                         <div class="card-header">
                             <div class="card-title">Poll Info</div>
@@ -460,6 +448,7 @@
                                 <button name="submit_poll" id="submit_poll" class="btn btn-primary" tabindex="14"><span class="icon-check"></span>&nbsp;Submit</button>
                             </div>
                         </div>
+                        <!--- Poll Table --->
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
@@ -483,14 +472,8 @@
                             </div>
                         </div>
                     </div>
-
-                    <!------------------------------------------------------------------ Poll End ---------------------------------------------------------------------->
-
                 </div>
             </div>
         </form>
-
-        <!-------------------------------------------------------------------- Scheduled Feedback End ---------------------------------------------------------------->
-
     </div>
 </div>

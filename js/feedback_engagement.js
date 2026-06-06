@@ -1,6 +1,7 @@
-// Department Multi Select
+/* --- Department Multi Select --- */
 const departmentInstances = {};
 
+/* --- Initialize Department Choices --- */
 function initializeDepartmentChoices(selector) {
   departmentInstances[selector] = new Choices(selector, {
     removeItemButton: true,
@@ -12,13 +13,15 @@ function initializeDepartmentChoices(selector) {
   });
 }
 
-// Initialize all dropdowns
+/* --- Initialize all dropdowns --- */
 initializeDepartmentChoices("#feedback_config_department_name");
 initializeDepartmentChoices("#rating_department_name");
 initializeDepartmentChoices("#poll_department_name");
 
 $(document).ready(function () {
   getCompanyName();
+
+  /* --- General Feedback Type Click --- */
   $("input[name=general_feedback_type]").click(function () {
     let general_feedback_type = $(this).val();
     if (general_feedback_type == "general") {
@@ -36,6 +39,7 @@ $(document).ready(function () {
     }
   });
 
+  /* --- Initialize DateTime Validation --- */
   function initializeDateTimeValidation({ startSelector, endSelector }) {
     // Current date & time
     let now = new Date();
@@ -71,21 +75,25 @@ $(document).ready(function () {
     });
   }
 
+  /* --- Initialize DateTime Validation For Feedback Configuration --- */
   initializeDateTimeValidation({
     startSelector: "#feedback_config_start_date",
     endSelector: "#feedback_config_end_date",
   });
 
+  /* --- Initialize DateTime Validation For Ratings --- */
   initializeDateTimeValidation({
     startSelector: "#rating_start_date",
     endSelector: "#rating_end_date",
   });
 
+  /* --- Initialize DateTime Validation Poll --- */
   initializeDateTimeValidation({
     startSelector: "#poll_start_date",
     endSelector: "#poll_end_date",
   });
 
+  /* --- Feedback Configuration , Rating & Poll On Change & Click Events --- */
   $("#general_company_name").on("change", function () {
     let company_id = $("#general_company_name").val();
 
@@ -135,7 +143,7 @@ $(document).ready(function () {
   $("#poll_company_name").on("change", function () {
     let company_id = $("#poll_company_name").val();
 
-    $("#poll_department_name").val("");
+    $("#poll_department_name2").val("");
 
     getDepartmentNameDropdown({
       company_id: company_id,
@@ -209,8 +217,7 @@ $(document).ready(function () {
     }
   });
 
-  // <---------------------------------------------------------------------- Submit General Feedback Start -------------------------------------------------------------->
-
+  /* --- Submit General Feedback --- */
   $("#general_feedback_submit").click(function (event) {
     event.preventDefault();
     // Validation
@@ -266,10 +273,7 @@ $(document).ready(function () {
     }
   });
 
-  // <------------------------------------------------------------------------------ Submit General Feedback End ----------------------------------------------------------->
-
-  // <------------------------------------------------------------------------------ Edit General Feedback Start ----------------------------------------------------------->
-
+  /* --- Edit General Feedback --- */
   $(document).on("click", ".generalFeedbackActionBtn", function () {
     var id = $(this).attr("value"); // Get value attribute
     $.post(
@@ -284,10 +288,7 @@ $(document).ready(function () {
     );
   });
 
-  // <---------------------------------------------------------------------- Edit General Feedback End ------------------------------------------------------------------->
-
-  // <---------------------------------------------------------------------- Delete General Feedback Start --------------------------------------------------------------->
-
+  /* --- Delete General Feedback --- */
   $(document).on("click", ".generalFeedbackDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -299,10 +300,7 @@ $(document).ready(function () {
     return;
   });
 
-  // <---------------------------------------------------------------------------- Delete General Feedback End ---------------------------------------------------------->
-
-  // <------------------------------------------------------------------ Feedback Question Table Start ------------------------------------------------------------------->
-
+  /* --- Initialize Feedback Question Table --- */
   initializeQuestionTable({
     tbodySelector: "#feedback_question_body",
     inputClass: "feedback_question",
@@ -311,14 +309,16 @@ $(document).ready(function () {
     validationMessage: "Please enter feedback question",
   });
 
+  /* --- Initialize Poll Option Table --- */
   initializeQuestionTable({
     tbodySelector: "#poll_question_body",
     inputClass: "poll_option",
     inputName: "poll_option",
-    placeholder: "Enter Poll Question",
+    placeholder: "Enter Poll Option",
     validationMessage: "Please enter poll Option",
   });
 
+  /* --- Initialize Question Table --- */
   function initializeQuestionTable({
     tbodySelector,
     inputClass,
@@ -401,10 +401,7 @@ $(document).ready(function () {
     );
   }
 
-  // <------------------------------------------------------------------ Feedback Question Table End -------------------------------------------------------------->
-
-  // <------------------------------------------------------------------ Submit Feedback Configuration Start ------------------------------------------------------>
-
+  /* --- Submit Feedback Configuration --- */
   $("#submit_feedback_configuration").click(function (event) {
     event.preventDefault();
 
@@ -454,6 +451,11 @@ $(document).ready(function () {
       }
     });
 
+    let feedbackDepartmentValid = validateMultiSelectField(
+      "feedback_config_department_name",
+      departmentInstances["#feedback_config_department_name"],
+    );
+
     // Question Validation
     if (feedback_questions.length == 0) {
       swalError("Warning", "Please enter at least one feedback question");
@@ -461,12 +463,7 @@ $(document).ready(function () {
       return false;
     }
 
-    let departmentValid = validateMultiSelectField(
-      "feedback_config_department_name",
-      departmentInstances["#feedback_config_department_name"],
-    );
-
-    if (isValid && departmentValid) {
+    if (isValid && feedbackDepartmentValid) {
       swalConfirm(
         "Are you sure?",
         "Do you want to submit this Feedback Configuration?",
@@ -525,10 +522,7 @@ $(document).ready(function () {
     }
   });
 
-  // <--------------------------------------------------------------------- Submit Feedback Configuration End ------------------------------------------------------------->
-
-  // <------------------------------------------------------------------- Edit Feedback Configuration Start --------------------------------------------------------------->
-
+  /* --- Edit Feedback Configuration --- */
   $(document).on("click", ".FeedbackConfigurationActionBtn", async function () {
     let id = $(this).attr("value");
 
@@ -581,10 +575,7 @@ $(document).ready(function () {
     }
   });
 
-  // <------------------------------------------------------------------- Edit Feedback Configuration End -------------------------------------------------------------------->
-
-  // <------------------------------------------------------------------- Delete Feedback Configuration Start ----------------------------------------------------------------->
-
+  /* --- Delete Feedback Configuration --- */
   $(document).on("click", ".FeedbackConfigurationDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -596,10 +587,7 @@ $(document).ready(function () {
     return;
   });
 
-  // <------------------------------------------------------------------- Delete Feedback Configuration End ----------------------------------------------------------------->
-
-  // <---------------------------------------------------------------------- Submit Rating Start --------------------------------------------------------------------------->
-
+  /* --- Submit Rating --- */
   $("#submit_rating").click(function (event) {
     event.preventDefault();
     // Validation
@@ -632,12 +620,12 @@ $(document).ready(function () {
       }
     });
 
-    let departmentValid = validateMultiSelectField(
+    let ratingDepartmentValid = validateMultiSelectField(
       "rating_department_name",
       departmentInstances["#rating_department_name"],
     );
 
-    if (isValid && departmentValid) {
+    if (isValid && ratingDepartmentValid) {
       swalConfirm(
         "Are you sure?",
         "Do you want to submit this Rating?",
@@ -671,8 +659,8 @@ $(document).ready(function () {
               clearRatingFields();
               getDepartmentNameDropdown({
                 company_id: rating_company_name,
-                dropdownSelector: "#feedback_config_department_name",
-                hiddenInputSelector: "#feedback_config_department_name2",
+                dropdownSelector: "#rating_department_name",
+                hiddenInputSelector: "#rating_department_name2",
               });
             },
           );
@@ -681,10 +669,7 @@ $(document).ready(function () {
     }
   });
 
-  // <------------------------------------------------------------------------------ Submit Rating End ------------------------------------------------------------------->
-
-  // <----------------------------------------------------------------------- Edit Rating Start ------------------------------------------------------------------------->
-
+  /* --- Edit Rating --- */
   $(document).on("click", ".ratingActionBtn", async function () {
     let id = $(this).attr("value");
 
@@ -717,10 +702,7 @@ $(document).ready(function () {
     }
   });
 
-  // <---------------------------------------------------------------------------- Edit Rating End ------------------------------------------------------------------------>
-
-  // <------------------------------------------------------------------------ Delete Rating Start ----------------------------------------------------------------------->
-
+  /* --- Delete Rating --- */
   $(document).on("click", ".ratingDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -732,10 +714,7 @@ $(document).ready(function () {
     return;
   });
 
-  // <-------------------------------------------------------------------------- Delete Rating End ------------------------------------------------------------------------>
-
-  // <----------------------------------------------------------------------- Submit Poll Start --------------------------------------------------------------------------->
-
+  /* --- Submit Poll --- */
   $("#submit_poll").click(function (event) {
     event.preventDefault();
 
@@ -783,19 +762,18 @@ $(document).ready(function () {
       }
     });
 
-    // Question Validation
-    if (poll_options.length == 0) {
-      swalError("Warning", "Please enter at least one pole option!");
-
-      return false;
-    }
-
-    let departmentValid = validateMultiSelectField(
+    let pollDepartmentValid = validateMultiSelectField(
       "poll_department_name",
       departmentInstances["#poll_department_name"],
     );
 
-    if (isValid && departmentValid) {
+    // Question Validation
+    if (poll_options.length < 2) {
+      swalError("Warning", "Please enter at least two poll options!");
+      return false;
+    }
+
+    if (isValid && pollDepartmentValid) {
       swalConfirm(
         "Are you sure?",
         "Do you want to submit this Poll?",
@@ -839,8 +817,8 @@ $(document).ready(function () {
               clearPollFields();
               getDepartmentNameDropdown({
                 company_id: poll_company_name,
-                dropdownSelector: "#feedback_config_department_name",
-                hiddenInputSelector: "#feedback_config_department_name2",
+                dropdownSelector: "#poll_department_name",
+                hiddenInputSelector: "#poll_department_name2",
               });
             },
           );
@@ -849,10 +827,7 @@ $(document).ready(function () {
     }
   });
 
-  // <-------------------------------------------------------------------------- Submit Poll End -------------------------------------------------------------------------->
-
-  // <------------------------------------------------------------------- Edit Poll Start -------------------------------------------------------------------------------->
-
+  /* --- Edit Poll --- */
   $(document).on("click", ".pollActionBtn", async function () {
     let id = $(this).attr("value");
 
@@ -906,21 +881,15 @@ $(document).ready(function () {
     }
   });
 
-  // <--------------------------------------------------------------------- Edit Poll End --------------------------------------------------------------------------------->
-
-  // <------------------------------------------------------------------- Delete Feedback Configuration Start ----------------------------------------------------------------->
-
+  /* --- Delete Poll --- */
   $(document).on("click", ".pollDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm("Delete", "Do you want to Delete the Poll?", getPollDelete, id);
     return;
   });
-
-  // <------------------------------------------------------------------- Delete Feedback Configuration End ----------------------------------------------------------------->
 });
 
-// <------------------------------------------------------------------------------------ Get Company Name Start ------------------------------------------------------------>
-
+/* --- Get Company Name --- */
 async function getCompanyName() {
   return new Promise((resolve, reject) => {
     $.post(
@@ -949,62 +918,7 @@ async function getCompanyName() {
   });
 }
 
-// <-------------------------------------------------------------------- Get Company Name End --------------------------------------------------------------------------->
-
-// <------------------------------------------------------------------ Get General Feedback Table Start ------------------------------------------------------------------>
-
-function getGeneralFeedbackTable(company_id) {
-  $.post(
-    "api/general_feedback_files/general_feedback_creation_list.php",
-    { company_id },
-    function (response) {
-      var columnMapping = ["sno", "feedback_name", "status", "action"];
-      appendDataToTable("#general_feedback_table", response, columnMapping);
-      setdtable("#general_feedback_table", "General Feedback Creation List");
-    },
-    "json",
-  );
-}
-
-// <-------------------------------------------------------------------- Get General Feedback Table End ------------------------------------------------------------------>
-
-// <-------------------------------------------------------------------- Get General Feedback Table Delete Start --------------------------------------------------------->
-
-function getgeneralFeedbackDelete(id) {
-  let company_id = $("#general_company_name").val();
-
-  $.post(
-    "api/general_feedback_files/delete_general_feedback.php",
-    { id },
-    function (response) {
-      if (response == "1") {
-        swalSuccess("Success", "General Feedback Deleted Successfully!");
-        getGeneralFeedbackTable(company_id);
-        clearFields();
-      } else if (response == "2") {
-        swalError("Warning", "General Feedback already answered by Employee!");
-      } else {
-        swalError("Warning", "Error occur While Delete CTC Info.");
-      }
-    },
-    "json",
-  );
-}
-
-// <----------------------------------------------------------------------- Get General Feedback Table Delete End ------------------------------------------------------->
-
-// <-------------------------------------------------------------------- General Feedback Input Clear Fields Start ------------------------------------------------------->
-
-function clearFields() {
-  $("#feedback_name").val("");
-  $("#status").val("");
-  $("#general_feedback_id").val("");
-}
-
-// <--------------------------------------------------------------------- General Feedback Input Clear Fields End -------------------------------------------------------->
-
-// <--------------------------------------------------------------------- Get Department Name Dropdown Start ------------------------------------------------------------->
-
+/* --- Get Department Name Dropdown --- */
 async function getDepartmentNameDropdown({
   company_id,
   dropdownSelector,
@@ -1043,10 +957,50 @@ async function getDepartmentNameDropdown({
   }
 }
 
-// <--------------------------------------------------------------------- Get Department Name Dropdown End ------------------------------------------------------------>
+/* --- Get General Feedback Table --- */
+function getGeneralFeedbackTable(company_id) {
+  $.post(
+    "api/general_feedback_files/general_feedback_creation_list.php",
+    { company_id },
+    function (response) {
+      var columnMapping = ["sno", "feedback_name", "status", "action"];
+      appendDataToTable("#general_feedback_table", response, columnMapping);
+      setdtable("#general_feedback_table", "General Feedback Creation List");
+    },
+    "json",
+  );
+}
 
-// <------------------------------------------------------------------ Get Feedback Configuration Table Start --------------------------------------------------------->
+/* --- Get General Feedback Delete Table --- */
+function getgeneralFeedbackDelete(id) {
+  let company_id = $("#general_company_name").val();
 
+  $.post(
+    "api/general_feedback_files/delete_general_feedback.php",
+    { id },
+    function (response) {
+      if (response == "1") {
+        swalSuccess("Success", "General Feedback Deleted Successfully!");
+        getGeneralFeedbackTable(company_id);
+        clearFields();
+      } else if (response == "2") {
+        swalError("Warning", "General Feedback already answered by Employee!");
+      } else {
+        swalError("Warning", "Error occur While Delete CTC Info.");
+      }
+    },
+    "json",
+  );
+}
+
+/* --- Clear General Feedback Input Fields --- */
+function clearFields() {
+  $("#feedback_name").val("");
+  $("#status").val("");
+  $("#general_feedback_id").val("");
+}
+
+/* --- Get Feedback Configuration Table --- */
 function getFeedbackConfigurationTable(company_id) {
   $.post(
     "api/scheduled_feedback_files/feedback_configuration_creation_list.php",
@@ -1075,10 +1029,7 @@ function getFeedbackConfigurationTable(company_id) {
   );
 }
 
-// <-------------------------------------------------------------------- Get Feedback Configuration Table End ---------------------------------------------------------->
-
-// <-------------------------------------------------------------------- Delete Feedback Configuration Table Start ------------------------------------------------------>
-
+/* --- Delete Feedback Configuration Table --- */
 function getFeedbackConfigurationDelete(id) {
   let company_id = $("#feedback_config_company_name").val();
   $.post(
@@ -1102,10 +1053,7 @@ function getFeedbackConfigurationDelete(id) {
   );
 }
 
-// <-------------------------------------------------------------------- Delete Feedback Configuration Table End -------------------------------------------------------->
-
-// <-------------------------------------------------------------- Feedback Configuration Input Clear Fields Start --------------------------------------------------->
-
+/* --- Clear Feedback Configuration Input Fields --- */
 function clearFeedbackConfigurationFields() {
   const instance = departmentInstances["#feedback_config_department_name"];
 
@@ -1117,12 +1065,27 @@ function clearFeedbackConfigurationFields() {
   $("#feedback_title").val("");
   $("#feedback_status").val("");
   $("#feedback_titles_id").val("");
+
+  // Reset validation borders
+  $("#scheduled_feedback_configuration input").css(
+    "border",
+    "1px solid #cecece",
+  );
+  $("#scheduled_feedback_configuration select").css(
+    "border",
+    "1px solid #cecece",
+  );
+  $("#scheduled_feedback_configuration textarea").css(
+    "border",
+    "1px solid #cecece",
+  );
+  $("#feedback_config_department_name")
+    .closest(".choices")
+    .find(".choices__inner")
+    .css("border", "1px solid #cecece");
 }
 
-// <------------------------------------------------------------ Feedback Configuration Input Clear Fields End -------------------------------------------------------->
-
-// <------------------------------------------------------------------------- Get Rating Table Start ------------------------------------------------------------------>
-
+/* --- Get Rating Table --- */
 function getRatingTable(company_id) {
   $.post(
     "api/rating_files/rating_creation_list.php",
@@ -1144,10 +1107,7 @@ function getRatingTable(company_id) {
   );
 }
 
-// <------------------------------------------------------------------------------ Get Rating Table End --------------------------------------------------------------->
-
-// <--------------------------------------------------------------------------- Delete Rating Table Start ------------------------------------------------------------->
-
+/* --- Delete Rating Table --- */
 function getRatingDelete(id) {
   let company_id = $("#rating_company_name").val();
   $.post(
@@ -1168,10 +1128,7 @@ function getRatingDelete(id) {
   );
 }
 
-// <-------------------------------------------------------------------------- Delete Rating Table End --------------------------------------------------------------->
-
-// <-------------------------------------------------------------------------- Rating Input Clear Fields Start ------------------------------------------------------->
-
+/* --- Clear Rating Input Fields --- */
 function clearRatingFields() {
   const instance = departmentInstances["#rating_department_name"];
 
@@ -1184,12 +1141,18 @@ function clearRatingFields() {
   $("#rating_description").val("");
   $("#rating_status").val("");
   $("#rating_titles_id").val("");
+
+  // Reset validation borders
+  $("#scheduled_rating input").css("border", "1px solid #cecece");
+  $("#scheduled_rating select").css("border", "1px solid #cecece");
+  $("#scheduled_rating textarea").css("border", "1px solid #cecece");
+  $("#rating_department_name")
+    .closest(".choices")
+    .find(".choices__inner")
+    .css("border", "1px solid #cecece");
 }
 
-// <----------------------------------------------------------------------- Rating Input Clear Fields End --------------------------------------------------------------->
-
-// <-------------------------------------------------------------------------- Get Poll Table Start --------------------------------------------------------------------->
-
+/* --- Get Poll Table --- */
 function getPollTable(company_id) {
   $.post(
     "api/poll_files/poll_creation_list.php",
@@ -1211,10 +1174,7 @@ function getPollTable(company_id) {
   );
 }
 
-// <-------------------------------------------------------------------------- Get Poll Table End ----------------------------------------------------------------------->
-
-// <----------------------------------------------------------------------- Delete Poll Table Start --------------------------------------------------------------------->
-
+/* --- Delete Poll Table --- */
 function getPollDelete(id) {
   let company_id = $("#poll_company_name").val();
   $.post(
@@ -1235,10 +1195,7 @@ function getPollDelete(id) {
   );
 }
 
-// <---------------------------------------------------------------------------- Delete Poll Table End ---------------------------------------------------------------->
-
-// <------------------------------------------------------------------------------ Poll Input Clear Fields Start ------------------------------------------------------->
-
+/* --- Clear Poll Input Fields --- */
 function clearPollFields() {
   const instance = departmentInstances["#poll_department_name"];
 
@@ -1251,12 +1208,18 @@ function clearPollFields() {
   $("#poll_description").val("");
   $("#poll_status").val("");
   $("#poll_titles_id").val("");
+
+  // Reset validation borders
+  $("#scheduled_poll input").css("border", "1px solid #cecece");
+  $("#scheduled_poll select").css("border", "1px solid #cecece");
+  $("#scheduled_poll textarea").css("border", "1px solid #cecece");
+  $("#poll_department_name")
+    .closest(".choices")
+    .find(".choices__inner")
+    .css("border", "1px solid #cecece");
 }
 
-// <----------------------------------------------------------------------- Poll Input Clear Fields End ----------------------------------------------------------------->
-
-// <----------------------------------------------------------------------- Reset Questions Start ----------------------------------------------------------------------->
-
+/* --- Reset Question & Option Table --- */
 resetQuestionTable({
   tbodySelector: "#feedback_question_body",
   inputClass: "feedback_question",
@@ -1307,5 +1270,3 @@ function resetQuestionTable({
     </tr>
   `);
 }
-
-// <------------------------------------------------------------------------- Reset Questions End ------------------------------------------------------------------->

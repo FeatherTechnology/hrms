@@ -21,8 +21,7 @@ try {
 
     $result = 0;
 
-    /*--------------------------------------------------------------- UPDATE ---------------------------------------------------------------*/
-
+    /*--- UPDATE feedback_titles ---*/
     if ($feedback_titles_id != '') {
 
         $stmt = $pdo->prepare("UPDATE feedback_titles 
@@ -47,8 +46,7 @@ try {
             $feedback_titles_id
         ]);
 
-        /*--------------------------------------------------------------- Department Update ---------------------------------------------------------------*/
-
+        /*--- Department Update ---*/
         $feedback_config_department_name = array_map('intval', $feedback_config_department_name);
         $feedback_config_department_name2 = array_map('intval', $feedback_config_department_name2);
 
@@ -75,15 +73,13 @@ try {
             ]);
         }
 
-        /*--------------------------------------------------------------- Delete Old Questions ---------------------------------------------------------------*/
-
+        /*---- Delete Old Questions ----*/
         $stmt = $pdo->prepare("DELETE FROM feedback_questions_mapping WHERE feedback_titles_id = ?");
 
         $stmt->execute([$feedback_titles_id]);
     } else {
 
-        /*-------------------------------------------------------------- INSERT ---------------------------------------------------------------*/
-
+        /*--- INSERT feedback_titles ---*/
         $stmt = $pdo->prepare("INSERT INTO feedback_titles
             (
                 company_id,
@@ -127,8 +123,7 @@ try {
         }
     }
 
-    /*------------------------------------------------------------- Insert Questions ---------------------------------------------------------------*/
-
+    /*--- Insert Question ---*/
     foreach ($feedback_questions as $question) {
 
         $question = trim($question);

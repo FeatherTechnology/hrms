@@ -1,4 +1,5 @@
 $(document).ready(function () {
+  /* --- Add Location Access & Back Button Click --- */
   $(document).on("click", ".backBtn", function () {
     let company_id = $("#company_name").val();
     let branch_id = $("#branch_name_one").val();
@@ -7,6 +8,7 @@ $(document).ready(function () {
     swapTableAndCreation();
   });
 
+  /* --- Location Access On Change & Click Events --- */
   $("#company_name").on("change", function () {
     let compnay_id = $("#company_name").val();
     getBranchName(compnay_id);
@@ -49,8 +51,7 @@ $(document).ready(function () {
     getLocationAccessTable(company_id, branch_id, department_id);
   });
 
-  // <-------------------------------------------------------------------- Edit Location Access Start ------------------------------------------------------------------>
-
+  /* --- Edit Location Access --- */
   $(document).on("click", ".locationActionBtn", function () {
     let id = $(this).data("id"); // Get value attribute
     let staff_profile_id = $(this).data("staff-profile-id");
@@ -69,16 +70,15 @@ $(document).ready(function () {
         $("#staff_name").val(response[0].staff_name);
         $("#staff_id").val(response[0].staff_id);
         getLocationMappingTable(staff_profile_id);
+        // Load branches and exclude current branch
+        getBranchName(response[0].company_id, response[0].branch_name);
         clearFields();
       },
       "json",
     );
   });
 
-  // <------------------------------------------------------------------------ Edit Location Access End ----------------------------------------------------------------->
-
-  // <---------------------------------------------------------------------- Submit Location Mapping Start --------------------------------------------------------------->
-
+  /* --- Submit Location Access --- */
   $("#submit_location_access").click(function () {
     event.preventDefault();
     //Validation
@@ -128,10 +128,7 @@ $(document).ready(function () {
     }
   });
 
-  // <------------------------------------------------------------------------ Submit Location Mapping End ----------------------------------------------------------------->
-
-  // <-------------------------------------------------------------------- Edit Location Mapping Start --------------------------------------------------------------------->
-
+  /* --- Edit Location Mapping --- */
   $(document).on("click", ".locationMappingActionBtn", async function () {
     var id = $(this).attr("value"); // Get value attribute
 
@@ -146,7 +143,7 @@ $(document).ready(function () {
       $("#location_access_id").val(id);
       $("#from_date").val(response[0].from_date);
       $("#to_date").val(response[0].to_date);
-      await getBranchName(response[0].company_id);
+      await getBranchName(response[0].company_id, $("#branch_name_two").val());
       $("#branch_name_three").val(response[0].assigned_branch);
       $("#branch_location").val(response[0].lattitude_longitude);
       $("#reason").val(response[0].reason);
@@ -155,10 +152,7 @@ $(document).ready(function () {
     }
   });
 
-  // <------------------------------------------------------------------------ Edit Location Mapping End ------------------------------------------------------------------->
-
-  // <------------------------------------------------------------------ Delete Location Mapping Start --------------------------------------------------------------------->
-
+  /* --- Delete Location Mapping --- */
   $(document).on("click", ".locationMappingDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -169,14 +163,14 @@ $(document).ready(function () {
     );
     return;
   });
-
-  // <-------------------------------------------------------------------------- Delete Location Mapping End -------------------------------------------------------------->
 });
 
+/* --- On Load --- */
 $(function () {
   getCompanyName();
 });
 
+/* --- Swap Table and hide/show --- */
 function swapTableAndCreation() {
   if ($(".location_table_content").is(":visible")) {
     $(".location_table_content").hide();
@@ -191,8 +185,7 @@ function swapTableAndCreation() {
   }
 }
 
-// <---------------------------------------------------------------- Get Company Name Start ------------------------------------------------------------------->
-
+/* --- Get Company Name --- */
 function getCompanyName() {
   $.ajax({
     url: "api/branch_creation/getCompanyName.php",
@@ -220,11 +213,8 @@ function getCompanyName() {
   });
 }
 
-// <------------------------------------------------------------------- Get Company Name End --------------------------------------------------------------------->
-
-// <-------------------------------------------------------------------- Get Branch Name Start ------------------------------------------------------------------->
-
-async function getBranchName(compnay_id) {
+/* --- Get Branch Name --- */
+async function getBranchName(compnay_id, excludeBranch = "") {
   try {
     const response = await $.ajax({
       url: "api/location_creation_files/getBranchName.php",
@@ -234,32 +224,29 @@ async function getBranchName(compnay_id) {
       cache: false,
     });
 
-    // select both dropdowns
-    let dropdowns = $("#branch_name_one, #branch_name_three");
+    $("#branch_name_one, #branch_name_three")
+      .empty()
+      .append('<option value="">Select Branch Name</option>');
 
-    // clear existing options
-    dropdowns.empty();
-
-    // default option
-    dropdowns.append('<option value="">Select Branch Name</option>');
-
-    // append options
     $.each(response, function (index, item) {
-      dropdowns.append(
-        `<option value="${item.id}">
-                    ${item.branch_name}
-                </option>`,
+      // Search dropdown - show all branches
+      $("#branch_name_one").append(
+        `<option value="${item.id}">${item.branch_name}</option>`,
       );
+
+      // Assignment dropdown - exclude current branch
+      if (item.branch_name !== excludeBranch) {
+        $("#branch_name_three").append(
+          `<option value="${item.id}">${item.branch_name}</option>`,
+        );
+      }
     });
   } catch (error) {
     swalError("Error", error.statusText || error);
   }
 }
 
-// <--------------------------------------------------------------------- Get Branch Name End --------------------------------------------------------------------->
-
-// <-------------------------------------------------------------------- Get Department Name Start ------------------------------------------------------------------->
-
+/* --- Get Department Name --- */
 async function getDepartmentName(company_name) {
   return new Promise((resolve, reject) => {
     $.post(
@@ -286,10 +273,7 @@ async function getDepartmentName(company_name) {
   });
 }
 
-// <-------------------------------------------------------------------- Get Department Name Start ------------------------------------------------------------------->
-
-// <------------------------------------------------------------- Location Access Outer List Function Start ----------------------------------------------------------->
-
+/* --- Get Location Access Outer List Table --- */
 function getLocationAccessTable(company_id, branch_id, department_id) {
   serverSideTable(
     "#location_creation_table",
@@ -303,10 +287,7 @@ function getLocationAccessTable(company_id, branch_id, department_id) {
   );
 }
 
-// <------------------------------------------------------------- Location Access Outer List Function End ------------------------------------------------------------->
-
-// <--------------------------------------------------------------------------- Get Branch Location Start ------------------------------------------------------------->
-
+/* --- Get Branch Location --- */
 function getBranchLocation(branch_id) {
   $.post(
     "api/location_creation_files/getBranchLocation.php",
@@ -318,10 +299,7 @@ function getBranchLocation(branch_id) {
   );
 }
 
-// <--------------------------------------------------------------------------- Get Branch Location End -------------------------------------------------------------->
-
-// <-------------------------------------------------------------------- Get Location Mapping Table Start ------------------------------------------------------------->
-
+/* --- Get Location Mapping Table --- */
 function getLocationMappingTable(staff_profile_id) {
   $.post(
     "api/location_creation_files/location_mapping_list.php",
@@ -343,23 +321,7 @@ function getLocationMappingTable(staff_profile_id) {
   );
 }
 
-// <------------------------------------------------------------------------ Get Location Mapping Table End ----------------------------------------------------------->
-
-// <---------------------------------------------------------------- Staff Information Input Clear Fields Start -------------------------------------------------------->
-
-function clearFields() {
-  $("#from_date").val("");
-  $("#to_date").val("");
-  $("#branch_name_three").val("");
-  $("#branch_location").val("");
-  $("#reason").val("");
-  $("#location_access_id").val("");
-}
-
-// <---------------------------------------------------------------- Staff Information Input Clear Fields End --------------------------------------------------------->
-
-// <---------------------------------------------------------------- Get CTC Table Delete Start ----------------------------------------------------------------------->
-
+/* --- Delete Location Mapping Table --- */
 function getLocationMappingDelete(id) {
   let staff_profile_id = $("#staff_profile_id").val();
   let company_id = $("#company_name").val();
@@ -383,4 +345,14 @@ function getLocationMappingDelete(id) {
   );
 }
 
-// <------------------------------------------------------------------- Get CTC Table Delete End ---------------------------------------------------------------------->
+/* --- Clear Fields --- */
+function clearFields() {
+  $("#from_date").val("");
+  $("#to_date").val("");
+  $("#branch_name_three").val("");
+  $("#branch_location").val("");
+  $("#reason").val("");
+  $("#location_access_id").val("");
+  $("#location_form input").css("border", "1px solid #cecece");
+  $("#location_form select").css("border", "1px solid #cecece");
+}

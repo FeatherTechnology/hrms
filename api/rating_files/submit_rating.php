@@ -27,12 +27,12 @@ if ($rating_titles_id != '') {
     $rating_to_delete = array_diff($rating_department_name2, $rating_department_name);
     $rating_to_insert = array_diff($rating_department_name, $rating_department_name2);
 
-    // Delete unselected treams
+    // Delete unselected departments
     foreach ($rating_to_delete as $department_del_id) {
         $pdo->query("DELETE FROM rating_department_mapping WHERE rating_titles_id = $rating_titles_id AND department_id	 = $department_del_id");
     }
 
-    // Insert new team_ids
+    // Insert new departments
     foreach ($rating_to_insert as $department_new_id) {
         $pdo->query("INSERT INTO rating_department_mapping (rating_titles_id, department_id	) VALUES ($rating_titles_id, $department_new_id)");
     }
@@ -50,8 +50,8 @@ if ($rating_titles_id != '') {
     foreach ($rating_department_name as $department_id) {
         $department_id     = (int)trim($department_id);
         if ($department_id > 0) {
-            $teamQry = "INSERT INTO rating_department_mapping (rating_titles_id, department_id	) VALUES ($rating_titles_id, $department_id	)";
-            $pdo->query($teamQry) or die("Error inserting team map: " . $pdo->errorInfo());
+            $departmentQry = "INSERT INTO rating_department_mapping (rating_titles_id, department_id	) VALUES ($rating_titles_id, $department_id	)";
+            $pdo->query($departmentQry) or die("Error inserting department map: " . $pdo->errorInfo());
         }
     }
 

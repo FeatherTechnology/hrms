@@ -17,7 +17,12 @@ $(document).ready(function () {
     let shift_id = $("#shift_name").val();
     let staff_id = $("#staff_name").val();
     let date = $("#date").val();
-    if (company_id === "" || shift_id === "" || staff_id === "" || date === "") {
+    if (
+      company_id === "" ||
+      shift_id === "" ||
+      staff_id === "" ||
+      date === ""
+    ) {
       swalError("Warning", "Please select all fields.");
       return;
     }
@@ -25,8 +30,7 @@ $(document).ready(function () {
   });
 });
 
-// <---------------------------------------------------------------------- Get Company Name Start ------------------------------------------------------------------>
-
+/* --- Get Company Name --- */
 function getCompanyName() {
   $.ajax({
     url: "api/branch_creation/getCompanyName.php",
@@ -54,10 +58,7 @@ function getCompanyName() {
   });
 }
 
-// <------------------------------------------------------------------------- Get Company Name End ----------------------------------------------------------------------->
-
-// <-------------------------------------------------------------------------- Get Shift Name Start ---------------------------------------------------------------------->
-
+/* --- Get Shift Name --- */
 function getShiftName(company_id) {
   $.ajax({
     url: "api/attendance_ot_monitor_chart_files/getShiftName.php",
@@ -85,10 +86,7 @@ function getShiftName(company_id) {
   });
 }
 
-// <-------------------------------------------------------------------------- Get Shift Name End ------------------------------------------------------------------------->
-
-// <-------------------------------------------------------------- Get Staff Name Function Start --------------------------------------------------------------------------->
-
+/* --- Get Staff Name --- */
 function getStaffName(company_id, shift_id) {
   $.ajax({
     url: "api/attendance_ot_monitor_chart_files/get_staff_name.php",
@@ -123,8 +121,7 @@ function getStaffName(company_id, shift_id) {
   });
 }
 
-// <------------------------------------------------------------------- Get Staff Name Function End --------------------------------------------------------------------------->
-
+/* --- Load Chart --- */
 function loadChart(company_id, shift_id, staff_id, date) {
   $.post(
     "api/attendance_ot_monitor_chart_files/get_staff_info.php",
@@ -139,33 +136,6 @@ function loadChart(company_id, shift_id, staff_id, date) {
 google.charts.load("current", {
   packages: ["timeline"],
 });
-
-// ========================================= LOAD CHART =========================================
-
-function loadChart(company_id, shift_id, staff_id, date) {
-  $.ajax({
-    url: "api/attendance_ot_monitor_chart_files/get_staff_info.php",
-
-    type: "POST",
-
-    data: {
-      company_id,
-      shift_id,
-      staff_id,
-      date,
-    },
-
-    dataType: "json",
-
-    success: function (response) {
-      drawChart(response, date);
-    },
-
-    error: function (error) {
-      console.log(error);
-    },
-  });
-}
 
 // ========================================= CONVERT DATETIME =========================================
 

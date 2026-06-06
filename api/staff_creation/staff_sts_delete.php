@@ -2,18 +2,51 @@
 
 require '../../ajaxconfig.php';
 
-// Retrieve the staff_id and staff_profile_id from POST request
 $staff_id = $_POST['staff_id'];
 $staffProfileId = $_POST['staff_profile_id'];
 
 try {
 
-    $stmt2 = $pdo->prepare("DELETE FROM staff_creation WHERE staff_id = :staff_id AND id = :staffProfileId");
-    $stmt2->execute(['staff_id' => $staff_id, 'staffProfileId' => $staffProfileId]);
+    $pdo->beginTransaction();
 
-    echo json_encode(['success' => true]);
+    $tables = [
+        'document_info',
+        'family_info',
+        'qualification_info',
+        'experience_info',
+        'occupation_info',
+        'staff_ctc_info'
+    ];
 
+    foreach ($tables as $table) {
+
+        $stmt = $pdo->prepare("DELETE FROM $table WHERE staff_id = :staff_id AND staff_profile_id = :staff_profile_id");
+
+        $stmt->execute([
+            'staff_id' => $staff_id,
+            'staff_profile_id' => $staffProfileId
+        ]);
+    }
+
+    // Delete from main table last
+    $stmt = $pdo->prepare("DELETE FROM staff_creation WHERE staff_id = :staff_id AND id = :staff_profile_id");
+
+    $stmt->execute([
+        'staff_id' => $staff_id,
+        'staff_profile_id' => $staffProfileId
+    ]);
+
+    $pdo->commit();
+
+    echo json_encode([
+        'success' => true
+    ]);
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+
+    $pdo->rollBack();
+
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
 }
-?>

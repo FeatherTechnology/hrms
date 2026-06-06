@@ -1,9 +1,9 @@
 <?php
 require '../../ajaxconfig.php';
-$staff_id = $_POST['staff_id'];
+$staff_profile_id = $_POST['staff_profile_id'];
 $qualification_list_arr = array();
 $i = 0;
-$qry = $pdo->query("SELECT * FROM qualification_info WHERE staff_id = '$staff_id' ");
+$qry = $pdo->query("SELECT * FROM qualification_info WHERE staff_profile_id = '$staff_profile_id' ");
 
 if ($qry->rowCount() > 0) {
 

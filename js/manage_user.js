@@ -1,9 +1,11 @@
 $(document).ready(function () {
+  /* --- Add & Back Button Click --- */
   $(".add_user_btn, .back_to_userList_btn").click(function () {
     $("#reset_btn").show();
     swapTableAndCreation();
   });
 
+  /* --- User Creation On Change & Click Events --- */
   $("#company_name").on("change", function () {
     $("#staff_name").val("");
     $("#staff_id").val("");
@@ -35,7 +37,39 @@ $(document).ready(function () {
     getUserCreationTable();
   });
 
-  /////////////////////////////////////////////////////////// User Creation START ///////////////////////////////////////////////////////////////////////
+  $("#password, #confirm_password").keyup(function () {
+    const password = $("#password").val();
+    const confirmPassword = $("#confirm_password").val();
+    if (password != "" && confirmPassword != "") {
+      if (password != confirmPassword) {
+        $("#confirm_password").css("border", "1px solid red");
+      } else {
+        $("#confirm_password").css("border", "");
+      }
+    }
+  });
+
+  $("#password, #confirm_password").change(function () {
+    const password = $("#password").val();
+    const confirmPassword = $("#confirm_password").val();
+    if (password != "" && confirmPassword != "") {
+      if (password != confirmPassword) {
+        $("#confirm_password").val("");
+      }
+    }
+  });
+
+  // Handle menu checkbox events
+  $(document).on("change", '.main-menu input[type="checkbox"]', function () {
+    const menuId = $(this).attr("id");
+    const submenus = $(`#${menuId}-submenus input[type="checkbox"]`);
+    submenus.prop("disabled", !this.checked);
+    if (!this.checked) {
+      submenus.prop("checked", false);
+    }
+  });
+
+  /* --- Submit User Creation --- */
   $("#submit_user_creation").click(function (event) {
     event.preventDefault();
 
@@ -84,44 +118,39 @@ $(document).ready(function () {
     });
 
     if (isValid) {
-      swalConfirm(
-        "Are you sure?",
-        "Do you want to submit this Manage User?",
-        function () {
-          if (selectedSubmenuIds.length > 0) {
-            $.post(
-              "api/user_creation_files/submit_user_creation.php",
-              userFormData,
-              function (response) {
-                if (response.status == "") {
-                  swalError("Error", "Creation Failed.");
-                } else if (response.status == "1") {
-                  swalSuccess("Success", "User Updated Successfully!");
-                } else if (response.status == "2") {
-                  swalSuccess("Success", "User Added Successfully!");
-                } else if (response.status == "3") {
-                  swalError("Warning", "User Name Already Created.");
-                }
+      if (selectedSubmenuIds.length > 0) {
+        $.post(
+          "api/user_creation_files/submit_user_creation.php",
+          userFormData,
+          function (response) {
+            if (response.status == "") {
+              swalError("Error", "Creation Failed.");
+            } else if (response.status == "1") {
+              swalSuccess("Success", "User Updated Successfully!");
+            } else if (response.status == "2") {
+              swalSuccess("Success", "User Added Successfully!");
+            } else if (response.status == "3") {
+              swalError("Warning", "User Name Already Created.");
+            }
 
-                if (response.status != "" && response.status != "3") {
-                  swapTableAndCreation();
-                }
-                let sessionId = $("#session_user_id").val();
-                if (response.last_id == sessionId) {
-                  getLeftbarMenuList(); //After Submit/Update Leftbar want to refresh to view the changes.
-                }
-              },
-              "json",
-            );
-          } else {
-            swalError("Warning", "Please fill out mandatory fields!");
-          }
-        },
-      );
+            if (response.status != "" && response.status != "3") {
+              swapTableAndCreation();
+            }
+            let sessionId = $("#session_user_id").val();
+            if (response.last_id == sessionId) {
+              getLeftbarMenuList(); //After Submit/Update Leftbar want to refresh to view the changes.
+            }
+          },
+          "json",
+        );
+      } else {
+        swalError("Warning", "Please fill out mandatory fields!");
+      }
     }
     // }
   });
 
+  /* --- Edit User Creation --- */
   $(document).on("click", ".userActionBtn", async function () {
     $("#reset_btn").hide();
     var id = $(this).attr("value"); // Get value attribute
@@ -137,6 +166,7 @@ $(document).ready(function () {
       $("#user_creation_id").val(id);
       swapTableAndCreation();
       await getCompanyName();
+
       $("#user_code").val(response[0].user_code);
       // $("#company_name").val(response[0].company_id);
       $("#company_name").val(response[0].company_id).trigger("change");
@@ -160,46 +190,14 @@ $(document).ready(function () {
     }
   });
 
+  /* --- Delete User Creation --- */
   $(document).on("click", ".userDeleteBtn", function () {
     var id = $(this).attr("value"); // Get value attribute
     swalConfirm("Delete", "Do you want to Delete the User?", deleteUser, id);
     return;
   });
 
-  /////////////////////////////////////////////////////////// User Creation END ///////////////////////////////////////////////////////////////////////
-
-  $("#password, #confirm_password").keyup(function () {
-    const password = $("#password").val();
-    const confirmPassword = $("#confirm_password").val();
-    if (password != "" && confirmPassword != "") {
-      if (password != confirmPassword) {
-        $("#confirm_password").css("border", "1px solid red");
-      } else {
-        $("#confirm_password").css("border", "");
-      }
-    }
-  });
-
-  $("#password, #confirm_password").change(function () {
-    const password = $("#password").val();
-    const confirmPassword = $("#confirm_password").val();
-    if (password != "" && confirmPassword != "") {
-      if (password != confirmPassword) {
-        $("#confirm_password").val("");
-      }
-    }
-  });
-
-  // Handle menu checkbox events
-  $(document).on("change", '.main-menu input[type="checkbox"]', function () {
-    const menuId = $(this).attr("id");
-    const submenus = $(`#${menuId}-submenus input[type="checkbox"]`);
-    submenus.prop("disabled", !this.checked);
-    if (!this.checked) {
-      submenus.prop("checked", false);
-    }
-  });
-
+  /* --- Reset Button Click --- */
   $('button[type="reset"]').click(function (event) {
     event.preventDefault();
 
@@ -236,12 +234,13 @@ $(document).ready(function () {
   });
 }); //Document END.
 
-//ON Load
+/* --- On Laod --- */
 $(function () {
   getUserCreationTable();
   getSessionValue();
 });
 
+/* --- Get Session Value --- */
 function getSessionValue() {
   $.post(
     "api/base_api/getSessionData.php",
@@ -252,6 +251,7 @@ function getSessionValue() {
   );
 }
 
+/* --- Swap Table and hide/show --- */
 function swapTableAndCreation() {
   if ($(".user_creation_table_content").is(":visible")) {
     $(".user_creation_table_content").hide();
@@ -278,6 +278,7 @@ function swapTableAndCreation() {
   }
 }
 
+/* --- Load Staff Name --- */
 function loadStaff() {
   let company_id = $("#company_name").val();
   let role = $("#role").val();
@@ -287,8 +288,7 @@ function loadStaff() {
   }
 }
 
-// <--------------------------------------------- Get Company Name Function Start ----------------------------------------------------->
-
+/* --- Get Company Name --- */
 async function getCompanyName() {
   return new Promise((resolve, reject) => {
     $.post(
@@ -316,10 +316,7 @@ async function getCompanyName() {
   });
 }
 
-// <--------------------------------------------- Get Company Name Function End ----------------------------------------------------->
-
-// <--------------------------------------------- Get Staff Name Function Start ----------------------------------------------------->
-
+/* --- Get Staff Name --- */
 async function getStaffName(company_id, role) {
   try {
     const response = await $.ajax({
@@ -350,10 +347,7 @@ async function getStaffName(company_id, role) {
   }
 }
 
-// <--------------------------------------------- Get Staff Name Function End ----------------------------------------------------->
-
-// <--------------------------------------------- Get Staff Information Function Start ----------------------------------------------------->
-
+/* --- Get Staff Information --- */
 function getStaffInfo() {
   let id = $("#staff_name").val();
 
@@ -382,10 +376,7 @@ function getStaffInfo() {
   );
 }
 
-// <----------------------------------------------------------------- Get Staff Information Function End ----------------------------------------------------------->
-
-// <------------------------------------------------------------- User Creation Outer List Function Start ----------------------------------------------------------->
-
+/* --- Get User Creation Table --- */
 function getUserCreationTable() {
   let status = $("input[name='outer_list']:checked").val();
   $.post(
@@ -411,10 +402,7 @@ function getUserCreationTable() {
   );
 }
 
-// <------------------------------------------------------------- User Creation Outer List Function End ------------------------------------------------------------->
-
-// <------------------------------------------------------------------- User Menu & Sub Menu Function Start --------------------------------------------------------->
-
+/* --- Get Menu Sub Menu List --- */
 function getMenuSubMenuList(userId) {
   $.post(
     "api/user_creation_files/get_menu_submenu_list.php",
@@ -491,10 +479,7 @@ function getMenuSubMenuList(userId) {
   );
 }
 
-// <------------------------------------------------------------------- User Menu & Sub Menu Function End ----------------------------------------------------------->
-
-// <-------------------------------------------------------------- User Auto Increment Code Function Start ---------------------------------------------------------->
-
+/* --- Get Auto Increment User ID --- */
 async function getUserID(id) {
   try {
     const response = await $.ajax({
@@ -513,10 +498,7 @@ async function getUserID(id) {
   }
 }
 
-// <-------------------------------------------------------------- User Auto Increment Code Function End ----------------------------------------------------------->
-
-// <-------------------------------------------------------------- User Creation Delete Function Start ------------------------------------------------------------->
-
+/* --- Delete User Creation --- */
 function deleteUser(id) {
   $.post(
     "api/user_creation_files/delete_user.php",
@@ -538,5 +520,3 @@ function deleteUser(id) {
     "json",
   );
 }
-
-// <----------------------------------------------------------------- User Creation Delete Function End -------------------------------------------------------->
