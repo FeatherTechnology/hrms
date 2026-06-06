@@ -1,23 +1,37 @@
 <?php
 
+/** General Feedback List **
+ * Purpose:
+ * - Fetches all general feedback records for the selected company.
+ * - Converts status values into display text.
+ * - Adds Edit and Delete action buttons for each record.
+ * - Returns general feedback data in JSON format for DataTable/Grid display.
+ */
+
 require '../../ajaxconfig.php';
 
 $company_id = $_POST['company_id'];
 
-$general_feedback_list_arr = array();
+$general_feedback_list_arr = [];
 
 $i = 0;
 
-$qry = $pdo->query("SELECT * FROM general_feedback WHERE company_id = '$company_id' AND status != 2");
+$stmt = $pdo->prepare("SELECT *
+    FROM general_feedback
+    WHERE company_id = ?
+    AND status != ?
+");
 
-if ($qry->rowCount() > 0) {
+$stmt->execute([$company_id, 2]);
 
-    while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
+if ($stmt->rowCount() > 0) {
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
         // Status
         if ($row['status'] == 0) {
             $row['status'] = 'Active';
-        } else if ($row['status'] == 1) {
+        } elseif ($row['status'] == 1) {
             $row['status'] = 'In Active';
         }
 
@@ -34,6 +48,6 @@ if ($qry->rowCount() > 0) {
     }
 }
 
-$pdo = null;
+$pdo = null; // Close Connection
 
 echo json_encode($general_feedback_list_arr);

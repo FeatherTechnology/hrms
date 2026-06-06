@@ -1,19 +1,39 @@
 <?php
+
+/** Shift List **
+ * Purpose:
+ * - Fetches all active shifts for the selected company.
+ * - Formats start and end times for display.
+ * - Adds Edit and Delete action buttons for each shift.
+ * - Returns shift data in JSON format for DataTable/Grid display.
+ */
+
 require '../../ajaxconfig.php';
 
 $company_id = $_POST['company_id'];
 
-$shift_info_arr = array();
+$shift_info_arr = [];
 
 $i = 0;
-$qry = $pdo->query("SELECT id, shift_name, start_time, end_time, shift_time, grace_time FROM shift_creation WHERE company_id = '$company_id' AND status = 0");
 
-if ($qry->rowCount() > 0) {
+$stmt = $pdo->prepare("SELECT
+        id,
+        shift_name,
+        start_time,
+        end_time,
+        shift_time,
+        grace_time
+    FROM shift_creation
+    WHERE company_id = ?
+    AND status = ?
+");
 
-    $default_live = " ";
+$stmt->execute([$company_id, 0]);
 
-    while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
-        // Assign the values to the shift list array
+if ($stmt->rowCount() > 0) {
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
         $shift_info_arr[$i]['id']         = $row['id'];
         $shift_info_arr[$i]['shift_name'] = $row['shift_name'];
         $shift_info_arr[$i]['start_time'] = date("g:i A", strtotime($row['start_time']));
@@ -21,10 +41,12 @@ if ($qry->rowCount() > 0) {
         $shift_info_arr[$i]['shift_time'] = $row['shift_time'];
         $shift_info_arr[$i]['grace_time'] = $row['grace_time'];
 
-        // Construct action buttons
-        $action_buttons = "<span class='icon-border_color shiftInfoActionBtn' value='" . $row['id'] . "'></span>&nbsp;&nbsp;&nbsp;";
-        $action_buttons .= "<span class='icon-delete shiftInfoDeleteBtn' value='" . $row['id'] . "'></span>";
-        $shift_info_arr[$i]['action'] = $action_buttons;
+        // Action Button
+        $shift_info_arr[$i]['action'] = "
+            <span class='icon-border_color shiftInfoActionBtn' value='" . $row['id'] . "'></span>
+            &nbsp;&nbsp;&nbsp;
+            <span class='icon-delete shiftInfoDeleteBtn' value='" . $row['id'] . "'></span>
+        ";
 
         $i++;
     }

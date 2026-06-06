@@ -1,6 +1,7 @@
 $(document).ready(function () {
   getCompanyName();
 
+  /* --- Leave Master On Change & Click Events --- */
   $("#company_name").on("change", function () {
     // Reset first
     $("#week_off_table_body").empty();
@@ -28,8 +29,7 @@ $(document).ready(function () {
     calculateShiftTime();
   });
 
-  // <----------------------------------------------------------- Leave Info Modal Start -------------------------------------------------------------------->
-
+  /* --- Submit Leave Creation --- */
   $("#submit_leave_criteria").click(function (event) {
     event.preventDefault();
     // Validation
@@ -64,8 +64,7 @@ $(document).ready(function () {
             function (response) {
               if (response === "3") {
                 swalError("Warning", "Leave Type already exists!");
-              }
-             else if (response === "2") {
+              } else if (response === "2") {
                 swalSuccess("Success", "Leave Criteria Added Successfully!");
               } else if (response === "1") {
                 swalSuccess("Success", "Leave Criteria Updated Successfully!");
@@ -82,6 +81,7 @@ $(document).ready(function () {
     }
   });
 
+  /* --- Edit Leave Creation --- */
   $(document).on("click", ".leaveInfoActionBtn", function () {
     var id = $(this).attr("value"); // Get value attribute
     $.post(
@@ -96,6 +96,7 @@ $(document).ready(function () {
     );
   });
 
+  /* --- Delete Leave Creation --- */
   $(document).on("click", ".leaveInfoDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -107,10 +108,7 @@ $(document).ready(function () {
     return;
   });
 
-  // <----------------------------------------------------------- Leave Info Modal end -------------------------------------------------------------------->
-
-  // <----------------------------------------------------------- shift info Modal Start ------------------------------------------------------------------>
-
+  /* --- Submit Shift Creation --- */
   $("#submit_shift_info").click(function (event) {
     event.preventDefault();
     // Validation
@@ -172,6 +170,7 @@ $(document).ready(function () {
     }
   });
 
+  /* --- Edit Shift Creation --- */
   $(document).on("click", ".shiftInfoActionBtn", function () {
     var id = $(this).attr("value"); // Get value attribute
     $.post(
@@ -189,6 +188,7 @@ $(document).ready(function () {
     );
   });
 
+  /* --- Delete Shift Creation --- */
   $(document).on("click", ".shiftInfoDeleteBtn", function () {
     var id = $(this).attr("value");
     swalConfirm(
@@ -200,15 +200,16 @@ $(document).ready(function () {
     return;
   });
 
-  // <----------------------------------------------------------- shift info Modal end ---------------------------------------------------------------->
-
-  // <----------------------------------------------------------- Leave Master Submit Start ------------------------------------------------------------------>
-
+  /* --- Submit Leave Master --- */
   $("#submit_leave_master").click(function (event) {
     event.preventDefault();
 
     let company_name = $("#company_name").val();
     let max_permission = $("#max_permission").val();
+    let shiftCreationRowCount = $("#shift_info_table")
+      .DataTable()
+      .rows()
+      .count();
 
     let week_off = {};
 
@@ -223,7 +224,7 @@ $(document).ready(function () {
       week_off[day] = value;
     });
 
-    var data = ["company_name", "max_permission"];
+    var data = ["company_name"];
 
     var isValid = true;
 
@@ -234,6 +235,11 @@ $(document).ready(function () {
         isValid = false;
       }
     });
+
+    if (shiftCreationRowCount === 0) {
+      swalError("Warning", "Please fill out Shift Timimgs Info!");
+      isValid = false;
+    }
 
     if (isValid) {
       swalConfirm(
@@ -262,12 +268,9 @@ $(document).ready(function () {
       );
     }
   });
-
-  // <----------------------------------------------------------- Leave Master Submit end ------------------------------------------------------------->
 });
 
-// <--------------------------------------------------------------- Get Company Name Start ------------------------------------------------------------>
-
+/* --- Get Company Name --- */
 function getCompanyName() {
   $.ajax({
     url: "api/branch_creation/getCompanyName.php",
@@ -295,10 +298,7 @@ function getCompanyName() {
   });
 }
 
-// <-------------------------------------------------------- Get Company Name End ---------------------------------------------------------------->
-
-// <-------------------------------------------------------- Leave Info function start ----------------------------------------------------------->
-
+/* --- Get Leave Creation Outer List Table --- */
 function getLeaveCriteriaTable() {
   return new Promise((resolve, reject) => {
     let company_id = $("#company_name").val();
@@ -317,6 +317,7 @@ function getLeaveCriteriaTable() {
   });
 }
 
+/* --- Get Leave Creation Inner List Table --- */
 function getLeaveInfoTable() {
   let company_id = $("#company_name").val();
   $.post(
@@ -335,6 +336,7 @@ function getLeaveInfoTable() {
   );
 }
 
+/* --- Delete Leave Creation --- */
 function getLeaveInfoDelete(id) {
   $.post(
     "api/leave_master_files/delete_leave_criteria.php",
@@ -343,9 +345,8 @@ function getLeaveInfoDelete(id) {
       if (response == "1") {
         swalSuccess("Success", "Leave Type Deleted Successfully!");
         getLeaveInfoTable();
-      }else if (response == "2") {
+      } else if (response == "2") {
         swalError("Warning", "Leave Type is already used in Regularization!");
-
       } else {
         swalError("Warning", "Error occur While Delete Leave Type.");
       }
@@ -354,15 +355,20 @@ function getLeaveInfoDelete(id) {
   );
 }
 
-// <----------------------------------------------------------- Leave Info function End ---------------------------------------------------------------->
-
-// <---------------------------------------------------------- Calculate Shift Time function Start ------------------------------------------------------>
-
+/* --- Calculate Shift Time --- */
 function calculateShiftTime() {
   let startTime = $("#start_time").val();
   let endTime = $("#end_time").val();
 
   if (startTime && endTime) {
+    // Validation: same start and end time
+    if (startTime === endTime) {
+      swalError("Warning", "Start Time and End Time cannot be the same.");
+      $("#end_time").val("");
+      $("#shift_time").val("");
+      return;
+    }
+
     let start = new Date("2000-01-01 " + startTime);
     let end = new Date("2000-01-01 " + endTime);
 
@@ -386,10 +392,7 @@ function calculateShiftTime() {
   }
 }
 
-// <--------------------------------------------------------- Calculate Shift Time function End ---------------------------------------------------------->
-
-// <----------------------------------------------------------------- Shift Info function start ----------------------------------------------------------->
-
+/* --- Get Shift Creation Outer List Table --- */
 function getShiftTable() {
   return new Promise((resolve, reject) => {
     let company_id = $("#company_name").val();
@@ -415,6 +418,7 @@ function getShiftTable() {
   });
 }
 
+/* --- Get Shift Creation Inner List Table --- */
 function getShiftInfoTable() {
   let company_id = $("#company_name").val();
   $.post(
@@ -441,6 +445,7 @@ function getShiftInfoTable() {
   );
 }
 
+/* --- Delete Shift Info --- */
 function getShiftInfoDelete(id) {
   $.post(
     "api/leave_master_files/delete_shift_info.php",
@@ -449,7 +454,7 @@ function getShiftInfoDelete(id) {
       if (response == "1") {
         swalSuccess("Success", "Shift Info Deleted Successfully!");
         getShiftInfoTable();
-      }else if (response == "2") {
+      } else if (response == "2") {
         swalError("Warning", "Shift is already used in Staff Creation!");
       } else {
         swalError("Warning", "Error occur While Delete Shift Info.");
@@ -459,10 +464,7 @@ function getShiftInfoDelete(id) {
   );
 }
 
-// <----------------------------------------------------------- Shift Info function End ---------------------------------------------------------------->
-
-// <---------------------------------------------------------------- Week Off Info Start ---------------------------------------------------------------->
-
+/* --- Get Week Off Table --- */
 const weekDays = [
   "Sunday",
   "Monday",
@@ -505,6 +507,7 @@ weekDays.forEach((day, index) => {
 
 document.getElementById("week_off_table_body").innerHTML = tableRows;
 
+/* --- Get Company Wise Week Off --- */
 function getLeaveMaster(id) {
   $.post(
     "api/leave_master_files/leave_master_data.php",
@@ -528,7 +531,9 @@ function getLeaveMaster(id) {
       let weekOffData = {};
 
       $.each(response, function (index, item) {
-        weekOffData[item.week_day.toLowerCase()] = item.week_off;
+        if (item.week_day) {
+          weekOffData[item.week_day.toLowerCase()] = item.week_off;
+        }
       });
 
       // Build all 7 rows always
@@ -560,5 +565,3 @@ function getLeaveMaster(id) {
     "json",
   );
 }
-
-// <------------------------------------------------------------- Week Off Info End ----------------------------------------------------------------------->

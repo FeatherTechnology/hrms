@@ -1,6 +1,7 @@
 <div class="row gutters">
     <div class="col-12">
         <div class="location_search">
+            <!--- General Info Card --->
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">General Info</div>
@@ -37,9 +38,7 @@
                     </div>
                 </div>
             </div>
-
-            <!------------------------------------------------------------ Location Access Table Start ---------------------------------------------------------------------->
-
+            <!--- Location Access Table --->
             <div class="card location_table_content">
                 <div class="card-body">
                     <div class="row">
@@ -66,15 +65,11 @@
                 </div>
             </div>
         </div>
-
-        <!------------------------------------------------------------ Location Access Table End ---------------------------------------------------------------------->
-
-        <!------------------------------------------------------------- Staff Information Card Start ------------------------------------------------------------------->
-
+        <!--- Staff Information Card --->
+        <div class="text-right" id="backBtnContainer">
+            <button type="button" class="btn btn-primary backBtn" id="back_btn"><span class="icon-arrow-left"></span>&nbsp; Back </button>
+        </div> <br>
         <div class="card staff_information" style="display: none;">
-            <div class="text-right" id="backBtnContainer">
-                <button type="button" class="btn btn-primary backBtn" id="back_btn"><span class="icon-arrow-left"></span>&nbsp; Back </button>
-            </div>
             <div class="card-header">
                 <div class="card-title">Staff Information</div>
             </div>
@@ -83,6 +78,7 @@
                     <input type="hidden" id="staff_info_id" value="">
                     <input type="hidden" id="location_access_id" value="">
                     <input type="hidden" id="staff_profile_id">
+                    <input type="hidden" id="branch_for_dropdown">
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <div class="form-group">
@@ -148,6 +144,7 @@
                     </div>
                 </form>
             </div>
+            <!--- Location Mapping Table --->
             <div class="card-body">
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
@@ -171,8 +168,5 @@
                 </div>
             </div>
         </div>
-
-        <!------------------------------------------------------------------- Staff Information Card End ---------------------------------------------------------------->
-
     </div>
 </div>

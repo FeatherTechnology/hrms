@@ -22,8 +22,7 @@ try {
 
     $result = 0;
 
-    /*--------------------------------------------------------------- UPDATE ---------------------------------------------------------------*/
-
+    /*--- UPDATE poll_titles ---*/
     if ($poll_titles_id != '') {
 
         $stmt = $pdo->prepare("UPDATE poll_titles 
@@ -50,8 +49,7 @@ try {
             $poll_titles_id
         ]);
 
-        /*--------------------------------------------------------------- Department Update ---------------------------------------------------------------*/
-
+        /*--- Department Update ---*/
         $poll_department_name = array_map('intval', $poll_department_name);
         $poll_department_name2 = array_map('intval', $poll_department_name2);
 
@@ -72,8 +70,7 @@ try {
             $stmt->execute([$poll_titles_id, $department_new_id]);
         }
 
-        /*--------------------------------------------------------------- Delete Old Options ---------------------------------------------------------------*/
-
+        /*--- Delete Old Options ---*/
         $stmt = $pdo->prepare("DELETE FROM poll_options_mapping WHERE poll_titles_id = ?");
 
         $stmt->execute([$poll_titles_id]);
@@ -81,7 +78,7 @@ try {
         $result = 1;
     } else {
 
-        /*-------------------------------------------------------------- INSERT ---------------------------------------------------------------*/
+        /*--- INSERT poll_titles ---*/
 
         $stmt = $pdo->prepare("INSERT INTO poll_titles
             (
@@ -127,8 +124,7 @@ try {
         $result = 2;
     }
 
-    /*------------------------------------------------------------- Insert Options ---------------------------------------------------------------*/
-
+    /*--- Insert poll_options_mapping ---*/
     foreach ($poll_options as $option) {
 
         $option = trim($option);

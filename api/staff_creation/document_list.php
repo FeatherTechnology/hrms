@@ -1,7 +1,7 @@
 <?php
 require '../../ajaxconfig.php';
 
-$staff_id = $_POST['staff_id'];
+$staff_profile_id = $_POST['staff_profile_id'];
 $doc_list_arr = array();
 $doc_tye_arr = array("1" => "Original", "2" => "Copy");
 $i = 0;
@@ -12,7 +12,7 @@ $qry = $pdo->query("SELECT di.id,
                                  DATE_FORMAT(di.created_on, '%d-%m-%Y') as created_date,
                                  DATE_FORMAT(di.return_date, '%d-%m-%Y') as return_date
                         FROM document_info di 
-                        WHERE di.staff_id = '$staff_id'");
+                        WHERE di.staff_profile_id = '$staff_profile_id'");
 
 if ($qry->rowCount() > 0) {
     while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {

@@ -15,6 +15,7 @@ $(document).ready(function () {
     $("#company_names").val(companyName);
     getctcTable();
     clearFields();
+    $("#ctc_settings").hide();
   });
 
   $("#search_ctc").on("click", function () {
@@ -200,4 +201,6 @@ function clearFields() {
   $("#component_category").val("");
   $("#pay_frequency").val("");
   $("#ctc_id").val("");
+  $("#ctc_settings_form input").css("border", "1px solid #cecece");
+  $("#ctc_settings_form select").css("border", "1px solid #cecece");
 }

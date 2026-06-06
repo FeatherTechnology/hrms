@@ -1,9 +1,9 @@
 <?php
 require '../../ajaxconfig.php';
-$staff_id = $_POST['staff_id'];
+$staff_profile_id = $_POST['staff_profile_id'];
 $family_list_arr = array();
 $i = 0;
-$qry = $pdo->query("SELECT id,fam_name, fam_relationship,  DATE_FORMAT(fam_dob, '%d-%m-%Y') as fam_dob, fam_occupation,fam_mobile FROM family_info WHERE staff_id = '$staff_id' ");
+$qry = $pdo->query("SELECT id,fam_name, fam_relationship,  DATE_FORMAT(fam_dob, '%d-%m-%Y') as fam_dob, fam_occupation,fam_mobile FROM family_info WHERE staff_profile_id = '$staff_profile_id' ");
 
 if ($qry->rowCount() > 0) {
 
@@ -25,7 +25,3 @@ if ($qry->rowCount() > 0) {
 
 echo json_encode($family_list_arr);
 $pdo = null; // Close Connection
-
-
-
-

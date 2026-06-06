@@ -10,10 +10,13 @@ $branch_id = isset($_POST['params']['branch_id']) ? $_POST['params']['branch_id'
 $department_id = isset($_POST['params']['department_id']) ? $_POST['params']['department_id'] : '';
 $status = isset($_POST['params']['status']) ? $_POST['params']['status'] : '';   // 1 = Active, 2 = Inactive
 
+$staff_type = [1 => 'Employer', 2 => 'Employee'];
+
 $column = array(
     'sc.id',
     'sc.staff_id',
     'sc.staff_name',
+    'sc.staff_type',
     'cc.company_name',
     'bc.branch_name',
     'd.department_name',
@@ -27,6 +30,7 @@ $query = "SELECT
             sc.id,
             sc.staff_id,
             sc.staff_name,
+            sc.staff_type,
             cc.company_name,
             bc.branch_name,
             d.department_name,
@@ -92,6 +96,7 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
     $query .= " AND (
         sc.staff_id LIKE '$search%'
         OR sc.staff_name LIKE '%$search%'
+        OR sc.staff_type LIKE '%$search%'
         OR sc.mobile1 LIKE '%$search%'
         OR cc.company_name LIKE '%$search%'
         OR bc.branch_name LIKE '%$search%'
@@ -139,6 +144,7 @@ foreach ($result as $row) {
     $sub_array[] = $sno++;
     $sub_array[] = $row['staff_id'];
     $sub_array[] = $row['staff_name'];
+    $sub_array[] = isset($staff_type[$row['staff_type']]) ? $staff_type[$row['staff_type']] : '';
     $sub_array[] = $row['company_name'];
     $sub_array[] = $row['branch_name'];
     $sub_array[] = $row['department_name'];

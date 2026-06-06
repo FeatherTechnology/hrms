@@ -4,6 +4,7 @@
         <input type="hidden" id="holiday_id">
         <div class="row gutters">
             <div class="col-12">
+
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">General Info</div>
@@ -24,6 +25,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="card" id="holiday_setup" style="display: none;">
                     <div class="card-header">
                         <div class="card-title">Holiday Calender Setup</div>

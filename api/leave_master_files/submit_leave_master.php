@@ -12,16 +12,14 @@ $user_id        = $_SESSION['user_id'];
 
 $result = 0;
 
-/*-------------------------------------------------------------------- CHECK COMPANY ALREADY EXISTS ----------------------------------------------------------------- */
-
+/*--- CHECK COMPANY ALREADY EXISTS ---- */
 $checkQry = $pdo->query("SELECT id FROM company_policies WHERE company_id = '$company_name'");
 
 $checkCount = $checkQry->rowCount();
 
 if ($checkCount > 0) {
 
-    /*---------------------------------------------------------------------------- UPDATE -------------------------------------------------------------------- */
-
+    /*--- UPDATE company_policies --- */
     $row = $checkQry->fetch();
 
     $company_policies_id = $row['id'];
@@ -29,12 +27,10 @@ if ($checkCount > 0) {
     $qry = $pdo->query("UPDATE company_policies SET max_permission = '$max_permission', update_login_id = '$user_id', updated_date = NOW() 
     WHERE company_id = '$company_name'");
 
-    /*-------------------------------------------------------------------- DELETE OLD WEEKOFFS ----------------------------------------------------------------- */
-
+    /*--- DELETE OLD WEEKOFFS ---- */
     $pdo->query("DELETE FROM company_weekoffs WHERE company_policies_id = '$company_policies_id'");
 
-    /*-------------------------------------------------------------------- INSERT NEW WEEKOFFS ----------------------------------------------------------------- */
-
+    /*--- INSERT NEW WEEKOFFS --- */
     foreach ($week_off as $day => $week) {
 
         if ($week != '') {
@@ -47,14 +43,12 @@ if ($checkCount > 0) {
     }
 } else {
 
-    /*---------------------------------------------------------------------------- INSERT -------------------------------------------------------------------- */
-
+    /*--- INSERT company_policies ---- */
     $qry = $pdo->query("INSERT INTO company_policies (company_id, max_permission, insert_login_id, created_date) VALUES ('$company_name', '$max_permission', '$user_id', NOW())");
 
     $company_policies_id = $pdo->lastInsertId();
 
-    /*---------------------------------------------------------------------------- INSERT WEEKOFFS -------------------------------------------------------------- */
-
+    /*--- INSERT WEEKOFFS ---- */
     foreach ($week_off as $day => $week) {
 
         if ($week != '') {

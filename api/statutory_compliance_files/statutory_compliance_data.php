@@ -1,16 +1,25 @@
 <?php
+
+/** Fetch Statutory Compliance Details **
+ * Purpose:
+ * - Retrieves statutory compliance information based on the provided record ID.
+ * - Returns statutory compliance details in JSON format for edit/view screens.
+ */
+
 require '../../ajaxconfig.php';
 
 $id = $_POST['id'];
 
-$result = array();
+$result = [];
 
-$qry = $pdo->query("SELECT * FROM `statutory_compliance` WHERE id='$id'");
+$stmt = $pdo->prepare("SELECT * FROM statutory_compliance WHERE id = ?");
 
-if ($qry->rowCount() > 0) {
-    $result = $qry->fetchAll(PDO::FETCH_ASSOC);
+$stmt->execute([$id]);
+
+if ($stmt->rowCount() > 0) {
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$pdo = null; //Close connection.
+$pdo = null; // Close Connection
 
 echo json_encode($result);

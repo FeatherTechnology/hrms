@@ -18,6 +18,7 @@ $column = array(
 );
 
 $applicable = [1 => 'Yes', 2 => 'No'];
+
 $query = "SELECT sc.id as statutory_compliance_id, cc.company_name, st.state_name, sc.pf_applicable, sc.esi_applicable,sc.employee_contribution,sc.employer_contribution,sc.admin_charge,sc.pension,sc.employee_share,sc.employer_share
 FROM statutory_compliance sc 
 LEFT JOIN company_creation cc ON sc.company_id = cc.id 

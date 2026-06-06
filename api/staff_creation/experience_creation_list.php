@@ -1,11 +1,11 @@
 <?php
 require '../../ajaxconfig.php';
 include "../../moneyFormatIndia.php";
-$staff_id = $_POST['staff_id'];
+$staff_profile_id = $_POST['staff_profile_id'];
 $experience_list_arr = array();
 $i = 0;
 $experience_type = ['1'=>'Fresher','2'=>'Experienced']; 
-$qry = $pdo->query("SELECT * FROM experience_info WHERE staff_id = '$staff_id' ");
+$qry = $pdo->query("SELECT * FROM experience_info WHERE staff_profile_id = '$staff_profile_id' ");
 
 if ($qry->rowCount() > 0) {
 

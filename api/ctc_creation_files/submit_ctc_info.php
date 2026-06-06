@@ -36,6 +36,7 @@ $stmt = $pdo->prepare("SELECT id
     AND component_category = ?
     AND pay_frequency = ?
     AND status = 0
+    AND company_id = ?
 ");
 
 $stmt->execute([
@@ -43,7 +44,8 @@ $stmt->execute([
     $salary_component,
     $component_classification,
     $component_category,
-    $pay_frequency
+    $pay_frequency,
+    $company_id
 ]);
 
 if ($stmt->rowCount() > 0) {
