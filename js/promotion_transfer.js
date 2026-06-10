@@ -8,25 +8,8 @@ $(document).ready(function () {
     $('#back_btn').hide();
 
     // Common Button Click
-    // $('.staff_status_btn').click(function () {
-    //     // Show form
-    //     $('#promotion_transfer_content').show();
-    //     // Hide list
-    //     $('.promotion_transfer_table_content').hide();
-    //     $('.outer_search_card').hide();
-    //     $('.outer_status_card').hide();
-    //     // Show back button
-    //     $('#back_btn').show();
-    //     // Disable everything first
-    //     disableAllSections();
-    // });
-
-    $("input[name=action_type]").click(async function () {
-        $("#Overall_outer_shell input").css("border", "1px solid #cecece");
-        $("#Overall_outer_shell select").css("border", "1px solid #cecece");
-
-        let action_type = $(this).val();
-          // Show form
+    $('.staff_status_btn').click(function () {
+        // Show form
         $('#promotion_transfer_content').show();
         // Hide list
         $('.promotion_transfer_table_content').hide();
@@ -36,36 +19,22 @@ $(document).ready(function () {
         $('#back_btn').show();
         // Disable everything first
         disableAllSections();
-
-        await editStaffProfile();
-
-        if (action_type == "1") {
-            console.log("1");
-            enablePromotionSection();
-        } else if (action_type == "2") {
-            console.log("12");
-            enableTransferSection();
-        } else if (action_type == "3") {
-            console.log("13");
-            enableIncrementSection();
-        }
-       
     });
 
-    // $('.promo_status').click(async function () {
-    //     await editStaffProfile();
-    //     enablePromotionSection();
-    // });
+    $('.promo_status').click(async function () {
+        await editStaffProfile();
+        enablePromotionSection();
+    });
 
-    // $('.trans_status').click(async function () {
-    //     await editStaffProfile();
-    //     enableTransferSection();
-    // });
+    $('.trans_status').click(async function () {
+        await editStaffProfile();
+        enableTransferSection();
+    });
 
-    // $('.inc_status').click(async function () {
-    //     await editStaffProfile();
-    //     enableIncrementSection();
-    // });
+    $('.inc_status').click(async function () {
+        await editStaffProfile();
+        enableIncrementSection();
+    });
 
 
     // Back Button
@@ -199,8 +168,7 @@ $(document).ready(function () {
         let department_id = $('#department_search').val();
         let id = $('#staff_search').val();
         // Selected Status
-        // let occ_status = $('.staff_status_btn.active').data('value');
-        let occ_status = $("input[name='action_type']:checked").val();
+        let occ_status = $('.staff_status_btn.active').data('value');
         // Common Fields
         let company_name = $('#company_name').val();
         let effective_date = $('#effective_date').val();
@@ -289,7 +257,8 @@ $(document).ready(function () {
             }
         });
 
-        let branch_name = $('#branch_name').val();
+        let 
+        . = $('#branch_name').val();
         let department = $('#department').val();
         let team = $('#team').val();
         let designation = $('#designation').val();

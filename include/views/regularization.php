@@ -1,6 +1,9 @@
 <div class="row gutters">
     <div class="col-12">
         <div class="regularization_list">
+            <div class="toggle-container col-12" style="display: flex;justify-content:right;align-items:center">
+                <button class="btn btn-primary add_reg"><span class="icon-add"></span> Add Regularization</button>
+            </div> <br> <br>
             <div class="radio-container" style="margin-top:20px;">
                 <div class="selector">
                     <div class="selector-item">
@@ -18,9 +21,7 @@
                 </div>
             </div>
             <br> <br>
-            <div class="toggle-container col-12" style="display: flex;justify-content:right;align-items:center">
-                <button class="btn btn-primary add_reg"><span class="icon-add"></span> Add Regularization</button>
-            </div> <br> <br>
+
             <div class="card">
                 <div class="card-body">
                     <div id="regularization_table_div" class="table-divs" style="overflow-x: auto;">
@@ -49,7 +50,7 @@
             </div>
         </div>
 
-    <!-- request div start-->
+        <!-- request div start-->
         <div class="staff_info_div" style="display: none;">
             <div class="toggle-container col-12" style="display: flex;justify-content:right;align-items:center;margin:10px">
                 <button type="button" class="btn btn-primary" id="back_btn" style="display: none;"><span class="icon-arrow-left"></span>&nbsp; Back </button>
@@ -62,14 +63,14 @@
                 <div class="card-body">
                     <div class="row">
                         <!-- Fields -->
-                                <input type="hidden" name="stf_prf_id" id="stf_prf_id" value="" />
-                                <input type="hidden" name="cmpy_id" id="cmpy_id" value="" />
-                                <input type="hidden" name="branch_id" id="branch_id" value="" />
-                                <input type="hidden" name="dep_id" id="dep_id" value="" />
-                                <input type="hidden" name="des_id" id="des_id" value="" />
-                                <input type="hidden" name="team_id" id="team_id" value="" />
-                                <input type="hidden" name="hidden_id" id="hidden_id" value="" />
-                                <input type="hidden" name="staff_type" id="staff_type" value="" />
+                        <input type="hidden" name="stf_prf_id" id="stf_prf_id" value="" />
+                        <input type="hidden" name="cmpy_id" id="cmpy_id" value="" />
+                        <input type="hidden" name="branch_id" id="branch_id" value="" />
+                        <input type="hidden" name="dep_id" id="dep_id" value="" />
+                        <input type="hidden" name="des_id" id="des_id" value="" />
+                        <input type="hidden" name="team_id" id="team_id" value="" />
+                        <input type="hidden" name="hidden_id" id="hidden_id" value="" />
+                        <input type="hidden" name="staff_type" id="staff_type" value="" />
 
                         <div class="col-md-4 col-sm-6">
                             <div class="form-group">
@@ -121,7 +122,7 @@
             </div>
 
 
-            <div class="card req_div" >
+            <div class="card req_div">
                 <div class="card-header">
                     <h5 class="card-title">Request Details</h5>
                 </div>
@@ -151,7 +152,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4 col-sm-6 bal_req" >
+                        <div class="col-md-4 col-sm-6 bal_req">
                             <div class="form-group">
                                 <label for="balance_req">Balance Request</label><span class="text-danger">*</span>
                                 <input type="text" class="form-control" id="balance_req" name="balance_req" placeholder="Balance Request" tabindex="10" readonly>

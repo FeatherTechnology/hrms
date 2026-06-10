@@ -63,31 +63,15 @@
         <br>
         <div class="card promotion_transfer_table_content">
             <div class="card-header">
-                <h5 class="card-title">Staff Details</h5>
+                <h5 class="card-title">Staff Info</h5>
             </div>
 
             <!-- Center Buttons -->
             <div class="col-md-12 text-center">
-                <!-- <div class="form-group mb-0 outer_status_card justify-content-center" style="display: none;">
-                    <button type="button" class="btn btn-primary staff_status_btn promo_status" data-value="1"> Promotion </button>&nbsp;&nbsp;
-                    <button type="button" class="btn btn-primary staff_status_btn trans_status" data-value="2"> Transfer </button> &nbsp;&nbsp;
-                    <button type="button" class="btn btn-primary staff_status_btn inc_status" data-value="3"> Increment </button>
-                </div> -->
-                <div class="radio-container col-12 outer_status_card " style="margin-top: 10px; display: none;">
-                    <div class="selector">
-                        <div class="selector-item">
-                            <input type="radio" id="promo_status" name="action_type" class="selector-item_radio promo_status" value="1">
-                            <label for="promo_status" class="selector-item_label">Promotion</label>
-                        </div>
-                        <div class="selector-item">
-                            <input type="radio" id="trans_status" name="action_type" class="selector-item_radio trans_status" value="2">
-                            <label for="trans_status" class="selector-item_label">Transfer</label>
-                        </div>
-                        <div class="selector-item">
-                            <input type="radio" id="inc_status" name="action_type" class="selector-item_radio inc_status" value="3">
-                            <label for="inc_status" class="selector-item_label">Increment</label>
-                        </div>
-                    </div>
+                <div class="form-group mb-0 outer_status_card justify-content-center" style="display: none;">
+                    <button type="button" class="btn btn-primary staff_status_btn promo_status" data-value="1" style="margin-right: 20px;"> Promotion </button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn-primary staff_status_btn trans_status" data-value="2" style="margin-right: 20px;"> Transfer </button> &nbsp;&nbsp;
+                    <button type="button" class="btn btn-primary staff_status_btn inc_status" data-value="3" style="margin-right: 20px;"> Increment </button>
                 </div>
             </div>
             <div class="card-body">

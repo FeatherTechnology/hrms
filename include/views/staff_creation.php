@@ -1,5 +1,9 @@
 <div class="row gutters">
     <div class="col-12">
+        <div class="col-12 text-right">
+            <button class="btn btn-primary radio-card" id="add_staff"><span class="icon-add"></span> Add Staff</button>
+            <button class="btn btn-primary" id="back_btn" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
+        </div></br>
 
         <div class="card outer_search_card">
             <div class="card-header">
@@ -37,11 +41,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-12 text-right">
-            <button class="btn btn-primary radio-card" id="add_staff" style="display: none;"><span class="icon-add"></span> Add Staff</button>
-            <button class="btn btn-primary" id="back_btn" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
-        </div></br>
         <div class="card staff_table_content">
             <div class="card-header">
                 <div class="card-title">Staff List</div>

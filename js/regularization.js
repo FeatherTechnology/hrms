@@ -14,7 +14,6 @@ $(document).ready(function () {
   // to add the new regularization
   $(".add_reg").click(function () {
     setCurrentMonthRestriction("#from_date", "#to_date");
-    // setCurrentMonthRestriction("#app_from_date", "#app_to_date");
     $(
       "#req_type,#leave_type,#balance_req,#from_date,#to_date,#total_days,#reason,#hidden_id,#leave_type_id",
     ).val("");
@@ -176,37 +175,37 @@ $(document).ready(function () {
       hidden_id: $("#hidden_id").val(),
     };
     let isValid = true;
-    let req_type = collData["req_type"];
-    let req_date = collData["req_date"];
-    let from_date = collData["from_date"];
-    let to_date = collData["to_date"];
-    let total_days = collData["total_days"];
-    let reason = collData["reason"];
-    let approval_type = collData["approval_type"];
-    let app_from_date = collData["app_from_date"];
-    let app_to_date = collData["app_to_date"];
-    let remarks = collData["remarks"];
+    // let req_type = collData["req_type"];
+    // let req_date = collData["req_date"];
+    // let from_date = collData["from_date"];
+    // let to_date = collData["to_date"];
+    // let total_days = collData["total_days"];
+    // let reason = collData["reason"];
+    // let approval_type = collData["approval_type"];
+    // let app_from_date = collData["app_from_date"];
+    // let app_to_date = collData["app_to_date"];
+    // let remarks = collData["remarks"];
     let validationResults = [
-      validateField(req_type, "req_type"),
-      validateField(req_date, "req_date"),
-      validateField(from_date, "from_date"),
-      validateField(to_date, "to_date"),
-      validateField(total_days, "total_days"),
-      validateField(reason, "reason"),
+      validateField(collData["req_type"], "req_type"),
+      validateField(collData["req_date"], "req_date"),
+      validateField(collData["from_date"], "from_date"),
+      validateField(collData["to_date"], "to_date"),
+      validateField(collData["total_days"], "total_days"),
+      validateField(collData["reason"], "reason"),
     ];
     if (!validationResults.every((result) => result)) {
       isValid = false;
     }
     if ($(".approval_div").is(":visible")) {
       let approvalValidation = [
-        validateField(approval_type, "approval_type"),
-        validateField(remarks, "remarks"),
+        validateField(collData["approval_type"], "approval_type"),
+        validateField(collData["remarks"], "remarks"),
       ];
 
       if (approval_type == "1") {
         approvalValidation.push(
-          validateField(app_from_date, "app_from_date"),
-          validateField(app_to_date, "app_to_date"),
+          validateField(collData["app_from_date"], "app_from_date"),
+          validateField(collData["app_to_date"], "app_to_date"),
         );
       }
 
@@ -357,7 +356,6 @@ function getuserdetails(userid) {
     "api/regularization_files/get_user_details.php",
     { id, userid, status },
     function (response) {
-      console.log("branch_id", response.branch_id);
       $("#staff_id").val(response.staff_id);
       $("#staff_type").val(response.staff_type);
       $("#stf_prf_id").val(response.id);
@@ -635,7 +633,6 @@ function setDateValidation(fromSelector, toSelector) {
 }
 
 function setCurrentMonthRestriction(fromSelector, toSelector) {
-  console.log("lll", fromSelector);
   let today = new Date();
 
   // First day of previous month

@@ -51,8 +51,8 @@ $(document).ready(function () {
     let entry_time = collData["entry_time"];
     let reason = collData["reason"];
     let validationResults = [
-      validateField(entry_time, "entry_time"),
-      validateField(reason, "reason"),
+      validateField(collData["entry_time"], "entry_time"),
+      validateField( collData["reason"], "reason"),
     ];
 
     if (!validationResults.every((result) => result)) {

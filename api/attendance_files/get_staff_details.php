@@ -60,7 +60,6 @@ LEFT JOIN users u ON u.staff_name_id = sc.id
 WHERE $stf_con $att_con ";
 
 
-// echo $query;die;
 $stmt = $pdo->prepare($query);
 
 $stmt->bindParam(':staff_id', $staff_id, PDO::PARAM_INT);
