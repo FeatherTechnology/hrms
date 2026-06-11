@@ -4,7 +4,11 @@ include '../../ajaxconfig.php';
 
 $company_id = $_POST['company_id'];
 $dept_id    = $_POST['dept_id'];
-$status     = $_POST['status'];
+ if (isset($_POST['status'])) {
+    $status = $_POST['status'];
+ } else {
+    $status = '';
+ }
 
 $where = " WHERE 1 ";
 
