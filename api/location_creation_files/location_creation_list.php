@@ -18,12 +18,13 @@ $column = array(
     'bcs.branch_name',
     'lam.from_date',
     'lam.to_date',
+    'lam.no_of_days',
     'lam.lattitude_longitude',
     'oi.id'
 );
 
 /* Main Query */
-$query = "SELECT oi.id, sc.staff_id, sc.staff_name, dc.department_name, bc.branch_name, bcs.branch_name AS assigned_branch_name, lam.from_date, lam.to_date,
+$query = "SELECT oi.id, sc.staff_id, sc.staff_name, dc.department_name, bc.branch_name, bcs.branch_name AS assigned_branch_name, lam.from_date, lam.to_date, lam.no_of_days,
         lam.lattitude_longitude , oi.staff_profile_id
         FROM occupation_info oi
         LEFT JOIN branch_creation bc ON oi.branch_id = bc.id 
@@ -111,6 +112,7 @@ foreach ($result as $row) {
     $sub_array[] = $row['assigned_branch_name'];
     $sub_array[] = isset($row['from_date']) ? date('d-m-Y', strtotime($row['from_date'])) : '';
     $sub_array[] = isset($row['to_date']) ? date('d-m-Y', strtotime($row['to_date'])) : '';
+    $sub_array[] = $row['no_of_days'];
     $sub_array[] = $row['lattitude_longitude'];
     $sub_array[] = "<span class='icon-border_color locationActionBtn' data-id='" . $row['id'] . "'data-staff-profile-id='" . $row['staff_profile_id'] . "'></span>";;
 

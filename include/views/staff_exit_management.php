@@ -1,35 +1,40 @@
 <div class="row gutters">
     <div class="col-12">
 
-        <div class="row outer_search_card">
-            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
-                <div class="form-group">
-                    <label for="company_search">Company Name</label><span class="text-danger">*</span>
-                    <select class="form-control" id="company_search" name="company_search" tabindex="1">
-                        <option value="">Select Company Name</option>
-                    </select>
-                </div>
+        <div class="card outer_search_card">
+            <div class="card-header">
+                <div class="card-title"> Search Info </div>
             </div>
-
-            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
-                <div class="form-group">
-                    <label for="branch_search">Branch Name</label><span class="text-danger">*</span>
-                    <select class="form-control" id="branch_search" name="branch_search" tabindex="1">
-                        <option value="">Select Branch Name</option>
-                    </select>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                        <div class="form-group">
+                            <label for="company_search">Company Name</label><span class="text-danger">*</span>
+                            <select class="form-control" id="company_search" name="company_search" tabindex="1">
+                                <option value="">Select Company Name</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                        <div class="form-group">
+                            <label for="branch_search">Branch Name</label><span class="text-danger">*</span>
+                            <select class="form-control" id="branch_search" name="branch_search" tabindex="1">
+                                <option value="">Select Branch Name</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                        <div class="form-group">
+                            <label for="department_search">Department</label><span class="text-danger">*</span>
+                            <select class="form-control" id="department_search" name="department_search" tabindex="1">
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                        <button type="button" class="btn btn-primary" id="view_staff" style="margin-top:20px;">Search</button>
+                    </div>
                 </div>
-            </div>
-            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
-                <div class="form-group">
-                    <label for="department_search">Department</label><span class="text-danger">*</span>
-                    <select class="form-control" id="department_search" name="department_search" tabindex="1">
-                        <option value="">Select Department</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
-                <button type="button" class="btn btn-primary" id="view_staff" style="margin-top:20px;">Search</button>
             </div>
         </div>
 
@@ -38,7 +43,6 @@
             <button type="button" class="btn btn-primary" id="back_btn" style="display:none;">
                 <span class="icon-arrow-left"></span>&nbsp; Back
             </button>
-
         </div>
 
         <br>
@@ -52,6 +56,7 @@
                                 <th>S.NO</th>
                                 <th>Staff ID</th>
                                 <th>Staff Name</th>
+                                <th>Staff Type</th>
                                 <th>Company</th>
                                 <th>Branch</th>
                                 <th>Department</th>
@@ -68,7 +73,6 @@
                 </div>
             </div>
         </div>
-
 
         <!--Staff Creation Start-->
         <div id="staff_exit_content" style="display: none;">
@@ -127,6 +131,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="card mt-3">
                             <div class="card-header">
                                 <h5 class="card-title">Occupation Info</h5>
@@ -203,7 +208,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -236,6 +240,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="card mt-3" id="exit_detail_div">
                     <div class="card-header">
                         <h5 class="card-title">Exit Details</h5>
@@ -277,25 +282,19 @@
                                     <textarea class="form-control" name="reason" id="reason" tabindex="17"></textarea>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
 
+                <!----------------------------- CARD END STAFF EXIT FORM ------------------------------>
+
                 <div class="col-md-12 ">
                     <div class="text-right">
-
                         <button type="submit" name="submit_staff_exit" id="submit_staff_exit" class="btn btn-primary" value="Submit" tabindex="6"><span class="icon-check"></span>&nbsp;Submit</button>
                     </div>
                 </div>
 
+            </form>
         </div>
     </div>
-
-</div>
-</form>
-</div>
-<!----------------------------- CARD END  STAFF EXIT FORM------------------------------>
-
-</div>
 </div>

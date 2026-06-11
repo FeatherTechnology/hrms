@@ -210,7 +210,7 @@ $(document).ready(function () {
   /* --- Edit Statutory Compliance Creation --- */
   $(document).on("click", ".statutoryComplianceActionBtn", async function () {
     var id = $(this).attr("value"); // Get value attribute
-     $("#sc_reset_btn").hide();
+    $("#sc_reset_btn").hide();
 
     try {
       const response = await $.ajax({

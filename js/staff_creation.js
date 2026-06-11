@@ -47,15 +47,46 @@ $(document).ready(function () {
     validateEmail($(this).val(), $(this).attr("id"));
   });
 
-  $("#dob").on("change", function () {
-    var dob = new Date($(this).val());
+  let today = new Date().toISOString().split("T")[0];
+
+  // Restrict future dates
+  $("#dob, #fam_dob, #anniversary_date").attr("max", today);
+
+  $("#dob, #fam_dob, #anniversary_date").on("change", function () {
+    var dobValue = $(this).val();
+
+    if (!dobValue) return;
+
+    var dob = new Date(dobValue);
     var today = new Date();
-    var age = today.getFullYear() - dob.getFullYear();
-    var m = today.getMonth() - dob.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-      age--;
+
+    // Remove time portion
+    today.setHours(0, 0, 0, 0);
+
+    // Future date validation
+    if (dob > today) {
+      swalError("Warning", "Future date is not allowed.");
+      $(this).val("");
+
+      // Clear age only when DOB field changes
+      if ($(this).attr("id") === "dob") {
+        $("#age").val("");
+      }
+
+      return;
     }
-    $("#age").val(age);
+
+    // Calculate age only for main DOB field
+    if ($(this).attr("id") === "dob") {
+      var age = today.getFullYear() - dob.getFullYear();
+      var m = today.getMonth() - dob.getMonth();
+
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+
+      $("#age").val(age);
+    }
   });
 
   $("#exp_type").on("change", function () {
@@ -1830,6 +1861,7 @@ async function editStaffProfile(id) {
       return;
     }
     $(".staff_content").show();
+    $("#clear_staff").hide();
     const data = response.staff;
     const ctcData = response.ctc;
     $(".personal_info_disble").attr("disabled", false);
@@ -1945,7 +1977,6 @@ async function editStaffProfile(id) {
 function enableEditMode() {
   /* Hide Next Button */
   $("#submit_staff").hide();
-  $("#clear_staff").show();
   $("#add_experience").show();
   $("#add_qualification").show();
   $("#add_family").show();

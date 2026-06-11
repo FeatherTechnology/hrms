@@ -11,13 +11,13 @@ require '../../ajaxconfig.php';
 
 $response = [];
 
-$compnay_id = $_POST['compnay_id'];
+$company_id = $_POST['company_id'];
 
 try {
 
     $stmt = $pdo->prepare("SELECT id, branch_name FROM branch_creation WHERE company_id = ?");
 
-    $stmt->execute([$compnay_id]);
+    $stmt->execute([$company_id]);
 
     if ($stmt->rowCount() > 0) {
         $response = $stmt->fetchAll(PDO::FETCH_ASSOC);

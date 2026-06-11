@@ -1,5 +1,6 @@
-<div class="row gutters" >
+<div class="row gutters">
     <div class="col-12" id="Overall_outer_shell">
+
         <div class="card outer_search_card">
             <div class="card-header">
                 <h5 class="card-title">Staff Selection</h5>
@@ -61,6 +62,7 @@
             <button class="btn btn-primary" id="back_btn" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
         </div>
         <br>
+
         <div class="card promotion_transfer_table_content">
             <div class="card-header">
                 <h5 class="card-title">Staff Info</h5>
@@ -76,7 +78,6 @@
             </div>
             <div class="card-body">
                 <div class="col-12 overflow-x-cls">
-
                     <table id="promotion_transfer_table" class="table custom-table">
                         <thead>
                             <tr>
@@ -106,7 +107,6 @@
                 </div>
             </div>
         </div>
-
 
         <!--Staff Creation Start-->
         <div id="promotion_transfer_content" style="display: none;">
@@ -156,6 +156,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="card mt-3">
                             <div class="card-header">
                                 <h5 class="card-title">Occupation Info</h5>
@@ -238,11 +239,9 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
-
 
                 <div class="card mt-3">
                     <div class="card-header">
@@ -287,9 +286,6 @@
                                     <input type="text" class="form-control" id="total_ctc" name="total_ctc" placeholder="Enter Total CTC" tabindex="41">
                                 </div>
                             </div>
-
-
-
                         </div>
                         <div class="row">
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
@@ -331,13 +327,7 @@
                     </div>
                 </div>
 
+            </form>
         </div>
     </div>
-
-</div>
-</form>
-</div>
-<!----------------------------- CARD END  STAFF EXIT FORM------------------------------>
-
-</div>
 </div>

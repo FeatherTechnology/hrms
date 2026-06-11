@@ -1,5 +1,4 @@
 $(document).ready(function () {
-
   $("input[name=feedback_type]").click(function () {
     let feed_type = $(this).val();
     if (feed_type == "0") {
@@ -145,7 +144,7 @@ $(document).ready(function () {
     let feedback_configuration_id = $(this).val();
 
     let answerArr = [];
-    let isValid = true
+    let isValid = true;
     // VALIDATE ALL ANSWE
 
     $(".feedback_answer").each(function () {
@@ -163,13 +162,14 @@ $(document).ready(function () {
         question_id: question_id,
         answer: answer,
       });
-    })
+    });
     // SHOW ALERT IF ANY ANSWER IS EMP
 
     if (!isValid) {
       swalError("Validation", "Please answer all questions before submitting.");
       return false;
-    
+    }
+
     // INSE
     swalConfirm(
       "Are you sure?",

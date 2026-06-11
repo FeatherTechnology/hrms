@@ -22,6 +22,7 @@ $staff_id           = $_POST['staff_id'];
 $staff_profile_id   = $_POST['staff_profile_id'];
 $from_date          = $_POST['from_date'];
 $to_date            = $_POST['to_date'];
+$no_of_days         = $_POST['no_of_days'];
 $branch_name_three  = $_POST['branch_name_three'];
 $branch_location    = $_POST['branch_location'];
 $reason             = $_POST['reason'];
@@ -73,6 +74,7 @@ if ($stmt->rowCount() > 0) {
                 staff_profile_id = ?,
                 from_date = ?,
                 to_date = ?,
+                no_of_days = ?,
                 assigned_branch = ?,
                 lattitude_longitude = ?,
                 reason = ?,
@@ -86,6 +88,7 @@ if ($stmt->rowCount() > 0) {
             $staff_profile_id,
             $from_date,
             $to_date,
+            $no_of_days,
             $branch_name_three,
             $branch_location,
             $reason,
@@ -105,6 +108,7 @@ if ($stmt->rowCount() > 0) {
                 staff_profile_id,
                 from_date,
                 to_date,
+                no_of_days,
                 assigned_branch,
                 lattitude_longitude,
                 reason,
@@ -112,7 +116,7 @@ if ($stmt->rowCount() > 0) {
             )
             VALUES
             (
-                ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
         ");
 
@@ -121,6 +125,7 @@ if ($stmt->rowCount() > 0) {
             $staff_profile_id,
             $from_date,
             $to_date,
+            $no_of_days,
             $branch_name_three,
             $branch_location,
             $reason,

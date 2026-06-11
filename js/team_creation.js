@@ -15,6 +15,7 @@ $(document).ready(function () {
     ".add_team_btn, .back_to_team_btn",
     async function () {
       swapTableAndCreation();
+      $("#reset_btn").show();
     },
   );
 
@@ -62,10 +63,12 @@ $(document).ready(function () {
             function (response) {
               if (response == "1") {
                 swalSuccess("Success", "Team Added Successfully!");
-              } else if(response == "2") {
-                swalError("Warning", "Company And Department Name already exists!");
-              }
-               else {
+              } else if (response == "2") {
+                swalError(
+                  "Warning",
+                  "Company And Department Name already exists!",
+                );
+              } else {
                 swalSuccess("Success", "Team Updated Successfully!");
               }
 
@@ -84,6 +87,7 @@ $(document).ready(function () {
   /* --- Edit Team Modal --- */
   $(document).on("click", ".teamCreationActionBtn", async function () {
     var id = $(this).attr("value"); // Get value attribute
+    $("#reset_btn").hide();
 
     try {
       const response = await $.ajax({

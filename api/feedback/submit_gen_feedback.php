@@ -20,6 +20,7 @@ if (!empty($_FILES['attachment']['name'])) {
 }
 $feedback_name = $_POST['feedback_name'];
 $commants = $_POST['commants'];
+$user_id = $_SESSION['user_id'];
 
 $qry = $pdo->query("INSERT INTO `staff_general_feedback`( `general_feedback_id`,`commants`,`attachment`,`insert_login_id`,`created_date`) VALUES ('$feedback_name','$commants','$attachment','$user_id',now())");
 

@@ -420,16 +420,16 @@ async function getReportingPerson(company_id, selectedLevel) {
 
 async function getDocumentInfoTable() {
 
-    let staff_id = $('#staff_auto_id').val();
+    let staff_profile_id = $('#staff_profile_id').val();
 
-    if (staff_id == '') return false;
+    if (staff_profile_id == '') return false;
 
     try {
 
         let response = await $.ajax({
             url: "api/staff_creation/document_list.php",
             type: "POST",
-            data: { staff_id: staff_id },
+            data: { staff_profile_id: staff_profile_id },
             dataType: "json"
         });
 
