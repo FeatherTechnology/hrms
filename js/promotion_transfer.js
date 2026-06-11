@@ -257,8 +257,7 @@ $(document).ready(function () {
             }
         });
 
-        let 
-        . = $('#branch_name').val();
+        let branch_name = $('#branch_name').val();
         let department = $('#department').val();
         let team = $('#team').val();
         let designation = $('#designation').val();
@@ -382,7 +381,7 @@ function getStaffTable(company_id, status, department_id, staff_id) {
 async function getCompanyName(selector) {
     return new Promise((resolve, reject) => {
         $.post(
-            "api/branch_creation/getCompanyName.php",
+            "api/attendance_files/get_company_list.php",
             {},
 
             function (response) {
@@ -405,7 +404,6 @@ async function getCompanyName(selector) {
         });
     });
 }
-
 
 async function getDepartmentList(company_id, selector, selected_dept = '') {
     try {

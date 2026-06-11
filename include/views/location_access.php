@@ -11,7 +11,7 @@
                         <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                             <div class="form-group">
                                 <label for="company_name">Company Name</label><span class="text-danger">*</span>
-                                <select class="form-control" id="company_name" name="company_name" tabindex="6">
+                                <select class="form-control" id="company_name" name="company_name" tabindex="1">
                                     <option value="">Select Company Name</option>
                                 </select>
                             </div>
@@ -19,7 +19,7 @@
                         <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                             <div class="form-group">
                                 <label for="branch_name_one">Branch Name</label><span class="text-danger">*</span>
-                                <select class="form-control" id="branch_name_one" name="branch_name_one" tabindex="6">
+                                <select class="form-control" id="branch_name_one" name="branch_name_one" tabindex="2">
                                     <option value="">Select Branch Name</option>
                                 </select>
                             </div>
@@ -27,13 +27,13 @@
                         <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                             <div class="form-group">
                                 <label for="department_name_one">Department Name</label><span class="text-danger">*</span>
-                                <select class="form-control" id="department_name_one" name="department_name_one" tabindex="6">
+                                <select class="form-control" id="department_name_one" name="department_name_one" tabindex="3">
                                     <option value="">Select Department Name</option>
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-3" style="display: flex; align-items: center;">
-                            <button type="button" name="search_location" id="search_location" class="btn btn-primary" tabindex="7"></span>&nbsp;Search</button>
+                            <button type="button" name="search_location" id="search_location" class="btn btn-primary" tabindex="4"></span>&nbsp;Search</button>
                         </div>
                     </div>
                 </div>
@@ -54,6 +54,7 @@
                                         <th>Assigned Branch</th>
                                         <th>From Date</th>
                                         <th>To Date</th>
+                                        <th>No of Days</th>
                                         <th>Latitude / Longitude</th>
                                         <th>Action</th>
                                     </tr>
@@ -66,7 +67,7 @@
             </div>
         </div>
         <!--- Staff Information Card --->
-        <div class="text-right" id="backBtnContainer">
+        <div class="text-right" id="backBtnContainer" style="display: none;">
             <button type="button" class="btn btn-primary backBtn" id="back_btn"><span class="icon-arrow-left"></span>&nbsp; Back </button>
         </div> <br>
         <div class="card staff_information" style="display: none;">
@@ -83,31 +84,31 @@
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <div class="form-group">
                                 <label for="branch_name_two"> Branch Name </label>
-                                <input type="text" class="form-control" id="branch_name_two" name="branch_name_two" readonly tabindex="10">
+                                <input type="text" class="form-control" id="branch_name_two" name="branch_name_two" readonly tabindex="5">
                             </div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <div class="form-group">
                                 <label for="department_name_two"> Department Name </label>
-                                <input type="text" class="form-control" id="department_name_two" name="department_name_two" readonly tabindex="10">
+                                <input type="text" class="form-control" id="department_name_two" name="department_name_two" readonly tabindex="6">
                             </div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <div class="form-group">
                                 <label for="staff_name"> Staff Name </label>
-                                <input type="text" class="form-control" id="staff_name" name="staff_name" readonly tabindex="10">
+                                <input type="text" class="form-control" id="staff_name" name="staff_name" readonly tabindex="7">
                             </div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <div class="form-group">
                                 <label for="staff_id"> Staff ID </label>
-                                <input type="text" class="form-control" id="staff_id" name="staff_id" readonly tabindex="10">
+                                <input type="text" class="form-control" id="staff_id" name="staff_id" readonly tabindex="8">
                             </div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <div class="form-group">
                                 <label for="from_date"> From Date </label><span class="text-danger">*</span>
-                                <input type="date" class="form-control" id="from_date" name="from_date" tabindex="10">
+                                <input type="date" class="form-control" id="from_date" name="from_date" tabindex="9">
                             </div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -118,8 +119,14 @@
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <div class="form-group">
+                                <label for="no_of_days">No of days</label>
+                                <input type="text" class="form-control" id="no_of_days" name="no_of_days" tabindex="11" readonly>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="form-group">
                                 <label for="branch_name_three">Branch Name</label><span class="text-danger">*</span>
-                                <select class="form-control" id="branch_name_three" name="branch_name_three" tabindex="6">
+                                <select class="form-control" id="branch_name_three" name="branch_name_three" tabindex="12">
                                     <option value="">Select Branch Name</option>
                                 </select>
                             </div>
@@ -127,18 +134,18 @@
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <div class="form-group">
                                 <label for="branch_location"> Branch Location </label>
-                                <input type="text" class="form-control" id="branch_location" name="branch_location" readonly tabindex="10">
+                                <input type="text" class="form-control" id="branch_location" name="branch_location" readonly tabindex="13">
                             </div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <div class="form-group">
                                 <label for="reason"> Reason </label>
-                                <textarea type="textarea" class="form-control" id="reason" name="reason" tabindex="10"> </textarea>
+                                <textarea type="textarea" class="form-control" id="reason" name="reason" tabindex="14"> </textarea>
                             </div>
                         </div>
                         <div class="col-md-12 ">
                             <div class="text-right">
-                                <button type="submit" name="submit_location_access" id="submit_location_access" class="btn btn-primary" value="Submit" tabindex="14"><span class="icon-check"></span>&nbsp;Submit</button>
+                                <button type="submit" name="submit_location_access" id="submit_location_access" class="btn btn-primary" value="Submit" tabindex="15"><span class="icon-check"></span>&nbsp;Submit</button>
                             </div>
                         </div>
                     </div>
@@ -157,6 +164,7 @@
                                         <th>Assigned Branch</th>
                                         <th>From Date</th>
                                         <th>To Date</th>
+                                        <th>No of Days</th>
                                         <th>Latitude / Longitude</th>
                                         <th>Action</th>
                                     </tr>

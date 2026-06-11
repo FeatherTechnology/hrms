@@ -1,4 +1,4 @@
-<div class="row gutters">
+    <div class="row gutters">
     <div class="col-12">
         <div class="col-12 text-right">
             <button class="btn btn-primary radio-card" id="add_staff"><span class="icon-add"></span> Add Staff</button>
@@ -721,7 +721,6 @@
                                 <div class="form-group">
                                     <label for="" style="visibility:hidden"></label><br>
                                     <button name="submit_document" id="submit_document" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_document_form" class="btn btn-outline-secondary" tabindex="">Clear</button>
                                 </div>
                             </div>
                         </div>
@@ -819,7 +818,6 @@
                                 <div class="form-group">
                                     <label for="" style="visibility:hidden"></label><br>
                                     <button name="submit_family" id="submit_family" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_fam_form" class="btn btn-outline-secondary" tabindex="">Clear</button>
                                 </div>
                             </div>
                         </div>
@@ -912,7 +910,6 @@
                                 <div class="form-group">
                                     <label for="" style="visibility:hidden"></label><br>
                                     <button name="submit_qualification" id="submit_qualification" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_qualification_form" class="btn btn-outline-secondary" tabindex="">Clear</button>
                                 </div>
                             </div>
                         </div>
@@ -1021,7 +1018,6 @@
                                 <div class="form-group">
                                     <label for="" style="visibility:hidden"></label><br>
                                     <button name="submit_experience" id="submit_experience" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_exp_form" class="btn btn-outline-secondary" tabindex="">Clear</button>
                                 </div>
                             </div>
                         </div>

@@ -8,11 +8,34 @@ $(document).ready(function () {
     swapTableAndCreation();
   });
 
+  $("#from_date, #to_date").on("change", function () {
+    let from_date = $("#from_date").val();
+    let to_date = $("#to_date").val();
+
+    if (from_date != "" && to_date != "") {
+      let from = new Date(from_date);
+      let to = new Date(to_date);
+
+      // Calculate difference in milliseconds
+      let diffTime = to - from;
+
+      // Convert to days
+      let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+      // Prevent negative values
+      if (diffDays > 0) {
+        $("#no_of_days").val(diffDays);
+      } else {
+        $("#no_of_days").val("");
+      }
+    }
+  });
+
   /* --- Location Access On Change & Click Events --- */
   $("#company_name").on("change", function () {
-    let compnay_id = $("#company_name").val();
-    getBranchName(compnay_id);
-    getDepartmentName(compnay_id);
+    let company_id = $("#company_name").val();
+    getBranchName(company_id);
+    getDepartmentName(company_id);
   });
 
   $("#branch_name_three").on("change", function () {
@@ -86,6 +109,7 @@ $(document).ready(function () {
     let staff_id = $("#staff_id").val();
     let from_date = $("#from_date").val();
     let to_date = $("#to_date").val();
+    let no_of_days = $("#no_of_days").val();
     let branch_name_three = $("#branch_name_three").val();
     let branch_location = $("#branch_location").val();
     let reason = $("#reason").val();
@@ -105,6 +129,7 @@ $(document).ready(function () {
           staff_id,
           from_date,
           to_date,
+          no_of_days,
           branch_name_three,
           branch_location,
           location_access_id,
@@ -143,6 +168,7 @@ $(document).ready(function () {
       $("#location_access_id").val(id);
       $("#from_date").val(response[0].from_date);
       $("#to_date").val(response[0].to_date);
+      $("#no_of_days").val(response[0].no_of_days);
       await getBranchName(response[0].company_id, $("#branch_name_two").val());
       $("#branch_name_three").val(response[0].assigned_branch);
       $("#branch_location").val(response[0].lattitude_longitude);
@@ -176,19 +202,19 @@ function swapTableAndCreation() {
     $(".location_table_content").hide();
     $(".location_search").hide();
     $(".staff_information").show();
-    $(".backBtnContainer").show();
+    $("#backBtnContainer").show();
   } else {
     $(".location_table_content").show();
     $(".location_search").show();
     $(".staff_information").hide();
-    $(".backBtnContainer").hide();
+    $("#backBtnContainer").hide();
   }
 }
 
 /* --- Get Company Name --- */
 function getCompanyName() {
   $.ajax({
-    url: "api/branch_creation/getCompanyName.php",
+    url: "api/attendance_files/get_company_list.php",
     type: "POST",
     data: {},
     dataType: "json",
@@ -214,12 +240,12 @@ function getCompanyName() {
 }
 
 /* --- Get Branch Name --- */
-async function getBranchName(compnay_id, excludeBranch = "") {
+async function getBranchName(company_id, excludeBranch = "") {
   try {
     const response = await $.ajax({
       url: "api/location_creation_files/getBranchName.php",
       type: "POST",
-      data: { compnay_id },
+      data: { company_id },
       dataType: "json",
       cache: false,
     });
@@ -311,6 +337,7 @@ function getLocationMappingTable(staff_profile_id) {
         "assigned_branch_name",
         "from_date",
         "to_date",
+        "no_of_days",
         "lattitude_longitude",
         "action",
       ];
@@ -349,6 +376,7 @@ function getLocationMappingDelete(id) {
 function clearFields() {
   $("#from_date").val("");
   $("#to_date").val("");
+  $("#no_of_days").val("");
   $("#branch_name_three").val("");
   $("#branch_location").val("");
   $("#reason").val("");

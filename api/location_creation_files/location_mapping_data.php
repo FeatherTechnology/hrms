@@ -7,7 +7,7 @@ $response = array();
 
 try {
 
-    $stmt = $pdo->prepare("SELECT lam.from_date, lam.to_date, lam.assigned_branch, lam.lattitude_longitude, lam.reason, cc.id as company_id
+    $stmt = $pdo->prepare("SELECT lam.from_date, lam.to_date, lam.no_of_days, lam.assigned_branch, lam.lattitude_longitude, lam.reason, cc.id as company_id
         FROM location_access_mapping lam
         LEFT JOIN branch_creation bc ON lam.assigned_branch = bc.id 
         LEFT JOIN company_creation cc ON bc.company_id = cc.id

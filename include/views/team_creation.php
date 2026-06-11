@@ -93,7 +93,7 @@
 
                         <div class="col-12 mt-3 text-right">
                             <button name="submit_team_creation" id="submit_team_creation" class="btn btn-primary" tabindex="5"><span class="icon-check"></span>&nbsp;Submit</button>
-                            <button type="reset" class="btn btn-outline-secondary" tabindex="6">Clear</button>
+                            <button type="reset" class="btn btn-outline-secondary" id="reset_btn" tabindex="6">Clear</button>
                         </div>
 
                     </div>
@@ -138,7 +138,6 @@
                                 <div class="form-group">
                                     <label for="" style="visibility:hidden"></label><br>
                                     <button name="submit_team" id="submit_team" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_team_form" class="btn btn-outline-secondary" tabindex="1">Clear</button>
                                 </div>
                             </div>
                         </div>
