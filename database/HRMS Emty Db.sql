@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 05, 2026 at 03:02 PM
+-- Generation Time: Jun 12, 2026 at 03:10 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -478,6 +478,7 @@ CREATE TABLE `location_access_mapping` (
   `staff_profile_id` int(11) NOT NULL,
   `from_date` date NOT NULL,
   `to_date` date NOT NULL,
+  `no_of_days` int(25) DEFAULT NULL,
   `assigned_branch` int(11) NOT NULL,
   `lattitude_longitude` varchar(250) NOT NULL,
   `reason` varchar(255) DEFAULT NULL,
@@ -515,7 +516,8 @@ INSERT INTO `menu_list` (`id`, `menu`, `link`, `icon`) VALUES
 (7, 'Payroll Management', 'payroll_management', 'credit'),
 (8, 'Feedback Management', 'feedback_management', 'pie_chart'),
 (9, 'My Feedbacks', 'my_feedbacks', 'comment'),
-(10, 'Monitoring Chart', 'monitoring_chart', 'assignment_turned_in');
+(10, 'Monitoring Chart', 'monitoring_chart', 'assignment_turned_in'),
+(11, 'Reports', 'reports', 'event_note');
 
 -- --------------------------------------------------------
 
@@ -809,7 +811,7 @@ CREATE TABLE `staff_ctc_info` (
 
 CREATE TABLE `staff_general_feedback` (
   `id` int(50) NOT NULL,
-  `gen_feedback_id` int(50) DEFAULT NULL,
+  `general_feedback_id` int(50) DEFAULT NULL,
   `commants` varchar(250) DEFAULT NULL,
   `attachment` varchar(250) DEFAULT NULL,
   `insert_login_id` int(50) DEFAULT NULL,
@@ -923,7 +925,13 @@ INSERT INTO `sub_menu_list` (`id`, `main_menu`, `sub_menu`, `link`, `icon`) VALU
 (23, 9, 'Feedback', 'feedback', 'chat'),
 (24, 9, 'Rating', 'rating', 'award'),
 (25, 9, 'Poll', 'poll', 'trending-up'),
-(26, 10, 'Monitoring Chart', 'monitoring_chart', 'assignment_turned_in');
+(26, 10, 'Monitoring Chart', 'monitoring_chart', 'assignment_turned_in'),
+(27, 11, 'Staff Report', 'staff_report', 'event_available'),
+(28, 11, 'Location Access Report', 'location_access_report', 'terrain'),
+(29, 11, 'Feedback Report', 'feedback_report', 'event_note'),
+(30, 11, 'Regularization Report', 'regularization_report', 'note'),
+(31, 11, 'Promotion And Transfer', 'promotion_transfer_report', 'insert_invitation'),
+(32, 11, 'Attendance Report', 'attendance_report', 'today');
 
 -- --------------------------------------------------------
 
@@ -1005,8 +1013,10 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `user_code`, `company_id`, `role`, `staff_name_id`, `staff_id`, `user_name`, `password`, `confirm_password`, `download_access`, `report_access`, `home_access`, `screens`, `status`, `insert_login_id`, `update_login_id`, `created_on`, `updated_on`) VALUES
 (1, 'US-001', 3, 1, 6, 'MS-001', 'admin', '123', '123', 1, 1, 1, '1,2,3,4,5,6,7,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26', 1, '1', '1', '2024-06-13', '2026-06-02'),
 (19, 'US-003', 1, 2, 5, 'FTS-002', 'naveen', '123', '123', 2, 2, 2, '1,2,3,4,5,6,7,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26', 0, '1', '21', '2026-05-22', '2026-06-05'),
-(21, 'US-005', 1, 1, 4, 'FTS-002', 'priya', '123', '123', 1, 1, 1, '1,2,3,4,5,6,7,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26', 0, '1', '21', '2026-06-03', '2026-06-05'),
-(22, 'US-006', 1, 1, 4, 'FTS-002', 'pr', '123', '123', 1, 1, 1, '1,2,3,4,5,6,7,11,12,13,14,19,20', 0, '21', NULL, '2026-06-04', NULL);
+(21, 'US-005', 1, 1, 4, 'FTS-002', 'priya', '123', '123', 1, 1, 1, '1,2,3,4,5,6,7,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32', 0, '1', '21', '2026-06-03', '2026-06-05'),
+(22, 'US-006', 1, 1, 4, 'FTS-002', 'pr', '123', '123', 1, 1, 1, '1,2,3,4,5,6,7,11,12,13,14,19,20', 1, '21', NULL, '2026-06-04', NULL),
+(23, 'US-007', 1, 2, 10, 'FTS-007', 'maya', '123', '123', 1, 2, 1, '1,15,20', 0, '19', NULL, '2026-06-11', NULL),
+(24, 'US-008', 1, 2, 5, 'FTS-003', '1222', '123', '123', 1, 1, 1, '1,2,3,12', 0, '21', '21', '2026-06-12', '2026-06-12');
 
 --
 -- Indexes for dumped tables
@@ -1440,7 +1450,7 @@ ALTER TABLE `location_access_mapping`
 -- AUTO_INCREMENT for table `menu_list`
 --
 ALTER TABLE `menu_list`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `occupation_info`
@@ -1548,7 +1558,7 @@ ALTER TABLE `statutory_compliance`
 -- AUTO_INCREMENT for table `sub_menu_list`
 --
 ALTER TABLE `sub_menu_list`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `team_creation`
@@ -1572,7 +1582,7 @@ ALTER TABLE `team_name_creation`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- Constraints for dumped tables

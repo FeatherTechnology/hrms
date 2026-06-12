@@ -15,7 +15,7 @@
                 <option value='1'>Approved</option>
                 <option value='2'>Cancelled</option>
             </select>
-            <input type="button" id='regularization_btn' name='regularization_btn' class="toggle-button" style="background-color: #016091;color:white" value='Search'>
+            <input type="button" id='regularization_btn' name='regularization_btn' class="toggle-button" style="background-color: #f26b35;color:white" value='Search'>
         </div> <br/>
         <!-- Regularization report Start -->
         <div class="card">

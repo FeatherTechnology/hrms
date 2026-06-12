@@ -83,8 +83,8 @@
 
         <br>
         <div class="page-header">
-            <div style="width:100%; padding:12px; color: #000000; font-size: 20px; border-radius:5px; display: flex; align-items: center;justify-content: left;height:100px">
-                <b style="padding: 10px;">HRMS</b><span id="pageHeaderName"></span>
+            <div style="width:100%; padding:12px;  font-size: 20px; border-radius:5px; display: flex; align-items: center;justify-content: left;height:100px">
+                <b style="padding: 10px; color: #f26b35">HRMS</b><span id="pageHeaderName" style="color: white;"></span>
             </div>
         </div><br>
         <div class="main-container" id="main-container"></div>

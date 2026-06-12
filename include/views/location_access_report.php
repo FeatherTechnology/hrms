@@ -13,7 +13,7 @@
             <select class="toggle-button" name='department_id' id='department_id'>
                 <option value=''>Select Department</option>
             </select>
-            <input type="button" id='location_access_btn' name='location_access_btn' class="toggle-button" style="background-color: #016091;color:white" value='Search'>
+            <input type="button" id='location_access_btn' name='location_access_btn' class="toggle-button" style="background-color: #f26b35;color:white" value='Search'>
         </div> <br> <br>
         <!-- Location Access report Start -->
         <div class="card">

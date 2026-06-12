@@ -174,8 +174,8 @@
   font-weight: 500;
   margin-right: 3.75px;
   margin-bottom: 3.75px;
-  background-color: #016091;
-  border: 1px solid #01796f;
+  background-color: #686b6e;
+  border: 1px solid #686b6e;
   color: #fff;
   word-break: break-all;
   box-sizing: border-box;
@@ -188,8 +188,8 @@
   margin-left: 3.75px;
 }
 .choices__list--multiple .choices__item.is-highlighted {
-  background-color: #016091;
-  border: 1px solid #01796f;
+  background-color: #686b6e;
+  border: 1px solid #686b6e;
 }
 .is-disabled .choices__list--multiple .choices__item {
   background-color: #aaaaaa;

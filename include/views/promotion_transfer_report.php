@@ -13,7 +13,7 @@
             <select class="toggle-button" name='staff_id' id='staff_id'>
                 <option value=''>Select Staff</option>
             </select>
-            <input type="button" id='view_btn' name='view_btn' class="toggle-button" style="background-color: #016091;color:white" value='Search'>
+            <input type="button" id='view_btn' name='view_btn' class="toggle-button" style="background-color: #f26b35;color:white" value='Search'>
         </div> <br />
         <!-- Promotion/Transfer report Start -->
         <div class="card">
