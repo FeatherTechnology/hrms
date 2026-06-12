@@ -5,7 +5,7 @@
 
 	<!-- Sidebar brand start  -->
 	<div class="sidebar-brand" style="display:flex;text-align:center ;justify-content: center;background-color: var(--primary-color);border-radius: 0px 0px 35px 35px;">
-		<div  class="logo" style="display: flex;justify-content: center ;align-items: center; padding:20px"><img src='img\hrms.png' alt="" style="height: 50px;"></div>
+		<div  class="logo" style="display: flex;justify-content: center ;align-items: center; padding:20px"><img src='img\hrms_text.png' alt="" style="height: 50px;"></div>
 		<div>
 		<a href="#" class="logo">
 			<h4 style="color: White; font-family: 'Montserrat', sans-serif; font-weight: 600; letter-spacing: 1px;">

@@ -14,8 +14,8 @@ $(document).ready(function () {
       { user_name, password },
       function (response) {
         if (response == "Success") {
-          $("#portal").addClass("open");
-
+          $(".login-screen").addClass("blur"); 
+          $("#loginSuccessPopup").addClass("show");
           setTimeout(() => {
               window.location.href = 'home.php';
           }, 1000);

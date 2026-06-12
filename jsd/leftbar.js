@@ -34,12 +34,10 @@ const moduleMapping = {
   attendance_report: "reports",
 };
 
-
 // ==========================
 // DOCUMENT READY
 // ==========================
 $(document).ready(function () {
-
   const current_page = localStorage.getItem("currentPage");
   const current_module = moduleMapping[current_page] || "home_page";
 
@@ -49,7 +47,6 @@ $(document).ready(function () {
   getLeftbarMenuList();
 });
 
-
 // ==========================
 // GET MENU LIST
 // ==========================
@@ -57,7 +54,6 @@ function getLeftbarMenuList() {
   $.post(
     "api/base_api/menulist.php",
     function (response) {
-
       if (response.length > 0) {
         createSidebarMenu(response);
       }
@@ -66,7 +62,6 @@ function getLeftbarMenuList() {
       $(document)
         .off("click.sidebarDropdown")
         .on("click.sidebarDropdown", ".sidebar-dropdown > a", function () {
-
           $(".sidebar-submenu").slideUp(200);
 
           if ($(this).parent().hasClass("active")) {
@@ -79,23 +74,21 @@ function getLeftbarMenuList() {
           }
         });
     },
-    "json"
+    "json",
   );
 }
-
 
 // ==========================
 // CREATE SIDEBAR MENU
 // ==========================
 function createSidebarMenu(response) {
-
   $(".sidebar-menu").empty();
 
   let sidebar = $("<ul></ul>");
 
   let grouped = {};
 
-  response.forEach(item => {
+  response.forEach((item) => {
     if (!grouped[item.main_menu]) {
       grouped[item.main_menu] = [];
     }
@@ -103,25 +96,27 @@ function createSidebarMenu(response) {
   });
 
   for (let mainMenu in grouped) {
-
     let mainMenuLi = $(`
       <li class="sidebar-dropdown ${grouped[mainMenu][0].main_menu_link}">
       </li>
     `);
 
-    let mainMenuLink = $('<a href="javascript:void(0)"></a>').appendTo(mainMenuLi);
+    let mainMenuLink = $('<a href="javascript:void(0)"></a>').appendTo(
+      mainMenuLi,
+    );
 
     mainMenuLink.append(
-      `<i class="icon-${grouped[mainMenu][0].main_menu_icon}"></i>`
+      `<i class="icon-${grouped[mainMenu][0].main_menu_icon}"></i>`,
     );
 
     mainMenuLink.append(`<span class="menu-text">${mainMenu}</span>`);
 
-    let submenuDiv = $('<div class="sidebar-submenu"></div>').appendTo(mainMenuLi);
+    let submenuDiv = $('<div class="sidebar-submenu"></div>').appendTo(
+      mainMenuLi,
+    );
     let submenuUl = $("<ul></ul>").appendTo(submenuDiv);
 
-    grouped[mainMenu].forEach(subItem => {
-
+    grouped[mainMenu].forEach((subItem) => {
       let subLi = $("<li></li>").appendTo(submenuUl);
 
       let subLink = $(`
@@ -137,7 +132,6 @@ function createSidebarMenu(response) {
 
   $(".sidebar-menu").append(sidebar);
 
-
   // ==========================
   // CLICK EVENT (OPTIMIZED)
   // ==========================
@@ -148,7 +142,6 @@ function createSidebarMenu(response) {
       setlocalvariable(this);
     });
 
-
   // ==========================
   // HIGHLIGHT AFTER MENU LOAD
   // ==========================
@@ -157,7 +150,6 @@ function createSidebarMenu(response) {
 
   toggleSidebarSubmenus(current_module);
 }
-
 
 // ==========================
 // SAVE PAGE + REDIRECT
@@ -168,15 +160,12 @@ function setlocalvariable(element) {
   window.location.href = "home.php";
 }
 
-
 // ==========================
 // SIDEBAR HIGHLIGHT
 // ==========================
 function toggleSidebarSubmenus(current_module) {
-
   // open correct parent menu
-  document.querySelectorAll(".sidebar-submenu").forEach(submenu => {
-
+  document.querySelectorAll(".sidebar-submenu").forEach((submenu) => {
     let parentLi = submenu.closest("li");
 
     if (parentLi && parentLi.classList.contains(current_module)) {
@@ -185,20 +174,20 @@ function toggleSidebarSubmenus(current_module) {
     }
   });
 
-
   // highlight active link
   const current_page = localStorage.getItem("currentPage");
 
   document
     .querySelectorAll(".sidebar-menu .sidebar-submenu ul li a")
-    .forEach(link => {
-
+    .forEach((link) => {
       if (link.getAttribute("href") === current_page) {
-
         link.style.background =
-          "linear-gradient(90deg, rgba(193, 236, 255, 1) 0%, rgb(85, 179, 223) 50%, rgba(1, 96, 145, 1) 100%)";
-
+          "linear-gradient(90deg, #adadad 0%, rgb(96, 101, 105) 50%, #2a3740 100%)";
         link.style.color = "#fff";
+        const icon = link.querySelector("i");
+        if (icon) {
+          icon.style.color = "#f26b35";
+        }
       }
     });
 }
