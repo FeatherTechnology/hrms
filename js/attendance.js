@@ -170,8 +170,6 @@ function getAttendanceList(company_id, branch_id, date) {
       ajax: {
         url: "api/attendance_files/get_attendance_list.php",
         data: function (data) {
-          var search = $("input[type=search]").val();
-          data.search = search;
           data.company_id = company_id;
           data.branch_id = branch_id;
           data.date = date;

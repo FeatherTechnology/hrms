@@ -605,6 +605,21 @@ $(document).ready(function () {
         isValid = false;
       }
     });
+    // Additional validation for married staff
+    if (marital_status == "1") {
+      var spouseValid = validateField($("#spouse_name").val(), "spouse_name");
+      var anniversaryValid = validateField(
+        $("#anniversary_date").val(),
+        "anniversary_date",
+      );
+
+      if (!spouseValid || !anniversaryValid) {
+        isValid = false;
+      }
+    } else {
+      $("#spouse_name").css("border", "1px solid #cecece");
+      $("#anniversary_date").css("border", "1px solid #cecece");
+    }
     if (pic === undefined && per_pic === "") {
       let isUploadValid = validateField("", "pic");
       let isHiddenValid = validateField("", "per_pic");
@@ -1063,6 +1078,7 @@ $(document).ready(function () {
 });
 
 $(function () {
+  nameFormatter("#staff_name");
   getCompanyName("#company_search");
 });
 
@@ -1921,7 +1937,7 @@ async function editStaffProfile(id) {
     $("#pf_available").val(data.pf_available);
     $("#esi_available").val(data.esi_available);
     $("#pt_available").val(data.pt_available);
-    $("#total_ctc").val(moneyFormatIndia(data.total_ctc));
+    $("#total_ctc").val(parseFloat(data.total_ctc));
     $("#annual_ctc").val(moneyFormatIndia(data.annual_ctc));
     $("#shift").val(data.shift);
     $("#ot_payment").val(data.ot_payment);
@@ -2031,6 +2047,7 @@ function clearStaffProfileForm() {
       let id = $(this).attr("id");
       $(".personal_info_disble").val("");
       $("#staff_profile_id").val("");
+      $("#per_pic").val("");
       $("#submit_staff").attr("disabled", false);
 
       $("#staff_creation input").css("border", "1px solid #cecece");
