@@ -127,7 +127,7 @@ function loadChart(company_id, shift_id, staff_id, date) {
     "api/attendance_ot_monitor_chart_files/get_staff_info.php",
     { company_id, shift_id, staff_id, date },
     function (response) {
-      drawChart(response);
+      drawChart(response,date);
     },
     "json",
   );

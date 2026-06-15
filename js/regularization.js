@@ -333,8 +333,8 @@ function getregularizationlist(sts) {
       ajax: {
         url: "api/regularization_files/get_regularization_list.php",
         data: function (data) {
-          var search = $("input[type=search]").val();
-          data.search = search;
+          // var search = $("input[type=search]").val();
+          // data.search = search;
           data.sts = sts;
         },
       },

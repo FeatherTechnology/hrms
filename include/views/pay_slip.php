@@ -14,7 +14,7 @@
                     <div class="col-md-4 col-sm-6">
                         <div class="form-group">
                             <label for="date">Month & Year</label> <span class="text-danger">*</span>
-                            <input type="month" class="form-control" id="date" name="date" tabindex="1">
+                            <input type="month" class="form-control" id="date" name="date" tabindex="1" max="<?php echo date('Y-m'); ?>">
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6" style="display: flex;justify-content:center;align-items:center">

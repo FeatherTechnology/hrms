@@ -902,7 +902,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="year_of_passing">Year of Passing</label><span class="text-danger">*</span>
-                                    <input type="number" class="form-control" name="year_of_passing" id="year_of_passing" tabindex="1" placeholder="Enter Year of Passing">
+                                    <input type="number" class="form-control" name="year_of_passing" id="year_of_passing" tabindex="1" placeholder="Enter Year of Passing"  onchange="if(this.value.length != 4) { alert('Enter a valid 4-digit year'); this.value=''; }">
                                 </div>
                             </div>
 

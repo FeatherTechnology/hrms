@@ -82,11 +82,7 @@ $params = [
 
 // this condition only for the employee to check the reporting person attendance only
 if ($login_staff_type != 1) {
-
-    $baseQuery .= "
-        AND oi.reporting_person = :userid
-    ";
-
+    $baseQuery .= " AND oi.reporting_person = :userid ";
     $params[':userid'] = $userid;
 }
 
@@ -203,11 +199,26 @@ if ($_POST['length'] != -1) {
 $dataStmt->execute();
 $result = $dataStmt->fetchAll(PDO::FETCH_ASSOC);
 
-/* ---------- RESPONSE BUILD ---------- */
+/* ---------- MONTH RESTRICTION ---------- */
+$currentMonth  = date('Y-m');
+$previousMonth  = date('Y-m');
+$previousMonth  = date('Y-m', strtotime('-1 month'));
+$selectedMonth  = date('Y-m', strtotime($att_date));
+
+/* ---------- RESPONSE ---------- */
 $data = [];
 $sno = $_POST['start'] + 1;
 
 foreach ($result as $row) {
+
+    if ($selectedMonth == $currentMonth || $selectedMonth == $previousMonth) {
+        $editBtn = "<span class='icon-border_color edit_add'
+                        data-id='{$row['stf_id']}'
+                        data-att_id='{$row['att_id']}'></span>";
+    } else {
+        $editBtn = "<span class='icon-border_color text-secondary'
+                        style='opacity:0.5; cursor:not-allowed;'></span>";
+    }
 
     $data[] = [
         $sno++,
@@ -222,9 +233,7 @@ foreach ($result as $row) {
         !empty($row['entry_time']) ? date('d-m-Y h:i A', strtotime($row['entry_time'])) : '',
         $row['updated_by'],
         $row['reason'],
-        "<span class='icon-border_color edit_add'
-            data-id='{$row['stf_id']}'
-            data-att_id='{$row['att_id']}'></span>"
+        $editBtn
     ];
 }
 
@@ -237,3 +246,4 @@ echo json_encode([
 ]);
 
 $pdo = null;
+?>
