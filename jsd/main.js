@@ -663,35 +663,44 @@ function validateMultiSelectField(fieldId, choicesInstance) {
 }
 
 function moneyFormatIndia(num) {
-  // If empty, null, undefined, NaN → return empty
   if (num === "" || num === null || num === undefined || isNaN(num)) {
     return "";
   }
 
-  var isNegative = false;
-  num = Number(num); // convert to number
+  let isNegative = false;
+  num = Number(num);
 
   if (num < 0) {
     isNegative = true;
     num = Math.abs(num);
   }
 
-  var explrestunits = "";
-  if (num.toString().length > 3) {
-    var lastthree = num.toString().substr(num.toString().length - 3);
-    var restunits = num.toString().substr(0, num.toString().length - 3);
-    restunits = restunits.length % 2 == 1 ? "0" + restunits : restunits;
-    var expunit = restunits.match(/.{1,2}/g);
-    for (var i = 0; i < expunit.length; i++) {
-      if (i == 0) {
-        explrestunits += parseInt(expunit[i]) + ",";
-      } else {
-        explrestunits += expunit[i] + ",";
-      }
+  let [integerPart, decimalPart] = num.toString().split(".");
+
+  let thecash = "";
+
+  if (integerPart.length > 3) {
+    let lastthree = integerPart.slice(-3);
+    let restunits = integerPart.slice(0, -3);
+
+    restunits = restunits.length % 2 === 1
+      ? "0" + restunits
+      : restunits;
+
+    let expunit = restunits.match(/.{1,2}/g);
+
+    for (let i = 0; i < expunit.length; i++) {
+      thecash += (i === 0 ? parseInt(expunit[i], 10) : expunit[i]) + ",";
     }
-    var thecash = explrestunits + lastthree;
+
+    thecash += lastthree;
   } else {
-    var thecash = num;
+    thecash = integerPart;
+  }
+
+  // Add decimal part back if present
+  if (decimalPart !== undefined) {
+    thecash += "." + decimalPart;
   }
 
   return isNegative ? "-" + thecash : thecash;

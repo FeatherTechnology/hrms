@@ -11,6 +11,7 @@ $department_id = isset($_POST['params']['department_id']) ? $_POST['params']['de
 $status = isset($_POST['params']['status']) ? $_POST['params']['status'] : '';   // 1 = Active, 2 = Inactive
 
 $staff_type = [1 => 'Employer', 2 => 'Employee'];
+$today = date('Y-m-d');
 
 $column = array(
     'sc.id',
@@ -69,8 +70,25 @@ $query = "SELECT
 
 
 /* Status Filter */
+/* Status Filter with relieve_date logic */
 if ($status != '') {
-    $query .= " AND sc.status = '$status' ";
+
+    if ($status == 1) {
+
+        // ACTIVE: still working OR no relieve date
+        $query .= " AND (
+            sc.status = 1
+            AND (sc.relieve_date >= '$today' OR sc.relieve_date IS NULL)
+        )";
+
+    } elseif ($status == 2) {
+
+        // INACTIVE: already relieved
+        $query .= " AND (
+            sc.status = 2
+            OR (sc.relieve_date < '$today' AND sc.relieve_date IS NULL)
+        )";
+    }
 }
 
 /* Company Filter */
@@ -123,7 +141,7 @@ if ($_POST['length'] != -1) {
     $query1 = " LIMIT " . $_POST['start'] . "," . $_POST['length'];
 }
 
-
+echo $query;die;
 /* Execute */
 $statement = $pdo->prepare($query);
 $statement->execute();

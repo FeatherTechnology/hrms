@@ -2,17 +2,34 @@
 //Format number in Indian Format
 function moneyFormatIndia($num1)
 {
-    if ($num1 < 0) {
-        $num = str_replace("-", "", $num1);
-    } else {
-        $num = $num1;
+    if ($num1 === '' || $num1 === null) {
+        return '';
     }
-    $explrestunits = "";
-    if (strlen($num) > 3) {
-        $lastthree = substr($num, strlen($num) - 3, strlen($num));
-        $restunits = substr($num, 0, strlen($num) - 3);
-        $restunits = (strlen($restunits) % 2 == 1) ? "0" . $restunits : $restunits;
+
+    $negative = false;
+
+    if ($num1 < 0) {
+        $negative = true;
+        $num1 = abs($num1);
+    }
+
+    // split decimal part
+    $parts = explode('.', $num1);
+    $int = $parts[0];
+    $decimal = isset($parts[1]) ? '.' . $parts[1] : '';
+
+    if (strlen($int) > 3) {
+
+        $lastthree = substr($int, -3);
+        $restunits = substr($int, 0, -3);
+
+        $restunits = (strlen($restunits) % 2 == 1)
+            ? "0" . $restunits
+            : $restunits;
+
         $expunit = str_split($restunits, 2);
+        $explrestunits = "";
+
         for ($i = 0; $i < sizeof($expunit); $i++) {
             if ($i == 0) {
                 $explrestunits .= (int)$expunit[$i] . ",";
@@ -20,15 +37,16 @@ function moneyFormatIndia($num1)
                 $explrestunits .= $expunit[$i] . ",";
             }
         }
-        $thecash = $explrestunits . $lastthree;
-    } else {
-        $thecash = $num;
+
+        $int = $explrestunits . $lastthree;
     }
 
-    if ($num1 < 0 && $num1 != '') {
-        $thecash = "-" . $thecash;
+    $result = $int . $decimal;
+
+    if ($negative) {
+        $result = "-" . $result;
     }
 
-    return $thecash;
+    return $result;
 }
 ?>
