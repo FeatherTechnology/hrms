@@ -14,6 +14,12 @@ $dep_id = $_POST['dep_id'];
 $des_id = $_POST['des_id'];
 $team_id = $_POST['team_id'];
 $staff_type = $_POST['staff_type'];
+
+if ($staff_type == 'Employer') {
+    $staff_type = 1;
+} elseif ($staff_type == 'Employee') {
+    $staff_type = 2;
+}
 $reason = $_POST['reason'];
 
 $entry_time = date('Y-m-d H:i:s', strtotime($_POST['entry_time']));

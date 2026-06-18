@@ -45,8 +45,8 @@ include "include/common/dashboardhead.php";
 						<h5 style="color: #cecece;">Please Login to your Account.</h5>
 						<div class="form-group mt-4">
 							<label for="lusername" style="color: #cecece;">User Name</label>
-							<input type="text" name="lusername" id="lusername" tabindex="1" class="form-control" value="" placeholder="Enter Email" style="padding: 10px;border-radius:6px;" />
-							<span id="usernamecheck" class="text-danger" style="display:none">Enter Email</span>
+							<input type="text" name="lusername" id="lusername" tabindex="1" class="form-control" value="" placeholder="Enter User Name" style="padding: 10px;border-radius:6px;" />
+							<span id="usernamecheck" class="text-danger" style="display:none">Enter User Name</span>
 						</div>
 						<div class="form-group mt-4">
 							<label for="lpassword" style="color: #cecece;">Password</label>

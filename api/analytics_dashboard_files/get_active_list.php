@@ -85,8 +85,7 @@ $qry = $pdo->query("
 
     WHERE  tt.company_id = '$company_id'
         AND tt.{$c['status_column']} = 0
-        AND NOW() BETWEEN tt.start_date_time
-        AND tt.end_date_time
+        AND NOW() <= tt.end_date_time
 ");
 
 // RESPONSE

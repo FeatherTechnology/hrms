@@ -3,6 +3,7 @@ require "../../ajaxconfig.php";
 @session_start();
 
 $user_id = $_SESSION['user_id'];
+$today = date('Y-m-d');
 
 /* Get Filters */
 $company_id = $_POST['params']['company_id'] ?? '';
@@ -40,7 +41,7 @@ $query = "SELECT oi.id, sc.staff_id, sc.staff_name, dc.department_name, bc.branc
         from_date ASC LIMIT 1)
         LEFT JOIN branch_creation bcs ON lam.assigned_branch = bcs.id
         LEFT JOIN users u ON u.id = '$user_id'
-        WHERE oi.off_type = 1 AND oi.id IN (SELECT MAX(id) FROM occupation_info GROUP BY staff_profile_id) AND oi.reporting_person = u.staff_name_id";
+        WHERE oi.off_type = 1 AND oi.id IN (SELECT MAX(id) FROM occupation_info GROUP BY staff_profile_id) AND oi.reporting_person = u.staff_name_id AND (date(sc.relieve_date)>='$today' OR sc.relieve_date ='')";
 
 
 /* Company Filter */

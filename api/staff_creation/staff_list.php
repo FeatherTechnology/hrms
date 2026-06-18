@@ -70,24 +70,29 @@ $query = "SELECT
 
 
 /* Status Filter */
-/* Status Filter with relieve_date logic */
+/* Status Filter */
 if ($status != '') {
 
     if ($status == 1) {
 
         // ACTIVE: still working OR no relieve date
-        $query .= " AND (
-            sc.status = 1
-            AND (sc.relieve_date >= '$today' OR sc.relieve_date IS NULL)
-        )";
+        $query .= " AND sc.status = 1 
+                    AND (
+                        date(sc.relieve_date) >= '$today'
+                        OR sc.relieve_date IS NULL
+                        OR sc.relieve_date = ''
+                    )";
 
     } elseif ($status == 2) {
 
         // INACTIVE: already relieved
         $query .= " AND (
-            sc.status = 2
-            OR (sc.relieve_date < '$today' AND sc.relieve_date IS NULL)
-        )";
+                        sc.status = 2 
+                        OR (
+                            date(sc.relieve_date) < '$today'
+                            AND sc.relieve_date != ''
+                        )
+                    )";
     }
 }
 
@@ -141,7 +146,6 @@ if ($_POST['length'] != -1) {
     $query1 = " LIMIT " . $_POST['start'] . "," . $_POST['length'];
 }
 
-echo $query;die;
 /* Execute */
 $statement = $pdo->prepare($query);
 $statement->execute();
