@@ -540,6 +540,7 @@ $(document).ready(function () {
   // Experience Info End
   // Submit Staff Creation BASIC Info
   $("#submit_staff").click(function (event) {
+    $("#submit_staff").attr("disabled", true);
     event.preventDefault();
     // Validate form fields
     let pic = $("#pic")[0].files[0];
@@ -684,6 +685,7 @@ $(document).ready(function () {
           // Handle success response
           if (response.result == 0) {
             swalError("Error", "Personal Info Not Added!");
+            $("#submit_staff").attr("disabled", false);
           } else if (response.result == 1) {
             swalSuccess("Success", "Personal Info Added Successfully!");
             $(".staff_content").show();
@@ -698,6 +700,8 @@ $(document).ready(function () {
           }
         },
       });
+    }else{
+      $("#submit_staff").attr("disabled", false);
     }
   });
   // Submit Staff Creation BASIC Info
@@ -1538,7 +1542,7 @@ function staffDeleteStatus(staff_id) {
 async function getCompanyName(selector) {
   return new Promise((resolve, reject) => {
     $.post(
-      "api/branch_creation/getCompanyName.php",
+      "api/attendance_files/get_company_list.php",
       {},
 
       function (response) {

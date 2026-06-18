@@ -102,17 +102,17 @@ function getPayslip(company_id, branch_id, stf_prf_id, month) {
         $("#ps_lop_days").text(row.lop_days);
         $("#ps_extra_working").text(row.extra_working);
 
-        $("#otamount").text("₹" + moneyFormatIndia(row.ot_amount));
+        $("#otamount").text("₹" + (row.ot_amount));
 
         //////////////////////////////////////////////////////
         // TOTALS
         //////////////////////////////////////////////////////
 
-        $("#ps_gross_total").text("₹" + moneyFormatIndia(row.gross_total));
+        $("#ps_gross_total").text("₹" + (row.gross_total));
         $("#ps_deduction_total").text(
-          "₹" + moneyFormatIndia(row.deduction_total),
+          "₹" + (row.deduction_total),
         );
-        $("#ps_net_salary").text("₹" + moneyFormatIndia(row.net_salary));
+        $("#ps_net_salary").text("₹" + (row.net_salary));
 
         //////////////////////////////////////////////////////
         // COMPONENTS
@@ -181,10 +181,10 @@ function getPayslip(company_id, branch_id, stf_prf_id, month) {
           html += `
             <tr>
               <td>${earnName}</td>
-              <td>${earnName ? "₹" + moneyFormatIndia(earnAmount) : ""}</td>
+              <td>${earnName ? "₹" + (earnAmount) : ""}</td>
 
               <td>${dedName}</td>
-              <td>${dedName ? "₹" + moneyFormatIndia(dedAmount) : ""}</td>
+              <td>${dedName ? "₹" + (dedAmount) : ""}</td>
             </tr>
           `;
         }

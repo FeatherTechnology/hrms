@@ -390,7 +390,9 @@ function getedituserdetails(id, userid) {
       $("#leave_type").attr("readonly", true);
       $("#from_date").attr("readonly", true);
       $("#reason").attr("readonly", true);
-      $("#approval_type,#app_from_date,#app_to_date,#app_total_days,#app_total_min,#remarks",).val("");
+      $(
+        "#approval_type,#app_from_date,#app_to_date,#app_total_days,#app_total_min,#remarks",
+      ).val("");
 
       $("#staff_id").val(response.staff_id);
       $("#staff_type").val(response.staff_type);
@@ -407,22 +409,26 @@ function getedituserdetails(id, userid) {
       $("#team_id").val(response.team_id);
       $("#team").val(response.team_name);
       $("#req_type").val(response.req_type);
-      $("#req_date").val( response.req_date.split(" ")[0].split("-").reverse().join("-"),);
+      $("#req_date").val(
+        response.req_date.split(" ")[0].split("-").reverse().join("-"),
+      );
       $("#leave_type_id").val(response.leave_type);
       $("#reason").val(response.reason);
       $("#from_date").val(response.from_date.replace(" ", "T").slice(0, 16));
       $("#to_date").val(response.to_date.replace(" ", "T").slice(0, 16));
-      
+
       if (response.req_type == 1 || response.req_type == 3) {
         $("#app_from_date,#app_to_date").attr("type", "date");
       } else {
         $("#app_from_date,#app_to_date").attr("type", "datetime-local");
       }
+
       setCurrentMonthRestriction("#app_from_date", "#app_to_date");
-      $("#app_from_date").val(response.approved_from_date.replace(" ", "T").slice(0, 16));
-      $("#app_to_date").val(response.approved_to_date.replace(" ", "T").slice(0, 16));
+      setApprovalDate("#app_from_date", response.approved_from_date);
+      setApprovalDate("#app_to_date", response.approved_to_date);
+      
       $("#app_total_min").val(response.approved_total_min);
-      $("#approval_type").val(response.status);
+      $("#approval_type").val(response.status || 0);
       $("#remarks").val(response.remarks);
 
       if (response.req_type == 1) {
@@ -436,17 +442,27 @@ function getedituserdetails(id, userid) {
         $("#balance_req").show();
         $("#balance_req").val(response.balance_req);
       }
+      let totalMin = parseInt(response.total_min, 10);
+      let days = Math.floor(totalMin / (24 * 60));
+      let hours = Math.floor((totalMin % (24 * 60)) / 60);
+      let minutes = totalMin % 60;
 
-      let days = Math.floor(response.total_min / (24 * 60));
-      let hours = Math.floor((response.total_min % (24 * 60)) / 60);
-      let minutes = response.total_min % 60;
       $("#total_days").val(
         days + " Days " + hours + " Hours " + minutes + " Minutes",
       );
 
-      let app_days = Math.floor(response.approved_total_min / (24 * 60));
-      let app_hours = Math.floor((response.total_min % (24 * 60)) / 60);
-      let app_minutes = response.total_min % 60;
+      let app_totalMin = parseInt(response.approved_total_min, 10);
+      let app_days = Math.floor(app_totalMin / (24 * 60));
+      let app_hours = Math.floor((app_totalMin % (24 * 60)) / 60);
+      let app_minutes = app_totalMin % 60;
+
+      // $("#total_days").val(
+      //   days + " Days " + hours + " Hours " + minutes + " Minutes",
+      // );
+
+      // let app_days = Math.floor(response.approved_total_min / (24 * 60));
+      // let app_hours = Math.floor((response.total_min % (24 * 60)) / 60);
+      // let app_minutes = response.total_min % 60;
       $("#app_total_days").val(
         app_days + " Days " + app_hours + " Hours " + app_minutes + " Minutes",
       );
@@ -649,5 +665,21 @@ function setCurrentMonthRestriction(fromSelector, toSelector) {
     $(fromSelector).attr("min", minDateTime);
   } else {
     $(fromSelector).attr("min", minDate);
+  }
+}
+
+function setApprovalDate(id, value) {
+  if (!value) {
+    $(id).val("");
+    return;
+  }
+
+  let type = $(id).attr("type");
+  let formattedDate = value.replace(" ", "T");
+
+  if (type === "date") {
+    $(id).val(formattedDate.slice(0, 10));
+  } else if (type === "datetime-local") {
+    $(id).val(formattedDate.slice(0, 16));
   }
 }

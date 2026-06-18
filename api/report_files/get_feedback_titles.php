@@ -31,7 +31,7 @@ if ($feedback_type == 1) { // General Feedback
         WHERE fdm.department_id = ?
         AND fc.company_id = ?
         AND fc.feedback_status = 0
-        AND NOW() BETWEEN fc.start_date_time AND fc.end_date_time
+        AND NOW() <= fc.end_date_time
     ");
 
     $stmt->execute([$department, $company_id]);
@@ -47,7 +47,7 @@ if ($feedback_type == 1) { // General Feedback
         WHERE rdm.department_id = ?
         AND rt.company_id = ?
         AND rt.rating_status = 0
-        AND NOW() BETWEEN rt.start_date_time AND rt.end_date_time
+        AND NOW() <= rt.end_date_time
     ");
 
     $stmt->execute([$department, $company_id]);
@@ -63,7 +63,7 @@ if ($feedback_type == 1) { // General Feedback
         WHERE pdm.department_id = ?
         AND pt.company_id = ?
         AND pt.poll_status = 0
-        AND NOW() BETWEEN pt.start_date_time AND pt.end_date_time
+        AND NOW() <= pt.end_date_time
     ");
 
     $stmt->execute([$department, $company_id]);
