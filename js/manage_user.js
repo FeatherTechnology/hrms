@@ -1,12 +1,63 @@
+// multiselect for the director company mapping
+const companyMultiple = new Choices("#multi_company_name", {
+  removeItemButton: true,
+  placeholder: true,
+  placeholderValue: "Select Company Name",
+  itemSelectText: "",
+  allowHTML: false,
+  searchEnabled: false,
+});
+
 $(document).ready(function () {
-  /* --- Add & Back Button Click --- */
-  $(".add_user_btn, .back_to_userList_btn").click(function () {
+  // to change the user type director or staff
+  $("#user_type").on("change", function () {
+    var usertype = $(this).val();
+    if (usertype == 1) {
+      $(".director_div").show();
+      $(".user_div").hide();
+      getDirectorName();
+      getCompanyNameDropdown();
+    } else {
+      $(".director_div").hide();
+      $(".user_div").show();
+      getCompanyName("#company_name");
+    }
+  });
+
+  // when i click the add user button
+  $(".add_user_btn").click(function () {
     $("#reset_btn").show();
-    swapTableAndCreation();
+    $(".add_user_btn").hide();
+    $(".back_to_userList_btn").show();
+    $("#search_container,.radio_container,.table_container").hide();
+    $("#user_creation_content").show();
+    $(".director_div").hide();
+    $(".user_div").hide();
+    $("#user_type").val("");
+    $(".credential_info").find("input, select").val("");
+    let userid = $("#user_creation_id").val();
+
+    getMenuSubMenuList(userid);
+  });
+
+  // when i click the back button
+  $(".back_to_userList_btn").click(function () {
+    if ($("#company_search").val() !== "" && $("#user_types").val() !== "") {
+      $(".radio_container,.table_container").show();
+      $("#view_staff").trigger("click");
+    }
+    $("#reset_btn").hide();
+    $("#multi_company_name2").val("");
+    $(".add_user_btn").show();
+    $(".back_to_userList_btn").hide();
+    $("#search_container").show();
+    $("#user_creation_content").hide();
+    $("#user_creation_id").val("0");
   });
 
   /* --- User Creation On Change & Click Events --- */
   $("#company_name").on("change", function () {
+    var cmpy_id = $(this).val();
     $("#staff_name").val("");
     $("#staff_id").val("");
     $("#branch").val("");
@@ -14,29 +65,27 @@ $(document).ready(function () {
     $("#team").val("");
     $("#designation").val("");
     $("#role").val("");
-
     loadStaff();
   });
 
-  $("#role").on("change", function () {
-    $("#staff_name").val("");
-    $("#staff_id").val("");
-    $("#branch").val("");
-    $("#department").val("");
-    $("#team").val("");
-    $("#designation").val("");
-
-    loadStaff();
-  });
-
+  // staff name on change event to get the staff details
   $("#staff_name").on("change", function () {
     getStaffInfo();
   });
 
+  // active inactive on change
   $("input[name='outer_list']").on("change", function () {
-    getUserCreationTable();
+    let cmpy_name = $("#company_search").val();
+    let user_types = $("#user_types").val();
+    if (cmpy_name == "" || user_types == "") {
+      swalError("Warning", "Please Select All Fields!");
+      return;
+    } else {
+      getUserCreationTable(cmpy_name, user_types);
+    }
   });
 
+  // password key up event
   $("#password, #confirm_password").keyup(function () {
     const password = $("#password").val();
     const confirmPassword = $("#confirm_password").val();
@@ -49,6 +98,7 @@ $(document).ready(function () {
     }
   });
 
+  // password on change event
   $("#password, #confirm_password").change(function () {
     const password = $("#password").val();
     const confirmPassword = $("#confirm_password").val();
@@ -82,9 +132,10 @@ $(document).ready(function () {
     });
 
     let userFormData = {
-      user_code: $("#user_code").val(),
+      user_type: $("#user_type").val(),
+      director_name: $("#director_name").val(),
+      multi_company_name: $("#multi_company_name").val(),
       company_name: $("#company_name").val(),
-      role: $("#role").val(),
       staff_name: $("#staff_name").val(),
       staff_id: $("#staff_id").val(),
       user_name: $("#user_name").val(),
@@ -97,22 +148,50 @@ $(document).ready(function () {
       submenus: selectedSubmenuIds,
       id: $("#user_creation_id").val(),
     };
-    var data = [
-      "company_name",
-      "role",
-      "staff_name",
-      "user_name",
-      "password",
-      "confirm_password",
-      "download_access",
-      "home_access",
-      "report_access",
-    ];
 
+    let userType = $("#user_type").val();
+    if (!userType) {
+      swalError("Warning", "Please select User Type!");
+      return;
+    }
+    var data = [];
+    if (userType == "1") {
+      data = [
+        "director_name",
+        "user_name",
+        "password",
+        "confirm_password",
+        "download_access",
+        "home_access",
+      ];
+      // Multi company validation for user type 1
+      let companyValid = validateMultiSelectField(
+        "multi_company_name",
+        companyMultiple,
+      );
+
+      if (!companyValid) {
+        isValid = false;
+      }
+    } else if (userType == "2") {
+      data = [
+        "company_name",
+        "staff_name",
+        "staff_id",
+        "user_name",
+        "password",
+        "confirm_password",
+        "download_access",
+        "home_access",
+      ];
+    }
+    // Validate report_access only if reports-mainmenu is selected
+    if ($("#reports-mainmenu").is(":checked")) {
+      data.push("report_access");
+    }
     var isValid = true;
     data.forEach(function (entry) {
-      var fieldIsValid = validateField($("#" + entry).val(), entry);
-      if (!fieldIsValid) {
+      if (!validateField($("#" + entry).val(), entry)) {
         isValid = false;
       }
     });
@@ -134,7 +213,19 @@ $(document).ready(function () {
             }
 
             if (response.status != "" && response.status != "3") {
-              swapTableAndCreation();
+              if (
+                $("#company_search").val() !== "" &&
+                $("#user_types").val() !== ""
+              ) {
+                $(".radio_container,.table_container").show();
+                $("#view_staff").trigger("click");
+              }
+              $("#reset_btn").hide();
+              $(".add_user_btn").show();
+              $(".back_to_userList_btn").hide();
+              $("#search_container").show();
+              $("#user_creation_content").hide();
+              $("#user_creation_id").val("0");
             }
             let sessionId = $("#session_user_id").val();
             if (response.last_id == sessionId) {
@@ -147,13 +238,17 @@ $(document).ready(function () {
         swalError("Warning", "Please fill out mandatory fields!");
       }
     }
-    // }
   });
+
 
   /* --- Edit User Creation --- */
   $(document).on("click", ".userActionBtn", async function () {
     $("#reset_btn").hide();
     var id = $(this).attr("value"); // Get value attribute
+    $(".add_user_btn").hide();
+    $(".back_to_userList_btn").show();
+    $("#search_container,.radio_container,.table_container").hide();
+    $("#user_creation_content").show();
 
     try {
       const response = await $.ajax({
@@ -164,21 +259,38 @@ $(document).ready(function () {
       });
 
       $("#user_creation_id").val(id);
-      swapTableAndCreation();
-      await getCompanyName();
+      let userid = $("#user_creation_id").val();
 
-      $("#user_code").val(response[0].user_code);
-      // $("#company_name").val(response[0].company_id);
-      $("#company_name").val(response[0].company_id).trigger("change");
-      $("#role").val(response[0].role);
-      await getStaffName(response[0].company_id, response[0].role);
-      $("#staff_name").val(response[0].staff_name);
-      $("#staff_id").val(response[0].staff_id);
+      getMenuSubMenuList(userid);
+      await getCompanyName("#company_name");
+      await getCompanyNameDropdown();
 
-      $("#branch").val(response[0].branch_name);
-      $("#department").val(response[0].department_name);
-      $("#team").val(response[0].team_name);
-      $("#designation").val(response[0].designation);
+      $("#user_type").val(response[0].user_type);
+      if (response[0].user_type == 1) {
+        await getDirectorName();
+        $(".director_div").show();
+        $(".user_div").hide();
+        $("#director_name").val(response[0].director_name).trigger("change");
+        $("#multi_company_name2").val(response[0].director_company);
+
+        await getCompanyNameDropdown();
+
+      } else {
+
+        $(".director_div").hide();
+        $(".user_div").show();
+        $("#company_name").val(response[0].company_id);
+        // $("#role").val(response[0].role);
+        await getStaffName(response[0].company_id);
+        $("#staff_name").val(response[0].staff_name);
+        $("#staff_id").val(response[0].staff_id);
+
+        $("#branch").val(response[0].branch_name);
+        $("#department").val(response[0].department_name);
+        $("#team").val(response[0].team_name);
+        $("#designation").val(response[0].designation);
+      }
+
       $("#user_name").val(response[0].user_name);
       $("#password").val(response[0].password);
       $("#confirm_password").val(response[0].password);
@@ -221,7 +333,6 @@ $(document).ready(function () {
 
     $('input[type="checkbox"]').prop("checked", false);
 
-    $("#user_code").css("border", "1px solid #cecece");
     $("#company_name").css("border", "1px solid #cecece");
     $("#role").css("border", "1px solid #cecece");
     $("#user_name").css("border", "1px solid #cecece");
@@ -230,14 +341,31 @@ $(document).ready(function () {
     $("#download_access").css("border", "1px solid #cecece");
     $("#report_access").css("border", "1px solid #cecece");
     $("#staff_name").css("border", "1px solid #cecece");
-    $("#home_access").css("border", "1px solid #cecece");
+    $("#home_access,#staff_id,#director_name,#multi_company_name").css(
+      "border",
+      "1px solid #cecece",
+    );
+  });
+
+  $("#view_staff").on("click", function () {
+    let company_id = $("#company_search").val();
+    let user_type = $("#user_types").val();
+
+    if (!company_id || !user_type) {
+      swalError("Warning", "Please Select All Fields!");
+      return;
+    } else {
+      $(".radio_container").show();
+      $(".table_container").show();
+      getUserCreationTable(company_id, user_type);
+      getSessionValue();
+    }
   });
 }); //Document END.
 
 /* --- On Laod --- */
 $(function () {
-  getUserCreationTable();
-  getSessionValue();
+  getCompanyName("#company_search");
 });
 
 /* --- Get Session Value --- */
@@ -251,78 +379,50 @@ function getSessionValue() {
   );
 }
 
-/* --- Swap Table and hide/show --- */
-function swapTableAndCreation() {
-  if ($(".user_creation_table_content").is(":visible")) {
-    $(".user_creation_table_content").hide();
-    $(".add_user_btn").hide();
-    $("#user_creation_content").show();
-    $(".back_to_userList_btn").show();
-    $(".radio-container").hide();
-
-    let userid = $("#user_creation_id").val();
-
-    getUserID("");
-    getCompanyName();
-    getMenuSubMenuList(userid);
-  } else {
-    $(".user_creation_table_content").show();
-    $(".add_user_btn").show();
-    $(".radio-container").show();
-    $("#user_creation_content").hide();
-    $(".back_to_userList_btn").hide();
-    $("#reset_btn").trigger("click");
-    $("#active_list").prop("checked", true);
-    getUserCreationTable();
-    $("#user_creation_id").val("0");
-  }
-}
-
 /* --- Load Staff Name --- */
 function loadStaff() {
   let company_id = $("#company_name").val();
-  let role = $("#role").val();
 
-  if (company_id != "" && role != "") {
-    getStaffName(company_id, role);
+  if (company_id != "") {
+    getStaffName(company_id);
   }
 }
 
 /* --- Get Company Name --- */
-async function getCompanyName() {
-  return new Promise((resolve, reject) => {
-    $.post(
-      "api/attendance_files/get_company_list.php",
-      {},
+// async function getCompanyName() {
+//   return new Promise((resolve, reject) => {
+//     $.post(
+//       "api/attendance_files/get_company_list.php",
+//       {},
 
-      function (response) {
-        let dropdown = $("#company_name");
-        dropdown.empty();
-        dropdown.append('<option value="">Select Company Name</option>');
-        $.each(response, function (index, item) {
-          dropdown.append(
-            `<option value="${item.id}">${item.company_name}
-                        </option>`,
-          );
-        });
+//       function (response) {
+//         let dropdown = $("#company_name");
+//         dropdown.empty();
+//         dropdown.append('<option value="">Select Company Name</option>');
+//         $.each(response, function (index, item) {
+//           dropdown.append(
+//             `<option value="${item.id}">${item.company_name}
+//                         </option>`,
+//           );
+//         });
 
-        resolve();
-      },
+//         resolve();
+//       },
 
-      "json",
-    ).fail(function (xhr, status, error) {
-      reject(error);
-    });
-  });
-}
+//       "json",
+//     ).fail(function (xhr, status, error) {
+//       reject(error);
+//     });
+//   });
+// }
 
 /* --- Get Staff Name --- */
-async function getStaffName(company_id, role) {
+async function getStaffName(company_id) {
   try {
     const response = await $.ajax({
       url: "api/user_creation_files/getStaffName.php",
       type: "POST",
-      data: { company_id, role },
+      data: { company_id },
       dataType: "json",
       cache: false,
     });
@@ -377,24 +477,62 @@ function getStaffInfo() {
 }
 
 /* --- Get User Creation Table --- */
-function getUserCreationTable() {
+function getUserCreationTable(company_id, user_type) {
   let status = $("input[name='outer_list']:checked").val();
+
+  // Change table header
+  if (user_type == 1) {
+    $("#user_creation_table thead").html(`
+      <tr>
+        <th>S.No.</th>
+        <th>Director Name</th>
+        <th>User ID</th>
+        <th>Companies</th>
+        <th>Action</th>
+      </tr>
+    `);
+  } else {
+    $("#user_creation_table thead").html(`
+      <tr>
+        <th>S.No.</th>
+        <th>Staff Name</th>
+        <th>User ID</th>
+        <th>Branch Name</th>
+        <th>Department Name</th>
+        <th>Team Name</th>
+        <th>Designation</th>
+        <th>Action</th>
+      </tr>
+    `);
+  }
+
   $.post(
     "api/user_creation_files/user_creation_list.php",
-    { status: status },
+    { status, company_id, user_type },
     function (response) {
-      let userColumn = [
-        "sno",
-        "company_name",
-        "role",
-        "staff_name",
-        "user_id",
-        "branch_name",
-        "department_name",
-        "team_name",
-        "designation",
-        "action",
-      ];
+      let userColumn = [];
+
+      if (user_type == 1) {
+        userColumn = [
+          "sno",
+          "director_name",
+          "user_id",
+          "company_names",
+          "action",
+        ];
+      } else {
+        userColumn = [
+          "sno",
+          "staff_name",
+          "user_id",
+          "branch_name",
+          "department_name",
+          "team_name",
+          "designation",
+          "action",
+        ];
+      }
+
       appendDataToTable("#user_creation_table", response, userColumn);
       setdtable("#user_creation_table", "User Creation List");
     },
@@ -480,12 +618,12 @@ function getMenuSubMenuList(userId) {
 }
 
 /* --- Get Auto Increment User ID --- */
-async function getUserID(id) {
+async function getUserID(cmpy_id, id) {
   try {
     const response = await $.ajax({
       url: "api/user_creation_files/get_user_id.php",
       type: "POST",
-      data: { id },
+      data: { id, cmpy_id },
       dataType: "json",
     });
 
@@ -506,7 +644,7 @@ function deleteUser(id) {
     function (response) {
       if (response == "1") {
         swalSuccess("Success", "User Deleted Successfully.");
-        getUserCreationTable();
+        $("#view_staff").trigger("click");
         setTimeout(() => {
           let userSessionId = $("#session_user_id").val();
           if (userSessionId == id) {
@@ -519,4 +657,92 @@ function deleteUser(id) {
     },
     "json",
   );
+}
+
+// to get the company name drop down for multi select
+async function getCompanyNameDropdown() {
+  const multi_company_name2 = $("#multi_company_name2").val();
+
+  try {
+    const response = await $.ajax({
+      url: "api/user_creation_files/get_company_name.php",
+      type: "POST",
+      data: {},
+      dataType: "json",
+    });
+
+    companyMultiple.clearChoices();
+    companyMultiple.removeActiveItems();
+
+    const selectedIds = multi_company_name2
+      ? multi_company_name2.split(",")
+      : [];
+
+    const items = response.map((val) => ({
+      value: val.id,
+      label: val.company_name,
+      selected: selectedIds.includes(val.id.toString()),
+      disabled: val.disabled && !selectedIds.includes(val.id.toString()),
+    }));
+
+    companyMultiple.setChoices(items, "value", "label", true);
+  } catch (err) {
+    console.error("Error loading department dropdown:", err);
+  }
+}
+
+// to get the director name 
+function getDirectorName() {
+  return new Promise((resolve, reject) => {
+    $.post(
+      "api/user_creation_files/get_director_name.php",
+      {},
+
+      function (response) {
+        let dropdown = $("#director_name");
+        dropdown.empty();
+        dropdown.append('<option value="">Select Director Name</option>');
+        $.each(response, function (index, item) {
+          dropdown.append(
+            `<option value="${item.id}">${item.director_name}
+                        </option>`,
+          );
+        });
+
+        resolve();
+      },
+
+      "json",
+    ).fail(function (xhr, status, error) {
+      reject(error);
+    });
+  });
+}
+
+// to get the company name 
+async function getCompanyName(selector) {
+  return new Promise((resolve, reject) => {
+    $.post(
+      "api/attendance_files/get_company_list.php",
+      {},
+
+      function (response) {
+        let dropdown = $(selector);
+        dropdown.empty();
+        dropdown.append('<option value="">Select Company Name</option>');
+        $.each(response, function (index, item) {
+          dropdown.append(
+            `<option value="${item.id}">${item.company_name}
+                        </option>`,
+          );
+        });
+
+        resolve();
+      },
+
+      "json",
+    ).fail(function (xhr, status, error) {
+      reject(error);
+    });
+  });
 }

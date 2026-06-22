@@ -13,6 +13,8 @@ $department       = $_POST['department'];
 $team             = $_POST['team'];
 $designation      = $_POST['designation'];
 $reporting_person = $_POST['reporting_person'];
+$reporting_person_type = (strtolower($_POST['reporting_person_type']) == 'director') ? 1 : 2;
+
 $branch_admin     = $_POST['branch_admin'];
 $branch           = $_POST['branch'];
 $pf_available     = $_POST['pf_available'];
@@ -50,6 +52,7 @@ $designation_old    = $oldOcc['designation'];
 $off_type_old       = $oldOcc['off_type'];
 $branch_admin_old   = $oldOcc['branch_admin'];
 $reporting_old      = $oldOcc['reporting_person'];
+$reporting_person_type_old     = $oldOcc['reporting_person_type'];
 $branch_old         = $oldOcc['branch'];
 
 $pf_old             = $oldOcc['pf_available'];
@@ -75,6 +78,7 @@ if ($occ_status == '1') {
     if ($staff_type != '1') {
 
         $reporting_old = $reporting_person;
+        $reporting_person_type_old = $reporting_person_type;
     }
 }
 
@@ -128,6 +132,7 @@ $pdo->query("
 
     branch_admin     = '$branch_admin_old',
     reporting_person = '$reporting_old',
+    reporting_person_type = '$reporting_person_type_old',
     branch           = '$branch_old',
 
     pf_available     = '$pf_old',

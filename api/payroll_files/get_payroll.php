@@ -8,6 +8,7 @@ include '../../ajaxconfig.php';
 $company_id = $_POST['company_id'];
 $branch_id  = $_POST['branch_id'];
 $month      = $_POST['month'];
+$month_end = date("Y-m-t", strtotime($month . "-01"));
 $stff_con = '';
 // in pay slip we use this condition to get the seperate pay slip 
 if (isset($_POST['stf_prf_id']) && $_POST['stf_prf_id'] != '') {
@@ -67,7 +68,20 @@ $getStaff = $pdo->query("
     LEFT JOIN team_name_creation tc ON tc.id = o.team
 
     WHERE o.company_id = '$company_id'
-    AND o.branch_id = '$branch_id' $stff_con
+    AND o.branch_id = '$branch_id'
+    AND (
+    sc.relieve_date IS NULL
+    OR sc.relieve_date = ''
+    OR sc.relieve_date >= '$month_end'
+    OR DATE_FORMAT(sc.relieve_date, '%Y-%m') = '$month'
+) 
+    AND (
+    sc.joining_date IS NULL
+    OR sc.joining_date = ''
+    OR sc.joining_date <= '$month_end'
+)
+    $stff_con
+
 ");
 
 $sno = 1;
@@ -272,8 +286,7 @@ while ($staff = $getStaff->fetch()) {
             // PER DAY REIMBURSEMENT
             if ($pay_frequency == 2) {
                 $amount = $amount * $total_payable_days;
-            }
-            else {
+            } else {
                 $amount = $amount;
             }
         }

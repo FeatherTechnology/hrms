@@ -69,7 +69,6 @@
                             <th>S.NO</th>
                             <th>Staff ID</th>
                             <th>Staff Name</th>
-                            <th>Staff Type</th>
                             <th>Company</th>
                             <th>Branch</th>
                             <th>Department</th>
@@ -118,16 +117,6 @@
                                                 <div class="form-group">
                                                     <label for="staff_name">Staff Name</label><span class="text-danger">*</span>
                                                     <input type="text" class="form-control personal_info_disble" id="staff_name" name="staff_name" placeholder="Enter Staff Name" tabindex="2">
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="form-group">
-                                                    <label for="staff_type">Staff Type</label><span class="text-danger">*</span>
-                                                    <select type="text" class="form-control personal_info_disble" id="staff_type" name="staff_type" tabindex="3">
-                                                        <option value="">Select Staff Type</option>
-                                                        <option value="1">Employer</option>
-                                                        <option value="2">Employee</option>
-                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -203,13 +192,13 @@
                                             </div>
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 spouse-div" style="display: none;">
                                                 <div class="form-group">
-                                                    <label for="spouse_name">Spouse Name</label>
+                                                    <label for="spouse_name">Spouse Name</label><span class="text-danger">*</span>
                                                     <input type="text" class="form-control personal_info_disble" id="spouse_name" name="spouse_name" placeholder="Enter Spouse Name" tabindex="14">
                                                 </div>
                                             </div>
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 spouse-div" style="display: none;">
                                                 <div class="form-group">
-                                                    <label for="anniversary_date">Anniversary Date</label>
+                                                    <label for="anniversary_date">Anniversary Date</label><span class="text-danger">*</span>
                                                     <input type="date" class="form-control personal_info_disble" id="anniversary_date" name="anniversary_date" placeholder="Anniversary Date" tabindex="15">
                                                 </div>
                                             </div>
@@ -515,7 +504,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 reporting_person_div" style="display: none;">
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 reporting_person_div">
                                             <div class="form-group">
                                                 <label for="reporting_person">Reporting Person</label><span class="text-danger">*</span>
                                                 <select class="form-control" id="reporting_person" name="reporting_person" tabindex="41">

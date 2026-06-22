@@ -2,22 +2,60 @@
 require "../../ajaxconfig.php";
 
 $user_creation_id = $_POST['id'];
+$cmpy_id = $_POST['cmpy_id'];
 
 if ($user_creation_id != '0' && $user_creation_id != '') {
-    $qry = $pdo->query("SELECT user_code FROM users WHERE id = '$user_creation_id'");
-    $qry_info = $qry->fetch();
-    $user_code_final = $qry_info['user_code'];
+
+    $stmt = $pdo->prepare("SELECT user_code FROM users WHERE id = ?");
+    $stmt->execute([$user_creation_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $user_code_final = $row['user_code'];
+
 } else {
 
-    $qry = $pdo->query("SELECT user_code FROM users WHERE user_code !='' ORDER BY id DESC ");
-    if ($qry->rowCount() > 0) {
-        $qry_info = $qry->fetch(); //US-001
-        $usr_code_f = substr($qry_info['user_code'], 0, 3);
-        $usr_code_s = substr($qry_info['user_code'], 3, 5);
-        $final_code = str_pad($usr_code_s + 1, 3, 0, STR_PAD_LEFT);
-        $user_code_final = $usr_code_f . $final_code;
-    } else {
-        $user_code_final = "US-" . "001";
+    // Get company name
+    $stmt = $pdo->prepare("SELECT company_name FROM company_creation WHERE id = ?");
+    $stmt->execute([$cmpy_id]);
+    $company = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $company_name = $company['company_name'];
+
+    // Create prefix: Feather Technology -> FTU
+    $words = explode(' ', trim($company_name));
+    $prefix = '';
+
+    foreach ($words as $word) {
+        $prefix .= strtoupper(substr($word, 0, 1));
     }
+
+    $prefix .= 'U';
+
+    // Find last code for this company prefix
+    $stmt = $pdo->prepare("
+        SELECT user_code
+        FROM users
+        WHERE user_code LIKE ?
+        ORDER BY id DESC
+        LIMIT 1
+    ");
+
+    $stmt->execute([$prefix . '-%']);
+    $lastUser = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($lastUser) {
+
+        // FTU-101 -> 101
+        $lastNumber = (int) substr($lastUser['user_code'], strlen($prefix) + 1);
+
+        $newNumber = $lastNumber + 1;
+
+    } else {
+
+        $newNumber = 101;
+    }
+
+    $user_code_final = $prefix . '-' . $newNumber;
 }
+
 echo json_encode($user_code_final);

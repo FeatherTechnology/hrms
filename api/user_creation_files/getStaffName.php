@@ -10,7 +10,6 @@
 require '../../ajaxconfig.php';
 
 $company_id = $_POST['company_id'];
-$role       = $_POST['role'];
 
 $response = [];
 
@@ -22,13 +21,11 @@ try {
             staff_type
         FROM staff_creation
         WHERE company_id = ?
-        AND staff_type = ?
         AND status = ?
     ");
 
     $stmt->execute([
         $company_id,
-        $role,
         1
     ]);
 

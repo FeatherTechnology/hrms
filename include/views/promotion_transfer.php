@@ -174,8 +174,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="effective_date">Effective From</label><span class="text-danger">*</span>
-                                            <input type="date" class="form-control" id="effective_date" name="effective_date" tabindex="15">
-                                        </div>
+                                    <input type="month"  class="form-control" id="effective_date" name="effective_date" min="<?php echo date('Y-m', strtotime('+1 month')); ?>">                                        </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">

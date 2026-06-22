@@ -16,8 +16,25 @@ if ($company_id != '') {
     $where .= " AND sc.company_id = '".$company_id."' ";
 }
 
-if ($status != '') {
-    $where .= " AND sc.status = '".$status."' ";
+if ($status == '1') {
+
+    $where .= " AND sc.status = '1'
+                AND (
+                    sc.relieve_date IS NULL
+                    OR sc.relieve_date = ''
+                    OR sc.relieve_date >= CURDATE()
+                ) ";
+
+} elseif ($status == '2') {
+
+    $where .= " AND (
+                    sc.status = '2'
+                    OR (
+                        sc.relieve_date IS NOT NULL
+                        AND sc.relieve_date != ''
+                        AND sc.relieve_date < CURDATE()
+                    )
+                ) ";
 }
 
 if ($dept_id != '') {
