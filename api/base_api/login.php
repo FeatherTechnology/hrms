@@ -6,7 +6,7 @@ $user_name = $_POST['user_name'];
 $password = $_POST['password'];
 $status = 0;
 
-$qry = $pdo->prepare("SELECT `id` FROM users WHERE `user_name` = ? AND `password` = ? AND `status` = ? AND (releave_date IS NULL OR releave_date >= CURDATE())");
+$qry = $pdo->prepare("SELECT `id` FROM users WHERE `user_name` = ? AND `password` = ? AND `status` = ? AND (relieve_date IS NULL OR relieve_date >= CURDATE())");
 $qry->execute([$user_name, $password, $status]);
 $row = $qry->fetch();
 $count = $qry->rowCount();

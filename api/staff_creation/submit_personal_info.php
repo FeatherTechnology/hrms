@@ -18,8 +18,7 @@ if (!empty($_FILES['pic']['name'])) {
 }
 $staff_id = $_POST['staff_id'];
 $company_id = $_POST['company_name'];
-$staff_name = $_POST['staff_name'];
-$staff_type = $_POST['staff_type'];
+$staff_name = $_POST['staff_name']; 
 $address = $_POST['address'];
 $gender = $_POST['gender'];
 $state = $_POST['state'];
@@ -100,7 +99,7 @@ try {
 
         $staff_id = $prefix . '-001';
     }
-    $qry = $pdo->query("INSERT INTO `staff_creation`(`company_id`, `staff_id`, `staff_name`, `staff_type`, `address`, `gender`, `state`, `district`, `place`, `pincode`, `dob`, `age`, `blood_group`, `marital_status`, `spouse_name`, `anniversary_date`, `joining_date`, `relieve_date`, `notice_period`,`email`, `mobile1`, `mobile2`, `whatsapp`, `instagram`, `facebook`, `acc_holder_name`, `acc_number`, `bank_name`, `ifsc_code`, `bank_branch`, `status`, `insert_login_id`, `created_on` ) VALUES ('$company_id','$staff_id','$staff_name','$staff_type','$address','$gender','$state','$district','$place','$pincode','$dob', '$age','$blood_group','$marital_status','$spouse_name','$anniversary_date','$joining_date','$relieve_date','$notice_period','$email','$mobile1','$mobile2','$whatsapp','$instagram','$facebook','$acc_holder_name','$acc_number','$bank_name','$ifsc_code','$bank_branch','0','$user_id',CURRENT_TIMESTAMP())");
+    $qry = $pdo->query("INSERT INTO `staff_creation`(`company_id`, `staff_id`, `staff_name`, `staff_type`, `address`, `gender`, `state`, `district`, `place`, `pincode`, `dob`, `age`, `blood_group`, `marital_status`, `spouse_name`, `anniversary_date`, `joining_date`, `relieve_date`, `notice_period`,`email`, `mobile1`, `mobile2`, `whatsapp`, `instagram`, `facebook`, `acc_holder_name`, `acc_number`, `bank_name`, `ifsc_code`, `bank_branch`, `status`, `insert_login_id`, `created_on` ) VALUES ('$company_id','$staff_id','$staff_name','2','$address','$gender','$state','$district','$place','$pincode','$dob', '$age','$blood_group','$marital_status','$spouse_name','$anniversary_date','$joining_date','$relieve_date','$notice_period','$email','$mobile1','$mobile2','$whatsapp','$instagram','$facebook','$acc_holder_name','$acc_number','$bank_name','$ifsc_code','$bank_branch','0','$user_id',CURRENT_TIMESTAMP())");
     if ($qry) {
         $result = 1; // Insert successful
     }

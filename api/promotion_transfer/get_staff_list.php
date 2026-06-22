@@ -56,7 +56,11 @@ $query = "SELECT
             oc.created_on,
             oc.effective_from,
 
-            rp.staff_name AS reporting_person_name
+            CASE
+                WHEN oc.reporting_person_type = '1' THEN dc.director_name
+                WHEN oc.reporting_person_type = '2' THEN rp.staff_name
+                ELSE ''
+                END AS reporting_person_name
 
           FROM staff_creation sc
 
@@ -79,7 +83,14 @@ $query = "SELECT
                  ON oc.designation = des.id
 
           LEFT JOIN staff_creation rp
-                 ON oc.reporting_person = rp.id
+                ON oc.reporting_person = rp.id
+                AND oc.reporting_person_type = 2
+
+        LEFT JOIN director_creation dc
+                ON oc.reporting_person = dc.id
+                AND oc.reporting_person_type = 1
+
+                 
 
           WHERE sc.id = '$staff_id'
 ";

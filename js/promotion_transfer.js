@@ -263,6 +263,7 @@ $(document).ready(function () {
         let designation = $('#designation').val();
         let off_type = $('#off_type').val();
         let reporting_person = $('#reporting_person').val();
+        let reporting_person_type = $("#reporting_person").find(":selected").data("type");
         let branch_admin = $('#branch_admin').val();
         let branch = $('#branch').val();
         let total_ctc = $('#total_ctc').val().replace(/,/g, '');
@@ -285,6 +286,7 @@ $(document).ready(function () {
                 designation: designation,
                 off_type: off_type,
                 reporting_person: reporting_person,
+                reporting_person_type: reporting_person_type,
                 branch_admin: branch_admin,
                 branch: branch,
                 pf_available: pf_available,
@@ -721,7 +723,7 @@ async function getReportingPerson(company_id, selectedLevel) {
         $.each(response, function (index, value) {
 
             option += `
-                <option value="${value.id}">
+                <option value="${value.id}"  data-type="${value.designation}">
                     ${value.staff_name} (${value.designation})
                 </option>
             `;

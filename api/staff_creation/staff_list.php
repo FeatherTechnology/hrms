@@ -166,7 +166,6 @@ foreach ($result as $row) {
     $sub_array[] = $sno++;
     $sub_array[] = $row['staff_id'];
     $sub_array[] = $row['staff_name'];
-    $sub_array[] = isset($staff_type[$row['staff_type']]) ? $staff_type[$row['staff_type']] : '';
     $sub_array[] = $row['company_name'];
     $sub_array[] = $row['branch_name'];
     $sub_array[] = $row['department_name'];

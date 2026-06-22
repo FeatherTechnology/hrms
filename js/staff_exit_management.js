@@ -401,7 +401,7 @@ async function getReportingPerson(company_id, selectedLevel) {
         $.each(response, function (index, value) {
 
             option += `
-                <option value="${value.id}">
+                <option value="${value.id}"  data-type="${value.designation}">
                     ${value.staff_name} (${value.designation})
                 </option>
             `;
@@ -451,12 +451,28 @@ async function getDocumentInfoTable() {
     }
 }
 function toggleNoticeField() {
-    if ($('#notice_per_served').val() == '1') {   // Yes
+    if ($('#notice_per_served').val() == '1') {
         $('.notice-div').show();
+
+        // Get notice period in months
+        var noticeMonths = parseInt($('#notice_period').val()) || 0;
+
+        // Current date
+        var currentDate = new Date();
+
+        // Add months
+        currentDate.setMonth(currentDate.getMonth() + noticeMonths);
+
+        // Format YYYY-MM-DD for date input
+        var formattedDate = currentDate.toISOString().split('T')[0];
+
+        // Set Last Working Day
+        $('#last_wrk_day').val(formattedDate);
+
     } else {
         $('.notice-div').hide();
+        $('#last_wrk_day').val('');
     }
-
 }
 
 function toggleBranchField() {

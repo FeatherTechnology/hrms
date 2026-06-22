@@ -180,9 +180,6 @@ $(document).ready(function () {
     toggleBranchField();
   });
 
-  $("#staff_type").on("change", function () {
-    toggleReportingField();
-  });
 
   $("#ot_payment").on("change", function () {
     toggleOTField();
@@ -548,7 +545,6 @@ $(document).ready(function () {
     let company_name = $("#company_name").val();
     let staff_id = $("#staff_auto_id").val();
     let staff_name = $("#staff_name").val();
-    let staff_type = $("#staff_type").val();
     let address = $("#address").val();
     let state = $("#state").val();
     let district = $("#district").val();
@@ -580,8 +576,7 @@ $(document).ready(function () {
     var data = [
       "company_name",
       "staff_auto_id",
-      "staff_name",
-      "staff_type",
+      "staff_name", 
       "address",
       "state",
       "district",
@@ -639,7 +634,6 @@ $(document).ready(function () {
       let personalDetail = new FormData();
       personalDetail.append("staff_id", staff_id);
       personalDetail.append("staff_name", staff_name);
-      personalDetail.append("staff_type", staff_type);
       personalDetail.append("company_name", company_name);
       personalDetail.append("address", address);
       personalDetail.append("state", state);
@@ -714,8 +708,7 @@ $(document).ready(function () {
     let pic = $("#pic")[0].files[0];
     let per_pic = $("#per_pic").val();
     let staff_id = $("#staff_auto_id").val();
-    let staff_name = $("#staff_name").val();
-    let staff_type = $("#staff_type").val();
+    let staff_name = $("#staff_name").val(); 
     let address = $("#address").val();
     let state = $("#state").val();
     let district = $("#district").val();
@@ -752,6 +745,7 @@ $(document).ready(function () {
     let designation = $("#designation").val();
     let off_type = $("#off_type").val();
     let reporting_person = $("#reporting_person").val();
+    let reporting_person_type = $("#reporting_person").find(":selected").data("type");
     let branch_admin = $("#branch_admin").val();
     let branch = $("#branch").val();
     let total_ctc = $("#total_ctc").val().replace(/,/g, "");
@@ -769,7 +763,6 @@ $(document).ready(function () {
     var data = [
       "staff_auto_id",
       "staff_name",
-      "staff_type",
       "address",
       "state",
       "district",
@@ -809,9 +802,7 @@ $(document).ready(function () {
     if (branch_admin == "1") {
       data.push("branch");
     }
-    if (staff_type == "2") {
-      data.push("reporting_person");
-    }
+    
     var isValid = true;
     data.forEach(function (entry) {
       var fieldIsValid = validateField($("#" + entry).val(), entry);
@@ -884,7 +875,6 @@ $(document).ready(function () {
       let staffDetail = new FormData();
       staffDetail.append("staff_id", staff_id);
       staffDetail.append("staff_name", staff_name);
-      staffDetail.append("staff_type", staff_type);
       staffDetail.append("address", address);
       staffDetail.append("state", state);
       staffDetail.append("district", district);
@@ -922,6 +912,7 @@ $(document).ready(function () {
       staffDetail.append("team", team);
       staffDetail.append("designation", designation);
       staffDetail.append("reporting_person", reporting_person);
+      staffDetail.append("reporting_person_type", reporting_person_type);
       staffDetail.append("branch_admin", branch_admin);
       staffDetail.append("branch", branch);
       staffDetail.append("total_ctc", total_ctc);
@@ -1153,15 +1144,6 @@ function toggleBranchField() {
   }
 }
 
-function toggleReportingField() {
-  if ($("#staff_type").val() != "1") {
-    // Yes
-    $(".reporting_person_div").show();
-  } else {
-    $(".reporting_person_div").hide();
-    $("#reporting_person").val("");
-  }
-}
 function toggleOTField() {
   if ($("#ot_payment").val() == "1") {
     // Yes
@@ -1855,7 +1837,7 @@ async function getReportingPerson(company_id, selectedLevel) {
 
     $.each(response, function (index, value) {
       option += `
-                <option value="${value.id}">
+                <option value="${value.id}" data-type="${value.designation}">
                     ${value.staff_name} (${value.designation})
                 </option>
             `;
@@ -1900,8 +1882,7 @@ async function editStaffProfile(id) {
     await getShiftList(data.company_id);
     await getCTCInfoTable(data.company_id);
 
-    $("#staff_name").val(data.staff_name);
-    $("#staff_type").val(data.staff_type);
+    $("#staff_name").val(data.staff_name); 
     $("#address").val(data.address);
     await getStateList();
     $("#state").val(data.state);
@@ -1965,8 +1946,7 @@ async function editStaffProfile(id) {
     await getFamilyInfoTable();
     await getQualificationInfoTable();
     await getExperienceInfoTable();
-
-    $("#staff_type").trigger("change");
+ 
     $("#marital_status").trigger("change");
 
     $("#branch_admin").trigger("change");
@@ -2003,8 +1983,7 @@ function enableEditMode() {
   $("#add_document").show();
 
   /* Company Name Readonly / Disable */
-  $("#company_name").prop("disabled", true);
-  $("#staff_type").prop("disabled", true);
+  $("#company_name").prop("disabled", true); 
 
   /* Occupation Card Fields Readonly */
   $("#branch_name").prop("disabled", true);
@@ -2082,8 +2061,7 @@ function clearStaffProfileForm() {
 
 function resetStaffData() {
   $("#submit_staff").show();
-  $("#company_name").prop("disabled", false);
-  $("#staff_type").prop("disabled", false);
+  $("#company_name").prop("disabled", false); 
   $("#staff_auto_id").val("");
   $(".personal_info_disble").attr("disabled", false);
   /* Occupation Card Fields */
@@ -2126,5 +2104,4 @@ function resetStaffData() {
   $(".branch_div").hide();
   $(".ot_per_day_div").hide();
   $(".ot_per_hour_div").hide();
-  $(".reporting_person_div").hide();
 }

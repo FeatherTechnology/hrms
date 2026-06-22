@@ -18,7 +18,7 @@ if (!empty($_FILES['pic']['name'])) {
 }
 $staff_id = $_POST['staff_id'];
 $staff_name = $_POST['staff_name'];
-$staff_type = $_POST['staff_type'];
+$staff_type = 2;
 $address = $_POST['address'];
 $gender = $_POST['gender'];
 $state = $_POST['state'];
@@ -55,6 +55,7 @@ $department = $_POST['department'];
 $designation = $_POST['designation'];
 $team = $_POST['team'];
 $reporting_person = $_POST['reporting_person'];
+$reporting_person_type = (strtolower($_POST['reporting_person_type']) == 'director') ? 1 : 2;
 $branch_admin = $_POST['branch_admin'];
 $branch = $_POST['branch'];
 $off_type = $_POST['off_type'];
@@ -91,6 +92,7 @@ if ($check->rowCount() == 0) {
         off_type='$off_type',
         branch_admin='$branch_admin',
         reporting_person='$reporting_person',
+        reporting_person_type='$reporting_person_type',
         branch='$branch',
         pf_available='$pf_available',
         esi_available='$esi_available',
