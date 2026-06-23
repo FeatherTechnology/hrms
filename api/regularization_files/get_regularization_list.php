@@ -7,21 +7,37 @@ session_start();
 $userid = $_SESSION['user_id'] ?? "";
 
 /* ---------- Input ---------- */
-$status = $_POST['sts'] ?? '';
+$type = $_POST['type'] ?? '';
 
 /* ---------- Logged In User Details ---------- */
-$userQry = $pdo->prepare("
-    SELECT sc.staff_type, sc.company_id
+$userStmt = $pdo->prepare("SELECT
+        u.staff_name_id,
+        u.user_type,
+        u.director_company,
+        sc.staff_type,
+        sc.company_id,
+        dc.designation_level
     FROM users u
     LEFT JOIN staff_creation sc ON sc.id = u.staff_name_id
+    LEFT JOIN occupation_info oi
+        ON oi.id = (
+            SELECT MAX(id)
+            FROM occupation_info
+            WHERE staff_profile_id = u.staff_name_id
+        )
+    LEFT JOIN designation_creation dc ON dc.id = oi.designation
     WHERE u.id = ?
 ");
-$userQry->execute([$userid]);
-$userData = $userQry->fetch(PDO::FETCH_ASSOC);
 
-$staff_type = $userData['staff_type'] ?? '';
-$company_id = $userData['company_id'] ?? '';
+$userStmt->execute([$userid]);
+$userData = $userStmt->fetch(PDO::FETCH_ASSOC);
 
+$staff_type   = $userData['staff_type'] ?? '';
+$company_id   = $userData['company_id'] ?? '';
+$my_staff_id  = $userData['staff_name_id'] ?? 0;
+$my_level     = $userData['designation_level'] ?? 0;
+$user_type    = $userData['user_type'] ?? 0;
+$director_company = $userData['director_company'] ?? '';
 
 /* ---------- Mappings ---------- */
 $Req_type = [1 => 'Leave', 2 => 'Permission', 3 => 'Week Off', 4 => 'OT'];
@@ -58,7 +74,7 @@ $baseQuery = "
         ON oc.id = (
             SELECT MAX(id)
             FROM occupation_info
-            WHERE staff_id = reg.staff_profile_id
+            WHERE staff_profile_id = reg.staff_profile_id
         )
 
     LEFT JOIN branch_creation bc 
@@ -73,31 +89,57 @@ $baseQuery = "
     LEFT JOIN team_name_creation tc 
         ON tc.id = reg.team_id
 
-   WHERE reg.status = :status
+   WHERE 1 = 1
 ";
 
-/* ---------- Params ---------- */
-$params = [
-    ':status' => $status
-];
+/* ---------- Filter Date Range for Current month and last month records ---------- */
+$baseQuery .= "
+    AND (
+        DATE(reg.from_date) >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+        OR
+        DATE(reg.to_date) >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+    )
+";
+$params = [];
 
-if ($staff_type == 1) {
+if ($type == 'Request') {
 
-    // Employer/Admin - show all records from same company
+    $baseQuery .= " AND reg.staff_profile_id = :my_staff_id ";
+    $params[':my_staff_id'] = $my_staff_id;
+}
+
+if ($type == 'Approval') {
+
+    // Only pending requests for approval
+    $baseQuery .= " AND reg.status = 0 ";
+
+    if ($user_type == 2) {
+        $baseQuery .= " AND descr.designation_level > :my_level ";
+        $params[':my_level'] = $my_level;
+    }
+}
+
+if ($user_type == 1) {
+
+    // Director - director_company contains comma separated company ids
+    $companyIds = array_filter(array_map('intval', explode(',', $director_company)));
+
+    if (!empty($companyIds)) {
+        $placeholders = [];
+
+        foreach ($companyIds as $k => $id) {
+            $key = ":cmp$k";
+            $placeholders[] = $key;
+            $params[$key] = $id;
+        }
+
+        $baseQuery .= " AND stfcr.company_id IN (" . implode(',', $placeholders) . ")";
+    }
+} else if ($user_type == 2) {
+
+    // Company Admin
     $baseQuery .= " AND stfcr.company_id = :company_id ";
     $params[':company_id'] = $company_id;
-
-} else {
-
-    // Existing condition unchanged
-    $baseQuery .= "
-        AND (
-            oc.reporting_person = :userid
-            OR reg.insert_login_id = :userid
-        )
-    ";
-
-    $params[':userid'] = $userid;
 }
 
 /* ---------- Search ---------- */
@@ -192,14 +234,59 @@ foreach ($result as $row) {
     $hours = floor(($minutes % (24 * 60)) / 60);
     $mins = $minutes % 60;
 
-    $duration = $days . " Days " . $hours . " Hours " . $mins . " Minutes";
+    $duration =
+        "<div style='display:flex; gap:15px; align-items:center; justify-content:center;'>
+            <span><span style='color:#f26b35;'>$days</span> D</span>
+            <span><span style='color:#f26b35;'>$hours</span> H</span>
+            <span><span style='color:#f26b35;'>$mins</span> M</span>
+        </div>";
+
+    $statusBadge = '';
+
+    switch ($row['status']) {
+        case 0:
+            $statusBadge = "
+            <span style='
+                background:#FFFF00;
+                color:#856404;
+                padding:6px 25px;
+                border-radius:5px;
+                font-weight:600;
+                font-size:12px;
+            '>Pending</span>";
+            break;
+
+        case 1:
+            $statusBadge = "
+            <span style='
+                background:#D4EDDA;
+                color:#155724;
+                padding:6px 20px;
+                border-radius:5px;
+                font-weight:600;
+                font-size:12px;
+            '>Approved</span>";
+            break;
+
+        case 2:
+            $statusBadge = "
+            <span style='
+                background:#F8D7DA;
+                color:#721C24;
+                padding:6px 27px;
+                border-radius:5px;
+                font-weight:600;
+                font-size:12px;
+            '>Cancel</span>";
+            break;
+    }
 
     /* action */
     if ($row['insert_login_id'] == $userid) {
-         $action = "<span class='icon-delete delete_reg' data-id='" . $row['id'] . "' data-status = '".$row['status']."' data-appFrom = '".$row['approved_from_date']."' data-appTo = '".$row['approved_to_date']."'></span>";
-                    
+        $action = "<span class='icon-delete delete_reg' data-id='{$row['id']}' data-status='{$row['status']} data-from-date='{$row['from_date']}'> </span>";
     } else {
-        $action = "<span class='icon-border_color edit_reg' data-id='{$row['id']}' data-staff_id='{$row['insert_login_id']}'data-status='{$row['status']}' data-appFrom='{$row['approved_from_date']}' data-appTo='{$row['approved_to_date']}'></span>";    }
+        $action = "<span class='icon-border_color edit_reg' data-id='{$row['id']}' data-staff_id='{$row['insert_login_id']}' data-status='{$row['status']}'</span>";
+    }
 
     $data[] = [
         $sno++,
@@ -215,7 +302,7 @@ foreach ($result as $row) {
         !empty($row['from_date']) ? date('d-m-Y H:i:s', strtotime($row['from_date'])) : '',
         !empty($row['to_date']) ? date('d-m-Y H:i:s', strtotime($row['to_date'])) : '',
         $duration,
-        $reg_status[$row['status']] ?? '',
+        $statusBadge,
         $action
     ];
 }

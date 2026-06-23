@@ -6,17 +6,13 @@
             </div> <br> <br>
             <div class="radio-container" style="margin-top:20px;">
                 <div class="selector">
-                    <div class="selector-item">
-                        <input type="radio" id="pending" name="regularization_type" class="selector-item_radio" value="0" checked>
-                        <label for="pending" class="selector-item_label">Pending</label>
+                    <div class="selector-item" id="request_div">
+                        <input type="radio" id="pending" name="regularization_type" class="selector-item_radio" value="Request" checked>
+                        <label for="pending" class="selector-item_label">My Requests</label>
                     </div>
                     <div class="selector-item">
-                        <input type="radio" id="approved" name="regularization_type" class="selector-item_radio" value="1">
-                        <label for="approved" class="selector-item_label">Approved</label>
-                    </div>
-                    <div class="selector-item">
-                        <input type="radio" id="cancel" name="regularization_type" class="selector-item_radio" value="2">
-                        <label for="cancel" class="selector-item_label">Cancel</label>
+                        <input type="radio" id="approved" name="regularization_type" class="selector-item_radio" value="Approval">
+                        <label for="approved" class="selector-item_label">My Approvals</label>
                     </div>
                 </div>
             </div>
@@ -127,69 +123,77 @@
                     <h5 class="card-title">Request Details</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <input type="hidden" name="leave_type_id" id="leave_type_id" value="" />
-                        <input type="hidden" name="total_min" id="total_min" value="" />
+                    <form id="request_form">
+                        <div class="row">
+                            <input type="hidden" name="leave_type_id" id="leave_type_id" value="" />
+                            <input type="hidden" name="total_min" id="total_min" value="" />
 
-                        <!-- Fields -->
-                        <div class="col-md-4 col-sm-6">
-                            <div class="form-group">
-                                <label for="req_type">Request Type</label><span class="text-danger">*</span>
-                                <select class="form-control" id="req_type" name="req_type" tabindex="8">
-                                    <option value="">Select Request Type</option>
-                                    <option value="1">Leave</option>
-                                    <option value="2">Permission</option>
-                                    <option value="3">Week off</option>
-                                    <option value="4">OT</option>
-                                </select>
+                            <!-- Fields -->
+                            <div class="col-md-4 col-sm-6">
+                                <div class="form-group">
+                                    <label for="req_type">Request Type</label><span class="text-danger">*</span>
+                                    <select class="form-control" id="req_type" name="req_type" tabindex="8">
+                                        <option value="">Select Request Type</option>
+                                        <option value="1">Leave</option>
+                                        <option value="2">Permission</option>
+                                        <option value="3">Week off</option>
+                                        <option value="4">OT</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4 col-sm-6 leveType" style="display: none;">
-                            <div class="form-group">
-                                <label for="leave_type">Leave Type</label><span class="text-danger">*</span>
-                                <select class="form-control" id="leave_type" name="leave_type" tabindex="9">
-                                    <option value="">Select Leve Type</option>
-                                </select>
+                            <div class="col-md-4 col-sm-6 ot_req" style="display: none;">
+                                <div class="form-group">
+                                    <label for="current_month_ot_count">Current Month OT Count</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="current_month_ot_count" name="current_month_ot_count" tabindex="10" readonly>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4 col-sm-6 bal_req">
-                            <div class="form-group">
-                                <label for="balance_req">Balance Request</label><span class="text-danger">*</span>
-                                <input type="text" class="form-control" id="balance_req" name="balance_req" placeholder="Balance Request" tabindex="10" readonly>
+                            <div class="col-md-4 col-sm-6 leveType" style="display: none;">
+                                <div class="form-group">
+                                    <label for="leave_type">Leave Type</label><span class="text-danger">*</span>
+                                    <select class="form-control" id="leave_type" name="leave_type" tabindex="9">
+                                        <option value="">Select Leve Type</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4 col-sm-6">
-                            <div class="form-group">
-                                <label for="req_date">Request Date</label><span class="text-danger">*</span>
-                                <input type="text" class="form-control" id="req_date" name="req_date" placeholder="Request Date" tabindex="11" readonly>
+                            <div class="col-md-4 col-sm-6 bal_req" style="display: none;">
+                                <div class="form-group">
+                                    <label for="balance_req">Balance Request</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="balance_req" name="balance_req" placeholder="Balance Request" tabindex="10" readonly>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4 col-sm-6">
-                            <div class="form-group">
-                                <label for="from_date">From Date</label><span class="text-danger">*</span>
-                                <input type="datetime-local" class="form-control" id="from_date" name="from_date" placeholder="Enter From Date" tabindex="12">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="form-group">
+                                    <label for="req_date">Request Date</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="req_date" name="req_date" placeholder="Request Date" tabindex="11" readonly>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4 col-sm-6">
-                            <div class="form-group">
-                                <label for="to_date">To Date</label><span class="text-danger">*</span>
-                                <input type="datetime-local" class="form-control" id="to_date" name="to_date" placeholder="Enter To Date" tabindex="13">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="form-group">
+                                    <label for="from_date">From Date</label><span class="text-danger">*</span>
+                                    <input type="datetime-local" class="form-control" id="from_date" name="from_date" placeholder="Enter From Date" tabindex="12">
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4 col-sm-6">
-                            <div class="form-group">
-                                <label for="total_days">Total Days/Hrs</label><span class="text-danger">*</span>
-                                <input type="text" class="form-control" id="total_days" name="total_days" placeholder="Enter Total Days/Hrs" tabindex="14" readonly>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="form-group">
+                                    <label for="to_date">To Date</label><span class="text-danger">*</span>
+                                    <input type="datetime-local" class="form-control" id="to_date" name="to_date" placeholder="Enter To Date" tabindex="13">
+                                </div>
                             </div>
-                        </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="form-group">
+                                    <label for="total_days">Total Days/Hrs</label><span class="text-danger">*</span>
+                                    <div id="total_days" class="form-control" style="height: 35px;background-color: #d3d2d2;"></div>
+                                </div>
+                            </div>
 
-                        <div class="col-md-4 col-sm-6">
-                            <div class="form-group">
-                                <label for="reason">Reason</label><span class="text-danger">*</span>
-                                <textarea type="textarea" class="form-control" id="reason" name="reason" placeholder="Enter Reason" tabindex="15"></textarea>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="form-group">
+                                    <label for="reason">Reason</label><span class="text-danger">*</span>
+                                    <textarea type="textarea" class="form-control" id="reason" name="reason" placeholder="Enter Reason" tabindex="15"></textarea>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
             <!-- request div end -->
@@ -202,8 +206,6 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <input type="hidden" name="app_total_min" id="app_total_min" value="" />
-
                             <!-- Fields -->
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
@@ -213,24 +215,6 @@
                                         <option value="1">Yes</option>
                                         <option value="2">No</option>
                                     </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6">
-                                <div class="form-group">
-                                    <label for="app_from_date">Approved From Date</label><span class="text-danger">*</span>
-                                    <input type="datetime-local" class="form-control" id="app_from_date" name="app_from_date" placeholder="Enter Approved From Date" tabindex="17">
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6">
-                                <div class="form-group">
-                                    <label for="app_to_date">Approved To Date</label><span class="text-danger">*</span>
-                                    <input type="datetime-local" class="form-control" id="app_to_date" name="app_to_date" placeholder="Enter Approved To Date" tabindex="18">
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6">
-                                <div class="form-group">
-                                    <label for="total_days_hrs">Total Days/Hrms</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="app_total_days" name="app_total_days" placeholder="Total Days / Hrs" tabindex="19" readonly>
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-6">

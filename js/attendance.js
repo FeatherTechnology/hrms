@@ -31,6 +31,15 @@ $(document).ready(function () {
   //  submit attendance
   $("#submit_attendance").click(function () {
     event.preventDefault();
+
+    let entryDate = $("#entry_date").val();
+    let entryTime = $("#entry_time").val();
+
+    let entryDateTime = "";
+    if (entryDate && entryTime) {
+      entryDateTime = entryDate + " " + entryTime + ":00";
+    }
+
     let collData = {
       att_id: $("#att_id").val(),
       stf_prf_id: $("#stf_prf_id").val(),
@@ -40,7 +49,7 @@ $(document).ready(function () {
       des_id: $("#des_id").val(),
       team_id: $("#team_id").val(),
       staff_type: $("#staff_type").val(),
-      entry_time: $("#entry_time").val(),
+      entry_time: entryDateTime, // Combined Date + Time
       reason: $("#reason").val(),
     };
     let cmy = $("#cmpy_name").val();
@@ -48,11 +57,13 @@ $(document).ready(function () {
     let date = $("#date").val();
 
     let isValid = true;
+    let entry_date = collData["entry_date"];
     let entry_time = collData["entry_time"];
     let reason = collData["reason"];
     let validationResults = [
-      validateField(collData["entry_time"], "entry_time"),
-      validateField( collData["reason"], "reason"),
+      validateField($("#entry_date").val(), "entry_date"),
+      validateField($("#entry_time").val(), "entry_time"),
+      validateField(collData["reason"], "reason"),
     ];
 
     if (!validationResults.every((result) => result)) {
@@ -69,6 +80,30 @@ $(document).ready(function () {
       );
     }
   });
+
+  $(document).on("click", ".attendance_chart", function () {
+    $("#attendanceChartModal")
+      .data("company_id", $(this).data("company_id"))
+      .data("shift_id", $(this).data("shift_id"))
+      .data("staff_id", $(this).data("staff_id"))
+      .data("att_date", $(this).data("date"))
+      .modal("show");
+  });
+
+  $("#attendanceChartModal").on("shown.bs.modal", function () {
+    let modal = $(this);
+
+    loadChart(
+      modal.data("company_id"),
+      modal.data("shift_id"),
+      modal.data("staff_id"),
+      modal.data("att_date"),
+    );
+  });
+
+  $("#attendanceChartModal").on("hidden.bs.modal", function () {
+    $("#timeline_chart").empty();
+  });
 });
 // Document End
 
@@ -82,6 +117,24 @@ $(document).on("click", ".edit_add", function () {
   let staff_id = $(this).data("id");
   let att_id = $(this).data("att_id");
   let date = $("#date").val();
+
+  let selectedDate = $("#date").val(); // dd-mm-yyyy
+
+  if (selectedDate) {
+    let dateParts = selectedDate.split("-");
+    let selectedMonth = parseInt(dateParts[1], 10);
+
+    let currentMonth = new Date().getMonth() + 1; // 1-12
+
+    if (selectedMonth !== currentMonth) {
+      swalError(
+        "Warning",
+        "Attendance can be edited only for the current month.",
+      );
+      return false;
+    }
+  }
+
   $(".attendance_details").show();
   $(".search_details").hide();
   // attendance_details
@@ -210,12 +263,13 @@ function getStaffDetails(staff_id, att_id, date) {
       $("#att_id").val(response.att_id);
       $("#reason").val(response.reason ? response.reason : "");
       if (response.entry_time) {
-        $("#entry_time").val(
-          response.entry_time.replace(" ", "T").slice(0, 16),
-        );
+        $("#entry_date").val(response.entry_time.slice(0, 10));
       } else {
-        $("#entry_time").val(date + "T00:00");
+        $("#entry_date").val(date);
       }
+      $("#entry_time").val(
+        response.entry_time ? response.entry_time.slice(11) : "",
+      );
     },
     "json",
   );
@@ -245,4 +299,150 @@ function submitAttendance(collData, cmy, brnh, date) {
     },
     "json",
   );
+}
+
+/* --- Load Chart --- */
+function loadChart(company_id, shift_id, staff_id, date) {
+  $.post(
+    "api/attendance_ot_monitor_chart_files/get_staff_info.php",
+    { company_id, shift_id, staff_id, date },
+    function (response) {
+      drawChart(response, date);
+    },
+    "json",
+  );
+}
+
+google.charts.load("current", {
+  packages: ["timeline"],
+});
+
+// ========================================= CONVERT DATETIME =========================================
+
+function convertDateTime(datetime) {
+  let parts = datetime.split(/[- :]/);
+
+  return new Date(
+    parts[0], // year
+    parts[1] - 1, // month
+    parts[2], // day
+    parts[3], // hour
+    parts[4], // minute
+    parts[5], // second
+  );
+}
+
+// ========================================= DRAW CHART =========================================
+function drawChart(chartData, selectedDate) {
+  // ========================================= VALIDATE RESPONSE =========================================
+
+  let container = document.getElementById("timeline_chart");
+  container.innerHTML = ""; // Clear existing chart on reload
+
+  if (!Array.isArray(chartData) || chartData.length === 0) {
+    container.innerHTML = `
+        <div style="height:150px; display:flex; align-items:center; justify-content:center; color:red; font-size:18px; font-weight:bold;">
+            No Attendance Data Found
+        </div>`;
+    return;
+  }
+
+  // ========================================= CREATE GROUPS (STAFF NAMES / Y-AXIS) =========================================
+
+  let uniqueStaff = [...new Set(chartData.map((item) => item.staff_name))];
+
+  let groups = new vis.DataSet();
+  uniqueStaff.forEach((name) => {
+    groups.add({ id: name, content: `<b>${name}</b>` });
+  });
+
+  // =========================================  CREATE ITEMS (COLORED BLOCKS WITH TOOLTIP) =========================================
+
+  let items = new vis.DataSet();
+
+  chartData.forEach(function (row, index) {
+    if (!row.start || !row.end || !row.staff_name) return;
+
+    let startDate = convertDateTime(row.start);
+    let endDate = convertDateTime(row.end);
+
+    if (startDate >= endDate) return;
+
+    // Create the HTML tooltip for the hover effect
+    let hoverDetails = `
+        <div style="padding: 5px;">
+            <strong>${row.type}</strong><br>
+            Start: ${startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}<br>
+            End: ${endDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </div>
+    `;
+
+    items.add({
+      id: index,
+      group: row.staff_name,
+      content: "", // This keeps the bar blank
+      title: hoverDetails, // This adds the hover tooltip
+      start: startDate,
+      end: endDate,
+      style: `background-color: ${row.color}; color: white; border: none; border-radius: 0px; font-size: 14px; height: 25px;`,
+    });
+  });
+
+  // ========================================= DYNAMIC DATE RANGE & OPTIONS =========================================
+
+  let dateParts = selectedDate.split("-");
+  let year = parseInt(dateParts[0]);
+  let month = parseInt(dateParts[1]) - 1;
+  let day = parseInt(dateParts[2]);
+
+  let minDate = new Date(year, month, day, 5, 0, 0); // 5:00 AM
+  let maxDate = new Date(year, month, day, 23, 59, 59); // 11:59 PM
+
+  let options = {
+    orientation: "bottom",
+    min: minDate,
+    max: maxDate,
+    start: minDate,
+    end: maxDate,
+    moveable: false,
+    zoomable: false,
+    stack: false,
+    margin: {
+      item: { horizontal: 0, vertical: 40 },
+      axis: 20,
+    },
+
+    // 1. CHANGE STEP BACK TO 1 HOUR
+    timeAxis: {
+      scale: "hour",
+      step: 1,
+    },
+
+    // 2. USE A CUSTOM FUNCTION TO ONLY SHOW ODD HOURS
+    format: {
+      minorLabels: function (date, scale, step) {
+        // Safely get the current hour being drawn
+        let d = new Date(date);
+        let hours = d.getHours();
+
+        // Check if the hour is an ODD number (5, 7, 9, 11, etc.)
+        if (hours % 2 !== 0) {
+          let ampm = hours >= 12 ? "PM" : "AM";
+          let displayH = hours % 12;
+
+          if (displayH === 0) displayH = 12;
+
+          // Returns exactly what you asked for: "5.00 AM", "7.00 AM", etc.
+          return displayH + ".00 " + ampm;
+        }
+
+        // If it is an EVEN hour (6, 8, 10), return nothing so it stays blank
+        return "";
+      },
+    },
+  };
+
+  // ========================================= DRAW CHART =========================================
+
+  let timeline = new vis.Timeline(container, items, groups, options);
 }

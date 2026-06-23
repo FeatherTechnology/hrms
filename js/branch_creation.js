@@ -187,7 +187,7 @@ $(function () {
 function swapTableAndCreation() {
   if ($(".branch_table_content").is(":visible")) {
     $(".branch_table_content").hide();
-    $(".addbranchBtn").hide();
+    $(".addbranchbutton").hide();
     $("#branch_creation_content").show();
     $(".backBtn").show();
 
@@ -202,22 +202,20 @@ function swapTableAndCreation() {
 }
 
 /* --- Branch Creation Outer List Table --- */
-async function getBranchTable() {
-  await new Promise((resolve) => {
-    serverSideTable(
-      "#branch_create",
-      "",
-      "api/branch_creation/branch_creation_list.php",
-      "Branch Creation List",
-    );
+function getBranchTable() {
+  serverSideTable(
+    "#branch_create",
+    "",
+    "api/branch_creation/branch_creation_list.php",
+    "Branch Creation List",
+  );
 
-    // Wait until DataTable draw completes
-    $("#branch_create").one("draw.dt", function () {
-      resolve();
-    });
+  let table = $("#branch_create").DataTable();
+
+  table.on("xhr.dt", function () {
+    // Whenever the DataTable AJAX request finishes and receives data from the server, execute getBranchLimit()."
+    getBranchLimit();
   });
-
-  getBranchLimit();
 }
 
 /* --- Get Branch Limit --- */
@@ -237,19 +235,16 @@ function getBranchLimit() {
         </span>`,
       );
 
-      // Check DataTable exists
-      if ($.fn.DataTable.isDataTable("#branch_create")) {
-        let table = $("#branch_create").DataTable();
+      let table = $("#branch_create").DataTable();
 
-        // Current row count
-        let rowCount = table.rows().count();
+      let pageInfo = table.page.info(); // page.info() is a DataTables method that returns information about the current table.
 
-        // Hide if limit reached
-        if (rowCount >= branchLimit) {
-          $(".addbranchBtn").hide();
-        } else {
-          $(".addbranchBtn").show();
-        }
+      let totalRecords = pageInfo.recordsTotal; // Gets the total number of records in the database.
+
+      if (totalRecords >= branchLimit) {
+        $(".addbranchBtn").hide();
+      } else {
+        $(".addbranchBtn").show();
       }
     },
   });

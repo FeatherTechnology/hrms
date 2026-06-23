@@ -1,50 +1,109 @@
 $(document).ready(function () {
+  userTypeIdentification();
+
   // to get regularization list
   $("input[name=regularization_type]").click(function () {
     let regType = $(this).val();
-    if (regType == "0") {
-      getregularizationlist("0");
-    } else if (regType == "1") {
-      getregularizationlist("1");
-    } else if (regType == "2") {
-      getregularizationlist("2");
+    if (regType == "Request") {
+      getregularizationlist("Request");
+    } else if (regType == "Approval") {
+      getregularizationlist("Approval");
     }
   });
 
   // to add the new regularization
   $(".add_reg").click(function () {
-    setCurrentMonthRestriction("#from_date", "#to_date");
     $(
-      "#req_type,#leave_type,#balance_req,#from_date,#to_date,#total_days,#reason,#hidden_id,#leave_type_id",
+      "#req_type,#leave_type,#balance_req,#from_date,#to_date,#reason,#hidden_id,#leave_type_id",
     ).val("");
 
-    $(
-      ".req_div input, .req_div select,.req_div textarea, .approval_div input, .approval_div select,.approval_div textarea",
-    ).css("border", "1px solid #cecece");
+    $(".req_div input, .req_div select,.req_div textarea").css(
+      "border",
+      "1px solid #cecece",
+    );
 
     $("#to_date").attr("readonly", false);
-    $("#req_type").attr("readonly", false);
-    $("#leave_type").attr("readonly", false);
+    $("#req_type").attr("disabled", false);
+    $("#leave_type").attr("disabled", false);
     $("#from_date").attr("readonly", false);
     $("#reason").attr("readonly", false);
 
     $("#back_btn,#balance_req,.staff_info_div").show();
 
-    $(".add_reg,.regularization_list,.approval_div,#leveType").hide();
+    $(
+      ".add_reg,.regularization_list,.approval_div,.leveType,.bal_req,.ot_req",
+    ).hide();
 
     getuserdetails("");
   });
 
   // back button hide and show
   $("#back_btn").click(function () {
-    $('input[name="regularization_type"][value="0"]')
-      .prop("checked", true)
-      .trigger("click");
+    if (currentUserType == 1) {
+      $('input[name="regularization_type"][value="Approval"]').prop(
+        "checked",
+        true,
+      );
+
+      getregularizationlist("Approval");
+    } else {
+      $('input[name="regularization_type"][value="Request"]').prop(
+        "checked",
+        true,
+      );
+
+      getregularizationlist("Request");
+    }
+
     $("#back_btn").hide();
     $(".staff_info_div").hide();
     $(".approval_div").hide();
-    $(".add_reg").show();
+
+    if (currentUserType != 1) {
+      $(".add_reg").show();
+    }
+
     $(".regularization_list").show();
+    $("#total_days").empty();
+
+    $(".approval_div select,.approval_div textarea").css(
+      "border",
+      "1px solid #cecece",
+    );
+  });
+
+  $("#from_date, #to_date").on("change", function () {
+    if ($("#req_type").val() != "4") {
+      return;
+    }
+
+    let fromDate = new Date($("#from_date").val());
+    let toDate = new Date($("#to_date").val());
+
+    if (!$("#from_date").val() || !$("#to_date").val()) {
+      return;
+    }
+
+    let shiftDate = $("#from_date").val().split("T")[0];
+
+    let shiftStartDateTime = new Date(shiftDate + "T" + shiftStart);
+    let shiftEndDateTime = new Date(shiftDate + "T" + shiftEnd);
+
+    let isBeforeShift = toDate <= shiftStartDateTime;
+    let isAfterShift = fromDate >= shiftEndDateTime;
+
+    if (!(isBeforeShift || isAfterShift)) {
+      let formattedStart = formatTime(shiftStart);
+      let formattedEnd = formatTime(shiftEnd);
+
+      swalError(
+        "Warning",
+        `OT can only be applied before the shift starts (${formattedStart}) or after the shift ends (${formattedEnd}).`,
+      );
+
+      $("#from_date").val("");
+      $("#to_date").val("");
+    }
   });
 
   // edit regularization
@@ -87,29 +146,41 @@ $(document).ready(function () {
   $("#req_type").change(function () {
     let cmpy_id = $("#cmpy_id").val();
     let value = $(this).val();
+    $("#total_days").empty();
     $(".leveType,#from_date,#to_date,#leave_type_id,#balance_req").val("");
     if (value == "1") {
       $(".leveType").show();
       $(".bal_req").show();
+      $(".ot_req").hide();
       $("#from_date,#to_date").attr("type", "date");
-
       getcmpyleavelist(cmpy_id);
     } else if (value == "2") {
       $(".bal_req").show();
       $(".leveType").hide();
+      $(".ot_req").hide();
       $("#from_date,#to_date").attr("type", "datetime-local");
       getbalancerequest("2", cmpy_id);
     } else if (value == "3") {
       $(".bal_req").show();
       $(".leveType").hide();
+      $(".ot_req").hide();
       $("#from_date,#to_date").attr("type", "date");
       getbalancerequest("3", cmpy_id);
     } else if (value == "4") {
       $(".bal_req").hide();
       $(".leveType").hide();
+      $(".ot_req").show();
       $("#leave_type,#leave_type_id,#balance_req").val("");
       $("#from_date,#to_date").attr("type", "datetime-local");
+
+      getbalancerequest("4", cmpy_id);
     }
+
+    $("#request_form input").css("border", "1px solid #cecece");
+    $("#request_form select").css("border", "1px solid #cecece");
+    $("#request_form textarea").css("border", "1px solid #cecece");
+
+    setCurrentMonthRestriction("#from_date", "#to_date");
   });
 
   // leave type change
@@ -122,12 +193,12 @@ $(document).ready(function () {
   $(document).on("click", ".delete_reg", function () {
     let id = $(this).data("id");
     let status = $(this).data("status");
-    let appfrom = $(this).data("appfrom");
+    let from_date = $(this).data("from_date");
     let currentdate = new Date();
 
     if (status == "1") {
       // swalError("Error", "This request has already been approved");
-      let appFromDate = new Date(appfrom);
+      let appFromDate = new Date(from_date);
 
       if (appFromDate > currentdate) {
         // app_from date is greater than current date
@@ -161,66 +232,57 @@ $(document).ready(function () {
       req_type: $("#req_type").val(),
       leave_type: $("#leave_type").val(),
       balance_req: $("#balance_req").val(),
+      current_month_ot_count: $("#current_month_ot_count").val(),
       req_date: $("#req_date").val(),
       from_date: $("#from_date").val(),
       to_date: $("#to_date").val(),
       total_min: $("#total_min").val(),
       reason: $("#reason").val(),
-      total_days: $("#total_days").val(),
       approval_type: $("#approval_type").val(),
-      app_from_date: $("#app_from_date").val(),
-      app_to_date: $("#app_to_date").val(),
       remarks: $("#remarks").val(),
-      app_total_min: $("#app_total_min").val(),
       hidden_id: $("#hidden_id").val(),
     };
     let isValid = true;
-    // let req_type = collData["req_type"];
-    // let req_date = collData["req_date"];
-    // let from_date = collData["from_date"];
-    // let to_date = collData["to_date"];
-    // let total_days = collData["total_days"];
-    // let reason = collData["reason"];
-    // let approval_type = collData["approval_type"];
-    // let app_from_date = collData["app_from_date"];
-    // let app_to_date = collData["app_to_date"];
-    // let remarks = collData["remarks"];
+
     let validationResults = [
       validateField(collData["req_type"], "req_type"),
       validateField(collData["req_date"], "req_date"),
       validateField(collData["from_date"], "from_date"),
       validateField(collData["to_date"], "to_date"),
-      validateField(collData["total_days"], "total_days"),
       validateField(collData["reason"], "reason"),
     ];
+
+    if (collData["req_type"] == 1) {
+      validationResults.push(
+        validateField($("#leave_type").val(), "leave_type"),
+      );
+    }
+
     if (!validationResults.every((result) => result)) {
       isValid = false;
     }
+
     if ($(".approval_div").is(":visible")) {
-      let approvalValidation = [
-        validateField(collData["approval_type"], "approval_type"),
-        validateField(collData["remarks"], "remarks"),
-      ];
+      let approvalValid = true;
 
-      if (approval_type == "1") {
-        approvalValidation.push(
-          validateField(collData["app_from_date"], "app_from_date"),
-          validateField(collData["app_to_date"], "app_to_date"),
-        );
+      if ($("#approval_type").val() == "0") {
+        $("#approval_type").css("border", "1px solid red");
+        approvalValid = false;
+      } else {
+        $("#approval_type").css("border", "1px solid #cecece");
       }
 
-      if (!approvalValidation.every((r) => r)) {
-        isValid = false;
+      if ($("#remarks").val().trim() == "") {
+        $("#remarks").css("border", "1px solid red");
+        approvalValid = false;
+      } else {
+        $("#remarks").css("border", "1px solid #cecece");
       }
 
-      if (
-        approval_type == "1" &&
-        app_from_date &&
-        app_to_date &&
-        app_to_date < app_from_date
-      ) {
-        swalError("Error", "Approved To Date cannot be less than From Date");
+      if (!approvalValid) {
+        swalError("Warning", "Please fill out all mandatory fields.");
         isValid = false;
+        return false;
       }
     }
 
@@ -267,41 +329,14 @@ $(document).ready(function () {
     calculateDateDiff("#from_date", "#to_date", "#total_min", "#total_days");
   });
 
-  // Second section
-  $("#app_from_date, #app_to_date").on("change", function () {
-    calculateDateDiff(
-      "#app_from_date",
-      "#app_to_date",
-      "#app_total_min",
-      "#app_total_days",
-    );
-  });
-
-  $("#approval_type").on("change", function () {
-    let value = $(this).val();
-
-    if (value == "2") {
-      $("#app_from_date, #app_to_date").prop("readonly", true);
-      $("#app_from_date,#app_to_date,#app_total_days,#app_total_min").val("");
-    } else {
-      $("#app_from_date, #app_to_date").prop("readonly", false);
-    }
-  });
-
   setDateValidation("#from_date", "#to_date");
-  setDateValidation("#app_from_date", "#app_to_date");
 });
 // document end
-$(function () {
-  $('input[name="regularization_type"][value="0"]')
-    .prop("checked", true)
-    .trigger("click");
-});
 
 // function start
 
 // to get the regularization list
-function getregularizationlist(sts) {
+function getregularizationlist(type) {
   if ($.fn.DataTable.isDataTable("#regularization_table")) {
     $("#regularization_table").DataTable().destroy();
   }
@@ -335,7 +370,7 @@ function getregularizationlist(sts) {
         data: function (data) {
           // var search = $("input[type=search]").val();
           // data.search = search;
-          data.sts = sts;
+          data.type = type;
         },
       },
       dom: "lBfrtip",
@@ -386,13 +421,11 @@ function getedituserdetails(id, userid) {
     { id, userid, status },
     function (response) {
       $("#to_date").attr("readonly", true);
-      $("#req_type").attr("readonly", true);
-      $("#leave_type").attr("readonly", true);
+      $("#req_type").prop("disabled", true);
+      $("#leave_type").prop("disabled", true);
       $("#from_date").attr("readonly", true);
       $("#reason").attr("readonly", true);
-      $(
-        "#approval_type,#app_from_date,#app_to_date,#app_total_days,#app_total_min,#remarks",
-      ).val("");
+      $("#approval_type,#remarks").val("");
 
       $("#staff_id").val(response.staff_id);
       $("#staff_type").val(response.staff_type);
@@ -417,17 +450,6 @@ function getedituserdetails(id, userid) {
       $("#from_date").val(response.from_date.replace(" ", "T").slice(0, 16));
       $("#to_date").val(response.to_date.replace(" ", "T").slice(0, 16));
 
-      if (response.req_type == 1 || response.req_type == 3) {
-        $("#app_from_date,#app_to_date").attr("type", "date");
-      } else {
-        $("#app_from_date,#app_to_date").attr("type", "datetime-local");
-      }
-
-      setCurrentMonthRestriction("#app_from_date", "#app_to_date");
-      setApprovalDate("#app_from_date", response.approved_from_date);
-      setApprovalDate("#app_to_date", response.approved_to_date);
-      
-      $("#app_total_min").val(response.approved_total_min);
       $("#approval_type").val(response.status || 0);
       $("#remarks").val(response.remarks);
 
@@ -439,32 +461,30 @@ function getedituserdetails(id, userid) {
       }
 
       if (response.req_type != "4") {
-        $("#balance_req").show();
+        $(".bal_req").show();
         $("#balance_req").val(response.balance_req);
+      } else {
+        $(".bal_req").hide();
       }
+
+      if (response.req_type == "4") {
+        $(".ot_req").show();
+        $("#current_month_ot_count").val(response.current_month_ot_count || 0);
+      } else {
+        $(".ot_req").hide();
+      }
+
       let totalMin = parseInt(response.total_min, 10);
       let days = Math.floor(totalMin / (24 * 60));
       let hours = Math.floor((totalMin % (24 * 60)) / 60);
       let minutes = totalMin % 60;
 
-      $("#total_days").val(
-        days + " Days " + hours + " Hours " + minutes + " Minutes",
-      );
-
-      let app_totalMin = parseInt(response.approved_total_min, 10);
-      let app_days = Math.floor(app_totalMin / (24 * 60));
-      let app_hours = Math.floor((app_totalMin % (24 * 60)) / 60);
-      let app_minutes = app_totalMin % 60;
-
-      // $("#total_days").val(
-      //   days + " Days " + hours + " Hours " + minutes + " Minutes",
-      // );
-
-      // let app_days = Math.floor(response.approved_total_min / (24 * 60));
-      // let app_hours = Math.floor((response.total_min % (24 * 60)) / 60);
-      // let app_minutes = response.total_min % 60;
-      $("#app_total_days").val(
-        app_days + " Days " + app_hours + " Hours " + app_minutes + " Minutes",
+      $("#total_days").html(
+        `<div style="display:flex; gap:15px;">
+          <span><span style="color:#f26b35">${days}</span> D</span>
+          <span><span style="color:#f26b35">${hours}</span> H</span>
+          <span><span style="color:#f26b35">${minutes}</span> M</span>
+        </div>`,
       );
     },
     "json",
@@ -504,7 +524,10 @@ function getcmpyleavelist(cmpy_id) {
   );
 }
 
-// to get the balance request
+// to get the balance request && to get the Current Month OT Count
+let shiftStart = "";
+let shiftEnd = "";
+
 function getbalancerequest(req_type, cmpy_id) {
   let staff_id = $("#stf_prf_id").val();
 
@@ -513,6 +536,12 @@ function getbalancerequest(req_type, cmpy_id) {
     { req_type, cmpy_id, staff_id },
     function (response) {
       $("#balance_req").val(response.balance);
+      $("#current_month_ot_count").val(response.current_month_ot_count);
+
+      if (req_type == "4") {
+        shiftStart = response.start_time;
+        shiftEnd = response.end_time;
+      }
     },
     "json",
   );
@@ -546,7 +575,15 @@ function calculateDateDiff(
   // empty check
   if (fromVal == "" || toVal == "") {
     $(totalMinSelector).val(0);
-    $(totalDaysSelector).val("0 Days 0 Hours 0 Minutes");
+
+    $(totalDaysSelector).html(
+      `<div style="display:flex; gap:15px;">
+        <span><span style="color:#f26b35">0</span> D</span>
+        <span><span style="color:#f26b35">0</span> H</span>
+        <span><span style="color:#f26b35">0</span> M</span>
+      </div>`,
+    );
+
     return;
   }
 
@@ -568,7 +605,13 @@ function calculateDateDiff(
 
       $(totalMinSelector).val(0);
 
-      $(totalDaysSelector).val("0 Days 0 Hours 0 Minutes");
+      $(totalDaysSelector).html(
+        `<div style="display:flex; gap:15px;">
+          <span><span style="color:#f26b35">0</span> D</span>
+          <span><span style="color:#f26b35">0</span> H</span>
+          <span><span style="color:#f26b35">0</span> M</span>
+        </div>`,
+      );
 
       return;
     }
@@ -581,7 +624,13 @@ function calculateDateDiff(
 
       $(totalMinSelector).val(0);
 
-      $(totalDaysSelector).val("0 Days 0 Hours 0 Minutes");
+      $(totalDaysSelector).html(
+        `<div style="display:flex; gap:15px;">
+          <span><span style="color:#f26b35">0</span> D</span>
+          <span><span style="color:#f26b35">0</span> H</span>
+          <span><span style="color:#f26b35">0</span> M</span>
+        </div>`,
+      );
 
       return;
     }
@@ -619,14 +668,24 @@ function calculateDateDiff(
 
     $(totalMinSelector).val(0);
 
-    $(totalDaysSelector).val("0 Days 0 Hours 0 Minutes");
+    $(totalDaysSelector).html(
+      `<div style="display:flex; gap:15px;">
+        <span><span style="color:#f26b35">0</span> D</span>
+        <span><span style="color:#f26b35">0</span> H</span>
+        <span><span style="color:#f26b35">0</span> M</span>
+      </div>`,
+    );
 
     return;
   }
 
   // display
-  $(totalDaysSelector).val(
-    days + " Days " + hours + " Hours " + minutes + " Minutes",
+  $(totalDaysSelector).html(
+    `<div style="display:flex; gap:15px;">
+        <span><span style="color:#f26b35">${days}</span> D</span>
+        <span><span style="color:#f26b35">${hours}</span> H</span>
+        <span><span style="color:#f26b35">${minutes}</span> M</span>
+      </div>`,
   );
 }
 
@@ -651,8 +710,8 @@ function setDateValidation(fromSelector, toSelector) {
 function setCurrentMonthRestriction(fromSelector, toSelector) {
   let today = new Date();
 
-  // First day of previous month
-  let minMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  // First day of current month
+  let minMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
   let yyyy = minMonth.getFullYear();
   let mm = String(minMonth.getMonth() + 1).padStart(2, "0");
@@ -668,18 +727,49 @@ function setCurrentMonthRestriction(fromSelector, toSelector) {
   }
 }
 
-function setApprovalDate(id, value) {
-  if (!value) {
-    $(id).val("");
-    return;
-  }
+// For OT validation and display time format
+function formatTime(time) {
+  let [hours, minutes] = time.split(":");
 
-  let type = $(id).attr("type");
-  let formattedDate = value.replace(" ", "T");
+  hours = parseInt(hours);
 
-  if (type === "date") {
-    $(id).val(formattedDate.slice(0, 10));
-  } else if (type === "datetime-local") {
-    $(id).val(formattedDate.slice(0, 16));
-  }
+  let ampm = hours >= 12 ? "PM" : "AM";
+
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+
+  return `${hours}:${minutes} ${ampm}`;
+}
+
+let currentUserType = 0;
+
+function userTypeIdentification() {
+  $.post(
+    "api/regularization_files/user_type_identification.php",
+    {},
+    function (response) {
+      let res = JSON.parse(response);
+
+      currentUserType = parseInt(res.user_type);
+
+      if (currentUserType == 1) {
+        $(".add_reg").hide();
+        $("#request_div").hide();
+
+        $('input[name="regularization_type"][value="Approval"]').prop(
+          "checked",
+          true,
+        );
+
+        getregularizationlist("Approval");
+      } else {
+        $('input[name="regularization_type"][value="Request"]').prop(
+          "checked",
+          true,
+        );
+
+        getregularizationlist("Request");
+      }
+    },
+  );
 }
