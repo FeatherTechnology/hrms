@@ -230,7 +230,7 @@ function getBranchLimit() {
       // Set Branch Limit in Header
       $("#pageHeaderName").html(
         ` - Branch Creation 
-        <span style="padding-left:1250px;">
+        <span style="padding-left:1050px;">
           Branch Limit: ${branchLimit}
         </span>`,
       );

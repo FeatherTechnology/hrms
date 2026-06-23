@@ -26,22 +26,6 @@ $result = 0;
 
 // Common duplicate check
 $condition = ($designation_id != '') ? "AND id != '$designation_id'" : "";
-
-/* Check Duplicate Designation */
-$stmt = $pdo->prepare("SELECT id
-    FROM designation_creation
-    WHERE REPLACE(TRIM(designation), ' ', '') = REPLACE(TRIM(?), ' ', '')
-    AND designation_status = 0 $condition
-");
-
-$stmt->execute([$designation]);
-
-if ($stmt->rowCount() > 0) {
-
-    $result = 3; // Already Exists
-
-} else {
-
     if (!empty($designation_id)) {
 
         /* Update Designation */
@@ -90,7 +74,7 @@ if ($stmt->rowCount() > 0) {
             $result = 2; // Insert Successful
         }
     }
-}
+
 
 $pdo = null; // Close Connection
 

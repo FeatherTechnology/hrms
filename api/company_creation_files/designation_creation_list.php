@@ -9,31 +9,57 @@
 
 require '../../ajaxconfig.php';
 
-$designation_list_arr = array();
+$company_id = $_POST['company_id'] ?? '';
 
+$designation_list_arr = [];
 $i = 0;
 
-$stmt = $pdo->prepare("SELECT * FROM designation_creation WHERE designation_status = ? ORDER BY designation ASC");
+$sql = "
+    SELECT dc.*
+    FROM designation_creation dc
+    WHERE dc.designation_status = 0
+    AND (
+        (
+            ? = ''
+            AND dc.id NOT IN (
+                SELECT designation_id
+                FROM company_designation_mapping
+            )
+        )
+        OR
+        (
+            ? != ''
+            AND (
+                dc.id IN (
+                    SELECT designation_id
+                    FROM company_designation_mapping
+                    WHERE company_id = ?
+                )
+                OR dc.id NOT IN (
+                    SELECT designation_id
+                    FROM company_designation_mapping
+                )
+            )
+        )
+    )
+    ORDER BY dc.designation
+";
 
-$stmt->execute([0]);
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$company_id, $company_id, $company_id]);
 
-if ($stmt->rowCount() > 0) {
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $row['sno'] = ++$i;
 
-        // Action Button
-        $row['action'] = "
-            <span class='icon-border_color designationActionBtn' value='" . $row['id'] . "'></span>
-            &nbsp;&nbsp;&nbsp;
-            <span class='icon-delete designationDeleteBtn' value='" . $row['id'] . "'></span>
-        ";
+    $row['action'] = "
+        <span class='icon-border_color designationActionBtn' value='{$row['id']}'></span>
+        &nbsp;&nbsp;&nbsp;
+        <span class='icon-delete designationDeleteBtn' value='{$row['id']}'></span>
+    ";
 
-        $designation_list_arr[$i] = $row;
-
-        $i++;
-    }
+    $designation_list_arr[] = $row;
 }
 
-$pdo = null; // Close Connection
-
+$pdo = null;
 echo json_encode($designation_list_arr);
