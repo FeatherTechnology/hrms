@@ -25,7 +25,7 @@ LEFT JOIN regularization reg
     AND YEAR(reg.from_date) = YEAR(CURDATE())
     AND YEAR(reg.to_date) = YEAR(CURDATE())
     AND reg.leave_type = :cmpy_id
-    AND reg.status = 1
+    AND reg.status IN (0,1)
 
 WHERE lc.id = :cmpy_id; ";
 
@@ -44,7 +44,7 @@ LEFT JOIN regularization reg
     AND reg.staff_profile_id = :staff_id
     AND YEAR(reg.from_date) = YEAR(CURDATE())
     AND YEAR(reg.to_date) = YEAR(CURDATE())
-    AND reg.status = 1
+    AND reg.status IN (0,1)
 WHERE cp.company_id = :cmpy_id
 GROUP BY cp.max_permission ";
 
@@ -74,7 +74,7 @@ LEFT JOIN regularization reg
     AND reg.staff_profile_id = :staff_id
     AND MONTH(reg.from_date) = MONTH(CURDATE())
     AND MONTH(reg.to_date) = MONTH(CURDATE())
-    AND reg.status = 1
+    AND reg.status IN (0,1)
 
 WHERE cp.company_id = :cmpy_id; ";
 } else if ($req_type == '4') {

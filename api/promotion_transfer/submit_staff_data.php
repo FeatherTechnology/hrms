@@ -7,7 +7,11 @@ $user_id = $_SESSION['user_id'];
 /* POST VALUES */
 $staff_profile_id = $_POST['staff_profile_id'];
 $company_name     = $_POST['company_name'];
-$effective_date   = $_POST['effective_date'];
+$effective_date = $_POST['effective_date']; // 2026-07
+
+if (!empty($effective_date)) {
+    $effective_date = date('Y-m-d', strtotime($effective_date . '-01'));
+}
 $branch_name      = $_POST['branch_name'];
 $department       = $_POST['department'];
 $team             = $_POST['team'];

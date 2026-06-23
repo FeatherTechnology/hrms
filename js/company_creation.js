@@ -427,7 +427,7 @@ async function getCompanyLimit() {
 
     $("#pageHeaderName").html(`
             - Company Creation
-            <span style="padding-left:1000px;">
+            <span style="padding-left:1100px;">
                 Company Limit: ${companyLimit}
             </span>
         `);
