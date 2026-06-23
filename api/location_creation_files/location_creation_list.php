@@ -25,23 +25,59 @@ $column = array(
 );
 
 /* Main Query */
-$query = "SELECT oi.id, sc.staff_id, sc.staff_name, dc.department_name, bc.branch_name, bcs.branch_name AS assigned_branch_name, lam.from_date, lam.to_date, lam.no_of_days,
-        lam.lattitude_longitude , oi.staff_profile_id
+$query = "SELECT 
+            oi.id,
+            sc.staff_id,
+            sc.staff_name,
+            dc.department_name,
+            bc.branch_name,
+            bcs.branch_name AS assigned_branch_name,
+            lam.from_date,
+            lam.to_date,
+            lam.no_of_days,
+            lam.lattitude_longitude,
+            oi.staff_profile_id
         FROM occupation_info oi
-        LEFT JOIN branch_creation bc ON oi.branch_id = bc.id 
-        LEFT JOIN department_creation dc ON oi.department = dc.id 
+
+        LEFT JOIN branch_creation bc ON oi.branch_id = bc.id
+        LEFT JOIN department_creation dc ON oi.department = dc.id
         LEFT JOIN staff_creation sc ON oi.staff_profile_id = sc.id
-        LEFT JOIN location_access_mapping lam ON lam.id = (SELECT id FROM location_access_mapping WHERE staff_profile_id = oi.staff_profile_id AND status = 0
-        AND (CURDATE() BETWEEN from_date AND to_date OR from_date >= CURDATE())
-        ORDER BY
-        CASE
-            WHEN CURDATE() BETWEEN from_date AND to_date THEN 0
-            ELSE 1
-        END,
-        from_date ASC LIMIT 1)
+
+        LEFT JOIN location_access_mapping lam 
+            ON lam.id = (
+                SELECT id
+                FROM location_access_mapping
+                WHERE staff_profile_id = oi.staff_profile_id
+                    AND status = 0
+                    AND (
+                        CURDATE() BETWEEN from_date AND to_date
+                        OR from_date >= CURDATE()
+                    )
+                ORDER BY
+                    CASE
+                        WHEN CURDATE() BETWEEN from_date AND to_date THEN 0
+                        ELSE 1
+                    END,
+                    from_date ASC
+                LIMIT 1
+            )
+
         LEFT JOIN branch_creation bcs ON lam.assigned_branch = bcs.id
         LEFT JOIN users u ON u.id = '$user_id'
-        WHERE oi.off_type = 1 AND oi.id IN (SELECT MAX(id) FROM occupation_info GROUP BY staff_profile_id) AND oi.reporting_person = u.staff_name_id AND (date(sc.relieve_date)>='$today' OR sc.relieve_date ='')";
+        LEFT JOIN occupation_info uoi ON uoi.id = (SELECT MAX(id) FROM occupation_info WHERE staff_profile_id = u.staff_name_id)
+
+        WHERE oi.off_type = 1
+            AND oi.id IN (
+                SELECT MAX(id)
+                FROM occupation_info
+                GROUP BY staff_profile_id
+            )
+            AND oi.company_id = uoi.company_id
+            AND oi.designation > uoi.designation
+            AND (
+                DATE(sc.relieve_date) >= '$today'
+                OR sc.relieve_date = ''
+            )";
 
 
 /* Company Filter */

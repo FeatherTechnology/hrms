@@ -14,8 +14,8 @@ $att_date   = !empty($_POST['date']) ? date('Y-m-d', strtotime($_POST['date'])) 
 
 $staff_type = [1 => 'Employer', 2 => 'Employee'];
 
-/* ---------- Logged In User Details ---------- */ 
-$userQry = $pdo->prepare(" SELECT sc.staff_type, sc.company_id FROM users u LEFT JOIN staff_creation sc ON sc.id = u.staff_name_id WHERE u.id = ? "); 
+/* ---------- Logged In User Details ---------- */
+$userQry = $pdo->prepare(" SELECT sc.staff_type, sc.company_id FROM users u LEFT JOIN staff_creation sc ON sc.id = u.staff_name_id WHERE u.id = ? ");
 $userQry->execute([$userid]);
 $userData = $userQry->fetch(PDO::FETCH_ASSOC);
 $login_staff_type = $userData['staff_type'] ?? '';
@@ -165,6 +165,7 @@ $dataQuery = "
         a.reason,
         a.id as att_id,
         a.insert_login_id,
+        oi.shift,
 
         CASE 
             WHEN a.entry_time IS NULL THEN ''
@@ -220,6 +221,18 @@ foreach ($result as $row) {
                         style='opacity:0.5; cursor:not-allowed;'></span>";
     }
 
+    $chartBtn = "
+    <button type='button'
+        class='btn btn-sm btn-info attendance_chart'
+        data-company='{$row['company_name']}'
+        data-company_id='{$company_id}'
+        data-shift='{$row['shift']}'
+        data-staff_id='{$row['stf_id']}'
+        data-staff_name=\"{$row['staff_name']}\"
+        data-date='{$att_date}'>
+        Chart
+    </button>";
+
     $data[] = [
         $sno++,
         $row['staff_id'],
@@ -233,6 +246,7 @@ foreach ($result as $row) {
         !empty($row['entry_time']) ? date('d-m-Y h:i A', strtotime($row['entry_time'])) : '',
         $row['updated_by'],
         $row['reason'],
+        $chartBtn, // Attendance Chart
         $editBtn
     ];
 }
@@ -246,4 +260,3 @@ echo json_encode([
 ]);
 
 $pdo = null;
-?>

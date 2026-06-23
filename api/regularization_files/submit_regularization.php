@@ -15,6 +15,7 @@ $team_id = $_POST['team_id'];
 $req_type = $_POST['req_type'];
 $leave_type = $_POST['leave_type'];
 $balance_req = $_POST['balance_req'];
+$current_month_ot_count = $_POST['current_month_ot_count'];
 $total_min = $_POST['total_min'];
 $staff_type = $_POST['staff_type'];
 
@@ -32,45 +33,22 @@ $to_date = !empty($_POST['to_date'])
 
 $reason = $_POST['reason'] ?? '';
 $remarks = $_POST['remarks'] ?? '';
-$app_total_min = $_POST['app_total_min'] ?? null;
-
-/* ---------------- APPROVED DATES ---------------- */
-
-$app_from_date = !empty($_POST['app_from_date'])
-    ? date('Y-m-d H:i:s', strtotime($_POST['app_from_date']))
-    : null;
-
-$app_to_date = !empty($_POST['app_to_date'])
-    ? date('Y-m-d H:i:s', strtotime($_POST['app_to_date']))
-    : null;
 
 /* ---------------- STATUS ---------------- */
 
 if (!empty($_POST['approval_type'])) {
     $approval_type = $_POST['approval_type'];
 } elseif ($staff_type == 1) {
-    $app_from_date = $from_date;
-    $app_to_date = $to_date;
-    $app_total_min = $total_min;
     $approval_type = 1;
 } else {
     $approval_type = 0;
 }
-
-/* ---------------- CONVERT NULL FOR SQL ---------------- */
-
-$app_from_sql = $app_from_date ? "'$app_from_date'" : "NULL";
-$app_to_sql   = $app_to_date ? "'$app_to_date'" : "NULL";
-$app_min_sql  = $app_total_min !== null ? "'$app_total_min'" : "NULL";
 
 try {
 
     if ($hidden_id > 0) {
 
         $sql = "UPDATE regularization SET 
-            approved_from_date = $app_from_sql,
-            approved_to_date = $app_to_sql,
-            approved_total_min = $app_min_sql,
             remarks = '$remarks',
             status = '$approval_type',
             updated_login_id = '$user_id',
@@ -85,15 +63,13 @@ try {
 
         $sql = "INSERT INTO regularization (
             staff_profile_id, company_id, branch_id, dep_id, des_id, team_id,
-            req_type, leave_type, balance_req, req_date,
+            req_type, leave_type, balance_req, current_month_ot_count, req_date,
             from_date, to_date, total_min,
-            approved_from_date, approved_to_date, approved_total_min,
             reason, status, insert_login_id, created_date
         ) VALUES (
             '$stf_prf_id', '$cmpy_id', '$branch_id', '$dep_id', '$des_id', '$team_id',
-            '$req_type', '$leave_type', '$balance_req', '$req_date',
+            '$req_type', '$leave_type', '$balance_req', '$current_month_ot_count', '$req_date',
             '$from_date', '$to_date', '$total_min',
-            $app_from_sql, $app_to_sql, $app_min_sql,
             '$reason', '$approval_type', '$user_id', NOW()
         )";
 

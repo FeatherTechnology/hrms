@@ -49,7 +49,8 @@ WHERE cp.company_id = :cmpy_id
 GROUP BY cp.max_permission ";
 
     // to get the week off balance
-} else {
+} else if ($req_type == '3') {
+
     $query = " SELECT 
     SUM(cw.week_off),
     
@@ -76,6 +77,28 @@ LEFT JOIN regularization reg
     AND reg.status = 1
 
 WHERE cp.company_id = :cmpy_id; ";
+} else if ($req_type == '4') {
+
+    $query = "SELECT
+        sc.start_time,
+        sc.end_time,
+        (
+            SELECT COUNT(id)
+            FROM regularization
+            WHERE req_type = :req_type
+            AND staff_profile_id = :staff_id
+            AND company_id = :cmpy_id
+            AND status = 1
+            AND MONTH(from_date) = MONTH(CURDATE())
+            AND YEAR(from_date) = YEAR(CURDATE())
+        ) AS current_month_ot_count
+    FROM occupation_info oi
+    INNER JOIN shift_creation sc ON sc.id = oi.shift
+    WHERE oi.id = (
+        SELECT MAX(id)
+        FROM occupation_info
+        WHERE staff_profile_id = :staff_id
+    )";
 }
 
 $stmt = $pdo->prepare($query);

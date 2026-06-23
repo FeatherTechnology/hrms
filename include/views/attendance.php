@@ -1,4 +1,68 @@
 <div class="row gutters">
+    <script type="text/javascript" src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
+    <link href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        /* This creates the dark vertical border next to the names */
+        .vis-panel.vis-left {
+            border-right: 2px solid #000000 !important;
+        }
+
+        /* This creates the dark horizontal border above the times */
+        .vis-panel.vis-bottom {
+            border-top: 2px solid #000000 !important;
+        }
+
+        /* Style the inner grid lines like an Excel sheet */
+        .vis-time-axis .vis-grid.vis-minor {
+            border-left: 1px solid #e5e5e5;
+        }
+
+        /* Remove vertical grid lines from the timeline background */
+        .vis-time-axis .vis-grid.vis-minor,
+        .vis-time-axis .vis-grid.vis-major {
+            border-left: none !important;
+            border-right: none !important;
+        }
+
+        /* Ensure horizontal lines between groups remain visible */
+        .vis-itemset .vis-background .vis-group {
+            border-bottom: 1px solid #e5e5e5;
+            /* You can adjust the color/thickness */
+        }
+
+        /* Add space above and below the time labels */
+        .vis-time-axis .vis-text {
+            padding-top: 20px !important;
+        }
+
+        /* Center the staff names vertically and horizontally */
+        .vis-labelset .vis-label {
+            display: flex !important;
+            align-items: center !important;
+            /* Centers vertically */
+            justify-content: center !important;
+            /* Centers horizontally */
+        }
+
+        /* Remove default padding so the text doesn't look slightly off-center */
+        .vis-labelset .vis-label .vis-inner {
+            padding: 10px !important;
+            text-align: center !important;
+        }
+
+        /* Decrease chart width and center it horizontally */
+        #timeline_chart {
+            width: 80% !important;
+            /* Adjust this number (e.g., 70%, 900px) */
+            margin: 0 auto !important;
+            /* This is the magic rule that centers it */
+        }
+
+        .attendance-chart-modal {
+            width: 75%;
+            max-width: 1500px;
+        }
+    </style>
 
     <div class="col-12 search_details">
         <div class="card">
@@ -60,6 +124,7 @@
                                 <th>Entry Time</th>
                                 <th>Updated By</th>
                                 <th>Reason</th>
+                                <th>Attendance Chart</th>
                                 <th>Action</th>
                             </thead>
                             <tbody></tbody>
@@ -155,24 +220,93 @@
 
                     </div>
                     <div class="col-md-4 col-sm-6">
-                        <div class="form-group">
-                            <label for="entry_time">Entry Time</label><span class="text-danger">*</span>
-                            <input type="datetime-local" class="form-control" id="entry_time" name="entry_time" placeholder="Team Name" tabindex="14" readonly>
+                        <div class="row">
+                            <div class="col-md-8 col-sm-6">
+                                <div class="form-group">
+                                    <label for="entry_date">Entry Date</label><span class="text-danger">*</span>
+                                    <input type="date" class="form-control" id="entry_date" name="entry_date" tabindex="14" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="form-group">
+                                    <label for="entry_time">Entry Time</label><span class="text-danger">*</span>
+                                    <input type="time" class="form-control" id="entry_time" name="entry_time" tabindex="15">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="form-group">
                             <label for="reason">Reason</label><span class="text-danger">*</span>
-                            <textarea type="textarea" class="form-control" id="reason" name="reason" placeholder="Enter Reason" tabindex="15"></textarea>
+                            <textarea type="textarea" class="form-control" id="reason" name="reason" placeholder="Enter Reason" tabindex="16"></textarea>
                         </div>
                     </div>
                     <div class="col-md-12 ">
                         <div class="text-right">
-                            <button type="submit" name="submit_attendance" id="submit_attendance" class="btn btn-primary" value="Submit" tabindex="16">Submit</button>
+                            <button type="submit" name="submit_attendance" id="submit_attendance" class="btn btn-primary" value="Submit" tabindex="17">Submit</button>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Moinitoring Chart Modal -->
+
+<div class="modal fade" id="attendanceChartModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered attendance-chart-modal">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Monitoring Chart</h5>
+
+                <button type="button"
+                    class="close"
+                    onclick="$('#attendanceChartModal').modal('hide');">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div id="custom_chart_legend" style="display: flex; justify-content: center; gap: 25px; margin-top: 20px; flex-wrap: wrap; font-size: 14px; 
+                font-weight: 500; margin-bottom: 30px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #66AA00; border-radius: 3px;"></div>
+                        <span>Working Hours</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #4285F4; border-radius: 3px;"></div>
+                        <span>OT Hours</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #EA4335; border-radius: 3px;"></div>
+                        <span>Later Entry</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #FBBC05; border-radius: 3px;"></div>
+                        <span>Permission Hours</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #A142F4; border-radius: 3px;"></div>
+                        <span>Grace Time</span>
+                    </div>
+                </div>
+                <div id="timeline_chart"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                    class="btn btn-secondary"
+                    onclick="$('#attendanceChartModal').modal('hide');">
+                    Close
+                </button>
+            </div>
+
         </div>
     </div>
 </div>

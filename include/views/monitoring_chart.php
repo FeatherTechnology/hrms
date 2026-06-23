@@ -1,4 +1,4 @@
-<!--CTC Creation Start-->
+<!-- Monitoring Chart Start-->
 <div id="attendance_ot_monitor_content">
     <script type="text/javascript" src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
     <link href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />

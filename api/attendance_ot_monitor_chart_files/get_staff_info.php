@@ -50,9 +50,9 @@ try {
     sc.grace_time,
     a.entry_time,
     r.req_type,
-    r.approved_from_date,
-    r.approved_to_date,
-    r.approved_total_min
+    r.from_date,
+    r.to_date,
+    r.total_min
 
     FROM attendance a
 
@@ -60,7 +60,7 @@ try {
     LEFT JOIN occupation_info oi ON oi.id = (SELECT MAX(id) FROM occupation_info WHERE staff_profile_id = a.staff_profile_id)
     LEFT JOIN shift_creation sc ON sc.id = oi.shift
     LEFT JOIN regularization r ON r.staff_profile_id = a.staff_profile_id AND r.status = 1
-    AND r.req_type IN (2,4) AND DATE(r.approved_from_date) = DATE(a.entry_time)
+    AND r.req_type IN (2,4) AND DATE(r.from_date) = DATE(a.entry_time)
 
     $where_sql
 
@@ -119,8 +119,8 @@ try {
 
         if (
             $row['req_type'] == 4 &&
-            !empty($row['approved_from_date']) &&
-            !empty($row['approved_to_date'])
+            !empty($row['from_date']) &&
+            !empty($row['to_date'])
         ) {
 
             $response[] = [
@@ -131,9 +131,9 @@ try {
 
                 'color'      => '#4285F4',
 
-                'start'      => $row['approved_from_date'],
+                'start'      => $row['from_date'],
 
-                'end'        => $row['approved_to_date']
+                'end'        => $row['to_date']
             ];
         }
 
@@ -145,11 +145,11 @@ try {
 
         if (
             $row['req_type'] == 2 &&
-            !empty($row['approved_total_min'])
+            !empty($row['total_min'])
         ) {
 
             $permission_minutes =
-                (int)$row['approved_total_min'];
+                (int)$row['total_min'];
         }
 
         // =========================================
