@@ -55,11 +55,14 @@ $getStaff = $pdo->query("
     FROM staff_creation sc
 
     LEFT JOIN occupation_info o
-        ON o.id = (
-            SELECT MAX(id)
-            FROM occupation_info
-            WHERE staff_profile_id = sc.id
-        )
+    ON o.id = (
+        SELECT id
+        FROM occupation_info
+        WHERE staff_profile_id = sc.id
+        AND effective_from <= '$month_end'
+        ORDER BY effective_from DESC, id DESC
+        LIMIT 1
+    )
 
     LEFT JOIN company_creation cc ON cc.id = o.company_id
     LEFT JOIN branch_creation bc ON bc.id = o.branch_id

@@ -11,7 +11,6 @@ if (is_array($multi_company_name)) {
     $multi_company_name = implode(',', $multi_company_name);
 }
 $company_name = $_POST['company_name'];
-$role = $user_type;
 $staff_name = $_POST['staff_name'];
 $staff_id = $_POST['staff_id'];
 $user_name = $_POST['user_name'];
@@ -35,13 +34,13 @@ try {
     // Get the latest Branch code
 
     if ($id != '0' && $id != '') {
-        $qry = $pdo->query("UPDATE `users` SET `user_type`='$user_type',`director_name` = '$director_name ',`director_company` = '$multi_company_name', `company_id`='$company_name',`role`='$role',`staff_name_id`='$staff_name', `staff_id`='$staff_id',`user_name`='$user_name',`password`='$password',`confirm_password`='$confirm_password',`download_access`='$download_access', `report_access`= '$report_access', `home_access`='$home_access',`screens`='$submenus', `status` = '0', `update_login_id`='$user_id',`updated_on`=now() WHERE `id`='$id'");
+        $qry = $pdo->query("UPDATE `users` SET `user_type`='$user_type',`director_name` = '$director_name ',`director_company` = '$multi_company_name', `company_id`='$company_name',`staff_name_id`='$staff_name', `staff_id`='$staff_id',`user_name`='$user_name',`password`='$password',`confirm_password`='$confirm_password',`download_access`='$download_access', `report_access`= '$report_access', `home_access`='$home_access',`screens`='$submenus', `status` = '0', `update_login_id`='$user_id',`updated_on`=now() WHERE `id`='$id'");
         if ($qry) {
             $status = '1';
             $last_id = $id;
         }
     } else {
-        $qry = $pdo->query("INSERT INTO `users`(`user_type`,`director_name`,`director_company`, `company_id`, `role`, `staff_name_id`, `staff_id`, `user_name`, `password`, `confirm_password`, `download_access`, `report_access`,`home_access`, `screens`, `insert_login_id`, `created_on`) VALUES ('$user_type','$director_name','$multi_company_name', '$company_name', '$role','$staff_name', '$staff_id', '$user_name', '$password', '$confirm_password', '$download_access','$report_access','$home_access', '$submenus','$user_id',now())");
+        $qry = $pdo->query("INSERT INTO `users`(`user_type`,`director_name`,`director_company`, `company_id`,   `staff_name_id`, `staff_id`, `user_name`, `password`, `confirm_password`, `download_access`, `report_access`,`home_access`, `screens`, `insert_login_id`, `created_on`) VALUES ('$user_type','$director_name','$multi_company_name', '$company_name', '$staff_name', '$staff_id', '$user_name', '$password', '$confirm_password', '$download_access','$report_access','$home_access', '$submenus','$user_id',now())");
         if ($qry) {
             $status = '2';
             $last_id = $pdo->lastInsertId();

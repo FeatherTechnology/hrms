@@ -3,7 +3,7 @@
 
         <!--- Branch Creation List Start --->
         <div class="text-right addbranchBtn">
-            <button type="button" class="btn btn-primary addbranchbutton" id="add_branch"><span class="fa fa-plus"></span>&nbsp; Add Branch Creation</button>
+            <button type="button" class="btn btn-primary " id="add_branch"><span class="fa fa-plus"></span>&nbsp; Add Branch Creation</button>
         </div>
         <br>
 

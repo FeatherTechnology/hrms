@@ -187,7 +187,7 @@ $(function () {
 function swapTableAndCreation() {
   if ($(".branch_table_content").is(":visible")) {
     $(".branch_table_content").hide();
-    $(".addbranchbutton").hide();
+    $(".addbranchBtn").hide();
     $("#branch_creation_content").show();
     $(".backBtn").show();
 

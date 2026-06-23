@@ -64,7 +64,7 @@ $(document).ready(function () {
     $("#department").val("");
     $("#team").val("");
     $("#designation").val("");
-    $("#role").val("");
+    // $("#role").val("");
     loadStaff();
   });
 
@@ -334,7 +334,7 @@ $(document).ready(function () {
     $('input[type="checkbox"]').prop("checked", false);
 
     $("#company_name").css("border", "1px solid #cecece");
-    $("#role").css("border", "1px solid #cecece");
+    // $("#role").css("border", "1px solid #cecece");
     $("#user_name").css("border", "1px solid #cecece");
     $("#password").css("border", "1px solid #cecece");
     $("#confirm_password").css("border", "1px solid #cecece");

@@ -24,7 +24,6 @@ $stmt = $pdo->prepare("SELECT
         u.home_access,
         u.staff_id,
         cc.id AS company_id,
-        u.role,
         sc.id AS staff_name,
         bc.branch_name,
         dc.department_name,

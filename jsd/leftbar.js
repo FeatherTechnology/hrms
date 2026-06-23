@@ -11,6 +11,7 @@ const moduleMapping = {
   statutory_compliance: "organization_management",
   leave_master: "organization_management",
   holiday_creation: "organization_management",
+  director_creation: "staff_management",
   staff_creation: "staff_management",
   staff_exit_management: "staff_management",
   manage_user: "staff_management",
