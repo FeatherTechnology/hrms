@@ -84,7 +84,7 @@
                                     </div>
                                     <div class="col-md-1 col-sm-2" style="margin-top: 18px;">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary modalBtnCss" tabindex="4" data-toggle="modal" data-target="#add_team_info" onclick="getTeamNameTable()"><span class="icon-add"></span></button>
+                                            <button type="button" class="btn btn-primary modalBtnCss" id ="team_modal_btn" tabindex="4" onclick="getTeamNameTable()"><span class="icon-add"></span></button>
                                         </div>
                                     </div>
                                 </div>

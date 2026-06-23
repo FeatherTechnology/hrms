@@ -10,6 +10,29 @@ $company_id = $_POST['params']['company_id'] ?? '';
 $branch_id = $_POST['params']['branch_id'] ?? '';
 $department_id = $_POST['params']['department_id'] ?? '';
 
+// 1. Fetch current logged-in user's role hierarchy context
+$user_stmt = $pdo->prepare("
+    SELECT
+        u.staff_name_id,
+        dc.designation_level,
+        u.user_type
+    FROM users u
+    LEFT JOIN occupation_info oi ON oi.id = (
+        SELECT MAX(id)
+        FROM occupation_info
+        WHERE staff_profile_id = u.staff_name_id
+    )
+    LEFT JOIN designation_creation dc ON dc.id = oi.designation
+    WHERE u.id = ?
+");
+$user_stmt->execute([$user_id]);
+$current_user = $user_stmt->fetch();
+
+$my_staff_id  = $current_user['staff_name_id'] ?? 0;
+$my_level     = $current_user['designation_level'] ?? 0;
+$user_type  = $current_user['user_type'] ?? 0;
+
+/* Column definitions for DataTables indexing */
 $column = array(
     'oi.id',
     'sc.staff_id',
@@ -24,123 +47,93 @@ $column = array(
     'oi.id'
 );
 
-/* Main Query */
-$query = "SELECT 
-            oi.id,
-            sc.staff_id,
-            sc.staff_name,
-            dc.department_name,
-            bc.branch_name,
-            bcs.branch_name AS assigned_branch_name,
-            lam.from_date,
-            lam.to_date,
-            lam.no_of_days,
-            lam.lattitude_longitude,
-            oi.staff_profile_id
-        FROM occupation_info oi
+/* Base Query Conditions (Shared between Data and Counts) */
+// NOTE: Added LEFT JOINs to fetch the designation level of the target staff's reporting person
+$base_query = " FROM occupation_info oi
+                LEFT JOIN branch_creation bc ON oi.branch_id = bc.id 
+                LEFT JOIN department_creation dc ON oi.department = dc.id 
+                LEFT JOIN staff_creation sc ON oi.staff_profile_id = sc.id
+                LEFT JOIN designation_creation des ON oi.designation = des.id
+                LEFT JOIN location_access_mapping lam ON lam.id = (
+                    SELECT id FROM location_access_mapping 
+                    WHERE staff_profile_id = oi.staff_profile_id AND status = 0
+                    AND (CURDATE() BETWEEN from_date AND to_date OR from_date >= CURDATE())
+                    ORDER BY CASE WHEN CURDATE() BETWEEN from_date AND to_date THEN 0 ELSE 1 END, from_date ASC LIMIT 1
+                )
+                LEFT JOIN branch_creation bcs ON lam.assigned_branch = bcs.id
+                WHERE oi.off_type = 1 
+                AND oi.id IN (SELECT MAX(id) FROM occupation_info GROUP BY staff_profile_id) 
+                AND (DATE(sc.relieve_date) >= '$today' OR sc.relieve_date = '' OR sc.relieve_date IS NULL)";
+                
+if ($user_type == 2) {
 
-        LEFT JOIN branch_creation bc ON oi.branch_id = bc.id
-        LEFT JOIN department_creation dc ON oi.department = dc.id
-        LEFT JOIN staff_creation sc ON oi.staff_profile_id = sc.id
-
-        LEFT JOIN location_access_mapping lam 
-            ON lam.id = (
-                SELECT id
-                FROM location_access_mapping
-                WHERE staff_profile_id = oi.staff_profile_id
-                    AND status = 0
-                    AND (
-                        CURDATE() BETWEEN from_date AND to_date
-                        OR from_date >= CURDATE()
-                    )
-                ORDER BY
-                    CASE
-                        WHEN CURDATE() BETWEEN from_date AND to_date THEN 0
-                        ELSE 1
-                    END,
-                    from_date ASC
-                LIMIT 1
-            )
-
-        LEFT JOIN branch_creation bcs ON lam.assigned_branch = bcs.id
-        LEFT JOIN users u ON u.id = '$user_id'
-        LEFT JOIN occupation_info uoi ON uoi.id = (SELECT MAX(id) FROM occupation_info WHERE staff_profile_id = u.staff_name_id)
-
-        WHERE oi.off_type = 1
-            AND oi.id IN (
-                SELECT MAX(id)
-                FROM occupation_info
-                GROUP BY staff_profile_id
-            )
-            AND oi.company_id = uoi.company_id
-            AND oi.designation > uoi.designation
-            AND (
-                DATE(sc.relieve_date) >= '$today'
-                OR sc.relieve_date = ''
-            )";
+    $base_query .= " AND (
+            des.designation_level > " . intval($my_level) . "
+    ) ";
+}
 
 
-/* Company Filter */
+
+/* Apply Form Dropdown Filters */
 if ($company_id != '') {
-    $query .= " AND oi.company_id = '$company_id' ";
+    $base_query .= " AND oi.company_id = " . intval($company_id);
 }
-
-/* Branch Filter */
 if ($branch_id != '') {
-    $query .= " AND oi.branch_id = '$branch_id' ";
+    $base_query .= " AND oi.branch_id = " . intval($branch_id);
 }
-
-/* Department Filter */
 if ($department_id != '') {
-    $query .= " AND oi.department = '$department_id' ";
+    $base_query .= " AND oi.department = " . intval($department_id);
 }
 
-/* Search */
-if (isset($_POST['search']) && $_POST['search'] != "") {
+/* Total Base Records Count (Permission-Scoped Total) */
+$total_stmt = $pdo->query("SELECT COUNT(oi.id) " . $base_query);
+$total_records = $total_stmt->fetchColumn();
 
-    $search = $_POST['search'];
+/* Apply DataTables Global Text Search */
+if (isset($_POST['search']['value']) && $_POST['search']['value'] != "") {
+    $search = $pdo->quote($_POST['search']['value']);
+    $search_val = trim($search, "'");
 
-    $query .= " AND (
-        sc.staff_id LIKE '$search%'
-        OR sc.staff_name LIKE '%$search%'
-        OR dc.department_name LIKE '%$search%'
-        OR bc.branch_name LIKE '%$search%'
-        OR bcs.branch_name LIKE '%$search%'
+    $base_query .= " AND (
+        sc.staff_id LIKE '$search_val%'
+        OR sc.staff_name LIKE '%$search_val%'
+        OR dc.department_name LIKE '%$search_val%'
+        OR bc.branch_name LIKE '%$search_val%'
+        OR bcs.branch_name LIKE '%$search_val%'
     )";
 }
 
-$query .= " GROUP BY oi.id ";
+/* Get Filtered Row Count prior to applying limits */
+$filter_stmt = $pdo->query("SELECT COUNT(oi.id) " . $base_query);
+$number_filter_row = $filter_stmt->fetchColumn();
 
-/* Order */
+/* Order Configuration */
 if (isset($_POST['order'])) {
-    $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . " " . $_POST['order']['0']['dir'];
+    $base_query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . " " . $_POST['order']['0']['dir'];
 } else {
-    $query .= " ORDER BY sc.id DESC ";
+    $base_query .= " ORDER BY sc.id DESC ";
 }
 
-/* Limit */
-$query1 = '';
-if ($_POST['length'] != -1) {
-    $query1 = " LIMIT " . $_POST['start'] . "," . $_POST['length'];
+/* Limit Configuration */
+$limit = '';
+if (isset($_POST['length']) && $_POST['length'] != -1) {
+    $limit = " LIMIT " . intval($_POST['start']) . "," . intval($_POST['length']);
 }
 
-/* Execute */
-$statement = $pdo->prepare($query);
-$statement->execute();
-$number_filter_row = $statement->rowCount();
+/* Build and Execute Main Data Query */
+$main_sql = "SELECT oi.id, sc.staff_id, sc.staff_name, dc.department_name, bc.branch_name, 
+                    bcs.branch_name AS assigned_branch_name, lam.from_date, lam.to_date, lam.no_of_days,
+                    lam.lattitude_longitude, oi.staff_profile_id, des.designation_level " . $base_query . $limit;
 
-$statement = $pdo->prepare($query . $query1);
-$statement->execute();
 
+$statement = $pdo->query($main_sql);
 $result = $statement->fetchAll();
 
 $data = [];
-$sno = $_POST['start'] + 1;
+$sno = intval($_POST['start'] ?? 0) + 1;
 
 foreach ($result as $row) {
-
     $sub_array = array();
-
     $sub_array[] = $sno++;
     $sub_array[] = $row['staff_id'];
     $sub_array[] = $row['staff_name'];
@@ -151,24 +144,18 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['to_date']) ? date('d-m-Y', strtotime($row['to_date'])) : '';
     $sub_array[] = $row['no_of_days'];
     $sub_array[] = $row['lattitude_longitude'];
-    $sub_array[] = "<span class='icon-border_color locationActionBtn' data-id='" . $row['id'] . "'data-staff-profile-id='" . $row['staff_profile_id'] . "'></span>";;
+    $sub_array[] = "<span class='icon-border_color locationActionBtn' data-id='" . $row['id'] . "' data-staff-profile-id='" . $row['staff_profile_id'] . "'></span>";
 
     $data[] = $sub_array;
 }
 
-/* Count Total */
-function count_all_data($pdo)
-{
-    $stmt = $pdo->query("SELECT COUNT(*) FROM occupation_info WHERE off_type = 1");
-    return $stmt->fetchColumn();
-}
-
-/* Output */
+/* Output JSON structure */
 $output = array(
-    "draw" => intval($_POST['draw']),
-    "recordsTotal" => count_all_data($pdo),
-    "recordsFiltered" => $number_filter_row,
-    "data" => $data
+    "draw"            => intval($_POST['draw'] ?? 0),
+    "recordsTotal"    => intval($total_records),
+    "recordsFiltered" => intval($number_filter_row),
+    "data"            => $data
 );
 
 echo json_encode($output);
+?>

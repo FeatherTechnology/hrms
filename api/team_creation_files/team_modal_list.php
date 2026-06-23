@@ -2,24 +2,25 @@
 
 /** Team List **
  * Purpose:
- * - Fetches all active teams.
+ * - Fetches active teams based on selected Company.
  * - Adds Edit and Delete action buttons for each record.
  * - Returns team data in JSON format for DataTable/Grid display.
  */
 
 require '../../ajaxconfig.php';
 
+$company_id = $_POST['company_id'];
 $team_list_arr = [];
 
 $i = 0;
 
 $stmt = $pdo->prepare("SELECT *
     FROM team_name_creation
-    WHERE team_status = ?
+    WHERE team_status = ? and company_id = ?
     ORDER BY team_name ASC
 ");
 
-$stmt->execute([0]);
+$stmt->execute([0, $company_id]);
 
 if ($stmt->rowCount() > 0) {
 

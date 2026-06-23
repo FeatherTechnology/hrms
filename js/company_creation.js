@@ -142,9 +142,7 @@ $(document).ready(function () {
           designation_id,
         },
         function (response) {
-          if (response === "3") {
-            swalError("Warning", "Designation Name already exists!");
-          } else if (response === "2") {
+          if (response === "2") {
             swalSuccess("Success", "Designation Added Successfully!");
           } else if (response === "1") {
             swalSuccess("Success", "Designation Updated Successfully!");
@@ -429,7 +427,7 @@ async function getCompanyLimit() {
 
     $("#pageHeaderName").html(`
             - Company Creation
-            <span style="padding-left:1200px;">
+            <span style="padding-left:1000px;">
                 Company Limit: ${companyLimit}
             </span>
         `);
@@ -586,9 +584,10 @@ function getDepartmentDelete(id) {
 
 /* --- Get Designation Table --- */
 function getDesignationNameTable() {
+     let company_id = $("#companyid").val();
   $.post(
     "api/company_creation_files/designation_creation_list.php",
-    {},
+    {company_id},
     function (response) {
       var columnMapping = ["sno", "designation", "designation_level", "action"];
 
@@ -608,10 +607,12 @@ function getDesignationNameTable() {
 /* --- Get Designation Name Dropdown --- */
 async function getDesignationNameDropdown() {
   const designation_name2 = $("#designation_name2").val();
+  const company_id = $("#companyid").val();
 
   try {
     const response = await $.ajax({
       url: "api/company_creation_files/get_designation_name_dropdown.php",
+      data: { company_id },
       type: "POST",
       dataType: "json",
     });

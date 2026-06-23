@@ -20,6 +20,7 @@ require '../../ajaxconfig.php';
 $team_code = $_POST['team_code'];
 $team_name = $_POST['team_name'];
 $team_id   = $_POST['team_id'];
+$company_id   = $_POST['company_id'];
 $user_id   = $_SESSION['user_id'];
 
 $result = 0;
@@ -28,10 +29,10 @@ $result = 0;
 $stmt = $pdo->prepare("SELECT id
     FROM team_name_creation
     WHERE REPLACE(TRIM(team_name), ' ', '') = REPLACE(TRIM(?), ' ', '')
-    AND team_status = 0
+    AND team_status = 0 AND company_id = ?
 ");
 
-$stmt->execute([$team_name]);
+$stmt->execute([$team_name,$company_id]);
 
 if ($stmt->rowCount() > 0) {
 
@@ -46,6 +47,7 @@ if ($stmt->rowCount() > 0) {
             SET
                 team_code = ?,
                 team_name = ?,
+                company_id = ?,
                 update_login_id = ?,
                 updated_date = NOW()
             WHERE id = ?
@@ -54,6 +56,7 @@ if ($stmt->rowCount() > 0) {
         $qry = $stmt->execute([
             $team_code,
             $team_name,
+            $company_id,
             $user_id,
             $team_id
         ]);
@@ -68,18 +71,20 @@ if ($stmt->rowCount() > 0) {
             (
                 team_code,
                 team_name,
+                company_id,
                 insert_login_id,
                 created_date
             )
             VALUES
             (
-                ?, ?, ?, NOW()
+                ?, ?, ?,?, NOW()
             )
         ");
 
         $qry = $stmt->execute([
             $team_code,
             $team_name,
+            $company_id,
             $user_id
         ]);
 
