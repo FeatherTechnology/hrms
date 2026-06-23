@@ -70,7 +70,13 @@ $baseQuery = "
 
     WHERE oi.company_id = :company_id
       AND oi.branch_id = :branch_id
-      AND sc.status = 1
+     AND (
+    sc.status = 1
+    OR (
+        sc.status = 2
+        AND DATE(sc.relieve_date) >= :att_date
+    )
+)
 ";
 
 /* ---------- Search ---------- */
