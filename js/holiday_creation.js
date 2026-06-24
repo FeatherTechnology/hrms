@@ -130,7 +130,7 @@ $(document).ready(function () {
 /* --- Get Company Name --- */
 function getCompanyName() {
   $.ajax({
-    url: "api/branch_creation/getCompanyName.php",
+    url: "api/attendance_files/get_company_list.php",
     type: "POST",
     data: {},
     dataType: "json",

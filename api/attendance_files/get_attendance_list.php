@@ -15,10 +15,27 @@ $att_date   = !empty($_POST['date']) ? date('Y-m-d', strtotime($_POST['date'])) 
 $staff_type = [1 => 'Employer', 2 => 'Employee'];
 
 /* ---------- Logged In User Details ---------- */
-$userQry = $pdo->prepare(" SELECT sc.staff_type, sc.company_id FROM users u LEFT JOIN staff_creation sc ON sc.id = u.staff_name_id WHERE u.id = ? ");
-$userQry->execute([$userid]);
-$userData = $userQry->fetch(PDO::FETCH_ASSOC);
-$login_staff_type = $userData['staff_type'] ?? '';
+$userStmt = $pdo->prepare("SELECT
+        u.user_type,
+        u.director_company,
+        dc.designation_level
+    FROM users u
+    LEFT JOIN occupation_info oi
+        ON oi.id = (
+            SELECT MAX(id)
+            FROM occupation_info
+            WHERE staff_profile_id = u.staff_name_id
+        )
+    LEFT JOIN designation_creation dc ON dc.id = oi.designation
+    WHERE u.id = ?
+");
+
+$userStmt->execute([$userid]);
+$userData = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+$my_level           = $userData['designation_level'] ?? 0;
+$user_type          = $userData['user_type'] ?? 0;
+$director_company   = $userData['director_company'] ?? '';
 
 /* ---------- Column mapping ---------- */
 $columns = [
@@ -68,8 +85,7 @@ $baseQuery = "
     LEFT JOIN team_name_creation tc 
         ON tc.id = oi.team
 
-    WHERE oi.company_id = :company_id
-      AND oi.branch_id = :branch_id
+    WHERE oi.branch_id = :branch_id
      AND (
     sc.status = 1
     OR (
@@ -86,10 +102,29 @@ $params = [
     ':att_date'   => $att_date
 ];
 
-// this condition only for the employee to check the reporting person attendance only
-if ($login_staff_type != 1) {
-    $baseQuery .= " AND oi.reporting_person = :userid ";
-    $params[':userid'] = $userid;
+if ($user_type == 1) {
+
+    // Director - director_company contains comma separated company ids
+    $companyIds = array_filter(array_map('intval', explode(',', $director_company)));
+
+    if (!empty($companyIds)) {
+        $placeholders = [];
+
+        foreach ($companyIds as $k => $id) {
+            $key = ":cmp$k";
+            $placeholders[] = $key;
+            $params[$key] = $id;
+        }
+
+        $baseQuery .= " AND oi.company_id IN (" . implode(',', $placeholders) . ")";
+    }
+} else if ($user_type == 2) {
+
+    // Company Admin
+    $baseQuery .= " AND oi.company_id = :company_id ";
+    $baseQuery .= " AND dsc.designation_level > :my_level ";
+    $params[':company_id'] = $company_id;
+    $params[':my_level'] = $my_level;
 }
 
 // search
@@ -186,16 +221,11 @@ $dataQuery = "
 
 $dataStmt = $pdo->prepare($dataQuery);
 
-/* Bind fixed params */
-$dataStmt->bindValue(':company_id', $company_id);
-$dataStmt->bindValue(':branch_id', $branch_id);
-$dataStmt->bindValue(':att_date', $att_date);
-$dataStmt->bindValue(':userid', $userid);
-
-/* Bind search */
-if (!empty($params[':search'])) {
-    $dataStmt->bindValue(':search', $params[':search']);
+foreach ($params as $key => $value) {
+    $dataStmt->bindValue($key, $value);
 }
+
+$dataStmt->bindValue(':userid', $userid);
 
 /* Bind pagination */
 if ($_POST['length'] != -1) {

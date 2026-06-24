@@ -347,7 +347,7 @@ async function getCompanyName(editCompanyId = "") {
   return new Promise((resolve, reject) => {
     // Get all companies
     $.post(
-      "api/branch_creation/getCompanyName.php",
+      "api/attendance_files/get_company_list.php",
       {},
       function (companyResponse) {
         // Get already used company ids

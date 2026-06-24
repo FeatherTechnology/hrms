@@ -1,5 +1,4 @@
 <?php
-// Retrieve active Feedback, Rating, and Poll list with total response counts based on the current date and company.
 
 require '../../ajaxconfig.php';
 @session_start();
@@ -10,26 +9,53 @@ $type    = $_POST['type'] ?? '';
 $result_arr = [];
 $i = 0;
 
-// GET USER DEPARTMENT & COMPANY
-$deptQry = $pdo->query("
+// GET USER DETAILS
+$userQry = $pdo->query("
     SELECT
-        oi.department,
-        oi.company_id
-    FROM users u
-    LEFT JOIN occupation_info oi
-        ON oi.id = (
-            SELECT MAX(id)
-            FROM occupation_info
-            WHERE staff_profile_id = u.staff_name_id
-        )
-    WHERE u.id = '$user_id'
+        user_type,
+        director_company,
+        staff_name_id
+    FROM users
+    WHERE id = '$user_id'
 ");
 
-$deptData = $deptQry->fetch(PDO::FETCH_ASSOC);
+$userData = $userQry->fetch(PDO::FETCH_ASSOC);
 
-$department = $deptData['department'];
-$company_id = $deptData['company_id'];
+$user_type        = $userData['user_type'];
+$director_company = $userData['director_company'];
+$staff_name_id    = $userData['staff_name_id'];
 
+$department = '';
+$company_condition = '';
+
+// DIRECTOR
+if ($user_type == 1) {
+
+    $company_condition = " tt.company_id IN ($director_company) ";
+
+}
+// STAFF
+else {
+
+    $deptQry = $pdo->query("
+        SELECT
+            department,
+            company_id
+        FROM occupation_info
+        WHERE id = (
+            SELECT MAX(id)
+            FROM occupation_info
+            WHERE staff_profile_id = '$staff_name_id'
+        )
+    ");
+
+    $deptData = $deptQry->fetch(PDO::FETCH_ASSOC);
+
+    $department = $deptData['department'];
+    $company_id = $deptData['company_id'];
+
+    $company_condition = " tt.company_id = '$company_id' ";
+}
 
 // CONFIGURATION
 $config = [
@@ -83,7 +109,8 @@ $qry = $pdo->query("
     JOIN {$c['mapping_table']} dm
         ON dm.{$c['id_column']} = tt.id
 
-    WHERE  tt.company_id = '$company_id'
+    WHERE
+        $company_condition
         AND tt.{$c['status_column']} = 0
         AND NOW() <= tt.end_date_time
 ");
@@ -112,3 +139,4 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
 echo json_encode($result_arr);
 
 $pdo = null;
+?>

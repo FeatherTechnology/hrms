@@ -48,19 +48,13 @@ try {
     sc.start_time,
     sc.end_time,
     sc.grace_time,
-    a.entry_time,
-    r.req_type,
-    r.from_date,
-    r.to_date,
-    r.total_min
+    a.entry_time
 
     FROM attendance a
 
     LEFT JOIN staff_creation st ON st.id = a.staff_profile_id
     LEFT JOIN occupation_info oi ON oi.id = (SELECT MAX(id) FROM occupation_info WHERE staff_profile_id = a.staff_profile_id)
     LEFT JOIN shift_creation sc ON sc.id = oi.shift
-    LEFT JOIN regularization r ON r.staff_profile_id = a.staff_profile_id AND r.status = 1
-    AND r.req_type IN (2,4) AND DATE(r.from_date) = DATE(a.entry_time)
 
     $where_sql
 
@@ -75,10 +69,6 @@ try {
 
     foreach ($result as $row) {
 
-        // =========================================
-        // BASIC TIMES
-        // =========================================
-
         $entry_time = strtotime($row['entry_time']);
 
         $shift_start = strtotime(
@@ -89,19 +79,12 @@ try {
             date('Y-m-d', $entry_time) . ' ' . $row['end_time']
         );
 
-        // =========================================
-        // NIGHT SHIFT HANDLE
-        // =========================================
-
+        // Night Shift
         if ($shift_end <= $shift_start) {
-
             $shift_end = strtotime('+1 day', $shift_end);
         }
 
-        // =========================================
-        // GET GRACE MINUTES
-        // =========================================
-
+        // Grace Minutes
         $grace_minutes = 0;
 
         if (!empty($row['grace_time'])) {
@@ -113,96 +96,83 @@ try {
                 : 0;
         }
 
-        // =========================================
-        // OT BAR
-        // =========================================
-
-        if (
-            $row['req_type'] == 4 &&
-            !empty($row['from_date']) &&
-            !empty($row['to_date'])
-        ) {
-
-            $response[] = [
-
-                'staff_name' => $row['staff_name'],
-
-                'type'       => 'OT Hours',
-
-                'color'      => '#4285F4',
-
-                'start'      => $row['from_date'],
-
-                'end'        => $row['to_date']
-            ];
-        }
-
-        // =========================================
-        // PERMISSION MINUTES
-        // =========================================
-
-        $permission_minutes = 0;
-
-        if (
-            $row['req_type'] == 2 &&
-            !empty($row['total_min'])
-        ) {
-
-            $permission_minutes =
-                (int)$row['total_min'];
-        }
-
-        // =========================================
-        // PERMISSION END
-        // =========================================
-
-        $permission_end = strtotime(
-            '+' . $permission_minutes . ' minutes',
+        $grace_end = strtotime(
+            '+' . $grace_minutes . ' minutes',
             $shift_start
         );
 
-        // =========================================
-        // GRACE END
-        // =========================================
+        // Working start
+        $working_start = max($entry_time, $shift_start);
 
-        $grace_end = strtotime(
-            '+' . $grace_minutes . ' minutes',
-            $permission_end
-        );
+        // ========================================= GET REGULARIZATION ========================================= //
 
-        // =========================================
-        // PERMISSION BAR
-        // =========================================
+        $regQry = $pdo->prepare("
+        SELECT
+            req_type,
+            from_date,
+            to_date
+        FROM regularization
+        WHERE staff_profile_id = :staff_id
+        AND status = 1
+        AND req_type IN (2,4)
+        AND DATE(from_date) = :att_date
+        ORDER BY from_date ASC
+    ");
 
-        if ($permission_minutes > 0) {
+        $regQry->execute([
+            ':staff_id' => $row['staff_profile_id'],
+            ':att_date' => date('Y-m-d', $entry_time)
+        ]);
 
-            $response[] = [
+        $regularizations = $regQry->fetchAll(PDO::FETCH_ASSOC);
 
-                'staff_name' => $row['staff_name'],
+        $permissions = [];
 
-                'type'       => 'Permission Hours',
+        foreach ($regularizations as $reg) {
 
-                'color'      => '#FBBC05',
+            // Permission
+            if (
+                $reg['req_type'] == 2 &&
+                !empty($reg['from_date']) &&
+                !empty($reg['to_date'])
+            ) {
 
-                'start'      => date(
-                    'Y-m-d H:i:s',
-                    $shift_start
-                ),
+                $permissions[] = [
+                    'start' => strtotime($reg['from_date']),
+                    'end'   => strtotime($reg['to_date'])
+                ];
 
-                'end'        => date(
-                    'Y-m-d H:i:s',
-                    $permission_end
-                )
-            ];
+                $response[] = [
+                    'staff_name' => $row['staff_name'],
+                    'type'       => 'Permission Hours',
+                    'color'      => '#FBBC05',
+                    'start'      => $reg['from_date'],
+                    'end'        => $reg['to_date']
+                ];
+            }
+
+            // OT
+            if (
+                $reg['req_type'] == 4 &&
+                !empty($reg['from_date']) &&
+                !empty($reg['to_date'])
+            ) {
+
+                $response[] = [
+                    'staff_name' => $row['staff_name'],
+                    'type'       => 'OT Hours',
+                    'color'      => '#4285F4',
+                    'start'      => $reg['from_date'],
+                    'end'        => $reg['to_date']
+                ];
+            }
         }
 
-        // =========================================
-        // GRACE BAR
-        // =========================================
+        // ========================================= GRACE BAR ========================================= //
 
         if (
             $grace_minutes > 0 &&
-            $entry_time > $permission_end
+            $entry_time > $shift_start
         ) {
 
             $grace_bar_end = min(
@@ -210,88 +180,81 @@ try {
                 $grace_end
             );
 
-            $response[] = [
+            if ($grace_bar_end > $shift_start) {
 
-                'staff_name' => $row['staff_name'],
-
-                'type'       => 'Grace Time',
-
-                'color'      => '#A142F4',
-
-                'start'      => date(
-                    'Y-m-d H:i:s',
-                    $permission_end
-                ),
-
-                'end'        => date(
-                    'Y-m-d H:i:s',
-                    $grace_bar_end
-                )
-            ];
+                $response[] = [
+                    'staff_name' => $row['staff_name'],
+                    'type'       => 'Grace Time',
+                    'color'      => '#A142F4',
+                    'start'      => date('Y-m-d H:i:s', $shift_start),
+                    'end'        => date('Y-m-d H:i:s', $grace_bar_end)
+                ];
+            }
         }
 
-        // =========================================
-        // LATE BAR
-        // =========================================
+        // ========================================= LATE ENTRY ========================================= //
 
         if ($entry_time > $grace_end) {
 
             $response[] = [
-
                 'staff_name' => $row['staff_name'],
-
-                'type'       => 'Later Entry',
-
+                'type'       => 'Late Entry',
                 'color'      => '#EA4335',
-
-                'start'      => date(
-                    'Y-m-d H:i:s',
-                    $grace_end
-                ),
-
-                'end'        => date(
-                    'Y-m-d H:i:s',
-                    $entry_time
-                )
+                'start'      => date('Y-m-d H:i:s', $grace_end),
+                'end'        => date('Y-m-d H:i:s', $entry_time)
             ];
         }
 
-        // =========================================
-        // WORKING START
-        // =========================================
+        // ======================================== WORKING HOURS ========================================= //
 
-        $working_start = max(
-            $entry_time,
-            $shift_start
-        );
+        if (empty($permissions)) {
 
-        // =========================================
-        // WORKING BAR
-        // =========================================
+            if ($working_start < $shift_end) {
 
-        if ($working_start < $shift_end) {
+                $response[] = [
+                    'staff_name' => $row['staff_name'],
+                    'type'       => 'Working Hours',
+                    'color'      => '#66AA00',
+                    'start'      => date('Y-m-d H:i:s', $working_start),
+                    'end'        => date('Y-m-d H:i:s', $shift_end)
+                ];
+            }
+        } else {
 
-            $response[] = [
+            $currentStart = $working_start;
 
-                'staff_name' => $row['staff_name'],
+            foreach ($permissions as $permission) {
 
-                'type'       => 'Working Hours',
+                if ($currentStart < $permission['start']) {
 
-                'color'      => '#66AA00',
+                    $response[] = [
+                        'staff_name' => $row['staff_name'],
+                        'type'       => 'Working Hours',
+                        'color'      => '#66AA00',
+                        'start'      => date('Y-m-d H:i:s', $currentStart),
+                        'end'        => date('Y-m-d H:i:s', $permission['start'])
+                    ];
+                }
 
-                'start'      => date(
-                    'Y-m-d H:i:s',
-                    $working_start
-                ),
+                $currentStart = min(
+                    $shift_end,
+                    max($currentStart, $permission['end'])
+                );
+            }
 
-                'end'        => date(
-                    'Y-m-d H:i:s',
-                    $shift_end
-                )
-            ];
+            if ($currentStart < $shift_end) {
+
+                $response[] = [
+                    'staff_name' => $row['staff_name'],
+                    'type'       => 'Working Hours',
+                    'color'      => '#66AA00',
+                    'start'      => date('Y-m-d H:i:s', $currentStart),
+                    'end'        => date('Y-m-d H:i:s', $shift_end)
+                ];
+            }
         }
-    }
-} catch (PDOException $e) {
+    } // foreach ends here
+} catch (PDOException $e) { // try ends here
 
     $response = [
         'status' => false,

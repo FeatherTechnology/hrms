@@ -54,15 +54,24 @@ $getStaff = $pdo->query("
 
     FROM staff_creation sc
 
-    LEFT JOIN occupation_info o
-    ON o.id = (
-        SELECT id
-        FROM occupation_info
-        WHERE staff_profile_id = sc.id
-        AND effective_from <= '$month_end'
-        ORDER BY effective_from DESC, id DESC
+   LEFT JOIN occupation_info o ON o.id = (
+    SELECT id
+    FROM occupation_info
+    WHERE staff_profile_id = sc.id
+    AND (
+        effective_from <= '$month_end'
+        OR effective_from IS NULL
+        OR effective_from = ''
+        )
+        ORDER BY 
+            CASE 
+                WHEN effective_from = '' OR effective_from IS NULL THEN 0
+                ELSE 1
+            END,
+            effective_from DESC,
+            id DESC
         LIMIT 1
-    )
+    )   
 
     LEFT JOIN company_creation cc ON cc.id = o.company_id
     LEFT JOIN branch_creation bc ON bc.id = o.branch_id
@@ -70,19 +79,20 @@ $getStaff = $pdo->query("
     LEFT JOIN designation_creation descr ON descr.id = o.designation
     LEFT JOIN team_name_creation tc ON tc.id = o.team
 
-    WHERE o.company_id = '$company_id'
+    WHERE 
+    o.company_id = '$company_id'
     AND o.branch_id = '$branch_id'
     AND (
-    sc.relieve_date IS NULL
-    OR sc.relieve_date = ''
-    OR sc.relieve_date >= '$month_end'
-    OR DATE_FORMAT(sc.relieve_date, '%Y-%m') = '$month'
-) 
+        sc.relieve_date IS NULL
+        OR sc.relieve_date = ''
+        OR STR_TO_DATE(sc.relieve_date,'%Y-%m-%d') >= '$month_end'
+        OR DATE_FORMAT(STR_TO_DATE(sc.relieve_date,'%Y-%m-%d'),'%Y-%m') = '$month'
+    )
     AND (
-    sc.joining_date IS NULL
-    OR sc.joining_date = ''
-    OR sc.joining_date <= '$month_end'
-)
+        sc.joining_date IS NULL
+        OR sc.joining_date = ''
+        OR sc.joining_date <= '$month_end'
+    )
     $stff_con
 
 ");
@@ -155,21 +165,21 @@ while ($staff = $getStaff->fetch()) {
 
     // APPROVED LEAVE (req_type = 1) 
     $leaveQry = $pdo->query("
-        SELECT approved_from_date, approved_to_date
+        SELECT from_date, to_date
         FROM regularization
         WHERE staff_profile_id = '$staff_profile_id'
         AND req_type = 1
         AND status = 1
-        AND DATE(approved_from_date) <= '$end_date'
-        AND DATE(approved_to_date) >= '$start_date'
+        AND DATE(from_date) <= '$end_date'
+        AND DATE(to_date) >= '$start_date'
     ");
 
     $approved_leave = 0;
 
     while ($leave = $leaveQry->fetch()) {
 
-        $s = strtotime($leave['approved_from_date']);
-        $e = strtotime($leave['approved_to_date']);
+        $s = strtotime($leave['from_date']);
+        $e = strtotime($leave['to_date']);
 
         $ms = strtotime($start_date);
         $me = strtotime($end_date);
@@ -198,21 +208,21 @@ while ($staff = $getStaff->fetch()) {
 
     // OT (req_type = 4)
     $otQry = $pdo->query("
-        SELECT approved_from_date, approved_to_date
+        SELECT from_date, to_date
         FROM regularization
         WHERE staff_profile_id = '$staff_profile_id'
         AND req_type = 4
         AND status = 1
-        AND DATE(approved_from_date) <= '$end_date'
-        AND DATE(approved_to_date) >= '$start_date'
+        AND DATE(from_date) <= '$end_date'
+        AND DATE(to_date) >= '$start_date'
     ");
 
     $total_ot_minutes = 0;
 
     while ($ot = $otQry->fetch()) {
 
-        $ot_start = strtotime($ot['approved_from_date']);
-        $ot_end   = strtotime($ot['approved_to_date']);
+        $ot_start = strtotime($ot['from_date']);
+        $ot_end   = strtotime($ot['to_date']);
 
         if ($ot_end > $ot_start) {
             $total_ot_minutes += ($ot_end - $ot_start) / 60;

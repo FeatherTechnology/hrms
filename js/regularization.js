@@ -73,36 +73,52 @@ $(document).ready(function () {
   });
 
   $("#from_date, #to_date").on("change", function () {
-    if ($("#req_type").val() != "4") {
-      return;
-    }
-
-    let fromDate = new Date($("#from_date").val());
-    let toDate = new Date($("#to_date").val());
+    let reqType = $("#req_type").val();
 
     if (!$("#from_date").val() || !$("#to_date").val()) {
       return;
     }
+
+    let fromDate = new Date($("#from_date").val());
+
+    let toDate = new Date($("#to_date").val());
 
     let shiftDate = $("#from_date").val().split("T")[0];
 
     let shiftStartDateTime = new Date(shiftDate + "T" + shiftStart);
     let shiftEndDateTime = new Date(shiftDate + "T" + shiftEnd);
 
-    let isBeforeShift = toDate <= shiftStartDateTime;
-    let isAfterShift = fromDate >= shiftEndDateTime;
+    let formattedStart = formatTime(shiftStart);
+    let formattedEnd = formatTime(shiftEnd);
 
-    if (!(isBeforeShift || isAfterShift)) {
-      let formattedStart = formatTime(shiftStart);
-      let formattedEnd = formatTime(shiftEnd);
+    // OT Validation
+    if (reqType == "4") {
+      let isBeforeShift = toDate <= shiftStartDateTime;
+      let isAfterShift = fromDate >= shiftEndDateTime;
 
-      swalError(
-        "Warning",
-        `OT can only be applied before the shift starts (${formattedStart}) or after the shift ends (${formattedEnd}).`,
-      );
+      if (!(isBeforeShift || isAfterShift)) {
+        swalError(
+          "Warning",
+          `OT can only be applied before the shift starts (${formattedStart}) or after the shift ends (${formattedEnd}).`,
+        );
 
-      $("#from_date").val("");
-      $("#to_date").val("");
+        $("#from_date, #to_date").val("");
+      }
+    }
+
+    // Permission Validation
+    if (reqType == "2") {
+      let isWithinShift =
+        fromDate >= shiftStartDateTime && toDate <= shiftEndDateTime;
+
+      if (!isWithinShift) {
+        swalError(
+          "Warning",
+          `Permission can only be applied within the shift timings (${formattedStart} to ${formattedEnd}).`,
+        );
+
+        $("#from_date, #to_date").val("");
+      }
     }
   });
 
@@ -538,7 +554,7 @@ function getbalancerequest(req_type, cmpy_id) {
       $("#balance_req").val(response.balance);
       $("#current_month_ot_count").val(response.current_month_ot_count);
 
-      if (req_type == "4") {
+      if (req_type == "4" || req_type == "2") {
         shiftStart = response.start_time;
         shiftEnd = response.end_time;
       }
@@ -729,14 +745,21 @@ function setCurrentMonthRestriction(fromSelector, toSelector) {
 
 // For OT validation and display time format
 function formatTime(time) {
-  let [hours, minutes] = time.split(":");
+  if (!time || typeof time !== "string") {
+    return "";
+  }
 
-  hours = parseInt(hours);
+  let parts = time.split(":");
+
+  if (parts.length < 2) {
+    return time;
+  }
+
+  let hours = parseInt(parts[0], 10);
+  let minutes = parts[1];
 
   let ampm = hours >= 12 ? "PM" : "AM";
-
-  hours = hours % 12;
-  hours = hours ? hours : 12;
+  hours = hours % 12 || 12;
 
   return `${hours}:${minutes} ${ampm}`;
 }
