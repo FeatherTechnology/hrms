@@ -14,6 +14,7 @@ $whereCondition = '';
 if ($report_access == '2') {
     $whereCondition = " r.insert_user_id = '$user_id' AND ";
 }
+
 $from_date    = $_POST['params']['from_date'] ?? '';
 $to_date      = $_POST['params']['to_date'] ?? '';
 $company_id   = $_POST['params']['company_id'] ?? '';
@@ -22,8 +23,6 @@ $status       = $_POST['params']['status'] ?? '';
 $staff_arr = [1 => 'Employer', 2 => 'Employee'];
 $req_type = [1 => 'Leave', 2 => 'Permission', 3 => 'Week Off', 4 => 'OT'];
 $reg_status = [0 => 'Pending', 1 => 'Approved', 2 => 'Cancel'];
-
-
 
 $column = array(
     'r.id',
@@ -35,7 +34,7 @@ $column = array(
     'd.department_name',
     'des.designation',
     'ti.team_name',
-    'r.req_type',   
+    'r.req_type',
     'lc.leave_type',
     'r.req_date',
     'r.from_date',
@@ -43,9 +42,6 @@ $column = array(
     'r.total_min',
     'r.reason',
     'sc.id',
-    'r.approved_from_date',
-    'r.approved_to_date',
-    'r.approved_total_min',
     'r.updated_date',
     'r.remarks',
     'r.status'
@@ -74,17 +70,18 @@ SELECT
     r.req_date,
     r.from_date,
     r.to_date,
-    r.approved_from_date,
-    r.approved_to_date,
     r.total_min,
-    r.approved_total_min,
     r.reason,
     r.remarks,
     r.status,
     r.updated_date,
     r.updated_login_id,
 
-    approver_sc.staff_name AS approver_name,
+    CASE
+        WHEN u.user_type = '1' THEN dc.director_name
+        WHEN u.user_type = '2' THEN approver_sc.staff_name
+        ELSE ''
+    END AS approver_name,
     reporting_sc.staff_name AS assigned_to
 
 FROM regularization r
@@ -119,6 +116,8 @@ LEFT JOIN staff_creation approver_sc
     ON approver_sc.id = u.staff_name_id
 LEFT JOIN staff_creation reporting_sc
     ON reporting_sc.id = oc.reporting_person
+LEFT JOIN director_creation dc
+    ON dc.id = u.director_name
 
 WHERE 1 = 1
 ";
@@ -226,27 +225,11 @@ foreach ($result as $row) {
         strtotime($row['to_date'])
     );
 
-    $approved_from_date = !empty($row['approved_from_date']) &&
-        $row['approved_from_date'] != '0000-00-00 00:00:00'
-        ? date(
-            $isTimeBased ? 'd-m-Y h:i A' : 'd-m-Y',
-            strtotime($row['approved_from_date'])
-        )
-        : '';
-
-    $approved_to_date = !empty($row['approved_to_date']) &&
-        $row['approved_to_date'] != '0000-00-00 00:00:00'
-        ? date(
-            $isTimeBased ? 'd-m-Y h:i A' : 'd-m-Y',
-            strtotime($row['approved_to_date'])
-        )
-        : '';
-
     $cancelled_date = ($row['status'] == 2 && !empty($row['updated_date']))
         ? date('d-m-Y', strtotime($row['updated_date']))
         : '';
+
     $requested_days = formatDuration($row['total_min']);
-    $approved_days  = formatDuration($row['approved_total_min']);
 
     $sub_array = [];
 
@@ -278,9 +261,6 @@ foreach ($result as $row) {
     else if ($row['status'] == 1) {
 
         $sub_array[] = $row['approver_name'];
-        $sub_array[] = $approved_from_date;
-        $sub_array[] = $approved_to_date;
-        $sub_array[] = $approved_days;
         $sub_array[] = $row['remarks'];
         $sub_array[] = 'Approved';
     }

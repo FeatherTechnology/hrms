@@ -255,7 +255,7 @@ function swapTableAndCreation() {
 async function getCompanyName() {
   return new Promise((resolve, reject) => {
     $.post(
-      "api/branch_creation/getCompanyName.php",
+      "api/attendance_files/get_company_list.php",
       {},
 
       function (response) {

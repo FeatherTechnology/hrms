@@ -1,5 +1,4 @@
 <?php
-//  to get the attendance report based on the company , branch , department , staff is and selected month 
 
 include '../../ajaxconfig.php';
 
@@ -21,106 +20,105 @@ $daysInMonth = date('t', strtotime($month . '-01'));
 $where = " WHERE sc.status = 1 ";
 
 if (!empty($company_id)) {
-    $where .= " AND oi.company_id = '$company_id' ";
+    $where .= " AND oi.company_id='$company_id' ";
 }
 
 if (!empty($branch_id)) {
-    $where .= " AND oi.branch_id = '$branch_id' ";
+    $where .= " AND oi.branch_id='$branch_id' ";
 }
 
 if (!empty($department)) {
-    $where .= " AND oi.department = '$department' ";
+    $where .= " AND oi.department='$department' ";
 }
 
-if (isset($staff_id) && $staff_id > 0) {
-    $where .= " AND sc.id = '$staff_id' ";
+if (!empty($staff_id)) {
+    $where .= " AND sc.id='$staff_id' ";
 }
 
-/* ---------------- SEARCH ---------------- */
 if (!empty($searchValue)) {
-    $where .= " AND (sc.staff_name LIKE '%$searchValue%' ) ";
+    $where .= " AND sc.staff_name LIKE '%$searchValue%' ";
 }
 
 /* ---------------- TOTAL COUNT ---------------- */
-$totalStmt = $pdo->prepare("
-    SELECT COUNT(*) 
+$totalStmt = $pdo->prepare(" SELECT COUNT(*)
     FROM staff_creation sc
-    LEFT JOIN occupation_info oi 
-        ON oi.id = (
-            SELECT MAX(id) 
-            FROM occupation_info 
-            WHERE staff_profile_id = sc.id
-        )
-    $where
+    LEFT JOIN occupation_info oi
+    ON oi.id = (
+        SELECT MAX(id)
+        FROM occupation_info
+        WHERE staff_profile_id=sc.id ) $where
 ");
 $totalStmt->execute();
 $recordsTotal = $totalStmt->fetchColumn();
 
 /* ---------------- STAFF LIST ---------------- */
-$stmt = $pdo->prepare("
-    SELECT 
+$stmt = $pdo->prepare(" SELECT
     sc.id,
     sc.staff_name,
     sc.joining_date,
     sc.relieve_date
     FROM staff_creation sc
-    LEFT JOIN occupation_info oi 
-        ON oi.id = (
-            SELECT MAX(id) 
-            FROM occupation_info 
-            WHERE staff_profile_id = sc.id
-        )
+    LEFT JOIN occupation_info oi
+    ON oi.id=(
+    SELECT MAX(id)
+    FROM occupation_info
+    WHERE staff_profile_id=sc.id
+    )
     $where
-    LIMIT :start, :length
-");
+    LIMIT :start,:length
+    ");
+
 
 $stmt->bindValue(':start', (int)$start, PDO::PARAM_INT);
+
 $stmt->bindValue(':length', (int)$length, PDO::PARAM_INT);
 
 $stmt->execute();
+
 $staffList = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 /* ---------------- ATTENDANCE DATA ---------------- */
-$attStmt = $pdo->prepare("
-    SELECT staff_profile_id, DATE(entry_time) dt
+$attStmt = $pdo->prepare(" SELECT
+    staff_profile_id,
+    DATE(entry_time) dt
     FROM attendance
-    WHERE DATE_FORMAT(entry_time,'%Y-%m') = ?
+    WHERE DATE_FORMAT(entry_time,'%Y-%m')=?
 ");
 
 $attStmt->execute([$month]);
 
 $att = [];
+
 while ($r = $attStmt->fetch(PDO::FETCH_ASSOC)) {
     $att[$r['staff_profile_id']][] = $r['dt'];
 }
 
-/* ---------------- RESPONSE ---------------- */
-$data = [];
-
 /* ---------------- REGULARIZATION DATA ---------------- */
+
 $regStmt = $pdo->prepare("
     SELECT
-        staff_profile_id,
-        req_type,
-        approved_from_date,
-        approved_to_date
+    staff_profile_id,
+    req_type,
+    from_date,
+    to_date
     FROM regularization
-    WHERE status = 1
-      AND req_type IN (1,3)
-      AND (
-            DATE_FORMAT(approved_from_date,'%Y-%m') = ?
-         OR DATE_FORMAT(approved_to_date,'%Y-%m') = ?
-      )
+    WHERE status=1
+    AND req_type IN(1,3)
+    AND (
+    DATE_FORMAT(from_date,'%Y-%m')=?
+    OR
+    DATE_FORMAT(to_date,'%Y-%m')=?
+    )
 ");
 
 $regStmt->execute([$month, $month]);
-
 $regularization = [];
-
 while ($r = $regStmt->fetch(PDO::FETCH_ASSOC)) {
 
-    $from = strtotime($r['approved_from_date']);
-    $to   = strtotime($r['approved_to_date']);
+    $from = strtotime($r['from_date']);
+
+    $to = strtotime($r['to_date']);
+
 
     while ($from <= $to) {
 
@@ -133,8 +131,10 @@ while ($r = $regStmt->fetch(PDO::FETCH_ASSOC)) {
     }
 }
 
-foreach ($staffList as $s) {
+/* ---------------- BUILD REPORT ---------------- */
+$data = [];
 
+foreach ($staffList as $s) {
     $joiningDate = !empty($s['joining_date'])
         ? date('Y-m-d', strtotime($s['joining_date']))
         : '';
@@ -142,12 +142,20 @@ foreach ($staffList as $s) {
     $relieveDate = !empty($s['relieve_date'])
         ? date('Y-m-d', strtotime($s['relieve_date']))
         : '';
+    /* -------- JOINING MONTH CHECK -------- */
+    if (!empty($joiningDate)) {
+        $joiningMonth = date('Y-m', strtotime($joiningDate));
+        // Before joining month hide employee
+        if ($month < $joiningMonth) {
+            continue;
+        }
+    }
+    /* -------- RELIEVE MONTH CHECK -------- */
 
-    // Hide employee completely after relieve month
     if (!empty($relieveDate)) {
 
         $relieveMonth = date('Y-m', strtotime($relieveDate));
-
+        // After relieve month hide employee
         if ($month > $relieveMonth) {
             continue;
         }
@@ -157,80 +165,61 @@ foreach ($staffList as $s) {
     $row['staff_name'] = $s['staff_name'];
 
     for ($i = 1; $i <= $daysInMonth; $i++) {
-
-        $date = date(
-            'Y-m-d',
-            strtotime($month . '-' . str_pad($i, 2, '0', STR_PAD_LEFT))
-        );
-
-        // Before joining date = Empty
+        $date = date(  'Y-m-d', strtotime($month . '-' . str_pad($i, 2, '0', STR_PAD_LEFT)) );
+        // Before joining date empty
         if (!empty($joiningDate) && $date < $joiningDate) {
             $row['d' . $i] = '';
+
             continue;
         }
-
-        // On and after relieve date = Resigned
+        // After relieve date
         if (!empty($relieveDate) && $date >= $relieveDate) {
             $row['d' . $i] =
                 "<span class='badge bg-secondary'>R</span>";
             continue;
         }
-
         $today = date('Y-m-d');
+        if ($date > $today && date('Y-m', strtotime($date)) == date('Y-m')) {
 
-        if (
-            $date > $today &&
-            date('Y-m', strtotime($date)) == date('Y-m')
-        ) {
 
             $status = '';
-
         } else {
-
             if (isset($regularization[$s['id']][$date])) {
 
                 $status = $regularization[$s['id']][$date];
-
             } else {
 
                 $status = (
-                    isset($att[$s['id']]) &&
-                    in_array($date, $att[$s['id']])
-                ) ? 'P' : 'A';
+                    isset($att[$s['id']])
+                    && in_array($date, $att[$s['id']])
+                )  ? 'P'  : 'A';
             }
         }
 
         switch ($status) {
-
             case 'P':
                 $row['d' . $i] =
                     "<span class='badge bg-success'>P</span>";
                 break;
-
             case 'A':
                 $row['d' . $i] =
                     "<span class='badge bg-danger'>A</span>";
                 break;
-
-            case 1: // Leave
+            case 1:
                 $row['d' . $i] =
                     "<span class='badge bg-primary'>L</span>";
                 break;
-
-            case 3: // Week Off
+            case 3:
                 $row['d' . $i] =
                     "<span class='badge bg-info text-dark'>WO</span>";
                 break;
-
             default:
                 $row['d' . $i] = '';
         }
     }
-
     $data[] = $row;
 }
 
-/* ---------------- OUTPUT ---------------- */
 echo json_encode([
     "draw" => intval($draw),
     "recordsTotal" => $recordsTotal,

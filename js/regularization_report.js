@@ -75,7 +75,7 @@ $(function () {
 async function getCompanyName(selector) {
     return new Promise((resolve, reject) => {
         $.post(
-            "api/branch_creation/getCompanyName.php",
+            "api/attendance_files/get_company_list.php",
             {},
 
             function (response) {
@@ -160,9 +160,6 @@ function loadTableHeader(status) {
 
         header += `
             <th>Approved By</th>
-            <th>Approved From Date</th>
-            <th>Approved To Date</th>
-            <th>Approved Days/Hrs</th>
             <th>Remarks</th>
             <th>Status</th>
         `;

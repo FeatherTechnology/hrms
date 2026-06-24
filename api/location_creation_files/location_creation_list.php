@@ -12,8 +12,7 @@ $department_id = $_POST['params']['department_id'] ?? '';
 
 // 1. Fetch current logged-in user's role hierarchy context
 $user_stmt = $pdo->prepare("
-    SELECT
-        u.staff_name_id,
+    SELECT 
         dc.designation_level,
         u.user_type
     FROM users u
@@ -28,7 +27,6 @@ $user_stmt = $pdo->prepare("
 $user_stmt->execute([$user_id]);
 $current_user = $user_stmt->fetch();
 
-$my_staff_id  = $current_user['staff_name_id'] ?? 0;
 $my_level     = $current_user['designation_level'] ?? 0;
 $user_type  = $current_user['user_type'] ?? 0;
 
@@ -71,8 +69,6 @@ if ($user_type == 2) {
             des.designation_level > " . intval($my_level) . "
     ) ";
 }
-
-
 
 /* Apply Form Dropdown Filters */
 if ($company_id != '') {
