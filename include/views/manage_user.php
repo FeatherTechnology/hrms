@@ -138,11 +138,6 @@
                                     </div>
                                 </div>
 
-
-
-
-
-
                                 <!-- user content -->
 
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 user_div">
@@ -217,7 +212,7 @@
                         <div class="card-header">
                             <h5 class="card-title">Credential Info</h5>
                         </div>
-                        <div class="card-body credential_info" >
+                        <div class="card-body credential_info">
                             <div class="row">
                                 <div class="col-sm-4 col-md-4 col-lg-4">
                                     <div class="form-group">
