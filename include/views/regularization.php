@@ -7,10 +7,10 @@
             <div class="radio-container" style="margin-top:20px;">
                 <div class="selector">
                     <div class="selector-item" id="request_div">
-                        <input type="radio" id="pending" name="regularization_type" class="selector-item_radio" value="Request" checked>
+                        <input type="radio" id="pending" name="regularization_type" class="selector-item_radio" value="Request">
                         <label for="pending" class="selector-item_label">My Requests</label>
                     </div>
-                    <div class="selector-item">
+                    <div class="selector-item" id="approval_div">
                         <input type="radio" id="approved" name="regularization_type" class="selector-item_radio" value="Approval">
                         <label for="approved" class="selector-item_label">My Approvals</label>
                     </div>
@@ -134,10 +134,6 @@
                                     <label for="req_type">Request Type</label><span class="text-danger">*</span>
                                     <select class="form-control" id="req_type" name="req_type" tabindex="8">
                                         <option value="">Select Request Type</option>
-                                        <option value="1">Leave</option>
-                                        <option value="2">Permission</option>
-                                        <option value="3">Week off</option>
-                                        <option value="4">OT</option>
                                     </select>
                                 </div>
                             </div>
@@ -212,8 +208,8 @@
                                     <label for="approval_type">Approval</label><span class="text-danger">*</span>
                                     <select class="form-control" id="approval_type" name="approval_type" tabindex="16">
                                         <option value="0">Select Approval Type</option>
-                                        <option value="1">Yes</option>
-                                        <option value="2">No</option>
+                                        <option value="1">Approved</option>
+                                        <option value="2">Cancel</option>
                                     </select>
                                 </div>
                             </div>

@@ -1,5 +1,6 @@
 $(document).ready(function () {
   userTypeIdentification();
+  getRequestType();
 
   // to get regularization list
   $("input[name=regularization_type]").click(function () {
@@ -39,7 +40,7 @@ $(document).ready(function () {
 
   // back button hide and show
   $("#back_btn").click(function () {
-    if (currentUserType == 1) {
+    if (approval_required == 1) {
       $('input[name="regularization_type"][value="Approval"]').prop(
         "checked",
         true,
@@ -59,7 +60,7 @@ $(document).ready(function () {
     $(".staff_info_div").hide();
     $(".approval_div").hide();
 
-    if (currentUserType != 1) {
+    if (approval_required != 1) {
       $(".add_reg").show();
     }
 
@@ -350,6 +351,32 @@ $(document).ready(function () {
 // document end
 
 // function start
+
+/* --- Get Request Type --- */
+async function getRequestType() {
+  return new Promise((resolve, reject) => {
+    $.post(
+      "api/regularization_files/get_request_type.php",
+      {},
+      function (response) {
+        let dropdown = $("#req_type");
+        dropdown.empty();
+        dropdown.append('<option value="">Select Request Type</option>');
+
+        $.each(response, function (index, item) {
+          dropdown.append(
+            `<option value="${item.id}">${item.request_type}</option>`,
+          );
+        });
+
+        resolve();
+      },
+      "json",
+    ).fail(function (xhr, status, error) {
+      reject(error);
+    });
+  });
+}
 
 // to get the regularization list
 function getregularizationlist(type) {
@@ -764,34 +791,48 @@ function formatTime(time) {
   return `${hours}:${minutes} ${ampm}`;
 }
 
-let currentUserType = 0;
+let approval_required = "";
 
 function userTypeIdentification() {
   $.post(
     "api/regularization_files/user_type_identification.php",
     {},
     function (response) {
-      let res = JSON.parse(response);
+      const {
+        approval_required,
+        user_type,
+        allowed_request_type = "",
+      } = JSON.parse(response);
 
-      currentUserType = parseInt(res.user_type);
+      const hasRequestPermission = allowed_request_type
+        .split(",")
+        .includes("1");
 
-      if (currentUserType == 1) {
-        $(".add_reg").hide();
-        $("#request_div").hide();
+      // Request UI
+      $("#request_div, .add_reg").toggle(hasRequestPermission);
 
+      // Approval UI
+      $("#approval_div").toggle(approval_required == "1");
+
+      // Default selected radio
+      if (user_type == "1") {
         $('input[name="regularization_type"][value="Approval"]').prop(
           "checked",
           true,
         );
-
         getregularizationlist("Approval");
-      } else {
+      } else if (hasRequestPermission) {
         $('input[name="regularization_type"][value="Request"]').prop(
           "checked",
           true,
         );
-
         getregularizationlist("Request");
+      } else {
+        $('input[name="regularization_type"][value="Approval"]').prop(
+          "checked",
+          true,
+        );
+        getregularizationlist("Approval");
       }
     },
   );

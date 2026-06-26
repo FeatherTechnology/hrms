@@ -118,8 +118,8 @@ $(document).ready(function () {
     });
 
     $(document).on('input', '.ctc_amount', function () {
-
-        let totalCTC = parseFloat($('#total_ctc').val()) || 0;
+        
+        let totalCTC = parseFloat($('#total_ctc').val().replace(/,/g, '')) || 0;
 
         if (totalCTC <= 0) {
             swalError('Warning', 'Please Enter Total CTC First');
@@ -127,7 +127,7 @@ $(document).ready(function () {
             return false;
         }
 
-        let currentAmount = parseFloat($(this).val()) || 0;
+        let currentAmount = parseFloat($(this).val().replace(/,/g, '')) || 0;
         let category = $(this).closest('tr').find('td:eq(3)').text().trim();
 
         let percentage = 0;
@@ -798,11 +798,11 @@ function calculateTotals(currentInput) {
     let salaryAmount = 0;
     let salaryPercentage = 0;
 
-    let enteredCTC = parseFloat($('#total_ctc').val()) || 0;
+    let enteredCTC = parseFloat($('#total_ctc').val().replace(/,/g, '')) || 0;
 
     $('#ctc_info_table tbody tr').each(function () {
 
-        let amount = parseFloat($(this).find('.ctc_amount').val()) || 0;
+        let amount = parseFloat($(this).find('.ctc_amount').val().replace(/,/g, '')) || 0;
         let percentage = parseFloat($(this).find('.ctc_percentage').val()) || 0;
         let category = $(this).find('td:eq(3)').text().trim();
 
@@ -909,8 +909,6 @@ function enablePromotionSection() {
     setCTCTableReadonly(true);
     $('#designation').prop('disabled', false);
     $('#reporting_person').prop('disabled', false);
-    $('#designation').val(''); // Clear to force new selection
-    $('#reporting_person').val(''); // Clear to force new selection
 }
 
 function enableTransferSection() {
@@ -922,13 +920,6 @@ function enableTransferSection() {
     $('#team').prop('disabled', false);
     $('#branch_admin').prop('disabled', false);
     $('.branch_div').hide();
-
-    // Clear values for new selection
-    $('#branch_name').val('');
-    $('#branch').val('');
-    $('#department').val('');
-    $('#team').val('');
-    $('#branch_admin').val('');
 
 }
 
@@ -943,16 +934,6 @@ function enableIncrementSection() {
     $('#ctc_info_table').find('input, select').prop('disabled', false);
     $('.ctc_amount').prop('readonly', false);
 
-    // Clear values for new selection
-    $('#pf_available').val('');
-    $('#esi_available').val('');
-    $('#pt_available').val('');
-    $('#total_ctc').val('');
-    $('.ctc_amount').prop('readonly', false).val('');
-    $('.ctc_percentage').val('');
-
-    $('#total_ctc_amount').val('');
-    $('#total_ctc_percentage').val('');
 }
 
 function setCTCTableReadonly(isReadonly) {

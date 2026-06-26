@@ -4,11 +4,12 @@ session_start();
 
 $userid = $_SESSION['user_id'];
 
-$stmt = $pdo->prepare("SELECT user_type FROM users WHERE id = ?");
+$stmt = $pdo->prepare("SELECT allowed_request_type, approval_required , user_type
+    FROM users
+    WHERE id = ?
+");
 $stmt->execute([$userid]);
 
-$user_type = $stmt->fetchColumn();
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-echo json_encode([
-    'user_type' => $user_type
-]);
+echo json_encode($user);

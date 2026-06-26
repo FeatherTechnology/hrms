@@ -14,6 +14,9 @@ $userStmt = $pdo->prepare("SELECT
         u.staff_name_id,
         u.user_type,
         u.director_company,
+        u.approval_required,
+        u.allowed_request_type,
+        u.approved_request_type,
         sc.staff_type,
         sc.company_id,
         dc.designation_level
@@ -32,12 +35,15 @@ $userStmt = $pdo->prepare("SELECT
 $userStmt->execute([$userid]);
 $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
 
-$staff_type   = $userData['staff_type'] ?? '';
-$company_id   = $userData['company_id'] ?? '';
-$my_staff_id  = $userData['staff_name_id'] ?? 0;
-$my_level     = $userData['designation_level'] ?? 0;
-$user_type    = $userData['user_type'] ?? 0;
-$director_company = $userData['director_company'] ?? '';
+$staff_type         = $userData['staff_type'] ?? '';
+$company_id         = $userData['company_id'] ?? '';
+$my_staff_id        = $userData['staff_name_id'] ?? 0;
+$approval_required  = $userData['approval_required'] ?? '';
+$allowed_request_type  = $userData['allowed_request_type'] ?? '';
+$approved_request_type  = $userData['approved_request_type'] ?? '';
+$my_level           = $userData['designation_level'] ?? 0;
+$user_type          = $userData['user_type'] ?? 0;
+$director_company   = $userData['director_company'] ?? '';
 
 /* ---------- Mappings ---------- */
 $Req_type = [1 => 'Leave', 2 => 'Permission', 3 => 'Week Off', 4 => 'OT'];
@@ -117,6 +123,9 @@ if ($type == 'Approval') {
         $baseQuery .= " AND descr.designation_level > :my_level ";
         $params[':my_level'] = $my_level;
     }
+
+    $types = array_map('intval', explode(',', $approved_request_type));
+    $baseQuery .= " AND reg.req_type IN (" . implode(',', $types) . ")";
 }
 
 if ($user_type == 1) {

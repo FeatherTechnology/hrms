@@ -32,7 +32,8 @@ WHERE lc.id = :cmpy_id; ";
     // to get the permission balance
 } else if ($req_type == '2') {
 
-    $query = "  SELECT 
+    $query = "  SELECT sc.start_time,
+    sc.end_time,
     cp.max_permission,
     COUNT(reg.id) AS used_count,
     (cp.max_permission - COUNT(reg.id)) AS balance

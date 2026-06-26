@@ -12,6 +12,7 @@ $(document).ready(function () {
   // to change the user type director or staff
   $("#user_type").on("change", function () {
     var usertype = $(this).val();
+
     if (usertype == 1) {
       $(".director_div").show();
       $(".user_div").hide();
@@ -22,22 +23,135 @@ $(document).ready(function () {
       $(".user_div").show();
       getCompanyName("#company_name");
     }
+
+    // Reset Regularization fields
+    $("#approval_required").val("").css("border", "");
+
+    $(".regularization-type, .approval-type").each(function () {
+      const choices = $(this).data("choices");
+
+      if (choices) {
+        choices.removeActiveItems();
+      }
+
+      $(this).closest(".choices").css("border", "");
+    });
+
+    // Hide Approval Types section
+    $(".approval-type-container").hide();
+
+    // Show/Hide Allowed Request Types
+    if ($("#regularization").is(":checked")) {
+      if (usertype == "1") {
+        $(".regularization-request-container").hide();
+      } else {
+        $(".regularization-request-container").show();
+      }
+    }
   });
 
-  // when i click the add user button
-  $(".add_user_btn").click(function () {
+  $(document).on("change", ".submenu-checkbox", function () {
+    $(this)
+      .closest(".col-xl-3")
+      .nextAll(".regularization-options")
+      .slice(0, 3)
+      .toggle(this.checked);
+  });
+
+  $(document).on("change", "#regularization", function () {
+    if ($(this).is(":checked")) {
+      $(".regularization-options").show();
+
+      // Hide Allowed Request Types for Director
+      if ($("#user_type").val() === "1") {
+        $(".regularization-request-container").hide();
+      } else {
+        $(".regularization-request-container").show();
+      }
+
+      return;
+    }
+
+    // Hide all Regularization fields
+    $(".regularization-options, .approval-type-container").hide();
+
+    // Reset normal select
+    $(".approval-required").val("").css("border", "");
+
+    // Reset Choices.js controls
+    $(".regularization-type, .approval-type").each(function () {
+      let choices = $(this).data("choices");
+
+      if (choices) {
+        choices.removeActiveItems();
+      }
+
+      $(this).closest(".choices").css("border", "");
+    });
+  });
+
+  $(document).on("change", ".approval-required", function () {
+    let container = $(this).closest(".row").find(".approval-type-container");
+
+    if ($(this).val() === "1") {
+      container.show();
+    } else {
+      container.hide();
+      $(".approval-type").each(function () {
+        let choices = $(this).data("choices");
+        if (choices) choices.removeActiveItems();
+
+        // Clear validation border
+        $(this).closest(".choices").css("border", "");
+      });
+    }
+  });
+
+  $(document).on("change", "#regularization-mainmenu", function () {
+    if ($(this).is(":checked")) {
+      return;
+    }
+
+    // Hide all Regularization fields
+    $(".regularization-options").hide();
+    $(".approval-type-container").hide();
+
+    // Uncheck Regularization submenu
+    $("#regularization").prop("checked", false);
+
+    // Reset Approval Required
+    $("#approval_required").val("").css("border", "");
+
+    // Reset Choices.js fields
+    $(".regularization-type, .approval-type").each(function () {
+      const choices = $(this).data("choices");
+
+      if (choices) {
+        choices.removeActiveItems();
+      }
+
+      $(this).closest(".choices").css("border", "");
+    });
+  });
+
+  // When clicking the Add User button
+  $(".add_user_btn").click(async function () {
     $("#reset_btn").show();
     $(".add_user_btn").hide();
     $(".back_to_userList_btn").show();
-    $("#search_container,.radio_container,.table_container").hide();
+
+    $("#search_container, .radio_container, .table_container").hide();
     $("#user_creation_content").show();
+
     $(".director_div").hide();
     $(".user_div").hide();
+
     $("#user_type").val("");
     $(".credential_info").find("input, select").val("");
+
     let userid = $("#user_creation_id").val();
 
-    getMenuSubMenuList(userid);
+    await getMenuSubMenuList(userid);
   });
 
   // when i click the back button
@@ -125,10 +239,9 @@ $(document).ready(function () {
 
     // Collect selected submenu IDs
     let selectedSubmenuIds = [];
-    $('input[type="checkbox"]:checked').each(function () {
-      if ($(this).hasClass("submenu-checkbox")) {
-        selectedSubmenuIds.push($(this).val());
-      }
+
+    $(".submenu-checkbox:checked").each(function () {
+      selectedSubmenuIds.push($(this).val());
     });
 
     let userFormData = {
@@ -143,18 +256,24 @@ $(document).ready(function () {
       confirm_password: $("#confirm_password").val(),
       download_access: $("#download_access").val(),
       home_access: $("#home_access").val(),
+      allowed_request_type: $("#allowed_request_type").val(),
+      approval_required: $("#approval_required").val(),
+      approved_request_type: $("#approved_request_type").val(),
       report_access: $("#report_access").val(),
-
       submenus: selectedSubmenuIds,
       id: $("#user_creation_id").val(),
     };
 
     let userType = $("#user_type").val();
+
     if (!userType) {
       swalError("Warning", "Please select User Type!");
       return;
     }
-    var data = [];
+
+    let data = [];
+    let isValid = true;
+
     if (userType == "1") {
       data = [
         "director_name",
@@ -164,7 +283,7 @@ $(document).ready(function () {
         "download_access",
         "home_access",
       ];
-      // Multi company validation for user type 1
+
       let companyValid = validateMultiSelectField(
         "multi_company_name",
         companyMultiple,
@@ -185,19 +304,35 @@ $(document).ready(function () {
         "home_access",
       ];
     }
-    // Validate report_access only if reports-mainmenu is selected
+
+    // Validate report access only if Reports menu is selected
     if ($("#reports-mainmenu").is(":checked")) {
       data.push("report_access");
     }
-    var isValid = true;
-    data.forEach(function (entry) {
-      if (!validateField($("#" + entry).val(), entry)) {
+
+    data.forEach(function (field) {
+      if (!validateField($("#" + field).val(), field)) {
         isValid = false;
       }
     });
 
-    if (isValid) {
-      if (selectedSubmenuIds.length > 0) {
+    if (!isValid) {
+      return;
+    }
+
+    if (selectedSubmenuIds.length === 0) {
+      swalError("Warning", "Please select at least one screen!");
+      return;
+    }
+
+    if (!validateRegularization()) {
+      return;
+    }
+
+    swalConfirm(
+      "Are you sure?",
+      "Do you want to submit this User Creation?",
+      function () {
         $.post(
           "api/user_creation_files/submit_user_creation.php",
           userFormData,
@@ -220,6 +355,7 @@ $(document).ready(function () {
                 $(".radio_container,.table_container").show();
                 $("#view_staff").trigger("click");
               }
+
               $("#reset_btn").hide();
               $(".add_user_btn").show();
               $(".back_to_userList_btn").hide();
@@ -227,19 +363,18 @@ $(document).ready(function () {
               $("#user_creation_content").hide();
               $("#user_creation_id").val("0");
             }
+
             let sessionId = $("#session_user_id").val();
+
             if (response.last_id == sessionId) {
-              getLeftbarMenuList(); //After Submit/Update Leftbar want to refresh to view the changes.
+              getLeftbarMenuList(); // Refresh left menu after update
             }
           },
           "json",
         );
-      } else {
-        swalError("Warning", "Please fill out mandatory fields!");
-      }
-    }
+      },
+    );
   });
-
 
   /* --- Edit User Creation --- */
   $(document).on("click", ".userActionBtn", async function () {
@@ -261,7 +396,7 @@ $(document).ready(function () {
       $("#user_creation_id").val(id);
       let userid = $("#user_creation_id").val();
 
-      getMenuSubMenuList(userid);
+      await getMenuSubMenuList(userid);
       await getCompanyName("#company_name");
       await getCompanyNameDropdown();
 
@@ -274,9 +409,7 @@ $(document).ready(function () {
         $("#multi_company_name2").val(response[0].director_company);
 
         await getCompanyNameDropdown();
-
       } else {
-
         $(".director_div").hide();
         $(".user_div").show();
         $("#company_name").val(response[0].company_id);
@@ -297,6 +430,50 @@ $(document).ready(function () {
       $("#download_access").val(response[0].download_access);
       $("#home_access").val(response[0].home_access);
       $("#report_access").val(response[0].report_access);
+
+      // Check if Regularization permission is selected
+      if ($("#regularization").is(":checked")) {
+        $(".regularization-options").show();
+
+        let requestChoices = $("#allowed_request_type").data("choices");
+
+        if (requestChoices) {
+          requestChoices.removeActiveItems();
+
+          if (response[0].allowed_request_type) {
+            requestChoices.setChoiceByValue(
+              response[0].allowed_request_type.split(",").map((v) => v.trim()),
+            );
+          }
+        }
+
+        $("#approval_required").val(response[0].approval_required);
+
+        if (response[0].approval_required == "1") {
+          $(".approval-type-container").show();
+
+          let approvalChoices = $("#approved_request_type").data("choices");
+
+          if (approvalChoices) {
+            approvalChoices.removeActiveItems();
+
+            if (approvalChoices && response[0].approved_request_type) {
+              approvalChoices.setChoiceByValue(
+                response[0].approved_request_type
+                  .split(",")
+                  .map((v) => v.trim()),
+              );
+            }
+          }
+        }
+      }
+
+      // Apply User Type visibility after showing regularization fields
+      if (response[0].user_type == "1") {
+        $(".regularization-request-container").hide();
+      } else {
+        $(".regularization-request-container").show();
+      }
     } catch (error) {
       console.error("Failed to fetch branch data:", error);
     }
@@ -542,79 +719,159 @@ function getUserCreationTable(company_id, user_type) {
 
 /* --- Get Menu Sub Menu List --- */
 function getMenuSubMenuList(userId) {
-  $.post(
-    "api/user_creation_files/get_menu_submenu_list.php",
-    function (response) {
-      $("#dynamic-menus").empty();
-      // Group submenus by main menu
-      var grouped = {};
-      response.forEach(function (item) {
-        if (!grouped[item.main_menu_link]) {
-          grouped[item.main_menu_link] = {
-            main_menu: item.main_menu,
-            submenus: [],
-          };
-        }
-        if (item.sub_menu) {
-          grouped[item.main_menu_link].submenus.push({
-            sub_menu: item.sub_menu,
-            sub_menu_link: item.sub_menu_link,
-            sub_menu_id: item.sub_menu_id,
-          });
-        }
-      });
+  return new Promise((resolve, reject) => {
+    $.post(
+      "api/user_creation_files/get_menu_submenu_list.php",
+      function (response) {
+        $("#dynamic-menus").empty();
 
-      // Iterate over grouped data to generate HTML
-      var tabindex = 18;
-      for (var mainMenuLink in grouped) {
-        var menu = grouped[mainMenuLink];
-        const menuHtml = `
+        // Group submenus by main menu
+        let grouped = {};
+
+        response.forEach(function (item) {
+          if (!grouped[item.main_menu_link]) {
+            grouped[item.main_menu_link] = {
+              main_menu: item.main_menu,
+              submenus: [],
+            };
+          }
+
+          if (item.sub_menu) {
+            grouped[item.main_menu_link].submenus.push({
+              sub_menu: item.sub_menu,
+              sub_menu_link: item.sub_menu_link,
+              sub_menu_id: item.sub_menu_id,
+            });
+          }
+        });
+
+        let tabindex = 18;
+
+        for (let mainMenuLink in grouped) {
+          var menu = grouped[mainMenuLink];
+          const menuHtml = `
                 <div class="custom-control custom-checkbox main-menu">
                     <input type="checkbox" value="Yes" name="${mainMenuLink}-mainmenu" id="${mainMenuLink}-mainmenu" tabindex="${tabindex}">&nbsp;&nbsp;
                     <label class="custom-control-label" for="${mainMenuLink}-mainmenu">
                         <h5>${menu.main_menu}</h5>
                     </label>
-                </div> 
+                </div>
                 </br>
                 <div class="row" id="${mainMenuLink}-mainmenu-submenus">
                     <!-- Submenus will be appended here -->
                 </div>
                 <hr>
             `;
-        $("#dynamic-menus").append(menuHtml);
-        tabindex++;
-        menu.submenus.forEach(function (submenu) {
-          const submenuHtml = `
-                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" value="${submenu.sub_menu_id}" class=" submenu-checkbox" name="${submenu.sub_menu_link}" id="${submenu.sub_menu_link}" tabindex="${tabindex}" disabled>&nbsp;&nbsp;
-                            <label class="custom-control-label" for="${submenu.sub_menu_link}">${submenu.sub_menu}</label>
-                        </div>
-                    </div>
-                `;
-          $(`#${mainMenuLink}-mainmenu-submenus`).append(submenuHtml);
+          $("#dynamic-menus").append(menuHtml);
           tabindex++;
-        });
-      }
+          menu.submenus.forEach(function (submenu) {
+            let submenuHtml = "";
 
-      // Fetch user permissions and set checkbox states
-      $.post(
-        "api/user_creation_files/get_user_permissions.php",
-        { user_id: userId },
-        function (userPermissions) {
-          // Set main menu checkboxes
-          userPermissions.forEach(function (permission) {
-            $(`#${permission.main_menu_link}-mainmenu`).prop("checked", true);
-            $(`#${permission.main_menu_link}-mainmenu`).trigger("change"); // Trigger change event to enable submenus
+            if (submenu.sub_menu.toLowerCase() === "regularization") {
+              submenuHtml = `
+              <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                  <div class="custom-control custom-checkbox">
+                      <input type="checkbox"
+                          value="${submenu.sub_menu_id}"
+                          class="submenu-checkbox"
+                          name="${submenu.sub_menu_link}"
+                          id="${submenu.sub_menu_link}"
+                          tabindex="${tabindex}"
+                          disabled>
 
-            $(`#${permission.sub_menu_link}`).prop("checked", true);
+                      <label class="custom-control-label"
+                          for="${submenu.sub_menu_link}">
+                          ${submenu.sub_menu}
+                      </label>
+                  </div>
+              </div>
+
+              <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 regularization-request-container regularization-options" style="display:none;">
+                  <div class="form-group">
+                      <label>Allowed Request Types</label>
+                      <select class="form-control regularization-type" id="allowed_request_type" multiple>
+                          <option value="1">Leave</option>
+                          <option value="2">Permission</option>
+                          <option value="3">Week Off</option>
+                          <option value="4">OT</option>
+                      </select>
+                  </div>
+              </div>
+
+              <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 regularization-options" style="display:none;">
+                  <div class="form-group">
+                      <label>Approval Required</label>
+                      <select class="form-control approval-required" id="approval_required">
+                          <option value="">Select</option>
+                          <option value="1">Yes</option>
+                          <option value="2">No</option>
+                      </select>
+                  </div>
+              </div>
+
+              <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 approval-type-container" style="display:none;">
+                  <div class="form-group">
+                      <label>Allowed Approval Types</label>
+                      <select class="form-control approval-type" id="approved_request_type" multiple>
+                          <option value="1">Leave</option>
+                          <option value="2">Permission</option>
+                          <option value="3">Week Off</option>
+                          <option value="4">OT</option>
+                      </select>
+                  </div>
+              </div>
+            `;
+            } else {
+              submenuHtml = `
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox"
+                    value="${submenu.sub_menu_id}"
+                    class="submenu-checkbox"
+                    name="${submenu.sub_menu_link}"
+                    id="${submenu.sub_menu_link}"
+                    tabindex="${tabindex}"
+                    disabled>
+
+                <label class="custom-control-label ms-2"
+                    for="${submenu.sub_menu_link}">
+                    ${submenu.sub_menu}
+                </label>
+            </div>
+        </div>`;
+            }
+
+            $(`#${mainMenuLink}-mainmenu-submenus`).append(submenuHtml);
+
+            tabindex++;
           });
-        },
-        "json",
-      );
-    },
-    "json",
-  );
+        }
+
+        // Initialize Choices only once
+        initializeRegularizationChoices();
+
+        // Get user permissions
+        $.post(
+          "api/user_creation_files/get_user_permissions.php",
+          { user_id: userId },
+          function (userPermissions) {
+            userPermissions.forEach(function (permission) {
+              $(`#${permission.main_menu_link}-mainmenu`)
+                .prop("checked", true)
+                .trigger("change");
+
+              $(`#${permission.sub_menu_link}`).prop("checked", true);
+            });
+
+            // Everything finished
+            resolve();
+          },
+          "json",
+        ).fail(reject);
+      },
+      "json",
+    ).fail(reject);
+  });
 }
 
 /* --- Get Auto Increment User ID --- */
@@ -691,7 +948,7 @@ async function getCompanyNameDropdown() {
   }
 }
 
-// to get the director name 
+// to get the director name
 function getDirectorName() {
   return new Promise((resolve, reject) => {
     $.post(
@@ -719,7 +976,7 @@ function getDirectorName() {
   });
 }
 
-// to get the company name 
+// to get the company name
 async function getCompanyName(selector) {
   return new Promise((resolve, reject) => {
     $.post(
@@ -745,4 +1002,114 @@ async function getCompanyName(selector) {
       reject(error);
     });
   });
+}
+
+function initializeChoices(selector, placeholder) {
+  $(selector).each(function () {
+    if ($(this).data("choices")) return;
+
+    $(this).data(
+      "choices",
+      new Choices(this, {
+        removeItemButton: true,
+        placeholder: true,
+        placeholderValue: placeholder,
+        itemSelectText: "",
+        searchEnabled: false,
+        allowHTML: false,
+      }),
+    );
+  });
+}
+
+function initializeRegularizationChoices() {
+  initializeChoices(".regularization-type", "Select Allowed Request");
+  initializeChoices(".approval-type", "Select Approved Request");
+}
+
+function validateRegularization() {
+  if (!$("#regularization").is(":checked")) {
+    return true;
+  }
+
+  let valid = true;
+  const userType = $("#user_type").val();
+
+  const requestTypes = $(".regularization-type").val();
+  const approvalRequired = $(".approval-required").val();
+  const approvalTypes = $(".approval-type").val();
+
+  // Reset borders
+  $(".regularization-type").closest(".choices").css("border", "");
+  $(".approval-type").closest(".choices").css("border", "");
+  $(".approval-required").css("border", "");
+
+  if (userType === "1") {
+    // Director Validation
+
+    // Approval Required is mandatory
+    if (approvalRequired === "") {
+      $(".approval-required").css("border", "1px solid red");
+      valid = false;
+    }
+
+    // If Approval Required = Yes,
+    // Allowed Approval Types is mandatory
+    if (approvalRequired === "1") {
+      if (!approvalTypes || approvalTypes.length === 0) {
+        $(".approval-type").closest(".choices").css("border", "1px solid red");
+        valid = false;
+      }
+    }
+  } else {
+    // Staff Validation
+
+    // At least one field must be selected
+    if (
+      (!requestTypes || requestTypes.length === 0) &&
+      approvalRequired === ""
+    ) {
+      $(".regularization-type")
+        .closest(".choices")
+        .css("border", "1px solid red");
+
+      $(".approval-required").css("border", "1px solid red");
+
+      swalError(
+        "Warning",
+        "Please select at least one field in the Regularization settings.",
+      );
+
+      return false;
+    }
+
+    // If Approval Required is No,
+    // Allowed Request Types is not mandatory
+    if (
+      approvalRequired === "2" &&
+      (!requestTypes || requestTypes.length === 0)
+    ) {
+      $(".regularization-type")
+        .closest(".choices")
+        .css("border", "1px solid red");
+
+      valid = false;
+    }
+
+    // If Approval Required = Yes,
+    // Allowed Approval Types is mandatory
+    if (approvalRequired === "1") {
+      if (!approvalTypes || approvalTypes.length === 0) {
+        $(".approval-type").closest(".choices").css("border", "1px solid red");
+
+        valid = false;
+      }
+    }
+  }
+
+  if (!valid) {
+    swalError("Warning", "Please complete the Regularization settings.");
+  }
+
+  return valid;
 }
