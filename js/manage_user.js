@@ -980,7 +980,7 @@ function getDirectorName() {
 async function getCompanyName(selector) {
   return new Promise((resolve, reject) => {
     $.post(
-      "api/attendance_files/get_company_list.php",
+      "api/user_creation_files/get_company_name.php",
       {},
 
       function (response) {

@@ -21,9 +21,6 @@ $reporting_person_type = (strtolower($_POST['reporting_person_type']) == 'direct
 
 $branch_admin     = $_POST['branch_admin'];
 $branch           = $_POST['branch'];
-$pf_available     = $_POST['pf_available'];
-$esi_available    = $_POST['esi_available'];
-$pt_available     = $_POST['pt_available'];
 $total_ctc        = $_POST['total_ctc'];
 $annual_ctc       = $_POST['annual_ctc'];
 $occ_status       = $_POST['occ_status'];
@@ -59,16 +56,11 @@ $reporting_old      = $oldOcc['reporting_person'];
 $reporting_person_type_old     = $oldOcc['reporting_person_type'];
 $branch_old         = $oldOcc['branch'];
 
-$pf_old             = $oldOcc['pf_available'];
-$esi_old            = $oldOcc['esi_available'];
-$pt_old             = $oldOcc['pt_available'];
-
 $total_ctc_old      = $oldOcc['total_ctc'];
 $annual_ctc_old     = $oldOcc['annual_ctc'];
 
 $shift_old          = $oldOcc['shift'];
-$ot_payment_old     = $oldOcc['ot_payment'];
-$ot_per_hour_old    = $oldOcc['ot_per_hour'];
+$ot_payment_old     = $oldOcc['ot_payment']; 
 $ot_per_day_old     = $oldOcc['ot_per_day'];
 
 
@@ -105,10 +97,6 @@ if ($occ_status == '2') {
 =================================*/
 if ($occ_status == '3') {
 
-    $pf_old         = $pf_available;
-    $esi_old        = $esi_available;
-    $pt_old         = $pt_available;
-
     $total_ctc_old  = $total_ctc;
     $annual_ctc_old = $annual_ctc;
 
@@ -139,16 +127,11 @@ $pdo->query("
     reporting_person_type = '$reporting_person_type_old',
     branch           = '$branch_old',
 
-    pf_available     = '$pf_old',
-    esi_available    = '$esi_old',
-    pt_available     = '$pt_old',
-
     total_ctc        = '$total_ctc_old',
     annual_ctc       = '$annual_ctc_old',
 
     shift            = '$shift_old',
     ot_payment       = '$ot_payment_old',
-    ot_per_hour      = '$ot_per_hour_old',
     ot_per_day       = '$ot_per_day_old',
 
     effective_from   = '$effective_date',

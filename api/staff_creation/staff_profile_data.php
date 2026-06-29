@@ -11,7 +11,6 @@ $result = array();
 $qry = $pdo->query("
     SELECT 
         sc.*,
-
         oi.branch_id,
         oi.department,
         oi.team,
@@ -20,14 +19,10 @@ $qry = $pdo->query("
         oi.branch_admin,
         oi.reporting_person,
         oi.branch,
-        oi.pf_available,
-        oi.esi_available,
-        oi.pt_available,
         oi.total_ctc,
         oi.annual_ctc,
         oi.shift,
-        oi.ot_payment,
-        oi.ot_per_hour,
+        oi.ot_payment, 
         oi.ot_per_day
 
     FROM staff_creation sc

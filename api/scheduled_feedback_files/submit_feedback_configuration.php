@@ -12,8 +12,7 @@ try {
     $feedback_config_department_name2  = isset($_POST['feedback_config_department_name2']) ? explode(',', $_POST['feedback_config_department_name2']) : [];
     $feedback_config_start_date        = $_POST['feedback_config_start_date'];
     $feedback_config_end_date          = $_POST['feedback_config_end_date'];
-    $feedback_title                    = trim($_POST['feedback_title']);
-    $feedback_status                   = $_POST['feedback_status'];
+    $feedback_title                    = trim($_POST['feedback_title']); 
     $feedback_questions                = isset($_POST['feedback_questions']) ? $_POST['feedback_questions'] : [];
 
     $user_id                           = $_SESSION['user_id'];
@@ -30,7 +29,6 @@ try {
                 start_date_time         = ?,
                 end_date_time           = ?,
                 feedback_title          = ?,
-                feedback_status         = ?,
                 update_login_id          = ?,
                 updated_date            = NOW()
             WHERE id = ?
@@ -41,7 +39,6 @@ try {
             $feedback_config_start_date,
             $feedback_config_end_date,
             $feedback_title,
-            $feedback_status,
             $user_id,
             $feedback_titles_id
         ]);
@@ -101,7 +98,7 @@ try {
             $feedback_config_start_date,
             $feedback_config_end_date,
             $feedback_title,
-            $feedback_status,
+            0,
             $user_id
         ]);
 

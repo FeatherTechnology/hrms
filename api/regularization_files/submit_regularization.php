@@ -14,6 +14,7 @@ $des_id = $_POST['des_id'];
 $team_id = $_POST['team_id'];
 $req_type = $_POST['req_type'];
 $leave_type = $_POST['leave_type'];
+$leave_period = $_POST['leave_period'];
 $balance_req = $_POST['balance_req'];
 $current_month_ot_count = $_POST['current_month_ot_count'];
 $total_min = $_POST['total_min'];
@@ -63,12 +64,12 @@ try {
 
         $sql = "INSERT INTO regularization (
             staff_profile_id, company_id, branch_id, dep_id, des_id, team_id,
-            req_type, leave_type, balance_req, current_month_ot_count, req_date,
+            req_type, leave_type,leave_period, balance_req, current_month_ot_count, req_date,
             from_date, to_date, total_min,
             reason, status, insert_login_id, created_date
         ) VALUES (
             '$stf_prf_id', '$cmpy_id', '$branch_id', '$dep_id', '$des_id', '$team_id',
-            '$req_type', '$leave_type', '$balance_req', '$current_month_ot_count', '$req_date',
+            '$req_type', '$leave_type', '$leave_period','$balance_req', '$current_month_ot_count', '$req_date',
             '$from_date', '$to_date', '$total_min',
             '$reason', '$approval_type', '$user_id', NOW()
         )";

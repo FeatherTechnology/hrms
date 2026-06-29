@@ -37,6 +37,9 @@ $getStaff = $pdo->query("
         sc.staff_id,
         sc.staff_name,
         sc.staff_type,
+        sc.pf_available,
+        sc.esi_available,
+        sc.pt_available,
 
         bc.branch_name,
         depcr.department_name as department,
@@ -45,9 +48,6 @@ $getStaff = $pdo->query("
         cc.company_name,
 
         o.total_ctc,
-        o.pf_available,
-        o.esi_available,
-        o.pt_available,
         o.shift,
         o.ot_payment,
         o.ot_per_day
@@ -153,26 +153,84 @@ while ($staff = $getStaff->fetch()) {
         $shift_hours = $m[1] ?? 0;
     }
 
-    // PRESENT DAYS
-    $attQry = $pdo->query("
-        SELECT COUNT(DISTINCT DATE(entry_time)) as present_days
+    // PRESENT DAYS CALCULATION
+
+    // GET SHIFT DETAILS
+    $shiftQry = $pdo->query("
+        SELECT 
+            start_time,
+            end_time,
+            grace_time
+        FROM shift_creation
+        WHERE id = '" . $staff['shift'] . "'
+    ");
+
+    $shift = $shiftQry->fetch();
+
+
+    $present_days = 0;
+
+
+    if ($shift) {
+
+
+        // GET ATTENDANCE RECORDS
+        $attQry = $pdo->query("
+        SELECT 
+            DATE(entry_time) AS att_date,
+            entry_time
         FROM attendance
         WHERE staff_profile_id = '$staff_profile_id'
         AND DATE(entry_time) BETWEEN '$start_date' AND '$end_date'
     ");
 
-    $present_days = $attQry->fetch()['present_days'] ?? 0;
+        while ($att = $attQry->fetch()) {
+
+            $shift_start = strtotime(
+                $att['att_date'] . " " . $shift['start_time']
+            );
+
+            $shift_end = strtotime(
+                $att['att_date'] . " " . $shift['end_time']
+            );
+
+            $allowed_time = $shift_start +
+                (intval($shift['grace_time']) * 60);
+
+
+            $second_half_start =
+                $shift_start +
+                (($shift_end - $shift_start) / 2);
+
+
+            $entry_time = strtotime($att['entry_time']);
+
+            // FULL DAY PRESENT
+            if ($entry_time <= $allowed_time) {
+                $present_days += 1;
+            }
+
+            // HALF DAY PRESENT
+            else if ($entry_time <= $second_half_start) {
+                $present_days += 0.5;
+            }
+            // AFTER SECOND HALF
+            else {
+                $present_days += 0;
+            }
+        }
+    }
 
     // APPROVED LEAVE (req_type = 1) 
     $leaveQry = $pdo->query("
-        SELECT from_date, to_date
-        FROM regularization
-        WHERE staff_profile_id = '$staff_profile_id'
-        AND req_type = 1
-        AND status = 1
-        AND DATE(from_date) <= '$end_date'
-        AND DATE(to_date) >= '$start_date'
-    ");
+            SELECT from_date, to_date, leave_period
+            FROM regularization
+            WHERE staff_profile_id = '$staff_profile_id'
+            AND req_type = 1
+            AND status = 1
+            AND DATE(from_date) <= '$end_date'
+            AND DATE(to_date) >= '$start_date'
+        ");
 
     $approved_leave = 0;
 
@@ -188,7 +246,13 @@ while ($staff = $getStaff->fetch()) {
         $b = min($e, $me);
 
         if ($b >= $a) {
-            $approved_leave += (($b - $a) / 86400) + 1;
+
+            if ($leave['leave_period'] == 1 || $leave['leave_period'] == 2) {
+                $approved_leave += 0.5;
+            } else {
+                $approved_leave += (($b - $a) / 86400) + 1;
+            }
+
         }
     }
     // TOTAL PAYABLE DAYS
@@ -241,7 +305,7 @@ while ($staff = $getStaff->fetch()) {
     // CTC BASED OT
     if ($staff['ot_payment'] == 1 && $shift_hours > 0 && $working_days > 0) {
 
-        $per_hour = $staff['total_ctc'] / $working_days / $shift_hours;
+        $per_hour = $staff['total_ctc'] / $total_days  / $shift_hours;
 
         $ot_amount = $per_hour * $total_ot_hours;
     }

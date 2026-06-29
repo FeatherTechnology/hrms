@@ -180,7 +180,6 @@ $(document).ready(function () {
     toggleBranchField();
   });
 
-
   $("#ot_payment").on("change", function () {
     toggleOTField();
   });
@@ -576,7 +575,7 @@ $(document).ready(function () {
     var data = [
       "company_name",
       "staff_auto_id",
-      "staff_name", 
+      "staff_name",
       "address",
       "state",
       "district",
@@ -691,10 +690,11 @@ $(document).ready(function () {
             getFamilyInfoTable();
             getQualificationInfoTable();
             getExperienceInfoTable();
+            getCompanyPFDetails(company_name);
           }
         },
       });
-    }else{
+    } else {
       $("#submit_staff").attr("disabled", false);
     }
   });
@@ -708,7 +708,7 @@ $(document).ready(function () {
     let pic = $("#pic")[0].files[0];
     let per_pic = $("#per_pic").val();
     let staff_id = $("#staff_auto_id").val();
-    let staff_name = $("#staff_name").val(); 
+    let staff_name = $("#staff_name").val();
     let address = $("#address").val();
     let state = $("#state").val();
     let district = $("#district").val();
@@ -745,20 +745,24 @@ $(document).ready(function () {
     let designation = $("#designation").val();
     let off_type = $("#off_type").val();
     let reporting_person = $("#reporting_person").val();
-    let reporting_person_type = $("#reporting_person").find(":selected").data("type");
+    let reporting_person_type = $("#reporting_person")
+      .find(":selected")
+      .data("type");
     let branch_admin = $("#branch_admin").val();
     let branch = $("#branch").val();
     let total_ctc = $("#total_ctc").val().replace(/,/g, "");
     let annual_ctc = $("#annual_ctc").val().replace(/,/g, "");
     let shift = $("#shift").val();
     let ot_payment = $("#ot_payment").val();
-    let ot_per_hour = $("#ot_per_hour").val();
     let ot_per_day = $("#ot_per_day").val();
     let staff_profile_id = $("#staff_profile_id").val();
     let company_id = $("#company_search").val();
     let branch_id = $("#branch_search").val();
     let department_id = $("#department_search").val();
     let total_ctc_amount = $("#total_ctc_amount").val();
+    console.log("pf_available",pf_available);
+    console.log("esi_available",esi_available);
+    console.log("pt_available",pt_available);
 
     var data = [
       "staff_auto_id",
@@ -794,15 +798,13 @@ $(document).ready(function () {
       "esi_available",
       "pf_available",
     ];
-    if (ot_payment == "1") {
-      data.push("ot_per_hour");
-    } else {
+    if (ot_payment == "2") {
       data.push("ot_per_day");
     }
     if (branch_admin == "1") {
       data.push("branch");
     }
-    
+
     var isValid = true;
     data.forEach(function (entry) {
       var fieldIsValid = validateField($("#" + entry).val(), entry);
@@ -919,7 +921,6 @@ $(document).ready(function () {
       staffDetail.append("annual_ctc", annual_ctc);
       staffDetail.append("shift", shift);
       staffDetail.append("ot_payment", ot_payment);
-      staffDetail.append("ot_per_hour", ot_per_hour);
       staffDetail.append("ot_per_day", ot_per_day);
       staffDetail.append("off_type", off_type);
       staffDetail.append("total_ctc_amount", total_ctc_amount);
@@ -985,26 +986,6 @@ $(document).ready(function () {
     let annual_ctc = monthly_ctc * 12;
 
     $("#annual_ctc").val(moneyFormatIndia(annual_ctc));
-  });
-
-  $("#ot_payment").change(function () {
-    let ot_payment = $("#ot_payment").val();
-    let total_ctc = parseFloat($("#total_ctc").val()) || 0;
-
-    if (ot_payment == "1") {
-      let shift_hours =
-        parseFloat($("#shift option:selected").data("time")) || 8;
-
-      $(".ot_per_hour_div").show();
-
-      // Monthly salary / 30 days / selected shift hours
-      let ot_per_hour = total_ctc / 30 / shift_hours;
-
-      $("#ot_per_hour").val(Math.round(ot_per_hour));
-    } else {
-      $(".ot_per_hour_div").hide();
-      $("#ot_per_hour").val("");
-    }
   });
 
   $(document).on("input", ".ctc_amount", function () {
@@ -1146,11 +1127,8 @@ function toggleBranchField() {
 
 function toggleOTField() {
   if ($("#ot_payment").val() == "1") {
-    // Yes
-    $(".ot_per_hour_div").show();
     $(".ot_per_day_div").hide();
   } else {
-    $(".ot_per_hour_div").hide();
     $(".ot_per_day_div").show();
   }
 }
@@ -1403,6 +1381,67 @@ async function getExperienceInfoTable() {
     appendDataToTable("#exp_info_table", response, columnMapping);
     setdtable("#exp_info_table", "Experience Info List");
     $(".experience").find("input").prop("readonly", false);
+  } catch (error) {
+    console.error("Experience Info Table Error:", error);
+  }
+}
+async function getCompanyPFDetails(company_name) {
+
+  try {
+    let response = await $.ajax({
+      url: "api/staff_creation/get_company_pf_details.php",
+      type: "POST",
+      data: { company_name: company_name },
+      dataType: "json",
+    });
+
+    console.log(response);
+
+    if (response[0].pf_applicable == 2) {
+      console.log("jj");
+
+      $("#pf_available")
+        .val(response[0].pf_applicable)
+        .prop("disabled", true);
+
+    } else {
+
+      $("#pf_available")
+        .val(response[0].pf_applicable)
+        .prop("disabled", false);
+
+    }
+
+
+    if (response[0].esi_applicable == 2) {
+
+      $("#esi_available")
+        .val(response[0].esi_applicable)
+        .prop("disabled", true);
+
+    } else {
+
+      $("#esi_available")
+        .val(response[0].esi_applicable)
+        .prop("disabled", false);
+
+    }
+
+
+    if (response[0].professional_tax_applicable == 2) {
+
+      $("#pt_available")
+        .val(response[0].professional_tax_applicable)
+        .prop("disabled", true);
+
+    } else {
+
+      $("#pt_available")
+        .val(response[0].professional_tax_applicable)
+        .prop("disabled", false);
+
+    }
+
   } catch (error) {
     console.error("Experience Info Table Error:", error);
   }
@@ -1881,8 +1920,9 @@ async function editStaffProfile(id) {
     await getDesignationList(data.company_id, data.designation);
     await getShiftList(data.company_id);
     await getCTCInfoTable(data.company_id);
+    await getCompanyPFDetails(data.company_id);
 
-    $("#staff_name").val(data.staff_name); 
+    $("#staff_name").val(data.staff_name);
     $("#address").val(data.address);
     await getStateList();
     $("#state").val(data.state);
@@ -1926,7 +1966,6 @@ async function editStaffProfile(id) {
     $("#annual_ctc").val(moneyFormatIndia(data.annual_ctc));
     $("#shift").val(data.shift);
     $("#ot_payment").val(data.ot_payment);
-    $("#ot_per_hour").val(data.ot_per_hour);
     $("#ot_per_day").val(data.ot_per_day);
 
     let selectedLevel = parseInt(
@@ -1946,7 +1985,7 @@ async function editStaffProfile(id) {
     await getFamilyInfoTable();
     await getQualificationInfoTable();
     await getExperienceInfoTable();
- 
+
     $("#marital_status").trigger("change");
 
     $("#branch_admin").trigger("change");
@@ -1983,7 +2022,7 @@ function enableEditMode() {
   $("#add_document").show();
 
   /* Company Name Readonly / Disable */
-  $("#company_name").prop("disabled", true); 
+  $("#company_name").prop("disabled", true);
 
   /* Occupation Card Fields Readonly */
   $("#branch_name").prop("disabled", true);
@@ -1994,16 +2033,15 @@ function enableEditMode() {
   $("#reporting_person").prop("disabled", true);
   $("#branch_admin").prop("disabled", true);
   $("#branch").prop("disabled", true);
-  $("#pf_available").prop("disabled", true);
-  $("#esi_available").prop("disabled", true);
-  $("#pt_available").prop("disabled", true);
+  // $("#pf_available").prop("disabled", true);
+  // $("#esi_available").prop("disabled", true);
+  // $("#pt_available").prop("disabled", true);
 
   /* CTC Card Fields Readonly */
   $("#total_ctc").prop("readonly", true);
   $("#annual_ctc").prop("readonly", true);
   $("#shift").prop("disabled", true);
   $("#ot_payment").prop("disabled", true);
-  $("#ot_per_hour").prop("readonly", true);
   $("#ot_per_day").prop("readonly", true);
 
   /* CTC Table Fields Readonly */
@@ -2061,7 +2099,7 @@ function clearStaffProfileForm() {
 
 function resetStaffData() {
   $("#submit_staff").show();
-  $("#company_name").prop("disabled", false); 
+  $("#company_name").prop("disabled", false);
   $("#staff_auto_id").val("");
   $(".personal_info_disble").attr("disabled", false);
   /* Occupation Card Fields */
@@ -2073,16 +2111,15 @@ function resetStaffData() {
   $("#reporting_person").prop("disabled", false);
   $("#branch_admin").prop("disabled", false);
   $("#branch").prop("disabled", false);
-  $("#pf_available").prop("disabled", false);
-  $("#esi_available").prop("disabled", false);
-  $("#pt_available").prop("disabled", false);
+  // $("#pf_available").prop("disabled", false);
+  // $("#esi_available").prop("disabled", false);
+  // $("#pt_available").prop("disabled", false);
 
   /* CTC Card Fields */
   $("#total_ctc").prop("readonly", false).val("");
   $("#annual_ctc").prop("readonly", true).val("");
   $("#shift").prop("disabled", false);
   $("#ot_payment").prop("disabled", false);
-  $("#ot_per_hour").prop("readonly", true).val("");
   $("#ot_per_day").prop("readonly", false).val("");
 
   /* =========================
@@ -2103,5 +2140,4 @@ function resetStaffData() {
   $(".spouse-div").hide();
   $(".branch_div").hide();
   $(".ot_per_day_div").hide();
-  $(".ot_per_hour_div").hide();
 }

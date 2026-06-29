@@ -57,7 +57,7 @@
                                             <input type="text" class="form-control" id="feedback_name" name="feedback_name" placeholder="Enter Feedback Name" tabindex="11">
                                         </div>
                                     </div>
-                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                    <!-- <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                         <div class="form-group">
                                             <label for="status">Status</label><span class="text-danger">*</span>
                                             <select class="form-control" name="status" id="status" tabindex="1">
@@ -66,7 +66,7 @@
                                                 <option value="1">In Active</option>
                                             </select>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="col-md-3" style="display: flex; align-items: center;">
                                         <button type="submit" name="general_feedback_submit" id="general_feedback_submit" class="btn btn-primary" value="Add" tabindex="18"> &nbsp;Submit</button>
                                     </div>
@@ -84,7 +84,7 @@
                                             <tr>
                                                 <th width="20">S.NO</th>
                                                 <th>Feedback Name</th>
-                                                <th>Status</th>
+                                                <!-- <th>Status</th> -->
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -170,7 +170,7 @@
                                         <input type="text" class="form-control" id="feedback_title" name="feedback_title" placeholder="Enter Feedback Title" tabindex="4">
                                     </div>
                                 </div>
-                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="feedback_status">Status</label><span class="text-danger">*</span>
                                         <select class="form-control" name="feedback_status" id="feedback_status" tabindex="1">
@@ -179,7 +179,7 @@
                                             <option value="1">In Active</option>
                                         </select>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="row mt-4">
                                 <div class="col-12">
@@ -242,7 +242,7 @@
                                                     <th>Start Date & Time</th>
                                                     <th>End Date & Time</th>
                                                     <th>Department</th>
-                                                    <th>Status</th>
+                                                    <!-- <th>Status</th> -->
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
@@ -302,7 +302,7 @@
                                         <textarea class="form-control custom-form-control" id="rating_description" name="rating_description" tabindex="10" placeholder="Add your description here..."></textarea>
                                     </div>
                                 </div>
-                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="rating_status">Status</label><span class="text-danger">*</span>
                                         <select class="form-control" name="rating_status" id="rating_status" tabindex="1">
@@ -311,7 +311,7 @@
                                             <option value="1">In Active</option>
                                         </select>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="col-12 mt-3 text-right">
                                 <button name="submit_rating" id="submit_rating" class="btn btn-primary" tabindex="14"><span class="icon-check"></span>&nbsp;Submit</button>
@@ -330,7 +330,7 @@
                                                     <th>Start Date & Time</th>
                                                     <th>End Date & Time</th>
                                                     <th>Department</th>
-                                                    <th>Status</th>
+                                                    <!-- <th>Status</th> -->
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
@@ -390,7 +390,7 @@
                                         <textarea class="form-control custom-form-control" id="poll_description" name="poll_description" tabindex="10" placeholder="Add your description here..."></textarea>
                                     </div>
                                 </div>
-                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="poll_status">Status</label><span class="text-danger">*</span>
                                         <select class="form-control" name="poll_status" id="poll_status" tabindex="1">
@@ -399,7 +399,7 @@
                                             <option value="1">In Active</option>
                                         </select>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="row mt-4">
                                 <div class="col-12">
@@ -461,7 +461,7 @@
                                                     <th>Start Date & Time</th>
                                                     <th>End Date & Time</th>
                                                     <th>Department</th>
-                                                    <th>Status</th>
+                                                    <!-- <th>Status</th> -->
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>

@@ -101,7 +101,6 @@ $(document).ready(function () {
     $("#general_feedback_table_content").show();
 
     $("#feedback_name").val("");
-    $("#status").val("");
   });
 
   $("#feedback_config_company_name").on("change", function () {
@@ -224,9 +223,8 @@ $(document).ready(function () {
     let general_feedback_id = $("#general_feedback_id").val();
     let company_id = $("#general_company_name").val();
     let feedback_name = $("#feedback_name").val();
-    let status = $("#status").val();
 
-    var data = ["general_company_name", "feedback_name", "status"];
+    var data = ["general_company_name","feedback_name"];
 
     var isValid = true;
     data.forEach(function (entry) {
@@ -247,7 +245,6 @@ $(document).ready(function () {
               general_feedback_id,
               company_id,
               feedback_name,
-              status,
             },
             function (response) {
               if (response === "2") {
@@ -281,8 +278,7 @@ $(document).ready(function () {
       { id: id },
       function (response) {
         $("#general_feedback_id").val(id);
-        $("#feedback_name").val(response[0].feedback_name);
-        $("#status").val(response[0].status);
+        $("#feedback_name").val(response[0].feedback_name); 
       },
       "json",
     );
@@ -416,7 +412,6 @@ $(document).ready(function () {
     let feedback_config_start_date = $("#feedback_config_start_date").val();
     let feedback_config_end_date = $("#feedback_config_end_date").val();
     let feedback_title = $("#feedback_title").val();
-    let feedback_status = $("#feedback_status").val();
     let scheduled_feedback_type = $("#scheduled_feedback_type").val();
     let feedback_titles_id = $("#feedback_titles_id").val();
 
@@ -438,7 +433,6 @@ $(document).ready(function () {
       "feedback_config_end_date",
       "scheduled_feedback_type",
       "feedback_title",
-      "feedback_status",
     ];
 
     var isValid = true;
@@ -477,7 +471,6 @@ $(document).ready(function () {
               feedback_config_start_date,
               feedback_config_end_date,
               feedback_title,
-              feedback_status,
               feedback_titles_id,
 
               // Pass Array
@@ -548,7 +541,6 @@ $(document).ready(function () {
       $("#feedback_config_start_date").val(response.start_date_time);
       $("#feedback_config_end_date").val(response.end_date_time);
       $("#feedback_title").val(response.feedback_title);
-      $("#feedback_status").val(response.feedback_status);
 
       // Clear Old Rows
       $("#feedback_question_body").empty();
@@ -598,8 +590,7 @@ $(document).ready(function () {
     let rating_start_date = $("#rating_start_date").val();
     let rating_end_date = $("#rating_end_date").val();
     let rating_title = $("#rating_title").val();
-    let rating_description = $("#rating_description").val();
-    let rating_status = $("#rating_status").val();
+    let rating_description = $("#rating_description").val(); 
     let scheduled_feedback_type = $("#scheduled_feedback_type").val();
 
     var data = [
@@ -608,7 +599,6 @@ $(document).ready(function () {
       "rating_end_date",
       "rating_title",
       "rating_description",
-      "rating_status",
       "scheduled_feedback_type",
     ];
 
@@ -641,7 +631,6 @@ $(document).ready(function () {
               rating_end_date,
               rating_title,
               rating_description,
-              rating_status,
             },
             function (response) {
               if (response === "2") {
@@ -696,7 +685,6 @@ $(document).ready(function () {
       $("#rating_end_date").val(response.end_date_time);
       $("#rating_title").val(response.rating_title);
       $("#rating_description").val(response.rating_description);
-      $("#rating_status").val(response.rating_status);
     } catch (error) {
       console.error("Failed to fetch feedback configuration data:", error);
     }
@@ -725,8 +713,7 @@ $(document).ready(function () {
     let poll_start_date = $("#poll_start_date").val();
     let poll_end_date = $("#poll_end_date").val();
     let poll_title = $("#poll_title").val();
-    let poll_description = $("#poll_description").val();
-    let poll_status = $("#poll_status").val();
+    let poll_description = $("#poll_description").val(); 
     let scheduled_feedback_type = $("#scheduled_feedback_type").val();
     let poll_titles_id = $("#poll_titles_id").val();
 
@@ -747,8 +734,7 @@ $(document).ready(function () {
       "poll_start_date",
       "poll_end_date",
       "poll_title",
-      "poll_description",
-      "poll_status",
+      "poll_description", 
       "scheduled_feedback_type",
     ];
 
@@ -787,8 +773,7 @@ $(document).ready(function () {
               poll_start_date,
               poll_end_date,
               poll_title,
-              poll_description,
-              poll_status,
+              poll_description, 
               poll_titles_id,
 
               // Pass Array
@@ -853,8 +838,7 @@ $(document).ready(function () {
       $("#poll_start_date").val(response.start_date_time);
       $("#poll_end_date").val(response.end_date_time);
       $("#poll_title").val(response.poll_title);
-      $("#poll_description").val(response.poll_description);
-      $("#poll_status").val(response.poll_status);
+      $("#poll_description").val(response.poll_description); 
 
       // Clear Old Rows
       $("#poll_question_body").empty();
@@ -963,7 +947,7 @@ function getGeneralFeedbackTable(company_id) {
     "api/general_feedback_files/general_feedback_creation_list.php",
     { company_id },
     function (response) {
-      var columnMapping = ["sno", "feedback_name", "status", "action"];
+      var columnMapping = ["sno", "feedback_name", "action"];
       appendDataToTable("#general_feedback_table", response, columnMapping);
       setdtable("#general_feedback_table", "General Feedback Creation List");
     },
@@ -995,8 +979,7 @@ function getgeneralFeedbackDelete(id) {
 
 /* --- Clear General Feedback Input Fields --- */
 function clearFields() {
-  $("#feedback_name").val("");
-  $("#status").val("");
+  $("#feedback_name").val(""); 
   $("#general_feedback_id").val("");
 }
 
@@ -1012,7 +995,6 @@ function getFeedbackConfigurationTable(company_id) {
         "start_date_time",
         "end_date_time",
         "department_name",
-        "feedback_status",
         "action",
       ];
       appendDataToTable(
@@ -1063,7 +1045,6 @@ function clearFeedbackConfigurationFields() {
   $("#feedback_config_start_date").val("");
   $("#feedback_config_end_date").val("");
   $("#feedback_title").val("");
-  $("#feedback_status").val("");
   $("#feedback_titles_id").val("");
 
   // Reset validation borders
@@ -1097,7 +1078,6 @@ function getRatingTable(company_id) {
         "start_date_time",
         "end_date_time",
         "department_name",
-        "rating_status",
         "action",
       ];
       appendDataToTable("#rating_table", response, columnMapping);
@@ -1139,7 +1119,6 @@ function clearRatingFields() {
   $("#rating_end_date").val("");
   $("#rating_title").val("");
   $("#rating_description").val("");
-  $("#rating_status").val("");
   $("#rating_titles_id").val("");
 
   // Reset validation borders
@@ -1163,8 +1142,7 @@ function getPollTable(company_id) {
         "poll_title",
         "start_date_time",
         "end_date_time",
-        "department_name",
-        "poll_status",
+        "department_name", 
         "action",
       ];
       appendDataToTable("#poll_table", response, columnMapping);
@@ -1205,8 +1183,7 @@ function clearPollFields() {
   $("#poll_start_date").val("");
   $("#poll_end_date").val("");
   $("#poll_title").val("");
-  $("#poll_description").val("");
-  $("#poll_status").val("");
+  $("#poll_description").val(""); 
   $("#poll_titles_id").val("");
 
   // Reset validation borders
