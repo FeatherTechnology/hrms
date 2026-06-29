@@ -28,13 +28,6 @@ if ($stmt->rowCount() > 0) {
 
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
-        // Status
-        if ($row['status'] == 0) {
-            $row['status'] = 'Active';
-        } elseif ($row['status'] == 1) {
-            $row['status'] = 'In Active';
-        }
-
         // Action Button
         $row['action'] = "
             <span class='icon-border_color generalFeedbackActionBtn' value='" . $row['id'] . "'></span>

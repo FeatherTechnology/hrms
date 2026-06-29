@@ -62,15 +62,15 @@ $off_type = $_POST['off_type'];
 $total_ctc = $_POST['total_ctc'];
 $annual_ctc = $_POST['annual_ctc'];
 $shift = $_POST['shift'];
-$ot_payment = $_POST['ot_payment'];
-$ot_per_hour = $_POST['ot_per_hour'];
+$ot_payment = $_POST['ot_payment']; 
 $ot_per_day = $_POST['ot_per_day'];
 $user_id = $_SESSION['user_id'];
 $staff_profile_id = $_POST['staff_profile_id'];
 $total_amount = $_POST['total_ctc_amount'];
 $ctcDetails = json_decode($_POST['ctcDetails'], true);
 
- $qry = $pdo->query("UPDATE `staff_creation` SET `staff_name`='$staff_name',`staff_type`='$staff_type',`address`='$address',`state`='$state',`district`='$district',`place`='$place',`pincode`='$pincode',`dob`='$dob',`age`='$age',`blood_group`='$blood_group',`pic`='$picture',`gender`='$gender',`marital_status`='$marital_status',`spouse_name`='$spouse_name',`anniversary_date`='$anniversary_date',`joining_date`='$joining_date',`relieve_date`='$relieve_date',`notice_period`='$notice_period',`email`='$email',`mobile1`='$mobile1',`mobile2`='$mobile2',`whatsapp`='$whatsapp',`instagram`='$instagram',`facebook`='$facebook',`acc_holder_name`='$acc_holder_name',`acc_number`='$acc_number',`bank_name`='$bank_name',`bank_branch`='$bank_branch',`ifsc_code`='$ifsc_code',`status`=1,`update_login_id`='$user_id', `updated_on`=NOW() WHERE `id`= '$staff_profile_id'");
+ $qry = $pdo->query("UPDATE `staff_creation` SET `staff_name`='$staff_name',`staff_type`='$staff_type',`address`='$address',`state`='$state',`district`='$district',`place`='$place',`pincode`='$pincode',`dob`='$dob',`age`='$age',`blood_group`='$blood_group',`pic`='$picture',`gender`='$gender',`marital_status`='$marital_status',`spouse_name`='$spouse_name',`anniversary_date`='$anniversary_date',`joining_date`='$joining_date',`relieve_date`='$relieve_date',`notice_period`='$notice_period',`email`='$email',`mobile1`='$mobile1',`mobile2`='$mobile2',`whatsapp`='$whatsapp',`instagram`='$instagram',`facebook`='$facebook',`acc_holder_name`='$acc_holder_name',`acc_number`='$acc_number',`bank_name`='$bank_name',`bank_branch`='$bank_branch',`ifsc_code`='$ifsc_code',`pf_available`='$pf_available',`esi_available`='$esi_available',
+`pt_available`='$pt_available',`status`=1,`update_login_id`='$user_id', `updated_on`=NOW() WHERE `id`= '$staff_profile_id'");
 
 /* ===============================
    OCCUPATION INFO
@@ -94,14 +94,10 @@ if ($check->rowCount() == 0) {
         reporting_person='$reporting_person',
         reporting_person_type='$reporting_person_type',
         branch='$branch',
-        pf_available='$pf_available',
-        esi_available='$esi_available',
-        pt_available='$pt_available',
         total_ctc='$total_ctc',
         annual_ctc='$annual_ctc',
         shift='$shift',
         ot_payment='$ot_payment',
-        ot_per_hour='$ot_per_hour',
         ot_per_day='$ot_per_day',
         insert_login_id='$user_id',
         created_on=NOW()

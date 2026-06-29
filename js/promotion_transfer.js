@@ -195,8 +195,7 @@ $(document).ready(function () {
         // Increment
         else if (occ_status == 3) {
             occStatusText = 'Increment';
-            data.push(
-                'pf_available', 'esi_available', 'pt_available', 'total_ctc');
+            data.push('total_ctc');
         }
 
         //    GET CTC DETAILS
@@ -268,9 +267,6 @@ $(document).ready(function () {
         let branch = $('#branch').val();
         let total_ctc = $('#total_ctc').val().replace(/,/g, '');
         let annual_ctc = parseFloat(total_ctc || 0) * 12;
-        let pf_available = $('#pf_available').val();
-        let esi_available = $('#esi_available').val();
-        let pt_available = $('#pt_available').val();
         let staff_profile_id = $('#staff_profile_id').val();
         let total_ctc_amount = $('#total_ctc_amount').val();
 
@@ -289,9 +285,6 @@ $(document).ready(function () {
                 reporting_person_type: reporting_person_type,
                 branch_admin: branch_admin,
                 branch: branch,
-                pf_available: pf_available,
-                esi_available: esi_available,
-                pt_available: pt_available,
                 total_ctc: total_ctc,
                 annual_ctc: annual_ctc,
                 staff_id: staff_id,
@@ -522,9 +515,9 @@ async function editStaffProfile() {
         $('#staff_type').trigger('change');
         $('#branch_admin').trigger('change');
         // Increment Info
-        $('#pf_available').val(data.pf_available);
-        $('#esi_available').val(data.esi_available);
-        $('#pt_available').val(data.pt_available);
+        // $('#pf_available').val(data.pf_available);
+        // $('#esi_available').val(data.esi_available);
+        // $('#pt_available').val(data.pt_available);
         $('#total_ctc').val(moneyFormatIndia(data.total_ctc));
         await getTeamList(data.department, data.team)
 
@@ -891,9 +884,9 @@ function disableAllSections() {
     $('#designation').prop('disabled', true);
 
     // Increment Fields - disable and keep value
-    $('#pf_available').prop('disabled', true);
-    $('#esi_available').prop('disabled', true);
-    $('#pt_available').prop('disabled', true);
+    // $('#pf_available').prop('disabled', true);
+    // $('#esi_available').prop('disabled', true);
+    // $('#pt_available').prop('disabled', true);
     $('#total_ctc').prop('disabled', true);
     $('.ctc_amount').prop('readonly', true);
     $('.ctc_percentage').prop('readonly', true);
@@ -925,9 +918,9 @@ function enableTransferSection() {
 
 function enableIncrementSection() {
     // Enable ONLY increment fields, clear them for new selection
-    $('#pf_available').prop('disabled', false);
-    $('#esi_available').prop('disabled', false);
-    $('#pt_available').prop('disabled', false);
+    // $('#pf_available').prop('disabled', false);
+    // $('#esi_available').prop('disabled', false);
+    // $('#pt_available').prop('disabled', false);
     $('#total_ctc').prop('disabled', false);
 
     // Enable CTC Table

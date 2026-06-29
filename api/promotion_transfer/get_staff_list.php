@@ -25,9 +25,9 @@ $column = array(
     'ti.team_name',
     'des.designation',
     'sc.id',
-    'oc.pf_available',
-    'oc.esi_available',
-    'oc.pt_available',
+    'sc.pf_available',
+    'sc.esi_available',
+    'sc.pt_available',
     'oc.total_ctc',
     'oc.effective_from',
 );
@@ -39,6 +39,9 @@ $query = "SELECT
             sc.staff_name,
             sc.joining_date,
             sc.relieve_date,
+            sc.pf_available,
+            sc.esi_available,
+            sc.pt_available,
 
             cc.company_name,
             bc.branch_name,
@@ -49,9 +52,6 @@ $query = "SELECT
             sc.mobile1,
 
             oc.total_ctc,
-            oc.pf_available,
-            oc.esi_available,
-            oc.pt_available,
             oc.occ_status,
             oc.created_on,
             oc.effective_from,

@@ -331,36 +331,7 @@
                             </div>
                         </div>
                         <div class="staff_content" style="display:none;">
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="card-title">Documents Info
-                                        <button type="button" class="btn btn-primary" id="add_document" name="add_document" data-toggle="modal" data-target="#add_document_info_modal" onclick="getDocumentTable()" style="padding: 5px 35px; float: right;" tabindex='31'><span class="icon-add"></span></button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                                            <div class="form-group">
-                                                <table id="doc_info_table" class="table custom-table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th width="20">S.NO</th>
-                                                            <th>Document Name</th>
-                                                            <th>Document Type</th>
-                                                            <th>Document</th>
-                                                            <th>Submitted Date</th>
-                                                            <th>Returned Date</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
+                            
                             <div class="card">
                                 <div class="card-header">
                                     <div class="card-title">Family Info <span class="text-danger">*</span>
@@ -448,6 +419,73 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Documents Info
+                                        <button type="button" class="btn btn-primary" id="add_document" name="add_document" data-toggle="modal" data-target="#add_document_info_modal" onclick="getDocumentTable()" style="padding: 5px 35px; float: right;" tabindex='31'><span class="icon-add"></span></button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                            <div class="form-group">
+                                                <table id="doc_info_table" class="table custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="20">S.NO</th>
+                                                            <th>Document Name</th>
+                                                            <th>Document Type</th>
+                                                            <th>Document</th>
+                                                            <th>Submitted Date</th>
+                                                            <th>Returned Date</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="card mt-3">
+                                <div class="card-header">
+                                    <h5 class="card-title">Statutory Compliance Info</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="pf_available">PF Available</label><span class="text-danger">*</span>
+                                                <select class="form-control" id="pf_available" name="pf_available" tabindex="44">
+                                                    <option value="">Select PF Availability</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="2">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="esi_available">ESI Available</label><span class="text-danger">*</span>
+                                                <select class="form-control" id="esi_available" name="esi_ available" tabindex="45">
+                                                    <option value="">Select ESI Availability</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="2">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="pt_available">PT Available</label><span class="text-danger">*</span>
+                                                <select class="form-control" id="pt_available" name="pt_available" tabindex="46">
+                                                    <option value="">Select PT Availability</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="2">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="card mt-3">
                                 <div class="card-header">
@@ -530,36 +568,6 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="pf_available">PF Available</label><span class="text-danger">*</span>
-                                                <select class="form-control" id="pf_available" name="pf_available" tabindex="44">
-                                                    <option value="">Select PF Availability</option>
-                                                    <option value="1">Yes</option>
-                                                    <option value="2">No</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="esi_available">ESI Available</label><span class="text-danger">*</span>
-                                                <select class="form-control" id="esi_available" name="esi_available" tabindex="45">
-                                                    <option value="">Select ESI Availability</option>
-                                                    <option value="1">Yes</option>
-                                                    <option value="2">No</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="pt_available">PT Available</label><span class="text-danger">*</span>
-                                                <select class="form-control" id="pt_available" name="pt_available" tabindex="46">
-                                                    <option value="">Select PT Availability</option>
-                                                    <option value="1">Yes</option>
-                                                    <option value="2">No</option>
-                                                </select>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -601,12 +609,12 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 ot_per_hour_div" style="display: none;">
+                                        <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 ot_per_hour_div" style="display: none;">
                                             <div class="form-group">
                                                 <label for="ot_per_hour">OT Per Hour</label>
                                                 <input type="text" class="form-control" id="ot_per_hour" name="ot_per_hour" placeholder="Enter OT Per Hour" tabindex="51" readonly>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12  ot_per_day_div" style="display: none;">
                                             <div class="form-group">
                                                 <label for="ot_per_day">OT Per Day</label>

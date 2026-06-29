@@ -1,7 +1,4 @@
 $(document).ready(function () {
-  userTypeIdentification();
-  getRequestType();
-
   // to get regularization list
   $("input[name=regularization_type]").click(function () {
     let regType = $(this).val();
@@ -14,8 +11,9 @@ $(document).ready(function () {
 
   // to add the new regularization
   $(".add_reg").click(function () {
+    getRequestType();
     $(
-      "#req_type,#leave_type,#balance_req,#from_date,#to_date,#reason,#hidden_id,#leave_type_id",
+      "#req_type,#leave_type,#balance_req,#from_date,#to_date,#reason,#hidden_id,#leave_type_id,#leave_period",
     ).val("");
 
     $(".req_div input, .req_div select,.req_div textarea").css(
@@ -26,13 +24,14 @@ $(document).ready(function () {
     $("#to_date").attr("readonly", false);
     $("#req_type").attr("disabled", false);
     $("#leave_type").attr("disabled", false);
+    $("#leave_period").attr("disabled", false);
     $("#from_date").attr("readonly", false);
     $("#reason").attr("readonly", false);
 
     $("#back_btn,#balance_req,.staff_info_div").show();
 
     $(
-      ".add_reg,.regularization_list,.approval_div,.leveType,.bal_req,.ot_req",
+      ".add_reg,.regularization_list,.approval_div,.leveType,.bal_req,.ot_req,.Lev_per",
     ).hide();
 
     getuserdetails("");
@@ -40,21 +39,22 @@ $(document).ready(function () {
 
   // back button hide and show
   $("#back_btn").click(function () {
-    if (approval_required == 1) {
-      $('input[name="regularization_type"][value="Approval"]').prop(
-        "checked",
-        true,
-      );
+    userTypeIdentification();
+    // if (approval_required == 1) {
+    //   $('input[name="regularization_type"][value="Approval"]').prop(
+    //     "checked",
+    //     true,
+    //   );
 
-      getregularizationlist("Approval");
-    } else {
-      $('input[name="regularization_type"][value="Request"]').prop(
-        "checked",
-        true,
-      );
+    //   getregularizationlist("Approval");
+    // } else {
+    //   $('input[name="regularization_type"][value="Request"]').prop(
+    //     "checked",
+    //     true,
+    //   );
 
-      getregularizationlist("Request");
-    }
+    //   getregularizationlist("Request");
+    // }
 
     $("#back_btn").hide();
     $(".staff_info_div").hide();
@@ -164,30 +164,34 @@ $(document).ready(function () {
     let cmpy_id = $("#cmpy_id").val();
     let value = $(this).val();
     $("#total_days").empty();
-    $(".leveType,#from_date,#to_date,#leave_type_id,#balance_req").val("");
+    $(".leveType,#from_date,#to_date,#leave_type_id,#balance_req,#leave_period").val("");
     if (value == "1") {
       $(".leveType").show();
+      $(".Lev_per").show();
       $(".bal_req").show();
       $(".ot_req").hide();
       $("#from_date,#to_date").attr("type", "date");
       getcmpyleavelist(cmpy_id);
     } else if (value == "2") {
+      $(".Lev_per").hide();
       $(".bal_req").show();
       $(".leveType").hide();
       $(".ot_req").hide();
       $("#from_date,#to_date").attr("type", "datetime-local");
       getbalancerequest("2", cmpy_id);
     } else if (value == "3") {
+      $(".Lev_per").show();
       $(".bal_req").show();
       $(".leveType").hide();
       $(".ot_req").hide();
       $("#from_date,#to_date").attr("type", "date");
       getbalancerequest("3", cmpy_id);
     } else if (value == "4") {
+      $(".Lev_per").hide();
       $(".bal_req").hide();
       $(".leveType").hide();
       $(".ot_req").show();
-      $("#leave_type,#leave_type_id,#balance_req").val("");
+      $("#leave_type,#leave_type_id,#balance_req,#leave_period").val("");
       $("#from_date,#to_date").attr("type", "datetime-local");
 
       getbalancerequest("4", cmpy_id);
@@ -203,7 +207,28 @@ $(document).ready(function () {
   // leave type change
   $("#leave_type").change(function () {
     let leave_type = $("#leave_type").val();
+    $("#to_date").val("");
     getbalancerequest("1", leave_type);
+  });
+
+  // Leave Day change
+  // Leave Day change
+  $("#leave_period, #from_date").on("change", function () {
+    let leaveDay = $("#leave_period").val();
+    let fromDate = $("#from_date").val();
+
+    if (!fromDate) return;
+
+    if (leaveDay == "1" || leaveDay == "2") {
+      $("#to_date").val(fromDate).attr("min", fromDate).attr("max", fromDate);
+    } else if (leaveDay == "3") {
+      $("#to_date").val("").attr("min", fromDate).removeAttr("max");
+    }
+
+    // Recalculate total days after changing leave period
+    if ($("#from_date").val() && $("#to_date").val()) {
+      calculateDateDiff("#from_date", "#to_date", "#total_min", "#total_days");
+    }
   });
 
   // delete regularization
@@ -248,6 +273,7 @@ $(document).ready(function () {
       team_id: $("#team_id").val(),
       req_type: $("#req_type").val(),
       leave_type: $("#leave_type").val(),
+      leave_period: $("#leave_period").val(),
       balance_req: $("#balance_req").val(),
       current_month_ot_count: $("#current_month_ot_count").val(),
       req_date: $("#req_date").val(),
@@ -269,9 +295,15 @@ $(document).ready(function () {
       validateField(collData["reason"], "reason"),
     ];
 
-    if (collData["req_type"] == 1) {
+    if (collData["req_type"] == 1 ) {
       validationResults.push(
         validateField($("#leave_type").val(), "leave_type"),
+        validateField($("#leave_period").val(), "leave_period"),
+      );
+    }
+    if (collData["req_type"] == 3 ) {
+      validationResults.push(
+        validateField($("#leave_period").val(), "leave_period"),
       );
     }
 
@@ -349,6 +381,9 @@ $(document).ready(function () {
   setDateValidation("#from_date", "#to_date");
 });
 // document end
+$(function () {
+  userTypeIdentification();
+});
 
 // function start
 
@@ -459,6 +494,7 @@ function getuserdetails(userid) {
 // to get the user details using edit
 function getedituserdetails(id, userid) {
   let status = 1;
+
   $.post(
     "api/regularization_files/get_user_details.php",
     { id, userid, status },
@@ -466,9 +502,21 @@ function getedituserdetails(id, userid) {
       $("#to_date").attr("readonly", true);
       $("#req_type").prop("disabled", true);
       $("#leave_type").prop("disabled", true);
+      $("#leave_period").prop("disabled", true);
       $("#from_date").attr("readonly", true);
       $("#reason").attr("readonly", true);
       $("#approval_type,#remarks").val("");
+      if ($("#req_type option").length <= 1) {
+        $("#req_type").append(`
+    <option value="1">Leave</option>
+    <option value="2">Permission</option>
+    <option value="3">Week Off</option>
+    <option value="4">OT</option>
+  `);
+      }
+
+      // select response request type
+      $("#req_type").val(response.req_type);
 
       $("#staff_id").val(response.staff_id);
       $("#staff_type").val(response.staff_type);
@@ -484,7 +532,7 @@ function getedituserdetails(id, userid) {
       $("#designation").val(response.designation);
       $("#team_id").val(response.team_id);
       $("#team").val(response.team_name);
-      $("#req_type").val(response.req_type);
+      // $("#req_type").val(response.req_type);
       $("#req_date").val(
         response.req_date.split(" ")[0].split("-").reverse().join("-"),
       );
@@ -501,6 +549,14 @@ function getedituserdetails(id, userid) {
         getcmpyleavelist(response.cmpy_id);
       } else {
         $(".leveType").hide();
+      }
+      if (response.req_type == 1 || response.req_type == 3) {
+         $(".Lev_per").show();
+         $("#leave_period").val(response.leave_period);
+        
+      } else {
+         $(".Lev_per").hide();
+         $("#leave_period").val("");
       }
 
       if (response.req_type != "4") {
@@ -633,10 +689,47 @@ function calculateDateDiff(
   let from = new Date(fromVal);
   let to = new Date(toVal);
 
+  let leaveDay = $("#leave_period").val();
+
+  if (
+    (leaveDay == "1" || leaveDay == "2") &&
+    from.toDateString() !== to.toDateString()
+  ) {
+    swalError(
+      "Warning",
+      "For Half Day leave, From Date and To Date must be the same.",
+    );
+
+    $(toSelector).val("");
+
+    return;
+  }
+
   let diffMs = to - from;
 
   // invalid date
   let reqType = $("#req_type").val();
+
+  let leave_period = $("#leave_period").val();
+
+  if (
+    (reqType == "1" || reqType == "3") &&
+    (leave_period == "1" || leave_period == "2")
+  ) {
+    let totalMinutes = 12 * 60; // 12 hours
+
+    $(totalMinSelector).val(totalMinutes);
+
+    $(totalDaysSelector).html(
+      `<div style="display:flex; gap:15px;">
+      <span><span style="color:#f26b35">0</span> D</span>
+      <span><span style="color:#f26b35">12</span> H</span>
+      <span><span style="color:#f26b35">0</span> M</span>
+    </div>`,
+    );
+
+    return;
+  }
 
   // Permission type
   if (reqType == "2") {
@@ -738,7 +831,15 @@ function setDateValidation(fromSelector, toSelector) {
     let fromDateTime = $(this).val();
 
     // set min date
+    let leaveDay = $("#leave_period").val();
+
     $(toSelector).attr("min", fromDateTime);
+
+    if (leaveDay == "1" || leaveDay == "2") {
+      $(toSelector).attr("max", fromDateTime);
+    } else {
+      $(toSelector).removeAttr("max");
+    }
 
     // clear invalid old value
     let toDateTime = $(toSelector).val();

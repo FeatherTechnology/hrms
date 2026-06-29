@@ -249,7 +249,7 @@
                     <div class="card-body">
                         <div class="row">
                             <!-- Fields -->
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="pf_available">PF Available</label><span class="text-danger">*</span>
                                     <select class="form-control" id="pf_available" name="pf_available" tabindex="16">
@@ -278,7 +278,7 @@
                                         <option value="2">No</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="total_ctc">Total CTC</label><span class="text-danger">*</span>

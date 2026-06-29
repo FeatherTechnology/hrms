@@ -163,6 +163,17 @@
                                     <input type="text" class="form-control" id="req_date" name="req_date" placeholder="Request Date" tabindex="11" readonly>
                                 </div>
                             </div>
+                            <div class="col-md-4 col-sm-6 Lev_per" style="display: none;">
+                                <div class="form-group">
+                                    <label for="leave_period">Leave Period</label><span class="text-danger">*</span>
+                                    <select class="form-control" id="leave_period" name="leave_period" tabindex="9">
+                                        <option value="">Select Leve Period</option>
+                                        <option value="1">First Half</option>
+                                        <option value="2">Second Half</option>
+                                        <option value="3">Full Day</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
                                     <label for="from_date">From Date</label><span class="text-danger">*</span>

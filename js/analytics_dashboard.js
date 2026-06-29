@@ -1,53 +1,90 @@
 $(document).ready(function () {
-  // to get the active counts
+  // Dashboard Counts
   getActiveCount("feedback", ".active_feedback");
   getActiveCount("rating", ".active_rating");
   getActiveCount("poll", ".active_poll");
 
-// to get the average ratings
+  // Average Rating
   getAverageRating();
 
-  // to get the active feedback list and total response
-  getDashboardList("feedback", "#feedback_table", "feedback-hidden");
-  getDashboardList("rating", "#ratings_table", "rating-hidden");
-  getDashboardList("poll", "#polls_table", "poll-hidden");
+  // Hide all sections initially
+  $("#feedback_section").hide();
+  $("#rating_section").hide();
+  $("#poll_section").hide();
 
-  // View All / View Less Events
-  toggleRows("#feedbackViewAll", "feedback-hidden", "#feedback_table_div");
+  // Button Click Events
+  $("#feedbackViewAll").click(function () {
+    toggleSection("feedback");
+  });
 
-  toggleRows("#ratingViewAll", "rating-hidden", "#ratings_table_div");
+  $("#ratingViewAll").click(function () {
+    toggleSection("rating");
+  });
 
-  toggleRows("#pollViewAll", "poll-hidden", "#polls_table_div");
+  $("#pollViewAll").click(function () {
+    toggleSection("poll");
+  });
 });
 
-// COMMON VIEW ALL / VIEW LESS
-// function start
-function toggleRows(buttonId, hiddenClass, scrollDiv) {
-  $(document).on("click", buttonId, function () {
-    if ($(this).data("expanded") == 1) {
-      $("." + hiddenClass).addClass("d-none");
+//==================================================
+// Show / Hide Section
+//==================================================
+function toggleSection(type) {
+  var section = $("#" + type + "_section");
+  var button = $("#" + type + "ViewAll");
 
-      $(this).text("View All >>>>");
+  // If already visible, hide it
+  if (section.is(":visible")) {
+    section.hide();
 
-      $(this).data("expanded", 0);
-    } else {
-      $("." + hiddenClass).removeClass("d-none");
+    button.text("View All >>>>");
 
-      $(this).text("View Less <<<<");
+    return;
+  }
 
-      $(this).data("expanded", 1);
+  // Hide all sections
+  $("#feedback_section").hide();
+  $("#rating_section").hide();
+  $("#poll_section").hide();
 
-      $("html, body").animate(
-        {
-          scrollTop: $(scrollDiv).offset().top - 20,
-        },
-        500,
-      );
-    }
-  });
+  // Reset all buttons
+  $("#feedbackViewAll").text("View All >>>>");
+  $("#ratingViewAll").text("View All >>>>");
+  $("#pollViewAll").text("View All >>>>");
+
+  // Show selected section
+  section.show();
+
+  // Change selected button
+  button.text("View Less <<<<");
+
+  // Load data
+  switch (type) {
+    case "feedback":
+      getDashboardList("feedback", "#feedback_table");
+      break;
+
+    case "rating":
+      getDashboardList("rating", "#ratings_table");
+      break;
+
+    case "poll":
+      getDashboardList("poll", "#polls_table");
+      break;
+  }
+
+  // Scroll to section
+  $("html, body").animate(
+    {
+      scrollTop: section.offset().top - 20,
+    },
+    500,
+  );
 }
 
-
+//==================================================
+// Average Rating
+//==================================================
 function getAverageRating() {
   $.ajax({
     url: "api/analytics_dashboard_files/get_average_rating.php",
@@ -58,46 +95,86 @@ function getAverageRating() {
   });
 }
 
+//==================================================
+// Dashboard List
+//==================================================
+function getDashboardList(type, tableId) {
 
-function getDashboardList(type, tableId, hiddenClass) {
-  $.ajax({
-    url: "api/analytics_dashboard_files/get_active_list.php",
-    type: "POST",
-    data: {
-      type: type,
-    },
-    dataType: "json",
-    success: function (response) {
-      let html = "";
-      $.each(response, function (index, row) {
-        let hideClass = index >= 5 ? hiddenClass + " d-none" : "";
-
-        html += `
-                    <tr class="${hideClass}">
+    $.ajax({
+        url: "api/analytics_dashboard_files/get_active_list.php",
+        type: "POST",
+        data: {
+            type: type,
+        },
+        dataType: "json",
+        success: function (response) {
+            let html = "";
+            $.each(response, function (index, row) {
+                let extraColumn = "";
+                // POLL TOP ANSWER
+                if (type == "poll") {
+                    extraColumn = `
+                        <td>
+                            ${row.top_answer ? row.top_answer : "-"}
+                        </td>
+                    `;
+                }
+                // RATING AVERAGE
+                else if (type == "rating") {
+                    extraColumn = `
+                        <td>
+                            ${row.average_rating ? row.average_rating : "-"}
+                        </td>
+                    `;
+                }
+                html += `
+                    <tr>
                         <td>${row.sno}</td>
                         <td>${row.title}</td>
                         <td>${row.start_date}</td>
                         <td>${row.end_date}</td>
-                        <td>${row.total_response}</td>
+                        <td>${row.total_response}/${row.total_staff}</td>
+                        ${extraColumn}
                     </tr>
                 `;
-      });
-      $(tableId + " tbody").html(html);
-    },
-  });
+            });
+            $(tableId + " tbody").html(html);
+            // add extra column heading
+
+            if(type == "poll") {
+                if($(tableId + " thead th.top-answer").length == 0) {
+                    $(tableId + " thead tr").append(
+                        `<th class="top-answer">TOP ANSWER</th>`
+                    );
+                }
+            }
+
+            if(type == "rating") {
+                if($(tableId + " thead th.average-rating").length == 0) {
+                    $(tableId + " thead tr").append(
+                        `<th class="average-rating">AVERAGE RATING</th>`
+                    );
+                }
+            }
+        }
+    });
 }
 
+//==================================================
+// Active Counts
+//==================================================
 function getActiveCount(type, element) {
-    $.ajax({
-        url: "api/analytics_dashboard_files/get_active_counts.php",
-        type: "POST",
-        data: {
-            type: type
-        },
-        success: function (response) {
-            $(element).text(response);
-        }
+  $.ajax({
+    url: "api/analytics_dashboard_files/get_active_counts.php",
 
-    });
+    type: "POST",
 
+    data: {
+      type: type,
+    },
+
+    success: function (response) {
+      $(element).text(response);
+    },
+  });
 }

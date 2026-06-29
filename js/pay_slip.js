@@ -102,23 +102,24 @@ function getPayslip(company_id, branch_id, stf_prf_id, month) {
         $("#ps_lop_days").text(row.lop_days);
         $("#ps_extra_working").text(row.extra_working);
 
-        $("#otamount").text("₹" + (row.ot_amount));
+        $("#otamount").text("₹" + row.ot_amount);
 
         //////////////////////////////////////////////////////
         // TOTALS
         //////////////////////////////////////////////////////
 
-        $("#ps_gross_total").text("₹" + (row.gross_total));
-        $("#ps_deduction_total").text(
-          "₹" + (row.deduction_total),
-        );
-        $("#ps_net_salary").text("₹" + (row.net_salary));
+        $("#ps_gross_total").text("₹" + row.gross_total);
+        $("#ps_deduction_total").text("₹" + row.deduction_total);
+        $("#ps_net_salary").text("₹" + row.net_salary);
 
         //////////////////////////////////////////////////////
         // COMPONENTS
         //////////////////////////////////////////////////////
 
-        let earnings = row.components;
+        let earnings = { ...(row.components || {}) };
+
+        // Add OT Amount as the last earning component
+        earnings["OT Amount"] = row.ot_amount || 0;
 
         let deductions = [];
 
@@ -179,18 +180,23 @@ function getPayslip(company_id, branch_id, stf_prf_id, month) {
           }
 
           html += `
-            <tr>
-              <td>${earnName}</td>
-              <td>${earnName ? "₹" + (earnAmount) : ""}</td>
+      <tr>
+        <td>${earnName}</td>
+        <td>${earnName ? "₹" + Number(earnAmount).toFixed(2) : ""}</td>
 
-              <td>${dedName}</td>
-              <td>${dedName ? "₹" + (dedAmount) : ""}</td>
-            </tr>
-          `;
+        <td>${dedName}</td>
+        <td>${dedName ? "₹" + Number(dedAmount).toFixed(2) : ""}</td>
+      </tr>
+    `;
         }
 
         $("#salary_component_body").html(html);
-      }
+      }else {
+
+                $(".pay_slip_details").hide();
+                $("#salary_component_body").empty();
+                swalError("Warning", "Payslip has not been generated for the selected month..!");
+            }
     },
     "json",
   );

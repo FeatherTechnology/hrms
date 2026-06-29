@@ -1,24 +1,30 @@
 <?php
+include '../../ajaxconfig.php';
+session_start();
 
-require '../../ajaxconfig.php';
-
-$where = 1;
+$userid = $_SESSION['user_id'] ?? '';
 
 $result = [];
 
-$stmt = $pdo->prepare("SELECT id, company_name FROM company_creation ");
+$qry = $pdo->query("
+    SELECT
+        cc.id,
+        cc.company_name
+    FROM company_creation cc
+    JOIN users u ON u.id = '$userid'
+    WHERE
+        (
+            u.user_type = '1'
+            OR
+            (u.user_type = '2' AND FIND_IN_SET(cc.id, u.company_id))
+        )
+");
 
-$stmt->execute();
-
-if (isset($stmt)) {
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $result[] = [
-            'id' => $row['id'],
-            'company_name' => $row['company_name']
-        ];
-    }
+if ($qry->rowCount() > 0) {
+    $result = $qry->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$pdo = null; // Close Connection
-
 echo json_encode($result);
+$pdo = null;
+?>
+

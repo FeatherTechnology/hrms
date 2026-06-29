@@ -94,10 +94,6 @@
                                     <td><b>Extra Working Days</b></td>
                                     <td id="ps_extra_working"></td>
                                 </tr>
-                                <tr>
-                                    <td><b>OT Amount</b></td>
-                                    <td id="ot_amount"></td>
-                                </tr>
                             </table>
 
                             <table class="salary-table">
