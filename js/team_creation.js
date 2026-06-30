@@ -15,6 +15,11 @@ $(document).ready(function () {
     ".add_team_btn, .back_to_team_btn",
     async function () {
       swapTableAndCreation();
+
+      if ($(this).hasClass("add_team_btn")) {
+        getCompanyName();
+      }
+
       $("#reset_btn").show();
     },
   );
@@ -108,7 +113,6 @@ $(document).ready(function () {
 
       $("#team_name2").val(response[0].team_ids);
       await getTeamNameDropdown();
-
     } catch (error) {
       console.error("Failed to fetch company data:", error);
     }
@@ -133,7 +137,7 @@ $(document).ready(function () {
     let team_code = $("#modal_team_code").val(); // Remove spaces from department_code
     let team_name = $("#modal_team_name").val();
     let team_id = $("#team_id").val();
-    let company_id = $('#company_name').val();
+    let company_id = $("#company_name").val();
 
     var data = ["modal_team_code", "modal_team_name"];
 
@@ -238,16 +242,13 @@ function swapTableAndCreation() {
     $(".add_team_btn").hide();
     $("#team_creation_content").show();
     $(".back_to_team_btn").show();
-    getCompanyName();
   } else {
     $(".add_team_btn").show();
     $(".team_table_content").show();
     $("#team_creation_content").hide();
     $(".back_to_team_btn").hide();
-     $("#team_name2").val('');
-    $('#team_modal_btn')
-      .removeAttr('data-toggle')
-      .removeAttr('data-target');
+    $("#team_name2").val("");
+    $("#team_modal_btn").removeAttr("data-toggle").removeAttr("data-target");
   }
 }
 
@@ -341,8 +342,8 @@ function getAutoGenTeamId(id) {
 
 /* --- Get Team Name Modal Table --- */
 function getTeamNameTable() {
-  let company_id = $('#company_name').val();
-  if (company_id != '') {
+  let company_id = $("#company_name").val();
+  if (company_id != "") {
     $.post(
       "api/team_creation_files/team_modal_list.php",
       { company_id },
@@ -364,9 +365,8 @@ function getTeamNameTable() {
 
       "json",
     );
-  }
-  else {
-    swalError('Warning', 'Kindly Select the Company Name');
+  } else {
+    swalError("Warning", "Kindly Select the Company Name");
   }
 }
 
@@ -437,14 +437,12 @@ function getTeamDelete(id) {
 }
 
 function getModalAttr() {
-  let company_id = $('#company_name').val();
-  if (company_id != '') {
-    $('#team_modal_btn')
-      .attr('data-toggle', 'modal')
-      .attr('data-target', '#add_team_info');
+  let company_id = $("#company_name").val();
+  if (company_id != "") {
+    $("#team_modal_btn")
+      .attr("data-toggle", "modal")
+      .attr("data-target", "#add_team_info");
   } else {
-    $('#team_modal_btn')
-      .removeAttr('data-toggle')
-      .removeAttr('data-target');
+    $("#team_modal_btn").removeAttr("data-toggle").removeAttr("data-target");
   }
 }
