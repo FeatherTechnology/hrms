@@ -681,6 +681,9 @@ $(document).ready(function () {
             $("#submit_staff").attr("disabled", false);
           } else if (response.result == 1) {
             swalSuccess("Success", "Personal Info Added Successfully!");
+            $("#pf_available").val('');
+            $("#esi_ available").val('');
+            $("#pt_available").val('');
             $(".staff_content").show();
             $("#staff_profile_id").val(response.last_id);
             $("#per_pic").val(response.pic);
@@ -691,6 +694,7 @@ $(document).ready(function () {
             getQualificationInfoTable();
             getExperienceInfoTable();
             getCompanyPFDetails(company_name);
+           
           }
         },
       });

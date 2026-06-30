@@ -81,6 +81,21 @@ function getPayRoll(company_id, branch_id, month) {
       month,
     },
     function (response) {
+
+      // CHECK PENDING REGULARIZATION
+      if (response.status == 0) {
+
+        $(".payroll_list").hide();
+
+        swalError(
+          "Warning",
+          response.message
+        );
+
+        return false;
+      }
+
+
       $(".payroll_list").show();
 
       let components = response.components;
@@ -116,27 +131,23 @@ function getPayRoll(company_id, branch_id, month) {
             <tr>
       `;
 
-      //////////////////////////////////////////////////////
-      // DYNAMIC COMPONENT HEADERS
-      //////////////////////////////////////////////////////
 
       components.forEach(function (component) {
         table += `<th>${component}</th>`;
       });
 
-      table += `<th>OT Amount</th> 
-      <th>Extra Working Days</th>`;
-      //////////////////////////////////////////////////////
-      // FINAL HEADERS
-      //////////////////////////////////////////////////////
 
       table += `
-              <th>PF</th>
-              <th>Admin Charge</th>
-              <th>Pension</th>
-              <th>ESI</th>
-              <th>PT</th>
-            </tr>
+          <th>OT Amount</th>
+          <th>Extra Working Days</th>
+
+          <th>PF</th>
+          <th>Admin Charge</th>
+          <th>Pension</th>
+          <th>ESI</th>
+          <th>PT</th>
+
+          </tr>
 
           </thead>
 
@@ -145,15 +156,9 @@ function getPayRoll(company_id, branch_id, month) {
         </table>
       `;
 
-      //////////////////////////////////////////////////////
-      // APPEND TABLE
-      //////////////////////////////////////////////////////
 
       $("#payroll_table_div").html(table);
 
-      //////////////////////////////////////////////////////
-      // COLUMN MAPPING
-      //////////////////////////////////////////////////////
 
       let columnMapping = [
         "sno",
@@ -166,27 +171,23 @@ function getPayRoll(company_id, branch_id, month) {
         "total_ctc",
       ];
 
-      //////////////////////////////////////////////////////
-      // FLATTEN DYNAMIC COMPONENTS
-      //////////////////////////////////////////////////////
 
       $.each(response.data, function (index, val) {
+
         components.forEach(function (component) {
-          val[`comp_${component}`] = val.components?.[component] || 0;
+
+          val[`comp_${component}`] =
+            val.components?.[component] || 0;
+
         });
+
       });
 
-      //////////////////////////////////////////////////////
-      // ADD DYNAMIC COMPONENT KEYS
-      //////////////////////////////////////////////////////
 
       components.forEach(function (component) {
         columnMapping.push(`comp_${component}`);
       });
 
-      //////////////////////////////////////////////////////
-      // FINAL COLUMNS
-      //////////////////////////////////////////////////////
 
       columnMapping.push(
         "ot_amount",
@@ -201,17 +202,17 @@ function getPayRoll(company_id, branch_id, month) {
         "net_salary",
       );
 
-      //////////////////////////////////////////////////////
-      // APPEND DATA TO TABLE
-      //////////////////////////////////////////////////////
 
-      appendDataToTable("#payroll_table", response.data, columnMapping);
+      appendDataToTable(
+        "#payroll_table",
+        response.data,
+        columnMapping
+      );
 
-      //////////////////////////////////////////////////////
-      // INIT DATATABLE
-      //////////////////////////////////////////////////////
 
       setdtable("#payroll_table", "Payroll Report");
+
+
     },
     "json",
   );

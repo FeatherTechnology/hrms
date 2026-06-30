@@ -137,32 +137,6 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-sm-6 ot_req" style="display: none;">
-                                <div class="form-group">
-                                    <label for="current_month_ot_count">Current Month OT Count</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="current_month_ot_count" name="current_month_ot_count" tabindex="10" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6 leveType" style="display: none;">
-                                <div class="form-group">
-                                    <label for="leave_type">Leave Type</label><span class="text-danger">*</span>
-                                    <select class="form-control" id="leave_type" name="leave_type" tabindex="9">
-                                        <option value="">Select Leve Type</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6 bal_req" style="display: none;">
-                                <div class="form-group">
-                                    <label for="balance_req">Balance Request</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="balance_req" name="balance_req" placeholder="Balance Request" tabindex="10" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6">
-                                <div class="form-group">
-                                    <label for="req_date">Request Date</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="req_date" name="req_date" placeholder="Request Date" tabindex="11" readonly>
-                                </div>
-                            </div>
                             <div class="col-md-4 col-sm-6 Lev_per" style="display: none;">
                                 <div class="form-group">
                                     <label for="leave_period">Leave Period</label><span class="text-danger">*</span>
@@ -174,6 +148,21 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-4 col-sm-6 leveType" style="display: none;">
+                                <div class="form-group">
+                                    <label for="leave_type">Leave Type</label><span class="text-danger">*</span>
+                                    <select class="form-control" id="leave_type" name="leave_type" tabindex="9">
+                                        <option value="">Select Leve Type</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 ot_req" style="display: none;">
+                                <div class="form-group">
+                                    <label for="current_month_ot_count">Current Month OT Count</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="current_month_ot_count" name="current_month_ot_count" tabindex="10" readonly>
+                                </div>
+                            </div>
+
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
                                     <label for="from_date">From Date</label><span class="text-danger">*</span>
@@ -190,6 +179,18 @@
                                 <div class="form-group">
                                     <label for="total_days">Total Days/Hrs</label><span class="text-danger">*</span>
                                     <div id="total_days" class="form-control" style="height: 35px;background-color: #d3d2d2;"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 bal_req" style="display: none;">
+                                <div class="form-group">
+                                    <label for="balance_req">Balance Request</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="balance_req" name="balance_req" placeholder="Balance Request" tabindex="10" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="form-group">
+                                    <label for="req_date">Request Date</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="req_date" name="req_date" placeholder="Request Date" tabindex="11" readonly>
                                 </div>
                             </div>
 
