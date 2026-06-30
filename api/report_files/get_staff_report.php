@@ -67,7 +67,14 @@ INNER JOIN (
 ) oc
 ON oc.staff_profile_id = sc.id
 
-LEFT JOIN staff_creation rp ON rp.id = oc.reporting_person
+LEFT JOIN staff_creation rp
+    ON rp.id = oc.reporting_person
+    AND oc.reporting_person_type = 2
+
+-- Join director table when reporting_person_type = 1
+LEFT JOIN director_creation dc
+    ON dc.id = oc.reporting_person
+    AND oc.reporting_person_type = 1
 LEFT JOIN branch_creation bc ON bc.id = oc.branch_id
 LEFT JOIN department_creation d ON d.id = oc.department
 LEFT JOIN team_name_creation ti ON ti.id = oc.team
@@ -136,7 +143,11 @@ SELECT
     ti.team_name,
     oc.off_type,
     des.designation,
-    rp.staff_name AS reporting_person,
+       CASE
+        WHEN oc.reporting_person_type = 1 THEN dc.director_name
+        WHEN oc.reporting_person_type = 2 THEN rp.staff_name
+        ELSE ''
+    END AS reporting_person,
     oc.branch_admin,
     sc.relieve_date,
     sc.pf_available,

@@ -27,6 +27,7 @@ const moduleMapping = {
   rating: "my_feedbacks",
   poll: "my_feedbacks",
   monitoring_chart: "monitoring_chart",
+  performance_analysis: "performance",
   staff_report: "reports",
   regularization_report: "reports",
   promotion_transfer_report: "reports",

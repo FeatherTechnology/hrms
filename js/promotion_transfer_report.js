@@ -144,7 +144,7 @@ async function getStaffList(company_id, dept_id) {
 function drawCareerChart(data) {
     $('#careerChart').html('');
 
-    // 1. Maintain identical chronological logic sequence in JS layer
+    // 1. Maintain chronological logic sequence
     data.sort((a, b) => {
         const dateA = new Date(a.event_date || a.effective_from || a.joining_date || a.created_on);
         const dateB = new Date(b.event_date || b.effective_from || b.joining_date || b.created_on);
@@ -153,7 +153,7 @@ function drawCareerChart(data) {
             const statusA = parseInt(a.occ_status || 0);
             const statusB = parseInt(b.occ_status || 0);
             if (statusA !== statusB) {
-                return statusA - statusB;
+                return statusA - statusB; // Transfer (2) comes before Increment (3)
             }
             return parseInt(a.id || 0) - parseInt(b.id || 0);
         }
@@ -162,61 +162,81 @@ function drawCareerChart(data) {
 
     const lineSeriesData = [];
     const pointAnnotations = [];
-
-    const joinedData = [];
-    const promotionData = [];
-    const transferData = [];
-    const incrementData = [];
+    
+    // Four distinct series layers for perfect stacked control
+    const transferBaseSeries = [];
+    const transferNonCtcSeries = [];
+    const incrementBaseSeries = [];
+    const incrementNonCtcSeries = [];
 
     const statusMap = {
         0: { text: 'Joined', color: '#1565c0' },
         1: { text: 'Promotion', color: '#e65100' },
-        2: { text: 'Transfer', color: '#6a1b9a' },
-        3: { text: 'Increment', color: '#2e7d32' }
+        2: { text: 'Transfer', color: '#6a1b9a' }, // Violet
+        3: { text: 'Increment', color: '#2e7d32' } // Green
     };
-
-    let previousSalary = 0;
 
     data.forEach(function (row, index) {
         const eventDate = row.event_date || row.effective_from || row.joining_date || row.created_on;
+        
         const currentSalary = parseInt(row.total_ctc || 0);
+        const grossTotal = parseInt(row.total_amount || currentSalary);
+        const nonCtcSalary = Math.max(0, grossTotal - currentSalary);
+        
         const statusCode = parseInt(row.occ_status);
         const statusConfig = statusMap[statusCode] || { text: 'Event', color: '#333333' };
         const timestamp = new Date(eventDate).getTime();
 
-        // Check the previous milestone record to detect specific department/branch shifts
         const prevRow = index > 0 ? data[index - 1] : null;
-
-        // Store past history labels directly inside the node data objects
         row.old_designation = prevRow ? prevRow.designation : '-';
         row.old_branch = prevRow ? (prevRow.branch_name || '-') : '-';
         row.old_department = prevRow ? (prevRow.department_name || '-') : '-';
         row.old_team = prevRow ? (prevRow.team_name || '-') : '-';
 
-        lineSeriesData.push({
-            x: timestamp,
-            y: currentSalary
-        });
+        // Continuous line path tracking gross value ceiling
+        lineSeriesData.push({ x: timestamp, y: grossTotal });
 
-        // Compute step deltas for same-day stacking
-        let barValue = currentSalary;
+        // Identify if this row shares a date with its neighbor to compute step delta
+        let isSameDayEvent = false;
+        let prevSalary = 0;
         if (prevRow) {
             const prevEventDate = prevRow.event_date || prevRow.effective_from || prevRow.joining_date || prevRow.created_on;
             if (new Date(prevEventDate).getTime() === timestamp) {
-                barValue = currentSalary - previousSalary;
+                isSameDayEvent = true;
+                prevSalary = parseInt(prevRow.total_ctc || 0);
             }
         }
 
-        const pointCoords = { x: timestamp, y: barValue };
+        // Distribute values across the 4 stacked layout layers
+        if (isSameDayEvent && statusCode === 3) {
+            // This is an Increment happening on the same day after a Transfer
+            // Pop the placeholder 0 out from the previous iteration so we can layer directly on top
+            incrementBaseSeries.pop();
+            incrementNonCtcSeries.pop();
+            
+            incrementBaseSeries.push({ 
+                x: timestamp, 
+                y: currentSalary - prevSalary, // Visual height delta (e.g., 80000 - 45000 = 35000)
+                fillColor: statusConfig.color 
+            });
+            incrementNonCtcSeries.push({ x: timestamp, y: nonCtcSalary });
+        } else {
+            // Normal base event or the leading event (Transfer) of the day
+            transferBaseSeries.push({ 
+                x: timestamp, 
+                y: currentSalary, 
+                fillColor: statusConfig.color 
+            });
+            transferNonCtcSeries.push({ x: timestamp, y: nonCtcSalary });
+            
+            incrementBaseSeries.push({ x: timestamp, y: 0 });
+            incrementNonCtcSeries.push({ x: timestamp, y: 0 });
+        }
 
-        if (statusCode === 0) joinedData.push(pointCoords);
-        else if (statusCode === 1) promotionData.push(pointCoords);
-        else if (statusCode === 2) transferData.push(pointCoords);
-        else if (statusCode === 3) incrementData.push(pointCoords);
-
+        // Event milestone marker annotations
         pointAnnotations.push({
             x: timestamp,
-            y: currentSalary,
+            y: grossTotal,
             marker: {
                 size: 6,
                 fillColor: '#ffffff',
@@ -236,34 +256,37 @@ function drawCareerChart(data) {
                 offsetY: -10
             }
         });
-
-        previousSalary = currentSalary;
     });
 
     const options = {
         chart: {
             height: 560,
             type: 'bar',
-            stacked: true,
+            stacked: true, // Forces components to align vertically over each other
             toolbar: { 
                 show: true,
-                tools: {
-                    download: true,
-                    selection: false,
-                    zoom: false,
-                    zoomin: true,
-                    zoomout: true,
-                    pan: false,
-                    reset: true
-                },
-             }
+                tools: { download: true, selection: false, zoom: false, zoomin: true, zoomout: true, pan: false, reset: true }
+            }
         },
-        colors: ['#1565c0', '#e65100', '#6a1b9a', '#2e7d32', '#4a90e2'],
+        // Color mapping rules matching our 4 column index layout positions + line chart
+        colors: [
+            function({ seriesIndex, dataPointIndex, w }) {
+                const dataConfig = w.config.series[seriesIndex].data[dataPointIndex];
+                return (dataConfig && dataConfig.fillColor) ? dataConfig.fillColor : '#1565c0';
+            },
+            '#ff00ff', // Pink for Transfer Non-CTC block
+            function({ seriesIndex, dataPointIndex, w }) {
+                const dataConfig = w.config.series[seriesIndex].data[dataPointIndex];
+                return (dataConfig && dataConfig.fillColor) ? dataConfig.fillColor : '#2e7d32';
+            },
+            '#ff00ff', // Pink for Increment Non-CTC block
+            '#4a90e2'  // Line tracker path color
+        ],
         series: [
-            { name: 'Joined Milestones', type: 'column', data: joinedData },
-            { name: 'Promotion Milestones', type: 'column', data: promotionData },
-            { name: 'Transfer Milestones', type: 'column', data: transferData },
-            { name: 'Increment Milestones', type: 'column', data: incrementData },
+            { name: 'Base CTC (Transfer/Initial)', type: 'column', data: transferBaseSeries },
+            { name: 'Non-CTC Components (Transfer)', type: 'column', data: transferNonCtcSeries },
+            { name: 'Base CTC Delta (Increment)', type: 'column', data: incrementBaseSeries },
+            { name: 'Non-CTC Components (Increment)', type: 'column', data: incrementNonCtcSeries },
             { name: 'Salary Step Tracker', type: 'line', data: lineSeriesData }
         ],
         stroke: {
@@ -272,7 +295,7 @@ function drawCareerChart(data) {
         },
         plotOptions: {
             bar: {
-                columnWidth: '20%',
+                columnWidth: '35%',
                 borderRadius: 0
             }
         },
@@ -281,85 +304,126 @@ function drawCareerChart(data) {
             labels: {
                 formatter: function (val) { return '₹' + Number(val).toLocaleString(); }
             },
-            title: { text: 'Salary (CTC)', style: { fontWeight: 600 } }
+            title: { text: 'Total Salary', style: { fontWeight: 600 } }
         },
         annotations: { points: pointAnnotations },
         dataLabels: { enabled: false },
-        tooltip: {
-            shared: true,
-            intersect: false,
-            // Turn off default wrapper styling, backgrounds, and shadows
-            theme: 'none', 
-            style: {
-                fontSize: '13px',
-                fontFamily: 'Arial, sans-serif'
+        legend: {
+            show: true,
+            customLegendItems: ['Joined', 'Promotion', 'Transfer', 'Increment', 'Non-CTC Allowances'],
+            markers: {
+                fillColors: ['#1565c0', '#e65100', '#6a1b9a', '#2e7d32', '#ff00ff']
             },
-            custom: function ({ dataPointIndex, w }) {
-                const activeSeriesData = w.config.series[4].data[dataPointIndex];
-                if (!activeSeriesData) return '';
+            onItemClick: {
+                toggleDataSeries: false // Prevents default engine conflict
+            },
+            click: function(chartContext, seriesIndex, config) {
+                if (seriesIndex === 4) { 
+                    chartContext.toggleSeries('Non-CTC Components (Transfer)');
+                    chartContext.toggleSeries('Non-CTC Components (Increment)');
+                } else if (seriesIndex === 3) {
+                    chartContext.toggleSeries('Base CTC Delta (Increment)');
+                } else {
+                    chartContext.toggleSeries('Base CTC (Transfer/Initial)');
+                }
+            }
+        },
+        tooltip: {
+            shared: false,      // Breaks data apart by the specific hovered block
+            intersect: true,    // Fires only when the cursor touches a specific block segment
+            theme: 'none', 
+            style: { fontSize: '13px', fontFamily: 'Arial, sans-serif' },
+            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                const targetPointData = w.config.series[seriesIndex].data[dataPointIndex];
+                if (!targetPointData || targetPointData.y === 0) return ''; 
 
-                const targetTimestamp = activeSeriesData.x;
+                const targetTimestamp = targetPointData.x;
+                
                 const matchingRows = data.filter(row => {
                     const d = row.event_date || row.effective_from || row.joining_date || row.created_on;
                     return new Date(d).getTime() === targetTimestamp;
                 });
-
                 if (matchingRows.length === 0) return '';
-                
-                // Keep Transfer showing first over Increment inside the card view layout loop
-                matchingRows.reverse();
+
+                const isNonCtcHover = (seriesIndex === 1 || seriesIndex === 3);
+                const getStatusConfig = (status) => statusMap[parseInt(status)] || { text: 'Event', color: '#333' };
 
                 const eventDate = matchingRows[0].event_date || matchingRows[0].effective_from || matchingRows[0].joining_date || matchingRows[0].created_on;
                 const readableDate = new Date(eventDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
-                // --- FIX: Forced border: none; and box-shadow: none; to completely flatten the box ---
-                let htmlBlock = `<div style="padding: 14px; min-width: 320px; background: #ffffff; border: none; box-shadow: none; font-family: Arial, sans-serif;">
-                    <div style="font-size: 11px; color: #777; margin-bottom: 8px; text-align: right; font-weight: bold;">Effective Date: ${readableDate}</div>`;
+                let htmlBlock = `<div style="padding: 12px; min-width: 280px; background: #ffffff; border: none; box-shadow: 0px 2px 10px rgba(0,0,0,0.15); font-family: Arial, sans-serif;">
+                    <div style="font-size: 11px; color: #777; margin-bottom: 6px; text-align: right; font-weight: bold;">Effective Date: ${readableDate}</div>`;
 
-                matchingRows.forEach((row, i) => {
-                    const statusConfig = statusMap[parseInt(row.occ_status)] || { text: 'Event', color: '#333' };
-                    const inlineStyle = i > 0 ? `margin-top: 12px; border-top: 1px dashed #ddd; padding-top: 12px;` : '';
+                // --- CONDITION A: MOUSE IS HOVERING A PINK NON-CTC BLOCK ---
+                if (isNonCtcHover) {
+                    const targetedRow = (seriesIndex === 3 && matchingRows.length > 1) ? matchingRows[1] : matchingRows[0];
+                    const statusConfig = getStatusConfig(targetedRow.occ_status);
 
-                    let detailRowsHtml = '';
-
-                    if (parseInt(row.occ_status) === 1) { // Promotion Details
-                        detailRowsHtml = `
-                            <tr><td style="padding: 4px 0; color: #555;"><b>Designation:</b></td><td style="padding: 4px 0; text-align: right; font-size:12px;"><span style="color:#777;">${row.old_designation}</span> &rarr; <b>${row.designation || '-'}</b></td></tr>
-                        `;
-                    } else if (parseInt(row.occ_status) === 2) { // Transfer Details
-                        detailRowsHtml = `
-                            <tr><td style="padding: 4px 0; color: #555;"><b>Branch:</b></td><td style="padding: 4px 0; text-align: right; font-size:12px;"><span style="color:#777;">${row.old_branch}</span> &rarr; <b>${row.branch_name || '-'}</b></td></tr>
-                            <tr><td style="padding: 4px 0; color: #555;"><b>Department:</b></td><td style="padding: 4px 0; text-align: right; font-size:12px;"><span style="color:#777;">${row.old_department}</span> &rarr; <b>${row.department_name || '-'}</b></td></tr>
-                            <tr><td style="padding: 4px 0; color: #555;"><b>Team:</b></td><td style="padding: 4px 0; text-align: right; font-size:12px;"><span style="color:#777;">${row.old_team}</span> &rarr; <b>${row.team_name || '-'}</b></td></tr>
-                        `;
-                    } else { // Joined or standard Increment Details
-                        detailRowsHtml = `
-                            <tr><td style="padding: 4px 0; color: #555;"><b>Designation:</b></td><td style="padding: 4px 0; text-align: right;">${row.designation || '-'}</td></tr>
-                            <tr><td style="padding: 4px 0; color: #555;"><b>Branch/Dept:</b></td><td style="padding: 4px 0; text-align: right;">${row.branch_name || '-'} (${row.department_name || '-'})</td></tr>
-                            <tr><td style="padding: 4px 0; color: #555;"><b>Team:</b></td><td style="padding: 4px 0; text-align: right;">${row.team_name || '-'}</td></tr>
-                        `;
+                    let allowancesHtml = '';
+                    if (targetedRow.allowances && Array.isArray(targetedRow.allowances)) {
+                        targetedRow.allowances.forEach(allw => {
+                            const freqLabel = parseInt(allw.pay_frequency) === 2 ? 'Per Day' : 'Per Month';
+                            allowancesHtml += `
+                                <tr>
+                                    <td style="padding: 4px 0; color: #555; font-size: 12px; padding-left: 4px;">• ${allw.salary_component}:</td>
+                                    <td style="padding: 4px 0; text-align: right; font-size: 12px; color: #333; font-weight: bold;">₹${Number(allw.ctc_amount).toLocaleString()} (${freqLabel})</td>
+                                </tr>`;
+                        });
                     }
 
                     htmlBlock += `
-                        <div style="${inlineStyle}">
+                        <div>
+                            <div style="font-size: 13px; font-weight: 700; color: #ff00ff; margin-bottom: 6px; border-bottom: 1px solid #eee; padding-bottom: 4px;">
+                                Non-CTC(${statusConfig.text})
+                            </div>
+                            <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+                                ${allowancesHtml ? allowancesHtml : '<tr><td colspan="2" style="color:#777; font-size:12px;">No specific components recorded.</td></tr>'}
+                                <tr style="border-top: 1px dashed #eee;">
+                                    <td style="padding: 6px 0 0 0; color: #555;"><b>Total Non-CTC Value:</b></td>
+                                    <td style="padding: 6px 0 0 0; text-align: right; font-weight: bold; color: #ff00ff;">₹${Number(targetPointData.y).toLocaleString()}</td>
+                                </tr>
+                            </table>
+                        </div>`;
+                } 
+                // --- CONDITION B: MOUSE IS HOVERING A BASE COLOR CTC BLOCK ---
+                else {
+                    const targetedRow = (seriesIndex === 2 && matchingRows.length > 1) ? matchingRows[1] : matchingRows[0];
+                    const statusConfig = getStatusConfig(targetedRow.occ_status);
+
+                    let detailRowsHtml = '';
+                    if (parseInt(targetedRow.occ_status) === 1) { 
+                        detailRowsHtml = `<tr><td style="padding: 4px 0; color: #555;"><b>Designation:</b></td><td style="padding: 4px 0; text-align: right; font-size:12px;"><span style="color:#777;">${targetedRow.old_designation}</span> &rarr; <b>${targetedRow.designation || '-'}</b></td></tr>`;
+                    } else if (parseInt(targetedRow.occ_status) === 2) { 
+                        detailRowsHtml = `
+                            <tr><td style="padding: 4px 0; color: #555;"><b>Branch:</b></td><td style="padding: 4px 0; text-align: right; font-size:12px;"><span style="color:#777;">${targetedRow.old_branch}</span> &rarr; <b>${targetedRow.branch_name || '-'}</b></td></tr>
+                            <tr><td style="padding: 4px 0; color: #555;"><b>Department:</b></td><td style="padding: 4px 0; text-align: right; font-size:12px;"><span style="color:#777;">${targetedRow.old_department}</span> &rarr; <b>${targetedRow.department_name || '-'}</b></td></tr>`;
+                    } else { 
+                        detailRowsHtml = `
+                            <tr><td style="padding: 4px 0; color: #555;"><b>Designation:</b></td><td style="padding: 4px 0; text-align: right;">${targetedRow.designation || '-'}</td></tr>
+                            <tr><td style="padding: 4px 0; color: #555;"><b>Branch/Dept:</b></td><td style="padding: 4px 0; text-align: right;">${targetedRow.branch_name || '-'} (${targetedRow.department_name || '-'})</td></tr>`;
+                    }
+
+                    htmlBlock += `
+                        <div>
                             <div style="font-size: 14px; font-weight: 700; color: ${statusConfig.color}; margin-bottom: 6px; border-bottom: 1px solid #eee; padding-bottom: 4px;">
-                                ${statusConfig.text}
+                                ${statusConfig.text} Details
                             </div>
                             <table style="width: 100%; font-size: 13px; border-collapse: collapse; color: #333;">
-                                <tr><td style="padding: 4px 0; color: #555;"><b>Salary:</b></td><td style="padding: 4px 0; text-align: right; font-weight: bold; color: #2e7d32;">₹${Number(row.total_ctc || 0).toLocaleString()}</td></tr>
+                                <tr><td style="padding: 4px 0; color: #555;"><b>CTC Salary:</b></td><td style="padding: 4px 0; text-align: right; font-weight: bold; color: #2e7d32;">₹${Number(targetedRow.total_ctc || 0).toLocaleString()}</td></tr>
+                                <tr><td style="padding: 4px 0; color: #555;"><b>Gross Total:</b></td><td style="padding: 4px 0; text-align: right; font-weight: bold; color: #1565c0;">₹${Number(targetedRow.total_amount || targetedRow.total_ctc || 0).toLocaleString()}</td></tr>
                                 ${detailRowsHtml}
                             </table>
                         </div>`;
-                });
+                }
 
                 htmlBlock += `</div>`;
                 return htmlBlock;
             }
         },
         title: {
-            text: (data.length > 0 ?
-                (data[0].staff_name || 'Employee') + ' - ' + (data[0].staff_id || '') + ' - ' + (data[0].staff_type || '')
-                : 'Employee Tracker'),
+            text: data.length > 0 
+                ? `${data[0].staff_name || 'Employee'}${data[0].staff_id ? ` - ${data[0].staff_id}` : ''}`
+                : 'Employee Details',
             align: 'center',
             style: { fontSize: '18px', fontWeight: 700 }
         }
