@@ -295,6 +295,21 @@
                         <div style="width: 20px; height: 20px; background-color: #A142F4; border-radius: 3px;"></div>
                         <span>Grace Time</span>
                     </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #8B0000; border-radius: 3px;"></div>
+                        <span>Paid Leave</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #607D8B; border-radius: 3px;"></div>
+                        <span>Week Off</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #000080; border-radius: 3px;"></div>
+                        <span>LOP</span>
+                    </div>
                 </div>
                 <div id="timeline_chart"></div>
             </div>

@@ -239,7 +239,7 @@ $(document).ready(function () {
 
             $('#ctc_info_table tbody tr').each(function () {
                 let ctc_id = $(this).find('.ctc_id').val();
-                let ctc_amount = $(this).find('.ctc_amount').val();
+                let ctc_amount = $(this).find('.ctc_amount').val().replace(/,/g, '') || 0;
                 let ctc_percentage = $(this).find('.ctc_percentage').val();
                 ctcDetails.push({ ctc_id: ctc_id, ctc_amount: ctc_amount, ctc_percentage: ctc_percentage });
             });
@@ -528,10 +528,12 @@ async function editStaffProfile() {
 
         $.each(ctcData, function (index, row) {
 
-            $('#ctc_amount_' + row.ctc_id).val(moneyFormatIndia(row.ctc_amount));
+            let amount = (row.ctc_amount || '').toString().replace(/,/g, '');
+
+            $('#ctc_amount_' + row.ctc_id).val(moneyFormatIndia(amount));
             $('#ctc_percentage_' + row.ctc_id).val(row.ctc_percentage);
 
-            totalAmt += parseFloat(row.ctc_amount || 0);
+            totalAmt += parseFloat(amount || 0);
             totalPer += parseFloat(row.ctc_percentage || 0);
         });
 
