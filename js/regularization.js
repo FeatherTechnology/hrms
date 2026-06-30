@@ -73,13 +73,14 @@ $(document).ready(function () {
     );
   });
 
-  $("#from_date, #to_date").on("change", function () {
+  $("#from_date, #to_date").on("change", async function () {
+    console.log("ff");
     let reqType = $("#req_type").val();
 
     if (!$("#from_date").val() || !$("#to_date").val()) {
       return;
     }
-
+    await getbalancerequest();
     let fromDate = new Date($("#from_date").val());
 
     let toDate = new Date($("#to_date").val());
@@ -121,6 +122,7 @@ $(document).ready(function () {
         $("#from_date, #to_date").val("");
       }
     }
+    calculateDateDiff("#from_date", "#to_date", "#total_min", "#total_days");
   });
 
   // edit regularization
@@ -135,17 +137,17 @@ $(document).ready(function () {
       // swalError("Error", "This request has already been approved");
       let appFromDate = new Date(appfrom);
 
-      if (appFromDate > currentdate) {
-        // app_from date is greater than current date
-        $("#back_btn,.staff_info_div,.approval_div").show();
+      // if (appFromDate > currentdate) {
+      // app_from date is greater than current date
+      $("#back_btn,.staff_info_div,.approval_div").show();
 
-        $(".add_reg,.regularization_list").hide();
+      $(".add_reg,.regularization_list").hide();
 
-        $("#hidden_id").val(id);
-        getedituserdetails(id, staff_id);
-      } else {
-        swalError("Error", "This request has already Approved.");
-      }
+      $("#hidden_id").val(id);
+      getedituserdetails(id, staff_id);
+      // } else {
+      //   swalError("Error", "This request has already Approved.");
+      // }
     } else if (status == "2") {
       swalError("Warning", "This request has already been cancelled");
     } else {
@@ -164,7 +166,9 @@ $(document).ready(function () {
     let cmpy_id = $("#cmpy_id").val();
     let value = $(this).val();
     $("#total_days").empty();
-    $(".leveType,#from_date,#to_date,#leave_type_id,#balance_req,#leave_period").val("");
+    $(
+      ".leveType,#from_date,#to_date,#leave_type_id,#balance_req,#leave_period",
+    ).val("");
     if (value == "1") {
       $(".leveType").show();
       $(".Lev_per").show();
@@ -178,14 +182,14 @@ $(document).ready(function () {
       $(".leveType").hide();
       $(".ot_req").hide();
       $("#from_date,#to_date").attr("type", "datetime-local");
-      getbalancerequest("2", cmpy_id);
+      // getbalancerequest("2", cmpy_id);
     } else if (value == "3") {
       $(".Lev_per").show();
       $(".bal_req").show();
       $(".leveType").hide();
       $(".ot_req").hide();
       $("#from_date,#to_date").attr("type", "date");
-      getbalancerequest("3", cmpy_id);
+      // getbalancerequest("3", cmpy_id);
     } else if (value == "4") {
       $(".Lev_per").hide();
       $(".bal_req").hide();
@@ -194,7 +198,7 @@ $(document).ready(function () {
       $("#leave_type,#leave_type_id,#balance_req,#leave_period").val("");
       $("#from_date,#to_date").attr("type", "datetime-local");
 
-      getbalancerequest("4", cmpy_id);
+      // getbalancerequest("4", cmpy_id);
     }
 
     $("#request_form input").css("border", "1px solid #cecece");
@@ -208,27 +212,48 @@ $(document).ready(function () {
   $("#leave_type").change(function () {
     let leave_type = $("#leave_type").val();
     $("#to_date").val("");
-    getbalancerequest("1", leave_type);
+    $("#to_date,#total_days,#from_date,#balance_req").val("");
+    // getbalancerequest("1", leave_type);
   });
 
   // Leave Day change
   // Leave Day change
-  $("#leave_period, #from_date").on("change", function () {
+  $("#leave_period").on("change", function () {
+    // Empty fields on leave period change
+    if ($(this).attr("id") === "leave_period") {
+      $("#from_date").val("");
+      $("#to_date").val("");
+      $("#total_days").text("");
+      $("#balance_req").val("");
+    }
+
+    // getbalancerequest();
     let leaveDay = $("#leave_period").val();
     let fromDate = $("#from_date").val();
+    let req_type = $("#req_type").val();
 
     if (!fromDate) return;
 
     if (leaveDay == "1" || leaveDay == "2") {
       $("#to_date").val(fromDate).attr("min", fromDate).attr("max", fromDate);
     } else if (leaveDay == "3") {
-      $("#to_date").val("").attr("min", fromDate).removeAttr("max");
+      let from = new Date(fromDate);
+
+      let lastDay = new Date(from.getFullYear(), from.getMonth() + 1, 0);
+
+      let yyyy = lastDay.getFullYear();
+      let mm = String(lastDay.getMonth() + 1).padStart(2, "0");
+      let dd = String(lastDay.getDate()).padStart(2, "0");
+
+      let maxDate = `${yyyy}-${mm}-${dd}`;
+
+      $("#to_date").val("").attr("min", fromDate).attr("max", maxDate);
     }
 
     // Recalculate total days after changing leave period
-    if ($("#from_date").val() && $("#to_date").val()) {
-      calculateDateDiff("#from_date", "#to_date", "#total_min", "#total_days");
-    }
+    // if ($("#from_date").val() && $("#to_date").val()) {
+    //   calculateDateDiff("#from_date", "#to_date", "#total_min", "#total_days");
+    // }
   });
 
   // delete regularization
@@ -239,15 +264,15 @@ $(document).ready(function () {
     let currentdate = new Date();
 
     if (status == "1") {
-      // swalError("Error", "This request has already been approved");
-      let appFromDate = new Date(from_date);
+      // // swalError("Error", "This request has already been approved");
+      // let appFromDate = new Date(from_date);
 
-      if (appFromDate > currentdate) {
-        // app_from date is greater than current date
-        deleteregularization(id);
-      } else {
-        swalError("Error", "This request has already Approved.");
-      }
+      // if (appFromDate > currentdate) {
+      //   // app_from date is greater than current date
+      //   deleteregularization(id);
+      // } else {
+      swalError("Error", "This request has already Approved.");
+      // }
     } else if (status == "2") {
       swalError("Error", "This request has already been cancelled");
     } else {
@@ -295,13 +320,13 @@ $(document).ready(function () {
       validateField(collData["reason"], "reason"),
     ];
 
-    if (collData["req_type"] == 1 ) {
+    if (collData["req_type"] == 1) {
       validationResults.push(
         validateField($("#leave_type").val(), "leave_type"),
         validateField($("#leave_period").val(), "leave_period"),
       );
     }
-    if (collData["req_type"] == 3 ) {
+    if (collData["req_type"] == 3) {
       validationResults.push(
         validateField($("#leave_period").val(), "leave_period"),
       );
@@ -335,11 +360,17 @@ $(document).ready(function () {
       }
     }
 
-    req_type = parseInt($("#req_type").val());
-    let balance_req = parseInt($("#balance_req").val());
+    const req_type = parseInt($("#req_type").val(), 10);
+    const balance_req = parseFloat($("#balance_req").val()) || 0;
 
-    if (req_type < 3 && balance_req <= 0) {
-      swalError("Error", "No Balance Request Available");
+    // Check balance only for req_type 1,2,3
+    if ([1, 2, 3].includes(req_type) && balance_req < 0) {
+      let excessDays = Math.abs(balance_req);
+
+      swalError(
+        "Error",
+        `You don't have enough balance. You have applied ${excessDays} more day(s) than your available balance.`,
+      );
 
       return false;
     }
@@ -363,6 +394,11 @@ $(document).ready(function () {
                 $("#back_btn").trigger("click");
               } else if (response.result == "4") {
                 swalError("Error", "Failed to Insert Regularization");
+              } else if (response.result == "5") {
+                swalError(
+                  "Error",
+                  "Already regularization request exists for this date",
+                );
               }
               // $("#pending").prop("checked", true).trigger("click");
             },
@@ -375,7 +411,7 @@ $(document).ready(function () {
 
   // First section
   $("#from_date, #to_date").on("change", function () {
-    calculateDateDiff("#from_date", "#to_date", "#total_min", "#total_days");
+    // calculateDateDiff("#from_date", "#to_date", "#total_min", "#total_days");
   });
 
   setDateValidation("#from_date", "#to_date");
@@ -551,12 +587,11 @@ function getedituserdetails(id, userid) {
         $(".leveType").hide();
       }
       if (response.req_type == 1 || response.req_type == 3) {
-         $(".Lev_per").show();
-         $("#leave_period").val(response.leave_period);
-        
+        $(".Lev_per").show();
+        $("#leave_period").val(response.leave_period);
       } else {
-         $(".Lev_per").hide();
-         $("#leave_period").val("");
+        $(".Lev_per").hide();
+        $("#leave_period").val("");
       }
 
       if (response.req_type != "4") {
@@ -627,23 +662,31 @@ function getcmpyleavelist(cmpy_id) {
 let shiftStart = "";
 let shiftEnd = "";
 
-function getbalancerequest(req_type, cmpy_id) {
-  let staff_id = $("#stf_prf_id").val();
+async function getbalancerequest() {
+  try {
+    const response = await $.post(
+      "api/regularization_files/get_balance_request.php",
+      {
+        req_type: $("#req_type").val(),
+        cmpy_id: $("#cmpy_id").val(),
+        staff_id: $("#stf_prf_id").val(),
+        from_date: $("#from_date").val(),
+        to_date: $("#to_date").val(),
+        leave_period: $("#leave_period").val(),
+        leave_type: $("#leave_type").val(),
+      },
+      null,
+      "json",
+    );
 
-  $.post(
-    "api/regularization_files/get_balance_request.php",
-    { req_type, cmpy_id, staff_id },
-    function (response) {
-      $("#balance_req").val(response.balance);
-      $("#current_month_ot_count").val(response.current_month_ot_count);
+    $("#balance_req").val(response.balance);
+    $("#current_month_ot_count").val(response.current_month_ot_count);
 
-      if (req_type == "4" || req_type == "2") {
-        shiftStart = response.start_time;
-        shiftEnd = response.end_time;
-      }
-    },
-    "json",
-  );
+    shiftStart = response.start_time;
+    shiftEnd = response.end_time;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // to delete the applied regularization
@@ -716,17 +759,35 @@ function calculateDateDiff(
     (reqType == "1" || reqType == "3") &&
     (leave_period == "1" || leave_period == "2")
   ) {
-    let totalMinutes = 12 * 60; // 12 hours
+    // Convert HH:MM:SS to Date objects
+    let start = new Date(`1970-01-01T${shiftStart}`);
+    let end = new Date(`1970-01-01T${shiftEnd}`);
 
-    $(totalMinSelector).val(totalMinutes);
+    console.log("hhh", start);
+    console.log("ddd", end);
+    // Handle overnight shifts (e.g. 10 PM to 6 AM)
+    if (end <= start) {
+      end.setDate(end.getDate() + 1);
+    }
 
-    $(totalDaysSelector).html(
-      `<div style="display:flex; gap:15px;">
+    // Total shift minutes
+    let totalMinutes = (end - start) / (1000 * 60);
+
+    // Half-day minutes
+    let halfDayMinutes = totalMinutes / 2;
+
+    $(totalMinSelector).val(halfDayMinutes);
+
+    let hours = halfDayMinutes / 60;
+    console.log("hrs", hours);
+
+    $(totalDaysSelector).html(`
+    <div style="display:flex; gap:15px;">
       <span><span style="color:#f26b35">0</span> D</span>
-      <span><span style="color:#f26b35">12</span> H</span>
+      <span><span style="color:#f26b35">${hours}</span> H</span>
       <span><span style="color:#f26b35">0</span> M</span>
-    </div>`,
-    );
+    </div>
+  `);
 
     return;
   }
@@ -795,25 +856,25 @@ function calculateDateDiff(
   let minutes = remainingMinutes % 60;
 
   // balance check
-  let balanceDays = parseInt($("#balance_req").val());
+  // let balanceDays = parseInt($("#balance_req").val());
 
-  if (days > balanceDays) {
-    alert("You only have " + balanceDays + " leave days balance");
+  // if (days > balanceDays) {
+  //   alert("You only have " + balanceDays + " leave days balance");
 
-    $(toSelector).val("");
+  //   $(toSelector).val("");
 
-    $(totalMinSelector).val(0);
+  //   $(totalMinSelector).val(0);
 
-    $(totalDaysSelector).html(
-      `<div style="display:flex; gap:15px;">
-        <span><span style="color:#f26b35">0</span> D</span>
-        <span><span style="color:#f26b35">0</span> H</span>
-        <span><span style="color:#f26b35">0</span> M</span>
-      </div>`,
-    );
+  //   $(totalDaysSelector).html(
+  //     `<div style="display:flex; gap:15px;">
+  //       <span><span style="color:#f26b35">0</span> D</span>
+  //       <span><span style="color:#f26b35">0</span> H</span>
+  //       <span><span style="color:#f26b35">0</span> M</span>
+  //     </div>`,
+  //   );
 
-    return;
-  }
+  //   return;
+  // }
 
   // display
   $(totalDaysSelector).html(
@@ -829,24 +890,52 @@ function calculateDateDiff(
 function setDateValidation(fromSelector, toSelector) {
   $(fromSelector).on("change", function () {
     let fromDateTime = $(this).val();
+    let req_typ = $("#req_type").val();
 
     // set min date
     let leaveDay = $("#leave_period").val();
 
+    // Selected From Date
+    let from = new Date(fromDateTime);
+
+    // Last day of the selected month
+    let lastDay = new Date(from.getFullYear(), from.getMonth() + 1, 0);
+
+    let yyyy = lastDay.getFullYear();
+    let mm = String(lastDay.getMonth() + 1).padStart(2, "0");
+    let dd = String(lastDay.getDate()).padStart(2, "0");
+
+    let maxDate =
+      $(toSelector).attr("type") === "datetime-local"
+        ? `${yyyy}-${mm}-${dd}T23:59`
+        : `${yyyy}-${mm}-${dd}`;
+
+    // Set minimum = selected From Date
     $(toSelector).attr("min", fromDateTime);
 
+    // Half-day leave
     if (leaveDay == "1" || leaveDay == "2") {
-      $(toSelector).attr("max", fromDateTime);
+      $(toSelector).attr("min", fromDateTime).attr("max", fromDateTime);
     } else {
-      $(toSelector).removeAttr("max");
+      // Full-day leave / Week Off
+      $(toSelector).attr("max", maxDate);
     }
 
     // clear invalid old value
     let toDateTime = $(toSelector).val();
 
-    if (toDateTime && toDateTime < fromDateTime) {
-      alert("To Date/Time cannot be less than From Date/Time");
-      $(toSelector).val("");
+    // let toDateTime = $(toSelector).val();
+
+    if (toDateTime) {
+      if (toDateTime < fromDateTime) {
+        alert("To Date/Time cannot be less than From Date/Time");
+        $(toSelector).val("");
+      } else if (leaveDay != "1" && leaveDay != "2" && toDateTime > maxDate) {
+        alert(
+          "To Date/Time cannot be greater than the last day of the selected month",
+        );
+        $(toSelector).val("");
+      }
     }
   });
 }

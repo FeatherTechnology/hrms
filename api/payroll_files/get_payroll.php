@@ -16,6 +16,37 @@ if (isset($_POST['stf_prf_id']) && $_POST['stf_prf_id'] != '') {
     $stff_con = "AND o.staff_profile_id = '$stf_prf_id'";
 }
 $result = array();
+// CHECK PENDING REGULARIZATION BEFORE PAYROLL GENERATION
+
+$month_start = $month . "-01";
+$month_end = date("Y-m-t", strtotime($month_start));
+
+
+$pendingRegQry = $pdo->query("
+    SELECT COUNT(*) AS pending_count
+    FROM regularization
+    WHERE company_id = '$company_id'
+    AND branch_id = '$branch_id'
+    AND status = 0
+    AND (
+        DATE(from_date) <= '$month_end'
+        AND DATE(to_date) >= '$month_start'
+    )
+");
+
+
+$pendingReg = $pendingRegQry->fetch();
+
+
+if ($pendingReg['pending_count'] > 0) {
+
+    echo json_encode([
+        "status" => 0,
+        "message" => "Please complete all regularization requests before generating payroll."
+    ]);
+
+    exit;
+}
 
 // GET ALL SALARY COMPONENT
 $componentArr = array();
@@ -202,6 +233,9 @@ while ($staff = $getStaff->fetch()) {
                 $shift_start +
                 (($shift_end - $shift_start) / 2);
 
+            $second_half_allowed_time = $second_half_start +
+                (intval($shift['grace_time']) * 60);
+
 
             $entry_time = strtotime($att['entry_time']);
 
@@ -211,7 +245,7 @@ while ($staff = $getStaff->fetch()) {
             }
 
             // HALF DAY PRESENT
-            else if ($entry_time <= $second_half_start) {
+            else if ($entry_time <= $second_half_allowed_time) {
                 $present_days += 0.5;
             }
             // AFTER SECOND HALF
@@ -252,7 +286,6 @@ while ($staff = $getStaff->fetch()) {
             } else {
                 $approved_leave += (($b - $a) / 86400) + 1;
             }
-
         }
     }
     // TOTAL PAYABLE DAYS

@@ -117,7 +117,7 @@ if ($type == 'Request') {
 if ($type == 'Approval') {
 
     // Only pending requests for approval
-    $baseQuery .= " AND reg.status = 0 ";
+    // $baseQuery .= " AND reg.status = 0 ";
 
     if ($user_type == 2) {
         $baseQuery .= " AND descr.designation_level > :my_level ";
@@ -292,7 +292,7 @@ foreach ($result as $row) {
 
     /* action */
     if ($row['insert_login_id'] == $userid) {
-        $action = "<span class='icon-delete delete_reg' data-id='{$row['id']}' data-status='{$row['status']} data-from-date='{$row['from_date']}'> </span>";
+        $action = "<span class='icon-delete delete_reg' data-id='{$row['id']}' data-status='{$row['status']}' data-from-date='{$row['from_date']}'> </span>";
     } else {
         $action = "<span class='icon-border_color edit_reg' data-id='{$row['id']}' data-staff_id='{$row['insert_login_id']}' data-status='{$row['status']}'</span>";
     }
