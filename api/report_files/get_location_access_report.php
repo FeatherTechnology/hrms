@@ -2,13 +2,48 @@
 require "../../ajaxconfig.php";
 @session_start();
 
-$user_id = $_SESSION['user_id'] ?? '';
-
+$user_id = $_SESSION['user_id'];
 $from_date    = $_POST['params']['from_date'] ?? '';
 $to_date      = $_POST['params']['to_date'] ?? '';
 $company_id   = $_POST['params']['company_id'] ?? '';
 $branch_id    = $_POST['params']['branch_id'] ?? '';
 $department_id = $_POST['params']['department_id'] ?? '';
+
+$userQry = $pdo->prepare("  SELECT report_access, user_type, director_name, staff_name_id  FROM users WHERE id = ?");
+$userQry->execute([$user_id]);
+$user = $userQry->fetch(PDO::FETCH_ASSOC);
+
+$report_access = $user['report_access'];
+$user_type     = $user['user_type'];
+$whereCondition = "";
+$params = [
+   
+    ':from_date' => $from_date,
+    ':to_date'   => $to_date
+];
+
+if ($report_access == 2) {
+
+    if ($user_type == 1) {
+
+        $whereCondition = "
+            AND oi.reporting_person_type = 1
+            AND oi.reporting_person = :reporting_person
+        ";
+
+        $params[':reporting_person'] = $user['director_name'];
+
+    } elseif ($user_type == 2) {
+
+        $whereCondition = "
+            AND oi.reporting_person_type = 2
+            AND oi.reporting_person = :reporting_person
+        ";
+
+        $params[':reporting_person'] = $user['staff_name_id'];
+    }
+}
+
 
 /*--- Column Array ---*/
 $column = array(
@@ -29,6 +64,7 @@ $column = array(
 
 /* --- Base Query --- */
 $baseQuery = "
+
 FROM occupation_info oi
 
 LEFT JOIN branch_creation bc
@@ -44,37 +80,36 @@ LEFT JOIN designation_creation des
     ON des.id = oi.designation
 
 LEFT JOIN location_access_mapping lam
-    ON lam.id = (
-        SELECT id
-        FROM location_access_mapping
-        WHERE staff_profile_id = oi.staff_profile_id
-        AND status = 0
-        ORDER BY id DESC
-        LIMIT 1
-    )
+ON lam.staff_profile_id = oi.staff_profile_id
+AND lam.status = 0
 
 LEFT JOIN branch_creation bcs
     ON lam.assigned_branch = bcs.id
 
-LEFT JOIN users u
-    ON u.id = :user_id
+LEFT JOIN users au
+    ON au.id = lam.insert_login_id
+
+LEFT JOIN staff_creation ascf
+    ON ascf.id = au.staff_name_id
+    AND au.user_type = 2
+
+LEFT JOIN director_creation adir
+    ON adir.id = au.director_name
+    AND au.user_type = 1
 
 WHERE oi.off_type = 1
+
 AND oi.id IN (
     SELECT MAX(id)
     FROM occupation_info
     GROUP BY staff_profile_id
 )
-AND oi.reporting_person = u.staff_name_id
+
 AND lam.from_date <= :to_date
 AND lam.to_date >= :from_date
-";
 
-$params = [
-    ':user_id' => $user_id,
-    ':from_date' => $from_date,
-    ':to_date' => $to_date
-];
+$whereCondition
+";
 
 /* --- Filters --- */
 
@@ -133,13 +168,19 @@ SELECT
     lam.reason,
     lam.lattitude_longitude,
     oi.staff_profile_id,
-    u.user_name
+    CASE
+    WHEN au.user_type = 1 THEN adir.director_name
+    WHEN au.user_type = 2 THEN ascf.staff_name
+    ELSE au.user_name
+END AS assigned_by
 " . $baseQuery . "
-GROUP BY oi.id
 ";
 
 /* --- Filtered Count --- */
-$countQuery = "SELECT COUNT(*) FROM (SELECT oi.id " . $baseQuery . " GROUP BY oi.id) AS temp";
+$countQuery = "
+SELECT COUNT(*)
+$baseQuery
+";
 
 $stmt = $pdo->prepare($countQuery);
 $stmt->execute($params);
@@ -209,7 +250,7 @@ foreach ($result as $row) {
         : '';
 
     $sub_array[] = $row['no_of_days'];
-    $sub_array[] = $row['user_name'];
+    $sub_array[] = $row['assigned_by'];
     $sub_array[] = $row['reason'];
 
     $data[] = $sub_array;
