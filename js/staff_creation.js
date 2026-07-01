@@ -681,9 +681,9 @@ $(document).ready(function () {
             $("#submit_staff").attr("disabled", false);
           } else if (response.result == 1) {
             swalSuccess("Success", "Personal Info Added Successfully!");
-            $("#pf_available").val('');
-            $("#esi_ available").val('');
-            $("#pt_available").val('');
+            $("#pf_available").val("");
+            $("#esi_ available").val("");
+            $("#pt_available").val("");
             $(".staff_content").show();
             $("#staff_profile_id").val(response.last_id);
             $("#per_pic").val(response.pic);
@@ -694,7 +694,6 @@ $(document).ready(function () {
             getQualificationInfoTable();
             getExperienceInfoTable();
             getCompanyPFDetails(company_name);
-           
           }
         },
       });
@@ -764,9 +763,6 @@ $(document).ready(function () {
     let branch_id = $("#branch_search").val();
     let department_id = $("#department_search").val();
     let total_ctc_amount = $("#total_ctc_amount").val();
-    console.log("pf_available",pf_available);
-    console.log("esi_available",esi_available);
-    console.log("pt_available",pt_available);
 
     var data = [
       "staff_auto_id",
@@ -1001,7 +997,7 @@ $(document).ready(function () {
       return false;
     }
 
-    let currentAmount = parseFloat($(this).val()) || 0;
+    let currentAmount = parseFloat($(this).val().replace(/,/g, "")) || 0;
     let category = $(this).closest("tr").find("td:eq(3)").text().trim();
 
     let percentage = 0;
@@ -1390,7 +1386,6 @@ async function getExperienceInfoTable() {
   }
 }
 async function getCompanyPFDetails(company_name) {
-
   try {
     let response = await $.ajax({
       url: "api/staff_creation/get_company_pf_details.php",
@@ -1404,48 +1399,30 @@ async function getCompanyPFDetails(company_name) {
     if (response[0].pf_applicable == 2) {
       console.log("jj");
 
-      $("#pf_available")
-        .val(response[0].pf_applicable)
-        .prop("disabled", true);
-
+      $("#pf_available").val(response[0].pf_applicable).prop("disabled", true);
     } else {
-
-      $("#pf_available")
-        .val(response[0].pf_applicable)
-        .prop("disabled", false);
-
+      $("#pf_available").val(response[0].pf_applicable).prop("disabled", false);
     }
-
 
     if (response[0].esi_applicable == 2) {
-
       $("#esi_available")
         .val(response[0].esi_applicable)
         .prop("disabled", true);
-
     } else {
-
       $("#esi_available")
         .val(response[0].esi_applicable)
         .prop("disabled", false);
-
     }
-
 
     if (response[0].professional_tax_applicable == 2) {
-
       $("#pt_available")
         .val(response[0].professional_tax_applicable)
         .prop("disabled", true);
-
     } else {
-
       $("#pt_available")
         .val(response[0].professional_tax_applicable)
         .prop("disabled", false);
-
     }
-
   } catch (error) {
     console.error("Experience Info Table Error:", error);
   }
@@ -1785,7 +1762,8 @@ function calculateTotals(currentInput) {
   let enteredCTC = parseFloat($("#total_ctc").val()) || 0;
 
   $("#ctc_info_table tbody tr").each(function () {
-    let amount = parseFloat($(this).find(".ctc_amount").val()) || 0;
+    let amount =
+      parseFloat($(this).find(".ctc_amount").val().replace(/,/g, "")) || 0;
     let percentage = parseFloat($(this).find(".ctc_percentage").val()) || 0;
     let category = $(this).find("td:eq(3)").text().trim();
 
@@ -1806,7 +1784,9 @@ function calculateTotals(currentInput) {
   }
 
   $("#total_ctc_amount").val(totalAmount);
-  $("#total_ctc_percentage").val(totalPercentage);
+
+  let finalPercentage = enteredCTC > 0 ? (salaryAmount / enteredCTC) * 100 : 0;
+  $("#total_ctc_percentage").val(finalPercentage.toFixed(2));
 
   // Salary should not exceed CTC
   if (salaryAmount > enteredCTC) {
@@ -1833,27 +1813,34 @@ function calculateTotals(currentInput) {
     return false;
   }
 }
+
 function recalculateTotals() {
   let totalAmount = 0;
-  let totalPercentage = 0;
+  let salaryAmount = 0;
 
-  $(".ctc_amount").each(function () {
-    totalAmount += parseFloat($(this).val()) || 0;
-  });
+  let enteredCTC = parseFloat($("#total_ctc").val().replace(/,/g, "")) || 0;
 
-  $(".ctc_percentage").each(function () {
-    totalPercentage += parseFloat($(this).val()) || 0;
+  $("#ctc_info_table tbody tr").each(function () {
+    let amount =
+      parseFloat($(this).find(".ctc_amount").val().replace(/,/g, "")) || 0;
+    let category = $(this).find("td:eq(3)").text().trim();
+
+    totalAmount += amount;
+
+    if (category === "Salary") {
+      salaryAmount += amount;
+    }
   });
-  // Round to 2 decimal places to avoid 100.01, 99.999, etc.
-  totalPercentage = Math.round(totalPercentage * 100) / 100;
-  // Optional: cap at 100% (if you want max 100 shown)
-  if (totalPercentage > 100) {
-    totalPercentage = 100;
-  }
 
   $("#total_ctc_amount").val(totalAmount);
 
-  $("#total_ctc_percentage").val(totalPercentage);
+  let finalPercentage = enteredCTC > 0 ? (salaryAmount / enteredCTC) * 100 : 0;
+
+  if (finalPercentage > 100) {
+    finalPercentage = 100;
+  }
+
+  $("#total_ctc_percentage").val(finalPercentage.toFixed(2));
 }
 
 async function getReportingPerson(company_id, selectedLevel) {
@@ -2002,10 +1989,12 @@ async function editStaffProfile(id) {
     let totalPer = 0;
 
     $.each(ctcData, function (index, row) {
-      $("#ctc_amount_" + row.ctc_id).val(moneyFormatIndia(row.ctc_amount));
+      let amount = (row.ctc_amount || "").toString().replace(/,/g, "");
+
+      $("#ctc_amount_" + row.ctc_id).val(moneyFormatIndia(amount));
       $("#ctc_percentage_" + row.ctc_id).val(row.ctc_percentage);
 
-      totalAmt += parseFloat(row.ctc_amount || 0);
+      totalAmt += parseFloat(amount || 0);
       totalPer += parseFloat(row.ctc_percentage || 0);
     });
 

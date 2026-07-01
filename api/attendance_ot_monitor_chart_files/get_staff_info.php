@@ -171,7 +171,7 @@ try {
                 $response[] = [
                     'staff_name' => $row['staff_name'],
                     'type'       => 'Permission Hours',
-                    'color'      => '#FBBC05',
+                    'color'      => '#FF9800',
                     'start'      => $reg['from_date'],
                     'end'        => $reg['to_date']
                 ];
@@ -231,8 +231,8 @@ try {
                         'staff_name' => $row['staff_name'],
                         'type'       => $leaveName,
                         'color' => ($reg['req_type'] == 1)
-                            ? '#8B0000'      // Leave
-                            : '#607D8B',     // Week Off
+                            ? '#009688'      // Leave
+                            : '#9E9E9E',     // Week Off
                         'start'      => date('Y-m-d H:i:s', $leaveStart),
                         'end'        => date('Y-m-d H:i:s', $leaveEnd)
                     ];
@@ -281,7 +281,7 @@ try {
                 $response[] = [
                     'staff_name' => $row['staff_name'],
                     'type'       => 'Grace Time',
-                    'color'      => '#A142F4',
+                    'color'      => '#9C27B0',
                     'start'      => date('Y-m-d H:i:s', $effectiveShiftStart),
                     'end'        => date('Y-m-d H:i:s', $grace_bar_end)
                 ];
@@ -297,7 +297,7 @@ try {
             $response[] = [
                 'staff_name' => $row['staff_name'],
                 'type'       => 'Late Entry',
-                'color'      => '#EA4335',
+                'color'      => '#F44336',
                 'start'      => date('Y-m-d H:i:s', $grace_end),
                 'end'        => date('Y-m-d H:i:s', $entry_time)
             ];
@@ -316,7 +316,7 @@ try {
                 $response[] = [
                     'staff_name' => $row['staff_name'],
                     'type'       => 'Working Hours',
-                    'color'      => '#66AA00',
+                    'color'      => '#4CAF50',
                     'start'      => date('Y-m-d H:i:s', $currentStart),
                     'end'        => date('Y-m-d H:i:s', $shift_end)
                 ];
@@ -339,7 +339,7 @@ try {
                         $response[] = [
                             'staff_name' => $row['staff_name'],
                             'type'       => 'Working Hours',
-                            'color'      => '#66AA00',
+                            'color'      => '#4CAF50',
                             'start'      => date('Y-m-d H:i:s', $currentStart),
                             'end'        => date('Y-m-d H:i:s', $blockStart)
                         ];
@@ -357,7 +357,7 @@ try {
                     $response[] = [
                         'staff_name' => $row['staff_name'],
                         'type'       => 'Working Hours',
-                        'color'      => '#66AA00',
+                        'color'      => '#4CAF50',
                         'start'      => date('Y-m-d H:i:s', $currentStart),
                         'end'        => date('Y-m-d H:i:s', $shift_end)
                     ];
@@ -390,7 +390,7 @@ try {
         $response[] = [
             'staff_name' => $ot['staff_name'],
             'type'       => 'OT Hours',
-            'color'      => '#4285F4',
+            'color'      => '#2196F3',
             'start'      => $ot['from_date'],
             'end'        => $ot['to_date']
         ];
@@ -479,8 +479,8 @@ try {
                 ? $leaveRow['leave_name']
                 : 'Week Off',
             'color' => ($leaveRow['req_type'] == 1)
-                ? '#8B0000'
-                : '#607D8B',
+                ? '#009688'
+                : '#9E9E9E',
             'start' => date('Y-m-d H:i:s', $leaveStart),
             'end' => date('Y-m-d H:i:s', $leaveEnd)
         ];
@@ -493,7 +493,7 @@ try {
             $response[] = [
                 'staff_name' => $leaveRow['staff_name'],
                 'type'       => 'LOP',
-                'color'      => '#000080',
+                'color'      => '#424242',
                 'start'      => date('Y-m-d H:i:s', $mid_shift),
                 'end'        => date('Y-m-d H:i:s', $shift_end)
             ];
@@ -503,7 +503,7 @@ try {
             $response[] = [
                 'staff_name' => $leaveRow['staff_name'],
                 'type'       => 'LOP',
-                'color'      => '#000080',
+                'color'      => '#424242',
                 'start'      => date('Y-m-d H:i:s', $shift_start),
                 'end'        => date('Y-m-d H:i:s', $mid_shift)
             ];
@@ -586,7 +586,7 @@ try {
         $response[] = [
             'staff_name' => $lopRow['staff_name'],
             'type'       => 'LOP',
-            'color'      => '#000080',
+            'color'      => '#424242',
             'start'      => date('Y-m-d H:i:s', $shift_start),
             'end'        => date('Y-m-d H:i:s', $shift_end)
         ];

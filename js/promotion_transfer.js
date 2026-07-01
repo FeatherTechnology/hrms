@@ -1,574 +1,543 @@
 $(document).ready(function () {
+  // Initially disable all editable sections
+  disableAllSections();
 
-    // Initially disable all editable sections
+  // Hide form initially
+  $("#promotion_transfer_content").hide();
+  $("#back_btn").hide();
+
+  // Common Button Click
+  $(".staff_status_btn").click(function () {
+    // Show form
+    $("#promotion_transfer_content").show();
+    // Hide list
+    $(".promotion_transfer_table_content").hide();
+    $(".outer_search_card").hide();
+    $(".outer_status_card").hide();
+    // Show back button
+    $("#back_btn").show();
+    // Disable everything first
     disableAllSections();
+  });
 
-    // Hide form initially
-    $('#promotion_transfer_content').hide();
-    $('#back_btn').hide();
+  $(".promo_status").click(async function () {
+    await editStaffProfile();
+    enablePromotionSection();
+  });
 
-    // Common Button Click
-    $('.staff_status_btn').click(function () {
-        // Show form
-        $('#promotion_transfer_content').show();
-        // Hide list
-        $('.promotion_transfer_table_content').hide();
-        $('.outer_search_card').hide();
-        $('.outer_status_card').hide();
-        // Show back button
-        $('#back_btn').show();
-        // Disable everything first
-        disableAllSections();
-    });
+  $(".trans_status").click(async function () {
+    await editStaffProfile();
+    enableTransferSection();
+  });
 
-    $('.promo_status').click(async function () {
-        await editStaffProfile();
-        enablePromotionSection();
-    });
+  $(".inc_status").click(async function () {
+    await editStaffProfile();
+    enableIncrementSection();
+  });
 
-    $('.trans_status').click(async function () {
-        await editStaffProfile();
-        enableTransferSection();
-    });
+  // Back Button
+  $("#back_btn").click(function () {
+    $("#promotion_transfer_content").hide();
 
-    $('.inc_status').click(async function () {
-        await editStaffProfile();
-        enableIncrementSection();
-    });
+    $(".promotion_transfer_table_content").show();
+    $(".outer_search_card").show();
+    $(".outer_status_card").show();
 
+    $("#back_btn").hide();
 
-    // Back Button
-    $('#back_btn').click(function () {
+    disableAllSections();
+    $("input[name='action_type']").prop("checked", false);
+  });
 
-        $('#promotion_transfer_content').hide();
+  // Company Change
+  $("#company_search").on("change", function () {
+    let company_id = $("#company_search").val();
+    let dept_id = $("#department_search").val();
+    let status = $("#status_search").val();
+    if (company_id) {
+      getDepartmentList(company_id, "#department_search", "");
+    } else {
+      $("#department_search").html(
+        '<option value="">Select Department</option>',
+      );
+      $("#staff_search").html('<option value="">Select Staff Name</option>');
+    }
+  });
 
-        $('.promotion_transfer_table_content').show();
-        $('.outer_search_card').show();
-        $('.outer_status_card').show();
+  // Department Change
+  $("#department_search").on("change", function () {
+    let company_id = $("#company_search").val();
+    let dept_id = $("#department_search").val();
+    let status = $("#status_search").val();
+    getStaffList(company_id, dept_id, status);
+  });
 
-        $('#back_btn').hide();
+  // Status Change
+  $("#status_search").on("change", function () {
+    let company_id = $("#company_search").val();
+    let dept_id = $("#department_search").val();
+    let status = $("#status_search").val();
 
-        disableAllSections();
-        $("input[name='action_type']").prop('checked', false);
+    getStaffList(company_id, dept_id, status);
+  });
 
-    });
+  $("#view_staff").on("click", function () {
+    let company_id = $("#company_search").val();
+    let status = $("#status_search").val();
+    let department_id = $("#department_search").val();
+    let staff_id = $("#staff_search").val();
 
-    // Company Change
-    $('#company_search').on('change', function () {
+    if (!company_id || !status || !department_id || !staff_id) {
+      swalError("Warning", "Please Select All Fields!");
+      return;
+    }
+    if (status == 1) {
+      $(".outer_status_card").show();
+    } else {
+      $(".outer_status_card").hide();
+    }
 
-        let company_id = $('#company_search').val();
-        let dept_id = $('#department_search').val();
-        let status = $('#status_search').val();
-        if (company_id) {
-            getDepartmentList(company_id, '#department_search', '');
-        } else {
-            $('#department_search').html('<option value="">Select Department</option>');
-            $('#staff_search').html('<option value="">Select Staff Name</option>');
+    getStaffTable(company_id, status, department_id, staff_id);
+  });
+
+  $("#designation").on("change", async function () {
+    let selectedLevel = parseInt(
+      $("#designation option:selected").data("level"),
+    );
+    let company_id = $("#company_name").val();
+    await getReportingPerson(company_id, selectedLevel);
+  });
+
+  $(document).on("input", ".ctc_amount", function () {
+    let totalCTC = parseFloat($("#total_ctc").val().replace(/,/g, "")) || 0;
+
+    if (totalCTC <= 0) {
+      swalError("Warning", "Please Enter Total CTC First");
+      $(this).val("");
+      return false;
+    }
+
+    let currentAmount = parseFloat($(this).val().replace(/,/g, "")) || 0;
+    let category = $(this).closest("tr").find("td:eq(3)").text().trim();
+
+    let percentage = 0;
+    // Only Salary rows calculate %
+    if (category == "Salary") {
+      percentage = (currentAmount / totalCTC) * 100;
+      $(this).closest("tr").find(".ctc_percentage").val(percentage.toFixed(2));
+    } else {
+      // Reimbursement no %
+      $(this).closest("tr").find(".ctc_percentage").val("0");
+    }
+
+    calculateTotals($(this));
+  });
+
+  $("#staff_type").on("change", function () {
+    toggleReportingField();
+  });
+
+  $("#branch_admin").on("change", function () {
+    toggleBranchField();
+  });
+
+  $("#department").on("change", function () {
+    let dept_id = $(this).val();
+    if (dept_id) {
+      getTeamList(dept_id, "");
+    } else {
+      $("#team").empty().append('<option value="">Select Team</option>');
+    }
+  });
+
+  $("#submit_staff_data").click(async function (event) {
+    event.preventDefault();
+    let company_id = $("#company_search").val();
+    let status = $("#status_search").val();
+    let department_id = $("#department_search").val();
+    let id = $("#staff_search").val();
+    // Selected Status
+    let occ_status = $(".staff_status_btn.active").data("value");
+    // Common Fields
+    let company_name = $("#company_name").val();
+    let effective_date = $("#effective_date").val();
+    let staff_id = $("#staff_auto_id").val();
+    let staff_type = $("#staff_type").val();
+    let data = ["company_name", "effective_date"];
+    let occStatusText = "";
+    // Promotion
+    if (occ_status == 1) {
+      occStatusText = "Promotion";
+      data.push("designation");
+      if ($("#staff_type").val() != "1") {
+        data.push("reporting_person");
+      }
+    }
+    // Transfer
+    else if (occ_status == 2) {
+      occStatusText = "Transfer";
+      data.push("branch_name", "department", "team", "branch_admin");
+      if ($("#branch_admin").val() == "1") {
+        data.push("branch");
+      }
+    }
+    // Increment
+    else if (occ_status == 3) {
+      occStatusText = "Increment";
+      data.push("total_ctc");
+    }
+
+    //    GET CTC DETAILS
+    let ctcDetails = [];
+    if (occ_status == 3) {
+      let totalCTC = parseFloat($("#total_ctc").val().replace(/,/g, "")) || 0;
+
+      let tableTotalAmount = 0;
+      let salaryTotalAmount = 0;
+
+      let ctcRowCount = $("#ctc_info_table tbody tr").length;
+
+      if (ctcRowCount == 0) {
+        swalError("Warning", "Please Fill CTC Info Table!");
+        return false;
+      }
+
+      $("#ctc_info_table tbody tr").each(function () {
+        let amount =
+          parseFloat($(this).find(".ctc_amount").val().replace(/,/g, "")) || 0;
+        let category = $(this).find("td:eq(3)").text().trim();
+
+        tableTotalAmount += amount;
+
+        // Only Salary Components
+        if (category == "Salary") {
+          salaryTotalAmount += amount;
         }
-    });
+      });
 
+      // Salary components must equal Total CTC
+      if (salaryTotalAmount != totalCTC) {
+        swalError(
+          "Warning",
+          "Salary Components Total Must Be Equal to Total CTC!",
+        );
 
-    // Department Change
-    $('#department_search').on('change', function () {
+        return false;
+      }
 
-        let company_id = $('#company_search').val();
-        let dept_id = $('#department_search').val();
-        let status = $('#status_search').val();
-        getStaffList(company_id, dept_id, status);
-
-    });
-
-
-    // Status Change
-    $('#status_search').on('change', function () {
-
-        let company_id = $('#company_search').val();
-        let dept_id = $('#department_search').val();
-        let status = $('#status_search').val();
-
-        getStaffList(company_id, dept_id, status);
-
-    });
-
-    $('#view_staff').on('click', function () {
-
-        let company_id = $('#company_search').val();
-        let status = $('#status_search').val();
-        let department_id = $('#department_search').val();
-        let staff_id = $('#staff_search').val();
-
-        if (!company_id || !status || !department_id || !staff_id) {
-            swalError('Warning', 'Please Select All Fields!');
-            return;
-        }
-        if (status == 1) {
-            $('.outer_status_card').show();
-        } else {
-            $('.outer_status_card').hide();
-        }
-
-        getStaffTable(company_id, status, department_id, staff_id);
-    });
-
-    $('#designation').on('change', async function () {
-        let selectedLevel = parseInt($('#designation option:selected').data('level'));
-        let company_id = $('#company_name').val();
-        await getReportingPerson(company_id, selectedLevel);
-
-    });
-
-    $(document).on('input', '.ctc_amount', function () {
-        
-        let totalCTC = parseFloat($('#total_ctc').val().replace(/,/g, '')) || 0;
-
-        if (totalCTC <= 0) {
-            swalError('Warning', 'Please Enter Total CTC First');
-            $(this).val('');
-            return false;
-        }
-
-        let currentAmount = parseFloat($(this).val().replace(/,/g, '')) || 0;
-        let category = $(this).closest('tr').find('td:eq(3)').text().trim();
-
-        let percentage = 0;
-        // Only Salary rows calculate %
-        if (category == 'Salary') {
-            percentage = (currentAmount / totalCTC) * 100;
-            $(this).closest('tr').find('.ctc_percentage').val(percentage.toFixed(2));
-        } else {
-            // Reimbursement no %
-            $(this).closest('tr').find('.ctc_percentage').val('0');
-        }
-
-        calculateTotals($(this));
-    });
-
-
-    $('#staff_type').on('change', function () {
-        toggleReportingField();
-    });
-
-    $('#branch_admin').on('change', function () {
-        toggleBranchField();
-    });
-
-    $('#department').on('change', function () {
-        let dept_id = $(this).val();
-        if (dept_id) {
-            getTeamList(dept_id, '')
-        } else {
-            $('#team').empty().append('<option value="">Select Team</option>');
-        }
-    });
-
-    $('#submit_staff_data').click(async function (event) {
-        event.preventDefault();
-        let company_id = $('#company_search').val();
-        let status = $('#status_search').val();
-        let department_id = $('#department_search').val();
-        let id = $('#staff_search').val();
-        // Selected Status
-        let occ_status = $('.staff_status_btn.active').data('value');
-        // Common Fields
-        let company_name = $('#company_name').val();
-        let effective_date = $('#effective_date').val();
-        let staff_id = $('#staff_auto_id').val();
-        let staff_type = $('#staff_type').val();
-        let data = ['company_name', 'effective_date'];
-        let occStatusText = '';
-        // Promotion
-        if (occ_status == 1) {
-            occStatusText = 'Promotion';
-            data.push('designation');
-            if ($('#staff_type').val() != '1') {
-                data.push('reporting_person');
-            }
-        }
-        // Transfer
-        else if (occ_status == 2) {
-            occStatusText = 'Transfer';
-            data.push('branch_name', 'department', 'team', 'branch_admin');
-            if ($('#branch_admin').val() == '1') {
-                data.push('branch');
-            }
-        }
-        // Increment
-        else if (occ_status == 3) {
-            occStatusText = 'Increment';
-            data.push('total_ctc');
-        }
-
-        //    GET CTC DETAILS
-        let ctcDetails = [];
-        if (occ_status == 3) {
-            let totalCTC = parseFloat($('#total_ctc').val().replace(/,/g, '')) || 0;
-
-            let tableTotalAmount = 0;
-            let salaryTotalAmount = 0;
-
-            let ctcRowCount = $('#ctc_info_table tbody tr').length;
-
-            if (ctcRowCount == 0) {
-                swalError('Warning', 'Please Fill CTC Info Table!');
-                return false;
-            }
-
-            $('#ctc_info_table tbody tr').each(function () {
-
-                let amount = parseFloat($(this).find('.ctc_amount').val().replace(/,/g, '')) || 0;
-                let category = $(this).find('td:eq(3)').text().trim();
-
-                tableTotalAmount += amount;
-
-                // Only Salary Components
-                if (category == 'Salary') {
-                    salaryTotalAmount += amount;
-                }
-            });
-
-            // Salary components must equal Total CTC
-            if (salaryTotalAmount != totalCTC) {
-
-                swalError(
-                    'Warning',
-                    'Salary Components Total Must Be Equal to Total CTC!'
-                );
-
-                return false;
-            }
-
-            $('#ctc_info_table tbody tr').each(function () {
-                let ctc_id = $(this).find('.ctc_id').val();
-                let ctc_amount = $(this).find('.ctc_amount').val().replace(/,/g, '') || 0;
-                let ctc_percentage = $(this).find('.ctc_percentage').val();
-                ctcDetails.push({ ctc_id: ctc_id, ctc_amount: ctc_amount, ctc_percentage: ctc_percentage });
-            });
-
-        }
-        let isValid = true;
-        data.forEach(function (entry) {
-            let fieldIsValid = validateField(
-                $('#' + entry).val(),
-                entry
-            );
-            if (!fieldIsValid) {
-                isValid = false;
-            }
+      $("#ctc_info_table tbody tr").each(function () {
+        let ctc_id = $(this).find(".ctc_id").val();
+        let ctc_amount =
+          $(this).find(".ctc_amount").val().replace(/,/g, "") || 0;
+        let ctc_percentage = $(this).find(".ctc_percentage").val();
+        ctcDetails.push({
+          ctc_id: ctc_id,
+          ctc_amount: ctc_amount,
+          ctc_percentage: ctc_percentage,
         });
+      });
+    }
+    let isValid = true;
+    data.forEach(function (entry) {
+      let fieldIsValid = validateField($("#" + entry).val(), entry);
+      if (!fieldIsValid) {
+        isValid = false;
+      }
+    });
 
-        let branch_name = $('#branch_name').val();
-        let department = $('#department').val();
-        let team = $('#team').val();
-        let designation = $('#designation').val();
-        let off_type = $('#off_type').val();
-        let reporting_person = $('#reporting_person').val();
-        let reporting_person_type = $("#reporting_person").find(":selected").data("type");
-        let branch_admin = $('#branch_admin').val();
-        let branch = $('#branch').val();
-        let total_ctc = $('#total_ctc').val().replace(/,/g, '');
-        let annual_ctc = parseFloat(total_ctc || 0) * 12;
-        let staff_profile_id = $('#staff_profile_id').val();
-        let total_ctc_amount = $('#total_ctc_amount').val();
+    let branch_name = $("#branch_name").val();
+    let department = $("#department").val();
+    let team = $("#team").val();
+    let designation = $("#designation").val();
+    let off_type = $("#off_type").val();
+    let reporting_person = $("#reporting_person").val();
+    let reporting_person_type = $("#reporting_person")
+      .find(":selected")
+      .data("type");
+    let branch_admin = $("#branch_admin").val();
+    let branch = $("#branch").val();
+    let total_ctc = $("#total_ctc").val().replace(/,/g, "");
+    let annual_ctc = parseFloat(total_ctc || 0) * 12;
+    let staff_profile_id = $("#staff_profile_id").val();
+    let total_ctc_amount = $("#total_ctc_amount").val();
 
-        if (isValid) {
+    if (isValid) {
+      let postData = {
+        occ_status: occ_status,
+        company_name: company_name,
+        effective_date: effective_date,
+        branch_name: branch_name,
+        department: department,
+        team: team,
+        designation: designation,
+        off_type: off_type,
+        reporting_person: reporting_person,
+        reporting_person_type: reporting_person_type,
+        branch_admin: branch_admin,
+        branch: branch,
+        total_ctc: total_ctc,
+        annual_ctc: annual_ctc,
+        staff_id: staff_id,
+        staff_type: staff_type,
+        staff_profile_id: staff_profile_id,
+        total_ctc_amount: total_ctc_amount,
+      };
 
-            let postData = {
-                occ_status: occ_status,
-                company_name: company_name,
-                effective_date: effective_date,
-                branch_name: branch_name,
-                department: department,
-                team: team,
-                designation: designation,
-                off_type: off_type,
-                reporting_person: reporting_person,
-                reporting_person_type: reporting_person_type,
-                branch_admin: branch_admin,
-                branch: branch,
-                total_ctc: total_ctc,
-                annual_ctc: annual_ctc,
-                staff_id: staff_id,
-                staff_type: staff_type,
-                staff_profile_id: staff_profile_id,
-                total_ctc_amount: total_ctc_amount
-            };
+      // Send CTC only for Increment
+      if (occ_status == 3) {
+        postData.ctcDetails = JSON.stringify(ctcDetails);
+      }
+      swalConfirm(
+        "Are you sure?",
+        `Do you want to submit this ${occStatusText}?`,
+        async function () {
+          $("#submit_staff_data").attr("disabled", true);
 
-            // Send CTC only for Increment
-            if (occ_status == 3) {
-                postData.ctcDetails = JSON.stringify(ctcDetails);
-            }
-            swalConfirm(
-                'Are you sure?',
-                `Do you want to submit this ${occStatusText}?`,
-                async function () {
-
-                    $('#submit_staff_data').attr('disabled', true);
-
-                    try {
-                        const response = await $.post(
-                            'api/promotion_transfer/submit_staff_data.php',
-                            postData
-                        );
-
-                        let result = JSON.parse(response);
-
-                        if (result.result == '1') {
-                            swalSuccess('Success', 'Submitted Successfully!');
-
-                            getStaffTable(company_id, status, department_id, id);
-
-                            $('#promotion_transfer_content').hide();
-                            $('.promotion_transfer_table_content').show();
-                            $('.outer_search_card').show();
-                            $('.outer_status_card').show();
-                            $('#back_btn').hide();
-                            $("input[name='action_type']").prop('checked', false);
-
-                        } else {
-                            swalError('Error', 'Something Went Wrong');
-                        }
-
-                    } catch (error) {
-                        console.error(error);
-                        swalError('Error', 'Ajax Error Occurred');
-
-                    } finally {
-                        $('#submit_staff_data').attr('disabled', false);
-                    }
-                }
+          try {
+            const response = await $.post(
+              "api/promotion_transfer/submit_staff_data.php",
+              postData,
             );
-        }
-        });
 
+            let result = JSON.parse(response);
 
-    // Active Button Class
-    $('.staff_status_btn').click(function () {
+            if (result.result == "1") {
+              swalSuccess("Success", "Submitted Successfully!");
 
-        $('.staff_status_btn').removeClass('active');
+              getStaffTable(company_id, status, department_id, id);
 
-        $(this).addClass('active');
+              $("#promotion_transfer_content").hide();
+              $(".promotion_transfer_table_content").show();
+              $(".outer_search_card").show();
+              $(".outer_status_card").show();
+              $("#back_btn").hide();
+              $("input[name='action_type']").prop("checked", false);
+            } else {
+              swalError("Error", "Something Went Wrong");
+            }
+          } catch (error) {
+            console.error(error);
+            swalError("Error", "Ajax Error Occurred");
+          } finally {
+            $("#submit_staff_data").attr("disabled", false);
+          }
+        },
+      );
+    }
+  });
 
-    });
+  // Active Button Class
+  $(".staff_status_btn").click(function () {
+    $(".staff_status_btn").removeClass("active");
 
+    $(this).addClass("active");
+  });
 
-    $('#total_ctc').on('input', function () {
+  $("#total_ctc").on("input", function () {
+    let monthly_ctc = parseFloat($(this).val()) || 0;
 
-        let monthly_ctc = parseFloat($(this).val()) || 0;
+    let annual_ctc = monthly_ctc * 12;
 
-        let annual_ctc = monthly_ctc * 12;
-
-        $('#annual_ctc').val(moneyFormatIndia(annual_ctc));
-    });
-
-
-
-});// Document End
+    $("#annual_ctc").val(moneyFormatIndia(annual_ctc));
+  });
+}); // Document End
 
 $(function () {
-    getCompanyName('#company_search')
-})
+  getCompanyName("#company_search");
+});
 
 function getStaffTable(company_id, status, department_id, staff_id) {
-    let params = { 'company_id': company_id, 'status': status, 'department_id': department_id, 'staff_id': staff_id };
-    serverSideTable('#promotion_transfer_table', params, 'api/promotion_transfer/get_staff_list.php', " Staff List");
+  let params = {
+    company_id: company_id,
+    status: status,
+    department_id: department_id,
+    staff_id: staff_id,
+  };
+  serverSideTable(
+    "#promotion_transfer_table",
+    params,
+    "api/promotion_transfer/get_staff_list.php",
+    " Staff List",
+  );
 }
 
 async function getCompanyName(selector) {
-    return new Promise((resolve, reject) => {
-        $.post(
-            "api/attendance_files/get_company_list.php",
-            {},
+  return new Promise((resolve, reject) => {
+    $.post(
+      "api/attendance_files/get_company_list.php",
+      {},
 
-            function (response) {
-                let dropdown = $(selector);
-                dropdown.empty();
-                dropdown.append('<option value="">Select Company Name</option>');
-                $.each(response, function (index, item) {
-                    dropdown.append(
-                        `<option value="${item.id}">${item.company_name}
+      function (response) {
+        let dropdown = $(selector);
+        dropdown.empty();
+        dropdown.append('<option value="">Select Company Name</option>');
+        $.each(response, function (index, item) {
+          dropdown.append(
+            `<option value="${item.id}">${item.company_name}
                         </option>`,
-                    );
-                });
-
-                resolve();
-            },
-
-            "json",
-        ).fail(function (xhr, status, error) {
-            reject(error);
+          );
         });
+
+        resolve();
+      },
+
+      "json",
+    ).fail(function (xhr, status, error) {
+      reject(error);
     });
+  });
 }
 
-async function getDepartmentList(company_id, selector, selected_dept = '') {
-    try {
-        const response = await $.ajax({
-            url: 'api/staff_creation/company_mapped_department.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                company_id: company_id,
-                selected_dept: selected_dept
-            }
-        });
+async function getDepartmentList(company_id, selector, selected_dept = "") {
+  try {
+    const response = await $.ajax({
+      url: "api/staff_creation/company_mapped_department.php",
+      type: "POST",
+      dataType: "json",
+      data: {
+        company_id: company_id,
+        selected_dept: selected_dept,
+      },
+    });
 
-        let deptOption = '<option value="">Select Department</option>';
+    let deptOption = '<option value="">Select Department</option>';
 
-        $.each(response, function (index, val) {
-            deptOption += `<option value="${val.id}">${val.department_name}</option>`;
-        });
+    $.each(response, function (index, val) {
+      deptOption += `<option value="${val.id}">${val.department_name}</option>`;
+    });
 
-        $(selector).empty().append(deptOption);
-
-    } catch (error) {
-        console.error(error);
-    }
+    $(selector).empty().append(deptOption);
+  } catch (error) {
+    console.error(error);
+  }
 }
-
 
 async function getStaffList(company_id, dept_id, status) {
-    // Validation
-    if (company_id == '' || dept_id == '' || status == '') {
+  // Validation
+  if (company_id == "" || dept_id == "" || status == "") {
+    $("#staff_search").html('<option value="">Select Staff Name</option>');
+    return false;
+  }
+  try {
+    const response = await $.ajax({
+      url: "api/staff_creation/company_mapped_staff.php",
+      type: "POST",
+      dataType: "json",
+      data: {
+        company_id: company_id,
+        dept_id: dept_id,
+        status: status,
+      },
+    });
 
-        $('#staff_search').html('<option value="">Select Staff Name</option>');
-        return false;
-    }
-    try {
-        const response = await $.ajax({
-            url: 'api/staff_creation/company_mapped_staff.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                company_id: company_id,
-                dept_id: dept_id,
-                status: status
-            }
-        });
-
-        let option = '<option value="">Select Staff Name</option>';
-        $.each(response, function (index, val) {
-            option += ` <option value="${val.id}">   ${val.staff_name}  </option> `;
-        });
-        $('#staff_search').empty().append(option);
-    } catch (error) {
-        console.error(error);
-
-    }
+    let option = '<option value="">Select Staff Name</option>';
+    $.each(response, function (index, val) {
+      option += ` <option value="${val.id}">   ${val.staff_name}  </option> `;
+    });
+    $("#staff_search").empty().append(option);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 async function editStaffProfile() {
+  let staff_id = $("#staff_search").val();
 
-    let staff_id = $('#staff_search').val();
+  try {
+    const response = await $.post(
+      "api/staff_creation/staff_profile_data.php",
+      { id: staff_id },
+      null,
+      "json",
+    );
 
-    try {
-
-        const response = await $.post(
-            'api/staff_creation/staff_profile_data.php',
-            { id: staff_id },
-            null,
-            'json'
-        );
-
-        if (!response || response.length === 0) {
-            console.error("No customer data returned.");
-            return;
-        }
-
-        const data = response.staff;
-        const ctcData = response.ctc;
-
-        $('#staff_profile_id').val(data.id);
-
-        $('#staff_auto_id').val(data.staff_id);
-
-        await getCompanyName('#company_name');
-
-        $('#company_name').val(data.company_id);
-        $('#company_name').trigger('change');
-
-        await getBranchList(data.company_id, '#branch_name,#branch');
-        await getDepartmentList(data.company_id, '#department', data.department);
-        await getDesignationList(data.company_id, data.designation);
-        await getCTCInfoTable(data.company_id);
-        setCTCTableReadonly(true);
-        $('#designation').val(data.designation);
-        // General Info
-        $('#staff_name').val(data.staff_name);
-        $('#staff_type').val(data.staff_type);
-        $('#joining_date').val(data.joining_date);
-
-        // Occupation Info
-        $('#branch_name').val(data.branch_id);
-        $('#department').val(data.department);
-        $('#team').val(data.team);
-
-
-
-        let selectedLevel = parseInt(
-            $('#designation option:selected').data('level')
-        );
-        await getReportingPerson(data.company_id, selectedLevel);
-
-        $('#reporting_person').val(data.reporting_person);
-        $('#branch_admin').val(data.branch_admin);
-        $('#branch').val(data.branch);
-        $('#staff_type').trigger('change');
-        $('#branch_admin').trigger('change');
-        // Increment Info
-        // $('#pf_available').val(data.pf_available);
-        // $('#esi_available').val(data.esi_available);
-        // $('#pt_available').val(data.pt_available);
-        $('#total_ctc').val(moneyFormatIndia(data.total_ctc));
-        await getTeamList(data.department, data.team)
-
-        /* then set selected team */
-        $('#team').val(data.team);
-        let totalAmt = 0;
-        let totalPer = 0;
-
-        $.each(ctcData, function (index, row) {
-
-            let amount = (row.ctc_amount || '').toString().replace(/,/g, '');
-
-            $('#ctc_amount_' + row.ctc_id).val(moneyFormatIndia(amount));
-            $('#ctc_percentage_' + row.ctc_id).val(row.ctc_percentage);
-
-            totalAmt += parseFloat(amount || 0);
-            totalPer += parseFloat(row.ctc_percentage || 0);
-        });
-
-        $('#total_ctc_amount').val(moneyFormatIndia(totalAmt));
-        $('#total_ctc_percentage').val(totalPer);
-
-        // Disable readonly fields
-        $('#company_name').prop('disabled', true);
-        $('#staff_type').prop('disabled', true);
-
-
-    } catch (error) {
-
-        console.error(
-            'Error in editStaffProfile:',
-            error
-        );
-
+    if (!response || response.length === 0) {
+      console.error("No customer data returned.");
+      return;
     }
 
+    const data = response.staff;
+    const ctcData = response.ctc;
+
+    $("#staff_profile_id").val(data.id);
+
+    $("#staff_auto_id").val(data.staff_id);
+
+    await getCompanyName("#company_name");
+
+    $("#company_name").val(data.company_id);
+    $("#company_name").trigger("change");
+
+    await getBranchList(data.company_id, "#branch_name,#branch");
+    await getDepartmentList(data.company_id, "#department", data.department);
+    await getDesignationList(data.company_id, data.designation);
+    await getCTCInfoTable(data.company_id);
+    setCTCTableReadonly(true);
+    $("#designation").val(data.designation);
+    // General Info
+    $("#staff_name").val(data.staff_name);
+    $("#staff_type").val(data.staff_type);
+    $("#joining_date").val(data.joining_date);
+
+    // Occupation Info
+    $("#branch_name").val(data.branch_id);
+    $("#department").val(data.department);
+    $("#team").val(data.team);
+
+    let selectedLevel = parseInt(
+      $("#designation option:selected").data("level"),
+    );
+    await getReportingPerson(data.company_id, selectedLevel);
+
+    $("#reporting_person").val(data.reporting_person);
+    $("#branch_admin").val(data.branch_admin);
+    $("#branch").val(data.branch);
+    $("#staff_type").trigger("change");
+    $("#branch_admin").trigger("change");
+    // Increment Info
+    // $('#pf_available').val(data.pf_available);
+    // $('#esi_available').val(data.esi_available);
+    // $('#pt_available').val(data.pt_available);
+    $("#total_ctc").val(moneyFormatIndia(data.total_ctc));
+    await getTeamList(data.department, data.team);
+
+    /* then set selected team */
+    $("#team").val(data.team);
+    let totalAmt = 0;
+    let totalPer = 0;
+
+    $.each(ctcData, function (index, row) {
+      let amount = (row.ctc_amount || "").toString().replace(/,/g, "");
+
+      $("#ctc_amount_" + row.ctc_id).val(moneyFormatIndia(amount));
+      $("#ctc_percentage_" + row.ctc_id).val(row.ctc_percentage);
+
+      totalAmt += parseFloat(amount || 0);
+      totalPer += parseFloat(row.ctc_percentage || 0);
+    });
+
+    $("#total_ctc_amount").val(moneyFormatIndia(totalAmt));
+    $("#total_ctc_percentage").val(totalPer);
+
+    // Disable readonly fields
+    $("#company_name").prop("disabled", true);
+    $("#staff_type").prop("disabled", true);
+  } catch (error) {
+    console.error("Error in editStaffProfile:", error);
+  }
 }
 
 function getCTCInfoTable(company_id) {
-    return $.ajax({
-        url: 'api/staff_creation/get_ctc_info.php',
-        type: 'POST',
-        dataType: 'json',
-        data: { company_id: company_id },
-        success: function (response) {
+  return $.ajax({
+    url: "api/staff_creation/get_ctc_info.php",
+    type: "POST",
+    dataType: "json",
+    data: { company_id: company_id },
+    success: function (response) {
+      let tr = "";
 
-            let tr = '';
-
-            response.forEach((row, index) => {
-
-                tr += `
+      response.forEach((row, index) => {
+        tr += `
                     <tr>
                         <td>${index + 1}</td>
 
@@ -598,341 +567,325 @@ function getCTCInfoTable(company_id) {
                         </td>
                     </tr>
                 `;
-            });
+      });
 
-            $('#ctc_info_table tbody').html(tr);
-        }
-    });
+      $("#ctc_info_table tbody").html(tr);
+    },
+  });
 }
 async function getBranchList(company_id, selector) {
+  try {
+    const response = await $.ajax({
+      url: "api/staff_creation/company_mapped_branches.php",
+      data: { company_id: company_id },
+      type: "POST",
+      dataType: "json",
+    });
 
-    try {
+    let appendBranchOption = '<option value="">Select Branch Name</option>';
 
-        const response = await $.ajax({
-            url: 'api/staff_creation/company_mapped_branches.php',
-            data: { company_id: company_id },
-            type: 'POST',
-            dataType: 'json'
-        });
-
-        let appendBranchOption = '<option value="">Select Branch Name</option>';
-
-        $.each(response, function (index, val) {
-
-            appendBranchOption += `
+    $.each(response, function (index, val) {
+      appendBranchOption += `
                 <option value="${val.id}">
                     ${val.branch_name}
                 </option>
             `;
-        });
+    });
 
-        $(selector).empty().append(appendBranchOption);
-
-    } catch (error) {
-
-        console.error("Error loading branch list:", error);
-    }
+    $(selector).empty().append(appendBranchOption);
+  } catch (error) {
+    console.error("Error loading branch list:", error);
+  }
 }
 
-async function getDepartmentList(company_id, selector, selected_dept = '') {
-    try {
-        const response = await $.ajax({
-            url: 'api/staff_creation/company_mapped_department.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                company_id: company_id,
-                selected_dept: selected_dept
-            }
-        });
+async function getDepartmentList(company_id, selector, selected_dept = "") {
+  try {
+    const response = await $.ajax({
+      url: "api/staff_creation/company_mapped_department.php",
+      type: "POST",
+      dataType: "json",
+      data: {
+        company_id: company_id,
+        selected_dept: selected_dept,
+      },
+    });
 
-        let deptOption = '<option value="">Select Department</option>';
+    let deptOption = '<option value="">Select Department</option>';
 
-        $.each(response, function (index, val) {
-            deptOption += `<option value="${val.id}">${val.department_name}</option>`;
-        });
+    $.each(response, function (index, val) {
+      deptOption += `<option value="${val.id}">${val.department_name}</option>`;
+    });
 
-        $(selector).empty().append(deptOption);
-
-    } catch (error) {
-        console.error(error);
-    }
+    $(selector).empty().append(deptOption);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-async function getTeamList(dep_id, selected_team = '') {
-    let company_id = $('#company_name').val();
+async function getTeamList(dep_id, selected_team = "") {
+  let company_id = $("#company_name").val();
 
-    try {
-        const response = await $.ajax({
-            url: 'api/staff_creation/company_mapped_team.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                dep_id: dep_id,
-                company_id: company_id,
-                selected_team: selected_team
-            }
-        });
+  try {
+    const response = await $.ajax({
+      url: "api/staff_creation/company_mapped_team.php",
+      type: "POST",
+      dataType: "json",
+      data: {
+        dep_id: dep_id,
+        company_id: company_id,
+        selected_team: selected_team,
+      },
+    });
 
-        let teamOption = '<option value="">Select Team</option>';
+    let teamOption = '<option value="">Select Team</option>';
 
-        $.each(response, function (index, val) {
-            teamOption += `
+    $.each(response, function (index, val) {
+      teamOption += `
                 <option value="${val.id}">
                     ${val.team_name}
                 </option>
             `;
-        });
+    });
 
-        $('#team').empty().append(teamOption);
-
-    } catch (error) {
-        console.error("Error loading Team list:", error);
-    }
+    $("#team").empty().append(teamOption);
+  } catch (error) {
+    console.error("Error loading Team list:", error);
+  }
 }
 
 async function getReportingPerson(company_id, selectedLevel) {
-    try {
+  try {
+    if (!selectedLevel) {
+      $("#reporting_person")
+        .empty()
+        .append('<option value="">Select Reporting Person</option>');
 
-        if (!selectedLevel) {
-            $('#reporting_person')
-                .empty()
-                .append('<option value="">Select Reporting Person</option>');
+      return;
+    }
 
-            return;
-        }
+    const response = await $.ajax({
+      url: "api/staff_creation/get_reporting_person.php",
+      type: "POST",
+      dataType: "json",
+      data: {
+        company_id: company_id,
+        designation_level: selectedLevel,
+      },
+    });
 
-        const response = await $.ajax({
-            url: 'api/staff_creation/get_reporting_person.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                company_id: company_id,
-                designation_level: selectedLevel
-            }
-        });
+    let option = '<option value="">Select Reporting Person</option>';
 
-        let option =
-            '<option value="">Select Reporting Person</option>';
-
-        $.each(response, function (index, value) {
-
-            option += `
+    $.each(response, function (index, value) {
+      option += `
                 <option value="${value.id}"  data-type="${value.designation}">
                     ${value.staff_name} (${value.designation})
                 </option>
             `;
-        });
+    });
 
-        $('#reporting_person').empty().append(option);
-
-    } catch (error) {
-
-        console.error(
-            "Error loading Reporting Person:",
-            error
-        );
-    }
+    $("#reporting_person").empty().append(option);
+  } catch (error) {
+    console.error("Error loading Reporting Person:", error);
+  }
 }
 function toggleBranchField() {
-
-    if ($('#branch_admin').val() == '1') {   // Yes
-        $('.branch_div').show();
-    } else {
-        $('.branch_div').hide();
-        $('#branch').val('');
-    }
-
+  if ($("#branch_admin").val() == "1") {
+    // Yes
+    $(".branch_div").show();
+  } else {
+    $(".branch_div").hide();
+    $("#branch").val("");
+  }
 }
 
 function toggleReportingField() {
-    if ($('#staff_type').val() != '1') {   // Yes
-        $('.reporting_person_div').show();
-    } else {
-        $('.reporting_person_div').hide();
-        $('#reporting_person').val('');
-    }
-
+  if ($("#staff_type").val() != "1") {
+    // Yes
+    $(".reporting_person_div").show();
+  } else {
+    $(".reporting_person_div").hide();
+    $("#reporting_person").val("");
+  }
 }
-async function getDesignationList(company_id, selected_designation = '') {
-    try {
-        const response = await $.ajax({
-            url: 'api/staff_creation/company_mapped_designation.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                company_id: company_id,
-                selected_designation: selected_designation
-            }
-        });
+async function getDesignationList(company_id, selected_designation = "") {
+  try {
+    const response = await $.ajax({
+      url: "api/staff_creation/company_mapped_designation.php",
+      type: "POST",
+      dataType: "json",
+      data: {
+        company_id: company_id,
+        selected_designation: selected_designation,
+      },
+    });
 
-        let designationOption = '<option value="">Select Designation</option>';
+    let designationOption = '<option value="">Select Designation</option>';
 
-        $.each(response, function (index, val) {
-            designationOption += `
+    $.each(response, function (index, val) {
+      designationOption += `
                 <option 
                     value="${val.id}"
                     data-level="${val.designation_level}">
                     ${val.designation}
                 </option>
             `;
-        });
+    });
 
-        $('#designation').empty().append(designationOption);
-
-    } catch (error) {
-        console.error("Error loading Designation list:", error);
-    }
+    $("#designation").empty().append(designationOption);
+  } catch (error) {
+    console.error("Error loading Designation list:", error);
+  }
 }
 
 function calculateTotals(currentInput) {
+  let totalAmount = 0;
+  let totalPercentage = 0;
 
-    let totalAmount = 0;
-    let totalPercentage = 0;
+  let salaryAmount = 0;
+  let salaryPercentage = 0;
 
-    let salaryAmount = 0;
-    let salaryPercentage = 0;
+  let enteredCTC = parseFloat($("#total_ctc").val().replace(/,/g, "")) || 0;
 
-    let enteredCTC = parseFloat($('#total_ctc').val().replace(/,/g, '')) || 0;
+  $("#ctc_info_table tbody tr").each(function () {
+    let amount =
+      parseFloat($(this).find(".ctc_amount").val().replace(/,/g, "")) || 0;
+    let percentage = parseFloat($(this).find(".ctc_percentage").val()) || 0;
+    let category = $(this).find("td:eq(3)").text().trim();
 
-    $('#ctc_info_table tbody tr').each(function () {
+    totalAmount += amount;
+    totalPercentage += percentage;
 
-        let amount = parseFloat($(this).find('.ctc_amount').val().replace(/,/g, '')) || 0;
-        let percentage = parseFloat($(this).find('.ctc_percentage').val()) || 0;
-        let category = $(this).find('td:eq(3)').text().trim();
-
-        totalAmount += amount;
-        totalPercentage += percentage;
-
-        // // Only Salary validation
-        if (category == 'Salary') {
-            salaryAmount += amount;
-            salaryPercentage += percentage;
-        }
-    });
-
-    totalPercentage = Math.round(totalPercentage * 100) / 100;
-
-    if (totalPercentage > 100) {
-        totalPercentage = 100;
+    // // Only Salary validation
+    if (category == "Salary") {
+      salaryAmount += amount;
+      salaryPercentage += percentage;
     }
+  });
 
-    $('#total_ctc_amount').val(totalAmount);
-    $('#total_ctc_percentage').val(totalPercentage);
+  totalPercentage = Math.round(totalPercentage * 100) / 100;
 
-    // Salary should not exceed CTC
-    if (salaryAmount > enteredCTC) {
+  if (totalPercentage > 100) {
+    totalPercentage = 100;
+  }
 
-        swalError('Warning', 'Salary Components should not exceed Total CTC');
+  $("#total_ctc_amount").val(totalAmount);
 
-        currentInput.val('');
-        currentInput.closest('tr').find('.ctc_percentage').val('');
+  let finalPercentage = enteredCTC > 0 ? (salaryAmount / enteredCTC) * 100 : 0;
+  $("#total_ctc_percentage").val(finalPercentage.toFixed(2));
 
-        recalculateTotals();
-        return false;
-    }
-    // Salary % should not exceed 100
-    salaryPercentage = Math.min(enteredCTC > 0 ? (salaryAmount / enteredCTC) * 100 : 0, 100);
-    if (salaryPercentage > 100) {
+  // Salary should not exceed CTC
+  if (salaryAmount > enteredCTC) {
+    swalError("Warning", "Salary Components should not exceed Total CTC");
 
-        swalError('Warning', 'Salary Percentage should not exceed 100');
+    currentInput.val("");
+    currentInput.closest("tr").find(".ctc_percentage").val("");
 
-        currentInput.val('');
-        currentInput.closest('tr').find('.ctc_percentage').val('');
+    recalculateTotals();
+    return false;
+  }
+  // Salary % should not exceed 100
+  salaryPercentage = Math.min(
+    enteredCTC > 0 ? (salaryAmount / enteredCTC) * 100 : 0,
+    100,
+  );
+  if (salaryPercentage > 100) {
+    swalError("Warning", "Salary Percentage should not exceed 100");
 
-        recalculateTotals();
-        return false;
-    }
+    currentInput.val("");
+    currentInput.closest("tr").find(".ctc_percentage").val("");
+
+    recalculateTotals();
+    return false;
+  }
 }
 
 function recalculateTotals() {
+  let totalAmount = 0;
+  let salaryAmount = 0;
 
-    let totalAmount = 0;
-    let totalPercentage = 0;
+  let enteredCTC = parseFloat($("#total_ctc").val().replace(/,/g, "")) || 0;
 
-    $('.ctc_amount').each(function () {
+  $("#ctc_info_table tbody tr").each(function () {
+    let amount =
+      parseFloat($(this).find(".ctc_amount").val().replace(/,/g, "")) || 0;
+    let category = $(this).find("td:eq(3)").text().trim();
 
-        totalAmount += parseFloat($(this).val()) || 0;
-    });
+    totalAmount += amount;
 
-    $('.ctc_percentage').each(function () {
-
-        totalPercentage += parseFloat($(this).val()) || 0;
-    });
-
-    // Round to 2 decimal places to avoid 100.01, 99.999, etc.
-    totalPercentage = Math.round(totalPercentage * 100) / 100;
-    // Optional: cap at 100% (if you want max 100 shown)
-    if (totalPercentage > 100) {
-        totalPercentage = 100;
+    if (category === "Salary") {
+      salaryAmount += amount;
     }
+  });
 
-    $('#total_ctc_amount').val(totalAmount);
+  $("#total_ctc_amount").val(totalAmount);
 
-    $('#total_ctc_percentage').val(totalPercentage);
+  let finalPercentage = enteredCTC > 0 ? (salaryAmount / enteredCTC) * 100 : 0;
+
+  if (finalPercentage > 100) {
+    finalPercentage = 100;
+  }
+
+  $("#total_ctc_percentage").val(finalPercentage.toFixed(2));
 }
 
 function disableAllSections() {
-    // Transfer Fields - disable and keep value
-    $('#branch_name').prop('disabled', true);
-    $('#department').prop('disabled', true);
-    $('#team').prop('disabled', true);
-    $('#reporting_person').prop('disabled', true);
-    $('#branch_admin').prop('disabled', true);
-    $('#branch').prop('disabled', true);
-    $('#effective_date').val('');
+  // Transfer Fields - disable and keep value
+  $("#branch_name").prop("disabled", true);
+  $("#department").prop("disabled", true);
+  $("#team").prop("disabled", true);
+  $("#reporting_person").prop("disabled", true);
+  $("#branch_admin").prop("disabled", true);
+  $("#branch").prop("disabled", true);
+  $("#effective_date").val("");
 
-    // Promotion Fields - disable and keep value
-    $('#designation').prop('disabled', true);
+  // Promotion Fields - disable and keep value
+  $("#designation").prop("disabled", true);
 
-    // Increment Fields - disable and keep value
-    // $('#pf_available').prop('disabled', true);
-    // $('#esi_available').prop('disabled', true);
-    // $('#pt_available').prop('disabled', true);
-    $('#total_ctc').prop('disabled', true);
-    $('.ctc_amount').prop('readonly', true);
-    $('.ctc_percentage').prop('readonly', true);
+  // Increment Fields - disable and keep value
+  // $('#pf_available').prop('disabled', true);
+  // $('#esi_available').prop('disabled', true);
+  // $('#pt_available').prop('disabled', true);
+  $("#total_ctc").prop("disabled", true);
+  $(".ctc_amount").prop("readonly", true);
+  $(".ctc_percentage").prop("readonly", true);
 
-    $('.branch_div').hide();
+  $(".branch_div").hide();
 
-    // Table Inputs
-    $('#ctc_info_table').find('input, select').prop('disabled', true);
+  // Table Inputs
+  $("#ctc_info_table").find("input, select").prop("disabled", true);
 }
 
 function enablePromotionSection() {
-    // Enable ONLY designation, clear it for new selection
-    setCTCTableReadonly(true);
-    $('#designation').prop('disabled', false);
-    $('#reporting_person').prop('disabled', false);
+  // Enable ONLY designation, clear it for new selection
+  setCTCTableReadonly(true);
+  $("#designation").prop("disabled", false);
+  $("#reporting_person").prop("disabled", false);
 }
 
 function enableTransferSection() {
-    // Enable ONLY transfer fields, clear them for new selection
-    setCTCTableReadonly(true);
-    $('#branch_name').prop('disabled', false);
-    $('#branch').prop('disabled', false);
-    $('#department').prop('disabled', false);
-    $('#team').prop('disabled', false);
-    $('#branch_admin').prop('disabled', false);
-    $('.branch_div').hide();
-
+  // Enable ONLY transfer fields, clear them for new selection
+  setCTCTableReadonly(true);
+  $("#branch_name").prop("disabled", false);
+  $("#branch").prop("disabled", false);
+  $("#department").prop("disabled", false);
+  $("#team").prop("disabled", false);
+  $("#branch_admin").prop("disabled", false);
+  $(".branch_div").hide();
 }
 
 function enableIncrementSection() {
-    // Enable ONLY increment fields, clear them for new selection
-    // $('#pf_available').prop('disabled', false);
-    // $('#esi_available').prop('disabled', false);
-    // $('#pt_available').prop('disabled', false);
-    $('#total_ctc').prop('disabled', false);
+  // Enable ONLY increment fields, clear them for new selection
+  // $('#pf_available').prop('disabled', false);
+  // $('#esi_available').prop('disabled', false);
+  // $('#pt_available').prop('disabled', false);
+  $("#total_ctc").prop("disabled", false);
 
-    // Enable CTC Table
-    $('#ctc_info_table').find('input, select').prop('disabled', false);
-    $('.ctc_amount').prop('readonly', false);
-
+  // Enable CTC Table
+  $("#ctc_info_table").find("input, select").prop("disabled", false);
+  $(".ctc_amount").prop("readonly", false);
 }
 
 function setCTCTableReadonly(isReadonly) {
-    $('#ctc_info_table tbody .ctc_amount').prop('readonly', isReadonly);
-    $('#ctc_info_table tbody .ctc_percentage').prop('readonly', true);
-
+  $("#ctc_info_table tbody .ctc_amount").prop("readonly", isReadonly);
+  $("#ctc_info_table tbody .ctc_percentage").prop("readonly", true);
 }
