@@ -156,13 +156,6 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-sm-6 ot_req" style="display: none;">
-                                <div class="form-group">
-                                    <label for="current_month_ot_count">Current Month OT Count</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="current_month_ot_count" name="current_month_ot_count" tabindex="10" readonly>
-                                </div>
-                            </div>
-
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
                                     <label for="from_date">From Date</label><span class="text-danger">*</span>
@@ -179,6 +172,12 @@
                                 <div class="form-group">
                                     <label for="total_days">Total Days/Hrs</label><span class="text-danger">*</span>
                                     <div id="total_days" class="form-control" style="height: 35px;background-color: #d3d2d2;"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 ot_req" style="display: none;">
+                                <div class="form-group">
+                                    <label for="current_month_ot_count">Current Month OT Count</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="current_month_ot_count" name="current_month_ot_count" tabindex="10" readonly>
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-6 bal_req" style="display: none;">

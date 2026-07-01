@@ -101,7 +101,7 @@
     </div>
 
     <!-- Attendance Overview -->
-    <div class="col-lg-12 col-md-12 mt-3" id="feedback_section">
+    <div class="col-lg-12 col-md-12 mt-3" id="feedback_section" style="display: none;">
         <div class="card">
 
             <div class="card-header">
@@ -132,7 +132,7 @@
 
         </div>
     </div>
-    <div class="col-lg-12 col-md-12 mt-3"  id="rating_section">
+    <div class="col-lg-12 col-md-12 mt-3"  id="rating_section" style="display: none;">
         <div class="card">
 
             <div class="card-header">
@@ -162,7 +162,7 @@
 
         </div>
     </div>
-    <div class="col-lg-12 col-md-12 mt-3" id="poll_section">
+    <div class="col-lg-12 col-md-12 mt-3" id="poll_section" style="display: none;">
         <div class="card">
 
             <div class="card-header">

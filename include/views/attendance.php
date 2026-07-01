@@ -272,42 +272,42 @@
                 <div id="custom_chart_legend" style="display: flex; justify-content: center; gap: 25px; margin-top: 20px; flex-wrap: wrap; font-size: 14px; 
                 font-weight: 500; margin-bottom: 30px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #66AA00; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #4CAF50; border-radius: 3px;"></div>
                         <span>Working Hours</span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #4285F4; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #2196F3; border-radius: 3px;"></div>
                         <span>OT Hours</span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #EA4335; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #F44336; border-radius: 3px;"></div>
                         <span>Later Entry</span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #FBBC05; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #FF9800; border-radius: 3px;"></div>
                         <span>Permission Hours</span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #A142F4; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #9C27B0; border-radius: 3px;"></div>
                         <span>Grace Time</span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #8B0000; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #009688; border-radius: 3px;"></div>
                         <span>Paid Leave</span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #607D8B; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #9E9E9E; border-radius: 3px;"></div>
                         <span>Week Off</span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #000080; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #424242; border-radius: 3px;"></div>
                         <span>LOP</span>
                     </div>
                 </div>
