@@ -20,6 +20,8 @@ $stmt = $pdo->prepare("SELECT
         u.director_name,
         u.password,
         u.download_access,
+        u.feedback_access,
+        u.feedback_access_type,
         u.report_access,
         u.home_access,
         u.staff_id,

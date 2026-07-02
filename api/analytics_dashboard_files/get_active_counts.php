@@ -34,8 +34,6 @@ if ($user_type == 1) {
     $director_company = $userData['director_company'];
 
     $company_condition = " company_id IN ($director_company) ";
-
-
 } else {
 
 
@@ -63,7 +61,6 @@ if ($user_type == 1) {
 
 
     $company_condition = " company_id = '$company_id' ";
-
 }
 
 
@@ -74,7 +71,10 @@ $currentDateTime = date('Y-m-d H:i:s');
 $table = '';
 $status_column = '';
 
-if ($type == 'feedback') {
+if ($type == 'general_feedback') {
+    $table = 'general_feedback';
+    $status_column = 'status';
+} else if ($type == 'feedback') {
     $table = 'feedback_titles';
     $status_column = 'feedback_status';
 } elseif ($type == 'poll') {
@@ -88,21 +88,41 @@ if ($type == 'feedback') {
     exit;
 }
 
-// GET COUNT
+if ($type == 'general_feedback') {
 
-$stmt = $pdo->query("
-    SELECT COUNT(*) as total
-    FROM $table
-    WHERE 
-        $company_condition
-        AND $status_column = 0
-        AND '$currentDateTime' <= end_date_time
-");
+    // Get logged-in user's feedback access type
+    $userQry = $pdo->prepare("SELECT feedback_access_type FROM users WHERE id = :user_id AND status = 0");
+    $userQry->execute([':user_id' => $user_id]);
+
+    $user = $userQry->fetch(PDO::FETCH_ASSOC);
+
+    $sql = "SELECT COUNT(*) AS total FROM staff_general_feedback WHERE 1";
+
+    // Individual access -> count only own records
+    if ($user && $user['feedback_access_type'] == '2') {
+        $sql .= " AND user_id = :user_id";
+    }
+
+    $stmt = $pdo->prepare($sql);
+
+    if ($user && $user['feedback_access_type'] == '2') {
+        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+    }
+
+    $stmt->execute();
+} else {
+
+    $stmt = $pdo->query("SELECT COUNT(*) AS total
+        FROM $table
+        WHERE
+            $company_condition
+            AND $status_column = 0 
+            AND '$currentDateTime' <= end_date_time
+    ");
+}
 
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 echo $row['total'];
 
 $pdo = null;
-
-?>

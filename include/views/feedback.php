@@ -39,6 +39,15 @@
                         </div>
                         <div class="col-md-4 col-sm-6">
                             <div class="form-group">
+                                <label for="user_name">User Name</label><span class="text-danger">*</span>
+                                <select class="form-control" id="user_name" name="user_name" tabindex="1">
+                                    <option> Select User Name</option>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <div class="form-group">
                                 <label for="attachment">Attachment</label>
                                 <input type="file" class="form-control" name="attachment" id="attachment" onchange="compressImage(this, 200)" tabindex="3">
                             </div>
@@ -84,7 +93,7 @@
                         <h5 class="card-title">Feedback Question</h5>
                     </div>
                     <div style="text-align: right;">
-                        <button type="button" class="btn btn-primary" id="back_btn" ><span class="icon-arrow-left"></span>&nbsp; Back </button>
+                        <button type="button" class="btn btn-primary" id="back_btn"><span class="icon-arrow-left"></span>&nbsp; Back </button>
                     </div>
 
                 </div>

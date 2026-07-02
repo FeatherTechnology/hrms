@@ -21,8 +21,9 @@ if (!empty($_FILES['attachment']['name'])) {
 $feedback_name = $_POST['feedback_name'];
 $commants = $_POST['commants'];
 $user_id = $_SESSION['user_id'];
+$user_name = $_POST['user_name'];
 
-$qry = $pdo->query("INSERT INTO `staff_general_feedback`( `general_feedback_id`,`commants`,`attachment`,`insert_login_id`,`created_date`) VALUES ('$feedback_name','$commants','$attachment','$user_id',now())");
+$qry = $pdo->query("INSERT INTO `staff_general_feedback`( `general_feedback_id`,`commants`,`user_id`,`attachment`,`insert_login_id`,`created_date`) VALUES ('$feedback_name','$commants','$user_name','$attachment','$user_id',now())");
 
 if($qry){
 $result = 1;
