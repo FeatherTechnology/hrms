@@ -146,6 +146,8 @@ $(document).ready(function () {
     $(".director_div").hide();
     $(".user_div").hide();
 
+    $("#feedback_access_type_div").hide();
+
     $("#user_type").val("");
     $(".credential_info").find("input, select").val("");
 
@@ -233,6 +235,19 @@ $(document).ready(function () {
     }
   });
 
+  /* --- Feedback Access On Change --- */
+  $("#feedback_access").on("change", function () {
+    if ($(this).val() == "1") {
+      // YES
+      $("#feedback_access_type_div").show();
+    } else {
+      // NO or Select
+      $("#feedback_access_type_div").hide();
+      $("#feedback_access_type").val(""); // Empty the dropdown
+      $("#feedback_access_type").css("border", "1px solid #cecece");
+    }
+  });
+
   /* --- Submit User Creation --- */
   $("#submit_user_creation").click(function (event) {
     event.preventDefault();
@@ -260,6 +275,8 @@ $(document).ready(function () {
       approval_required: $("#approval_required").val(),
       approved_request_type: $("#approved_request_type").val(),
       report_access: $("#report_access").val(),
+      feedback_access: $("#feedback_access").val(),
+      feedback_access_type: $("#feedback_access_type").val(),
       submenus: selectedSubmenuIds,
       id: $("#user_creation_id").val(),
     };
@@ -281,6 +298,7 @@ $(document).ready(function () {
         "password",
         "confirm_password",
         "download_access",
+        "feedback_access",
         "home_access",
       ];
 
@@ -301,6 +319,7 @@ $(document).ready(function () {
         "password",
         "confirm_password",
         "download_access",
+        "feedback_access",
         "home_access",
       ];
     }
@@ -308,6 +327,11 @@ $(document).ready(function () {
     // Validate report access only if Reports menu is selected
     if ($("#reports-mainmenu").is(":checked")) {
       data.push("report_access");
+    }
+
+    // Validate Feedback Access Type only if Feedback Access = YES
+    if ($("#feedback_access").val() == "1") {
+      data.push("feedback_access_type");
     }
 
     data.forEach(function (field) {
@@ -428,8 +452,18 @@ $(document).ready(function () {
       $("#password").val(response[0].password);
       $("#confirm_password").val(response[0].password);
       $("#download_access").val(response[0].download_access);
+      $("#feedback_access").val(response[0].feedback_access);
       $("#home_access").val(response[0].home_access);
       $("#report_access").val(response[0].report_access);
+
+      // Apply Feedback Access Type visibility based on Feedback Access value
+      if (response[0].feedback_access == "1") {
+        $("#feedback_access_type_div").show();
+        $("#feedback_access_type").val(response[0].feedback_access_type);
+      } else {
+        $("#feedback_access_type_div").hide();
+        $("#feedback_access_type").val(""); // Clear the dropdown
+      }
 
       // Check if Regularization permission is selected
       if ($("#regularization").is(":checked")) {
@@ -466,13 +500,13 @@ $(document).ready(function () {
             }
           }
         }
-      }
 
-      // Apply User Type visibility after showing regularization fields
-      if (response[0].user_type == "1") {
-        $(".regularization-request-container").hide();
-      } else {
-        $(".regularization-request-container").show();
+        // Apply User Type visibility after showing regularization fields
+        if (response[0].user_type == 1) {
+          $(".regularization-request-container").hide();
+        } else {
+          $(".regularization-request-container").show();
+        }
       }
     } catch (error) {
       console.error("Failed to fetch branch data:", error);

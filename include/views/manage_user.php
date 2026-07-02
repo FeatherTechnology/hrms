@@ -244,6 +244,26 @@
                                 </div>
                                 <div class="col-sm-4 col-md-4 col-lg-4">
                                     <div class="form-group">
+                                        <label for="feedback_access">Feedback Access</label><span class="text-danger">*</span>
+                                        <select class="form-control" id="feedback_access" name="feedback_access" tabindex="18">
+                                            <option value="">Select Feedback Access</option>
+                                            <option value="1">YES</option>
+                                            <option value="2">NO</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 col-md-4 col-lg-4" id="feedback_access_type_div" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="feedback_access_type">Feedback Access Type</label><span class="text-danger">*</span>
+                                        <select class="form-control" id="feedback_access_type" name="feedback_access_type" tabindex="18">
+                                            <option value="">Select Feedback Access Type</option>
+                                            <option value="1">Over All</option>
+                                            <option value="2">Individual</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 col-md-4 col-lg-4">
+                                    <div class="form-group">
                                         <label for="report_access">Report Access</label><span class="text-danger">*</span>
                                         <select class="form-control" id="report_access" name="report_access" tabindex="18">
                                             <option value="">Select Report Access</option>

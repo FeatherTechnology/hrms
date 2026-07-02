@@ -6,6 +6,7 @@ $(document).ready(function () {
       $(".scheduled_feedback_div").hide();
       $(".scheduled_feedback_ans_div").hide();
       getfeedbackname();
+      getUserNames();
     } else if (feed_type == "1") {
       $("#general_feedback_div").hide();
       $(".scheduled_feedback_div").show();
@@ -20,8 +21,9 @@ $(document).ready(function () {
     let feedback_name = $("#feedback_name").val();
     let commants = $("#commants").val();
     let attachment = $("#attachment")[0].files[0];
+    let user_name = $("#user_name").val();
 
-    var data = ["feedback_name", "commants"];
+    var data = ["feedback_name", "commants", "user_name"];
     var isValid = true;
     data.forEach(function (entry) {
       var fieldIsValid = validateField($("#" + entry).val(), entry);
@@ -39,6 +41,7 @@ $(document).ready(function () {
           kycDetail.append("feedback_name", feedback_name);
           kycDetail.append("commants", commants);
           kycDetail.append("attachment", attachment);
+          kycDetail.append("user_name", user_name);
 
           $.ajax({
             url: "api/feedback/submit_gen_feedback.php",
@@ -224,6 +227,25 @@ function getfeedbackname() {
             "'>" +
             val["feedback_name"] +
             "</option>",
+        );
+      });
+    },
+    "json",
+  );
+}
+
+// <--- Get User Name List Based on feedback access yes --->
+function getUserNames() {
+  $.post(
+    "api/feedback/get_user_names.php",
+    {},
+    function (response) {
+      $("#user_name").empty();
+      $("#user_name").append("<option value=''>Select User Name</option>");
+
+      $.each(response, function (index, val) {
+        $("#user_name").append(
+          "<option value='" + val["id"] + "'>" + val["user_name"] + "</option>",
         );
       });
     },

@@ -1,18 +1,24 @@
 $(document).ready(function () {
   // Dashboard Counts
+  getActiveCount("general_feedback", ".general_feedback");
   getActiveCount("feedback", ".active_feedback");
   getActiveCount("rating", ".active_rating");
   getActiveCount("poll", ".active_poll");
 
   // Average Rating
-  getAverageRating();
+  // getAverageRating();
 
   // Hide all sections initially
+  $("#general_feedback_section").hide();
   $("#feedback_section").hide();
   $("#rating_section").hide();
   $("#poll_section").hide();
 
   // Button Click Events
+  $("#general_feedbackViewAll").click(function () {
+    toggleSection("general_feedback");
+  });
+
   $("#feedbackViewAll").click(function () {
     toggleSection("feedback");
   });
@@ -43,11 +49,13 @@ function toggleSection(type) {
   }
 
   // Hide all sections
+  $("#general_feedback_section").hide();
   $("#feedback_section").hide();
   $("#rating_section").hide();
   $("#poll_section").hide();
 
   // Reset all buttons
+  $("#general_feedbackViewAll").text("View All >>>>");
   $("#feedbackViewAll").text("View All >>>>");
   $("#ratingViewAll").text("View All >>>>");
   $("#pollViewAll").text("View All >>>>");
@@ -60,6 +68,11 @@ function toggleSection(type) {
 
   // Load data
   switch (type) {
+
+    case "general_feedback":
+      getGeneralFeedback();
+      break;
+
     case "feedback":
       getDashboardList("feedback", "#feedback_table");
       break;
@@ -85,12 +98,37 @@ function toggleSection(type) {
 //==================================================
 // Average Rating
 //==================================================
-function getAverageRating() {
+// function getAverageRating() {
+//   $.ajax({
+//     url: "api/analytics_dashboard_files/get_average_rating.php",
+//     type: "POST",
+//     success: function (response) {
+//       $(".average_rating").text(response);
+//     },
+//   });
+// }
+
+function getGeneralFeedback() {
   $.ajax({
-    url: "api/analytics_dashboard_files/get_average_rating.php",
+    url: "api/analytics_dashboard_files/get_general_feedback.php",
     type: "POST",
+    dataType: "json",
     success: function (response) {
-      $(".average_rating").text(response);
+      let html = "";
+
+      $.each(response, function (index, row) {
+        html += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${row.feedback_name ?? "-"}</td>
+            <td>${row.commants ?? "-"}</td>
+            <td>${row.submitted_by ?? "-"}</td>
+            <td>${row.visible_to ?? "-"}</td>
+          </tr>
+        `;
+      });
+
+      $("#general_feedback_table tbody").html(html);
     },
   });
 }
@@ -99,35 +137,34 @@ function getAverageRating() {
 // Dashboard List
 //==================================================
 function getDashboardList(type, tableId) {
-
-    $.ajax({
-        url: "api/analytics_dashboard_files/get_active_list.php",
-        type: "POST",
-        data: {
-            type: type,
-        },
-        dataType: "json",
-        success: function (response) {
-            let html = "";
-            $.each(response, function (index, row) {
-                let extraColumn = "";
-                // POLL TOP ANSWER
-                if (type == "poll") {
-                    extraColumn = `
+  $.ajax({
+    url: "api/analytics_dashboard_files/get_active_list.php",
+    type: "POST",
+    data: {
+      type: type,
+    },
+    dataType: "json",
+    success: function (response) {
+      let html = "";
+      $.each(response, function (index, row) {
+        let extraColumn = "";
+        // POLL TOP ANSWER
+        if (type == "poll") {
+          extraColumn = `
                         <td>
                             ${row.top_answer ? row.top_answer : "-"}
                         </td>
                     `;
-                }
-                // RATING AVERAGE
-                else if (type == "rating") {
-                    extraColumn = `
+        }
+        // RATING AVERAGE
+        else if (type == "rating") {
+          extraColumn = `
                         <td>
                             ${row.average_rating ? row.average_rating : "-"}
                         </td>
                     `;
-                }
-                html += `
+        }
+        html += `
                     <tr>
                         <td>${row.sno}</td>
                         <td>${row.title}</td>
@@ -137,27 +174,27 @@ function getDashboardList(type, tableId) {
                         ${extraColumn}
                     </tr>
                 `;
-            });
-            $(tableId + " tbody").html(html);
-            // add extra column heading
+      });
+      $(tableId + " tbody").html(html);
+      // add extra column heading
 
-            if(type == "poll") {
-                if($(tableId + " thead th.top-answer").length == 0) {
-                    $(tableId + " thead tr").append(
-                        `<th class="top-answer">TOP ANSWER</th>`
-                    );
-                }
-            }
-
-            if(type == "rating") {
-                if($(tableId + " thead th.average-rating").length == 0) {
-                    $(tableId + " thead tr").append(
-                        `<th class="average-rating">AVERAGE RATING</th>`
-                    );
-                }
-            }
+      if (type == "poll") {
+        if ($(tableId + " thead th.top-answer").length == 0) {
+          $(tableId + " thead tr").append(
+            `<th class="top-answer">Top Voted Option</th>`,
+          );
         }
-    });
+      }
+
+      if (type == "rating") {
+        if ($(tableId + " thead th.average-rating").length == 0) {
+          $(tableId + " thead tr").append(
+            `<th class="average-rating">AVERAGE RATING</th>`,
+          );
+        }
+      }
+    },
+  });
 }
 
 //==================================================
