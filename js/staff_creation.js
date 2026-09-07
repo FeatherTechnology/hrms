@@ -68,16 +68,18 @@ $(document).ready(function () {
       swalError("Warning", "Future date is not allowed.");
       $(this).val("");
 
-      // Clear age only when DOB field changes
+      // Clear corresponding age field
       if ($(this).attr("id") === "dob") {
         $("#age").val("");
+      } else if ($(this).attr("id") === "fam_dob") {
+        $("#fam_age").val("");
       }
 
       return;
     }
 
-    // Calculate age only for main DOB field
-    if ($(this).attr("id") === "dob") {
+    // Calculate age for DOB and Family DOB
+    if ($(this).attr("id") === "dob" || $(this).attr("id") === "fam_dob") {
       var age = today.getFullYear() - dob.getFullYear();
       var m = today.getMonth() - dob.getMonth();
 
@@ -85,7 +87,12 @@ $(document).ready(function () {
         age--;
       }
 
-      $("#age").val(age);
+      // Set age to corresponding field
+      if ($(this).attr("id") === "dob") {
+        $("#age").val(age);
+      } else if ($(this).attr("id") === "fam_dob") {
+        $("#fam_age").val(age);
+      }
     }
   });
 
@@ -96,6 +103,24 @@ $(document).ready(function () {
       $(".experience").find("input").prop("readonly", true);
     } else {
       $(".experience").find("input").prop("readonly", false);
+    }
+  });
+
+  $("#work_year").on("input", function () {
+    let value = $(this).val();
+
+    if (value !== "" && parseInt(value) > 20) {
+      swalError("Warning", "Years must be between 0 and 20.");
+      $(this).val("");
+    }
+  });
+
+  $("#work_month").on("input", function () {
+    let value = $(this).val();
+
+    if (value !== "" && parseInt(value) > 11) {
+      swalError("Warning", "Months must be between 0 and 11.");
+      $(this).val("");
     }
   });
 
@@ -279,19 +304,15 @@ $(document).ready(function () {
     let staff_id = $("#staff_auto_id").val();
     let staff_profile_id = $("#staff_profile_id").val();
     let fam_name = $("#fam_name").val();
-    let fam_dob = $("#fam_dob").val();
     let fam_relationship = $("#fam_relationship").val();
+    let fam_dob = $("#fam_dob").val();
+    let fam_age = $("#fam_age").val();
+    let fam_mem_sts = $("#fam_mem_sts").val();
     let fam_occupation = $("#fam_occupation").val();
     let fam_mobile = $("#fam_mobile").val();
     let family_id = $("#family_id").val();
 
-    var data = [
-      "fam_name",
-      "fam_relationship",
-      "fam_dob",
-      "fam_occupation",
-      "fam_mobile",
-    ];
+    var data = ["fam_name", "fam_relationship"];
 
     var isValid = true;
     data.forEach(function (entry) {
@@ -310,6 +331,8 @@ $(document).ready(function () {
           fam_name,
           fam_relationship,
           fam_dob,
+          fam_age,
+          fam_mem_sts,
           fam_occupation,
           fam_mobile,
           family_id,
@@ -339,6 +362,8 @@ $(document).ready(function () {
         $("#fam_name").val(response[0].fam_name);
         $("#fam_relationship").val(response[0].fam_relationship);
         $("#fam_dob").val(response[0].fam_dob);
+        $("#fam_age").val(response[0].fam_age);
+        $("#fam_mem_sts").val(response[0].fam_mem_sts);
         $("#fam_occupation").val(response[0].fam_occupation);
         $("#fam_mobile").val(response[0].fam_mobile);
       },
@@ -456,15 +481,29 @@ $(document).ready(function () {
     let staff_id = $("#staff_auto_id").val();
     let staff_profile_id = $("#staff_profile_id").val();
     let exp_type = $("#exp_type").val();
-    let total_experience = $("#total_experience").val();
     let pre_company = $("#pre_company").val();
     let pre_designation = $("#pre_designation").val();
-    let work_duration = $("#work_duration").val();
+
+    let work_year = $("#work_year").val() || 0;
+    let work_month = $("#work_month").val() || 0;
+    let work_experience = work_year + " Years " + work_month + " Months";
+
     let last_salary = $("#last_salary").val();
     let reason_for_leaving = $("#reason_for_leaving").val();
     let experience_id = $("#experience_id").val();
 
     var data = ["exp_type"];
+
+    if ($("#exp_type").val() == "2") {
+      data.push(
+        "pre_company",
+        "pre_designation",
+        "work_year",
+        "work_month",
+        "last_salary",
+        "reason_for_leaving",
+      );
+    }
 
     var isValid = true;
     data.forEach(function (entry) {
@@ -480,10 +519,9 @@ $(document).ready(function () {
         {
           staff_id,
           exp_type,
-          total_experience,
           pre_company,
           pre_designation,
-          work_duration,
+          work_experience,
           last_salary,
           reason_for_leaving,
           experience_id,
@@ -512,10 +550,18 @@ $(document).ready(function () {
       function (response) {
         $("#experience_id").val(id);
         $("#exp_type").val(response[0].exp_type);
-        $("#total_experience").val(response[0].total_experience);
         $("#pre_company").val(response[0].pre_company);
         $("#pre_designation").val(response[0].pre_designation);
-        $("#work_duration").val(response[0].work_duration);
+
+        // Stored value: "3 Years 5 Months"
+        var work_experience = response[0].work_experience || "";
+
+        var yearMatch = work_experience.match(/(\d+)\s*Years?/i);
+        var monthMatch = work_experience.match(/(\d+)\s*Months?/i);
+
+        $("#work_year").val(yearMatch ? yearMatch[1] : 0);
+        $("#work_month").val(monthMatch ? monthMatch[1] : 0);
+
         $("#last_salary").val(response[0].last_salary);
         $("#reason_for_leaving").val(response[0].reason_for_leaving);
       },
@@ -556,9 +602,6 @@ $(document).ready(function () {
     let marital_status = $("#marital_status").val();
     let spouse_name = $("#spouse_name").val();
     let anniversary_date = $("#anniversary_date").val();
-    let joining_date = $("#joining_date").val();
-    let relieve_date = $("#relieve_date").val();
-    let notice_period = $("#notice_period").val();
     let email = $("#mailid").val();
     let mobile1 = $("#mobile1").val();
     let mobile2 = $("#mobile2").val();
@@ -583,8 +626,6 @@ $(document).ready(function () {
       "pincode",
       "gender",
       "marital_status",
-      "joining_date",
-      "notice_period",
       "mailid",
       "mobile1",
       "acc_holder_name",
@@ -646,9 +687,6 @@ $(document).ready(function () {
       personalDetail.append("marital_status", marital_status);
       personalDetail.append("spouse_name", spouse_name);
       personalDetail.append("anniversary_date", anniversary_date);
-      personalDetail.append("joining_date", joining_date);
-      personalDetail.append("relieve_date", relieve_date);
-      personalDetail.append("notice_period", notice_period);
       personalDetail.append("pf_available", pf_available);
       personalDetail.append("esi_available", esi_available);
       personalDetail.append("pt_available", pt_available);
@@ -1054,7 +1092,7 @@ $(document).ready(function () {
 });
 
 $(function () {
-  nameFormatter("#staff_name");
+  nameFormatter("#staff_name, #fam_name");
   getCompanyName("#company_search");
 });
 
@@ -1222,6 +1260,8 @@ async function getFamilyInfoTable() {
       "fam_name",
       "fam_relationship",
       "fam_dob",
+      "fam_age",
+      "fam_mem_sts",
       "fam_occupation",
       "fam_mobile",
     ];
@@ -1243,6 +1283,8 @@ function getFamilyTable() {
         "fam_name",
         "fam_relationship",
         "fam_dob",
+        "fam_age",
+        "fam_mem_sts",
         "fam_occupation",
         "fam_mobile",
         "action",
@@ -1253,6 +1295,7 @@ function getFamilyTable() {
       $("#family_form input").css("border", "1px solid #cecece");
       $("#family_form select").css("border", "1px solid #cecece");
       $("#fam_relationship").val("");
+      $("#fam_mem_sts").val("");
     },
     "json",
   );
@@ -1371,10 +1414,9 @@ async function getExperienceInfoTable() {
     var columnMapping = [
       "sno",
       "exp_type",
-      "total_experience",
       "pre_company",
       "pre_designation",
-      "work_duration",
+      "work_experience",
       "last_salary",
       "reason_for_leaving",
     ];
@@ -1394,11 +1436,7 @@ async function getCompanyPFDetails(company_name) {
       dataType: "json",
     });
 
-    console.log(response);
-
     if (response[0].pf_applicable == 2) {
-      console.log("jj");
-
       $("#pf_available").val(response[0].pf_applicable).prop("disabled", true);
     } else {
       $("#pf_available").val(response[0].pf_applicable).prop("disabled", false);
@@ -1437,10 +1475,9 @@ function getExperienceTable() {
       var columnMapping = [
         "sno",
         "exp_type",
-        "total_experience",
         "pre_company",
         "pre_designation",
-        "work_duration",
+        "work_experience",
         "last_salary",
         "reason_for_leaving",
         "action",
@@ -1731,17 +1768,21 @@ function getCTCInfoTable(company_id) {
                         </td>
 
                         <td>
-                            <input type="text"
-                                   class="form-control ctc_amount"
-                                   id="ctc_amount_${row.id}"
-                                   min="0">
+                            ${row.pay_frequency}
                         </td>
 
                         <td>
                             <input type="text"
-                                   class="form-control ctc_percentage"
-                                   id="ctc_percentage_${row.id}"
-                                   readonly>
+                                  class="form-control ctc_amount"
+                                  id="ctc_amount_${row.id}"
+                                  min="0">
+                        </td>
+
+                        <td>
+                            <input type="text"
+                                  class="form-control ctc_percentage"
+                                  id="ctc_percentage_${row.id}"
+                                  readonly>
                         </td>
                     </tr>
                 `;
@@ -1947,7 +1988,6 @@ async function editStaffProfile(id) {
     $("#department").val(data.department);
     $("#designation").val(data.designation);
     $("#off_type").val(data.off_type);
-    $("#relieve_date").val(data.relieve_date);
 
     $("#branch_admin").val(moneyFormatIndia(data.branch_admin));
     $("#pf_available").val(data.pf_available);

@@ -18,7 +18,7 @@ $query = "";
 
 if ($req_type == '1') {
 
-$query = "SELECT 
+    $query = "SELECT 
     lc.no_of_days,
     sc.start_time,
     sc.end_time,
@@ -71,15 +71,12 @@ $query = "SELECT
 
     WHERE lc.company_id = :cmpy_id
     AND lc.id = :leave_type    ";
-
 }
 
 
-/* ================= PERMISSION ================= */
+/* ================= PERMISSION ================= */ else if ($req_type == '2') {
 
-else if ($req_type == '2') {
-
-$query = " SELECT 
+    $query = " SELECT 
     sc.start_time,
     sc.end_time,
     cp.max_permission,
@@ -106,9 +103,7 @@ $query = " SELECT
 }
 
 
-/* ================= WEEK OFF ================= */
-
-else if ($req_type == '3') {
+/* ================= WEEK OFF ================= */ else if ($req_type == '3') {
     $query = "SELECT 
                 SUM(cw.week_off) AS no_of_days,
                 sc.start_time,
@@ -169,9 +164,8 @@ else if ($req_type == '3') {
 }
 
 
-/* ================= OT ================= */
-else if ($req_type == '4') {
-$query = " SELECT
+/* ================= OT ================= */ else if ($req_type == '4') {
+    $query = " SELECT
     sc.start_time,
     sc.end_time,
     (
@@ -198,58 +192,29 @@ WHERE oi.id = (
 )
 
 ";
-
 }
-
-
 
 $stmt = $pdo->prepare($query);
 
-
-
-$stmt->bindParam(':req_type',$req_type,PDO::PARAM_INT);
-$stmt->bindParam(':cmpy_id',$cmpy_id,PDO::PARAM_INT);
-$stmt->bindParam(':staff_id',$staff_id);
-
-
+$stmt->bindParam(':req_type', $req_type, PDO::PARAM_INT);
+$stmt->bindParam(':cmpy_id', $cmpy_id, PDO::PARAM_INT);
+$stmt->bindParam(':staff_id', $staff_id);
 
 if ($req_type == '1') {
-
-
-    $stmt->bindParam(':from_date',$from_Date);
-    $stmt->bindParam(':to_date',$to_date);
-    $stmt->bindParam(':leave_type',$leave_type);
-    $stmt->bindParam(':leave_period',$leave_period,PDO::PARAM_INT);
-
-
+    $stmt->bindParam(':from_date', $from_Date);
+    $stmt->bindParam(':to_date', $to_date);
+    $stmt->bindParam(':leave_type', $leave_type);
+    $stmt->bindParam(':leave_period', $leave_period, PDO::PARAM_INT);
+} else if ($req_type == '2') {
+    $stmt->bindParam(':from_date', $from_Date);
+} else if ($req_type == '3') {
+    $stmt->bindParam(':from_date', $from_Date);
+    $stmt->bindParam(':to_date', $to_date);
+    $stmt->bindParam(':leave_period', $leave_period, PDO::PARAM_INT);
 }
-
-
-else if ($req_type == '2') {
-
-
-    $stmt->bindParam(':from_date',$from_Date);
-
-
-}
-
-
-else if ($req_type == '3') {
-
-
-    $stmt->bindParam(':from_date',$from_Date);
-    $stmt->bindParam(':to_date',$to_date);
-    $stmt->bindParam(':leave_period',$leave_period,PDO::PARAM_INT);
-
-
-}
-
-
 
 $stmt->execute();
 
 $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
 echo json_encode($result);
-
-?>

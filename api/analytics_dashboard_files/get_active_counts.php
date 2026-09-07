@@ -96,6 +96,12 @@ if ($type == 'general_feedback') {
 
     $user = $userQry->fetch(PDO::FETCH_ASSOC);
 
+    // No user or no feedback access type -> return 0
+    if (empty($user) || empty($user['feedback_access_type'])) {
+        echo '0';
+        exit;
+    }
+
     $sql = "SELECT COUNT(*) AS total FROM staff_general_feedback WHERE 1";
 
     // Individual access -> count only own records

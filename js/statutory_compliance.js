@@ -8,6 +8,7 @@ $(document).ready(function () {
     $(".esi_apply").find("input").prop("readonly", false);
     $(".professional_tax_apply").find("select").prop("disabled", false);
     $("#pf_wage_div").hide();
+    $("#esi_wage_div").hide();
     $("#percentage_div").hide();
     $("#slab_div").hide();
   });
@@ -18,21 +19,36 @@ $(document).ready(function () {
     if (calculationType === "1") {
       $("#percentage_div").show();
       $("#slab_div").hide();
+      $("#percentage").val("");
     } else if (calculationType === "2") {
       $("#slab_div").show();
       $("#percentage_div").hide();
+      $("#slab").val("");
     } else {
       $("#percentage_div").hide();
       $("#slab_div").hide();
+      $("#percentage").val("");
+      $("#slab").val("");
     }
   });
 
-  $("#apply_wage_limit").on("change", function () {
-    var apply_wage_limit = $(this).val();
-    if (apply_wage_limit === "1") {
+  $("#apply_pf_wage_limit").on("change", function () {
+    var apply_pf_wage_limit = $(this).val();
+    if (apply_pf_wage_limit === "1") {
       $("#pf_wage_div").show();
     } else {
       $("#pf_wage_div").hide();
+      $("#pf_wage_limit").val("");
+    }
+  });
+
+  $("#apply_esi_wage_limit").on("change", function () {
+    var apply_esi_wage_limit = $(this).val();
+    if (apply_esi_wage_limit === "1") {
+      $("#esi_wage_div").show();
+    } else {
+      $("#esi_wage_div").hide();
+      $("#esi_wage_limit").val("");
     }
   });
 
@@ -62,6 +78,7 @@ $(document).ready(function () {
 
       // Make input fields readonly
       $(".esi_apply").find("input").prop("readonly", true);
+      $("#esi_wage_div").hide();
 
       $("#esi_components_div input").css("border", "1px solid #cecece");
       $("#esi_components_div select").css("border", "1px solid #cecece");
@@ -101,11 +118,13 @@ $(document).ready(function () {
     let employer_contribution = $("#employer_contribution").val();
     let admin_charge = $("#admin_charge").val();
     let pension = $("#pension").val();
-    let apply_wage_limit = $("#apply_wage_limit").val();
+    let apply_pf_wage_limit = $("#apply_pf_wage_limit").val();
     let pf_wage_limit = $("#pf_wage_limit").val();
     let esi_applicable = $("#esi_applicable").val();
     let employee_share = $("#employee_share").val();
     let employer_share = $("#employer_share").val();
+    let apply_esi_wage_limit = $("#apply_esi_wage_limit").val();
+    let esi_wage_limit = $("#esi_wage_limit").val();
     let professional_tax_applicable = $("#professional_tax_applicable").val();
     let calculation_type = $("#calculation_type").val();
     let percentage = $("#percentage").val();
@@ -120,15 +139,19 @@ $(document).ready(function () {
         "employer_contribution",
         "admin_charge",
         "pension",
-        "apply_wage_limit",
+        "apply_pf_wage_limit",
       );
 
-      if (apply_wage_limit == "1") {
+      if (apply_pf_wage_limit == "1") {
         data.push("pf_wage_limit");
       }
     }
     if (esi_applicable == "1") {
-      data.push("employee_share", "employer_share");
+      data.push("employee_share", "employer_share", "apply_esi_wage_limit");
+
+      if (apply_esi_wage_limit == "1") {
+        data.push("esi_wage_limit");
+      }
     }
     // Professional Tax Validation
     if (professional_tax_applicable == "1") {
@@ -169,11 +192,13 @@ $(document).ready(function () {
               employer_contribution,
               admin_charge,
               pension,
-              apply_wage_limit,
+              apply_pf_wage_limit,
               pf_wage_limit,
               esi_applicable,
               employee_share,
               employer_share,
+              apply_esi_wage_limit,
+              esi_wage_limit,
               professional_tax_applicable,
               calculation_type,
               percentage,
@@ -232,11 +257,13 @@ $(document).ready(function () {
       $("#employer_contribution").val(response[0].employer_contribution);
       $("#admin_charge").val(response[0].admin_charge);
       $("#pension").val(response[0].pension);
-      $("#apply_wage_limit").val(response[0].apply_wage_limit);
+      $("#apply_pf_wage_limit").val(response[0].apply_pf_wage_limit);
       $("#pf_wage_limit").val(response[0].pf_wage_limit);
       $("#esi_applicable").val(response[0].esi_applicable);
       $("#employee_share").val(response[0].employee_share);
       $("#employer_share").val(response[0].employer_share);
+      $("#apply_esi_wage_limit").val(response[0].apply_esi_wage_limit);
+      $("#esi_wage_limit").val(response[0].esi_wage_limit);
       $("#professional_tax_applicable").val(
         response[0].professional_tax_applicable,
       );
@@ -253,10 +280,16 @@ $(document).ready(function () {
         $("#slab_div").hide();
       }
 
-      if (response[0].apply_wage_limit == 1) {
+      if (response[0].apply_pf_wage_limit == 1) {
         $("#pf_wage_div").show();
       } else {
         $("#pf_wage_div").hide();
+      }
+
+      if (response[0].apply_esi_wage_limit == 1) {
+        $("#esi_wage_div").show();
+      } else {
+        $("#esi_wage_div").hide();
       }
 
       $("#percentage").val(response[0].percentage);

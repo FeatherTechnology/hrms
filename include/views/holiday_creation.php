@@ -47,6 +47,12 @@
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
+                                        <label for="holiday_days">Holiday Days</label>
+                                        <input type="text" class="form-control" id="holiday_days" name="holiday_days" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                    <div class="form-group">
                                         <label for="no_of_days">No of days</label><span class="text-danger">*</span>
                                         <input type="text" class="form-control" id="no_of_days" name="no_of_days" tabindex="12" readonly>
                                     </div>
@@ -73,6 +79,7 @@
                                                 <th width="20">S.NO</th>
                                                 <th>From Date</th>
                                                 <th>To Date</th>
+                                                <th>Holiday Days</th>
                                                 <th>No of days</th>
                                                 <th>Holiday Name</th>
                                                 <th>Action</th>

@@ -17,7 +17,6 @@ $i = 0;
 $stmt = $pdo->prepare("SELECT *
     FROM team_name_creation
     WHERE team_status = ? and company_id = ?
-    ORDER BY team_name ASC
 ");
 
 $stmt->execute([0, $company_id]);

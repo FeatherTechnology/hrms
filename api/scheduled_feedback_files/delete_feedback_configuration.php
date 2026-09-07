@@ -6,7 +6,7 @@ $id = $_POST['id'];
 try {
 
     // Check scheduled feedback already used in staff_sch_feedback
-    $checkQry = $pdo->prepare("SELECT COUNT(*) as cnt FROM staff_sch_feedback WHERE feedback_title_id = :id  ");
+    $checkQry = $pdo->prepare("SELECT COUNT(*) as cnt FROM staff_sch_feedback WHERE feedback_titles_id = :id  ");
     $checkQry->bindParam(':id', $id, PDO::PARAM_INT);
     $checkQry->execute();
     $count = $checkQry->fetch(PDO::FETCH_ASSOC)['cnt'];

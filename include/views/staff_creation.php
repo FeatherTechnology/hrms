@@ -1,4 +1,4 @@
-    <div class="row gutters">
+<div class="row gutters">
     <div class="col-12">
         <div class="col-12 text-right">
             <button class="btn btn-primary radio-card" id="add_staff"><span class="icon-add"></span> Add Staff</button>
@@ -121,6 +121,34 @@
                                             </div>
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                                 <div class="form-group">
+                                                    <label for="gender">Gender</label><span class="text-danger">*</span>
+                                                    <select class="form-control personal_info_disble" id="gender" name="gender" tabindex="12">
+                                                        <option value="">Select Gender</option>
+                                                        <option value="1">Male</option>
+                                                        <option value="2">Female</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="form-group">
+                                                    <label for="dob">DOB</label>
+                                                    <input type="date" class="form-control personal_info_disble" id="dob" name="dob" placeholder="Date of Birth" tabindex="9">
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="form-group">
+                                                    <label for="age"> Age</label>
+                                                    <input type="number" class="form-control  personal_info_disble" id="age" name="age" readonly placeholder="Age" tabindex="10">
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="form-group">
+                                                    <label for="blood_group">Blood Group</label>
+                                                    <input type="text" class="form-control personal_info_disble" id="blood_group" name="blood_group" placeholder="Enter Blood Group" tabindex="11">
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="form-group">
                                                     <label for="address">Address</label><span class="text-danger">*</span>
                                                     <input type="text" class="form-control personal_info_disble" id="address" name="address" placeholder="Enter Address" tabindex="4">
                                                 </div>
@@ -152,34 +180,7 @@
                                                     <input type="number" class="form-control personal_info_disble" id="pincode" name="pincode" placeholder="Enter Pincode" onKeyPress="if(this.value.length==6) return false;" tabindex="8">
                                                 </div>
                                             </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="form-group">
-                                                    <label for="dob">DOB</label>
-                                                    <input type="date" class="form-control personal_info_disble" id="dob" name="dob" placeholder="Date of Birth" tabindex="9">
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="form-group">
-                                                    <label for="age"> Age</label>
-                                                    <input type="number" class="form-control  personal_info_disble" id="age" name="age" readonly placeholder="Age" tabindex="10">
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="form-group">
-                                                    <label for="blood_group">Blood Group</label>
-                                                    <input type="text" class="form-control personal_info_disble" id="blood_group" name="blood_group" placeholder="Enter Blood Group" tabindex="11">
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="form-group">
-                                                    <label for="gender">Gender</label><span class="text-danger">*</span>
-                                                    <select class="form-control personal_info_disble" id="gender" name="gender" tabindex="12">
-                                                        <option value="">Select Gender</option>
-                                                        <option value="1">Male</option>
-                                                        <option value="2">Female</option>
-                                                    </select>
-                                                </div>
-                                            </div>
+
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                                 <div class="form-group">
                                                     <label for="marital_status">Marital Status</label><span class="text-danger">*</span>
@@ -200,24 +201,6 @@
                                                 <div class="form-group">
                                                     <label for="anniversary_date">Anniversary Date</label><span class="text-danger">*</span>
                                                     <input type="date" class="form-control personal_info_disble" id="anniversary_date" name="anniversary_date" placeholder="Anniversary Date" tabindex="15">
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="form-group">
-                                                    <label for="joining_date">Joining Date</label><span class="text-danger">*</span>
-                                                    <input type="date" class="form-control personal_info_disble" id="joining_date" name="joining_date" placeholder="Joining Date" tabindex="16">
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="form-group">
-                                                    <label for="relieve_date">Relieve Date</label>
-                                                    <input type="date" class="form-control personal_info_disble" id="relieve_date" name="relieve_date" placeholder="Relieve Date" tabindex="17" readonly>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="form-group">
-                                                    <label for="notice_period">Notice Period(month)</label><span class="text-danger">*</span>
-                                                    <input type="number" class="form-control personal_info_disble" id="notice_period" name="notice_period" placeholder="Notice Period" tabindex="18">
                                                 </div>
                                             </div>
                                         </div>
@@ -331,7 +314,7 @@
                             </div>
                         </div>
                         <div class="staff_content" style="display:none;">
-                            
+
                             <div class="card">
                                 <div class="card-header">
                                     <div class="card-title">Family Info <span class="text-danger">*</span>
@@ -349,6 +332,8 @@
                                                             <th>Name</th>
                                                             <th>Relationship</th>
                                                             <th>DOB</th>
+                                                            <th>Age</th>
+                                                            <th>Family Member Status</th>
                                                             <th>Occupation</th>
                                                             <th>Mobile No</th>
                                                         </tr>
@@ -404,10 +389,9 @@
                                                         <tr>
                                                             <th width="20">S.NO</th>
                                                             <th>Experience Type</th>
-                                                            <th>Total Experience</th>
                                                             <th>Previous Company</th>
                                                             <th>Designation</th>
-                                                            <th>Worked Duration</th>
+                                                            <th>Work Experience</th>
                                                             <th>Last Salary</th>
                                                             <th>Reasoned for Leaving</th>
                                                         </tr>
@@ -435,7 +419,7 @@
                                                             <th width="20">S.NO</th>
                                                             <th>Document Name</th>
                                                             <th>Document Type</th>
-                                                            <th>Document</th>
+                                                            <th>Document Upload</th>
                                                             <th>Submitted Date</th>
                                                             <th>Returned Date</th>
                                                         </tr>
@@ -447,7 +431,36 @@
                                     </div>
                                 </div>
                             </div>
-                             <div class="card mt-3">
+
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h5 class="card-title">Joining Info</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="joining_date">Joining Date</label><span class="text-danger">*</span>
+                                                <input type="date" class="form-control" id="joining_date" name="joining_date" placeholder="Joining Date" tabindex="16">
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="relieve_date">Relieve Date</label>
+                                                <input type="date" class="form-control" id="relieve_date" name="relieve_date" placeholder="Relieve Date" tabindex="17" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="notice_period">Notice Period(month)</label><span class="text-danger">*</span>
+                                                <input type="number" class="form-control" id="notice_period" name="notice_period" placeholder="Notice Period" tabindex="18">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
                                 <div class="card-header">
                                     <h5 class="card-title">Statutory Compliance Info</h5>
                                 </div>
@@ -542,6 +555,14 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="shift">Shift</label><span class="text-danger">*</span>
+                                                <select class="form-control" id="shift" name="shift" tabindex="49">
+                                                    <option value="">Select Shift</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 reporting_person_div">
                                             <div class="form-group">
                                                 <label for="reporting_person">Reporting Person</label><span class="text-danger">*</span>
@@ -571,6 +592,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="card mt-3">
                                 <div class="card-header">
                                     <h5 class="card-title">CTC Info</h5>
@@ -588,14 +610,6 @@
                                             <div class="form-group">
                                                 <label for="annual_ctc"> Annual CTC</label>
                                                 <input type="text" class="form-control" id="annual_ctc" name="annual_ctc" placeholder="Annual CTC" tabindex="48" readonly>
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                            <div class="form-group">
-                                                <label for="shift">Shift</label><span class="text-danger">*</span>
-                                                <select class="form-control" id="shift" name="shift" tabindex="49">
-                                                    <option value="">Select Shift</option>
-                                                </select>
                                             </div>
                                         </div>
 
@@ -632,6 +646,7 @@
                                                             <th>Salary Component</th>
                                                             <th>Component Classification</th>
                                                             <th>Component Category</th>
+                                                            <th>Pay Frequency</th>
                                                             <th>CTC Amount</th>
                                                             <th>CTC Percentage</th>
                                                         </tr>
@@ -639,7 +654,7 @@
                                                     <tbody></tbody>
                                                     <tfoot>
                                                         <tr>
-                                                            <th colspan="4" style="text-align:right">Total</th>
+                                                            <th colspan="5" style="text-align:right">Total</th>
                                                             <th>
                                                                 <input type="text" id="total_ctc_amount" class="form-control" readonly>
                                                             </th>
@@ -665,13 +680,11 @@
                         </div>
                     </div>
                 </div>
-
+            </form>
         </div>
-        </form>
     </div>
     <!----------------------------- CARD END  STAFF CREATION FORM------------------------------>
 
-</div>
 </div>
 
 <!--Document Info Modal-->
@@ -731,7 +744,7 @@
                                     <th width="10">S.No.</th>
                                     <th>Document Name</th>
                                     <th>Document Type </th>
-                                    <th>Document</th>
+                                    <th>Document Upload</th>
                                     <th>Submitted Date</th>
                                     <th>Returned Date</th>
                                     <th>Action</th>
@@ -749,6 +762,7 @@
     </div>
 </div>
 <!--Document Modal End-->
+
 <!--Family Info Modal-->
 <div class="modal fade" id="add_fam_info_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document">
@@ -787,30 +801,42 @@
 
                                 </div>
                             </div>
-
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="fam_dob">DOB</label><span class="text-danger">*</span>
+                                    <label for="fam_dob">DOB</label>
                                     <input type="date" class="form-control" name="fam_dob" id="fam_dob" tabindex="1" placeholder="Enter DOB">
                                 </div>
                             </div>
-
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="fam_occupation">Occupation</label><span class="text-danger">*</span>
+                                    <label for="fam_age">Age</label>
+                                    <input type="number" class="form-control" id="fam_age" name="fam_age" tabindex="1" readonly placeholder="Age">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="fam_mem_sts">Family Member Status</label>
+                                    <select class="form-control" id="fam_mem_sts" name="fam_mem_sts" tabindex="1">
+                                        <option value="">Select Status</option>
+                                        <option value="1">Living</option>
+                                        <option value="2">Deceased</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="fam_occupation">Occupation</label>
                                     <input class="form-control" name="fam_occupation" id="fam_occupation" tabindex="1" placeholder="Enter Occupation">
 
                                 </div>
                             </div>
-
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="fam_mobile">Mobile No</label><span class="text-danger">*</span>
+                                    <label for="fam_mobile">Mobile No</label>
                                     <input type="number" class="form-control" name="fam_mobile" id="fam_mobile" onKeyPress="if(this.value.length==10) return false;" tabindex="1" placeholder="Enter Mobile Number">
 
                                 </div>
                             </div>
-
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="" style="visibility:hidden"></label><br>
@@ -830,6 +856,8 @@
                                     <th>Name</th>
                                     <th>Relationship</th>
                                     <th>DOB</th>
+                                    <th>Age</th>
+                                    <th>Family Member Status</th>
                                     <th>Occupation</th>
                                     <th>Mobile No</th>
                                     <th>Action</th>
@@ -847,6 +875,7 @@
     </div>
 </div>
 <!--Family Modal End-->
+
 <!-- Qualification Info Modal-->
 <div class="modal fade" id="add_qual_info_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document">
@@ -899,7 +928,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="year_of_passing">Year of Passing</label><span class="text-danger">*</span>
-                                    <input type="number" class="form-control" name="year_of_passing" id="year_of_passing" tabindex="1" placeholder="Enter Year of Passing"  onchange="if(this.value.length != 4) { alert('Enter a valid 4-digit year'); this.value=''; }">
+                                    <input type="number" class="form-control" name="year_of_passing" id="year_of_passing" tabindex="1" placeholder="Enter Year of Passing" onchange="if(this.value.length != 4) { alert('Enter a valid 4-digit year'); this.value=''; }">
                                 </div>
                             </div>
 
@@ -941,8 +970,6 @@
 </div>
 <!--Qualification Modal End-->
 
-
-
 <!-- Experience Info Modal-->
 <div class="modal fade" id="add_experience_info_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document">
@@ -968,13 +995,6 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 experience">
-                                <div class="form-group">
-                                    <label for="total_experience">Total Experience</label><span class="text-danger">*</span>
-                                    <input type="number" class="form-control" name="total_experience" id="total_experience" tabindex="1" placeholder="Enter Total Experience">
-
-                                </div>
-                            </div>
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 experience">
                                 <div class="form-group">
@@ -993,11 +1013,37 @@
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 experience">
                                 <div class="form-group">
-                                    <label for="work_duration">Work Duration</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" name="work_duration" id="work_duration" tabindex="1" placeholder="Enter Work Duration">
+                                    <label>Work Experience</label><span class="text-danger">*</span>
 
+                                    <div style="display: flex; gap: 10px;">
+
+                                        <div style="width: 50%;">
+                                            <div class="input-group">
+                                                <input type="number"
+                                                    class="form-control"
+                                                    name="work_year"
+                                                    id="work_year"
+                                                    min="0">
+                                                <span class="input-group-text" style="width: 55px; justify-content: center;">Years</span>
+                                            </div>
+                                        </div>
+
+                                        <div style="width: 50%;">
+                                            <div class="input-group">
+                                                <input type="number"
+                                                    class="form-control"
+                                                    name="work_month"
+                                                    id="work_month"
+                                                    min="0"
+                                                    max="11">
+                                                <span class="input-group-text" style="width: 55px; justify-content: center;">Months</span>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
+
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 experience">
                                 <div class="form-group">
                                     <label for="last_salary">Last Salary</label><span class="text-danger">*</span>
@@ -1028,10 +1074,9 @@
 
                                     <th width="20">S.NO</th>
                                     <th>Experience Type</th>
-                                    <th>Total Experience</th>
                                     <th>Previous Company</th>
                                     <th>Designation</th>
-                                    <th>Worked Duration</th>
+                                    <th>Work Experience</th>
                                     <th>Last Salary</th>
                                     <th>Reasoned for Leaving</th>
                                     <th>Action</th>

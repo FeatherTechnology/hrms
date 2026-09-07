@@ -115,9 +115,9 @@
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
-                                        <label for="apply_wage_limit">Apply Wage Limit</label>
-                                        <select class="form-control" id="apply_wage_limit" name="apply_wage_limit" tabindex="6">
-                                            <option value="">Select Apply Wage Limit</option>
+                                        <label for="apply_pf_wage_limit">Apply PF Wage Limit</label>
+                                        <select class="form-control" id="apply_pf_wage_limit" name="apply_pf_wage_limit" tabindex="6">
+                                            <option value="">Select PF Wage Limit</option>
                                             <option value="1">Yes</option>
                                             <option value="2">No</option>
                                         </select>
@@ -154,13 +154,29 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 esi_apply">
                                     <div class="form-group">
                                         <label for="employee_share">Employee Share</label> <span class="text-danger">(0% - 100%)</span>
-                                        <input type="number" class="form-control" id="employee_share" name="employee_share" placeholder="Enter Employee Share" tabindex="8">
+                                        <input type="number" class="form-control" id="employee_share" name="employee_share" placeholder="Enter Employee Share" tabindex="7">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 esi_apply">
                                     <div class="form-group">
                                         <label for="employer_share">Employer Share</label> <span class="text-danger">(0% - 100%)</span>
                                         <input type="number" class="form-control" id="employer_share" name="employer_share" placeholder="Enter Employer Share" tabindex="8">
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 esi_apply">
+                                    <div class="form-group">
+                                        <label for="apply_esi_wage_limit">Apply ESI Wage Limit</label>
+                                        <select class="form-control" id="apply_esi_wage_limit" name="apply_esi_wage_limit" tabindex="9">
+                                            <option value="">Select ESI Wage Limit</option>
+                                            <option value="1">Yes</option>
+                                            <option value="2">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="esi_wage_div" style="display:none;">
+                                    <div class="form-group">
+                                        <label for="esi_wage_limit">ESI Wage Limit</label>
+                                        <input type="number" class="form-control" id="esi_wage_limit" name="esi_wage_limit" placeholder="Enter ESI Wage Limit" tabindex="10">
                                     </div>
                                 </div>
                             </div>

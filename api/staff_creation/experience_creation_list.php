@@ -13,10 +13,9 @@ if ($qry->rowCount() > 0) {
 
         $experience_list_arr[$i]['id'] = $row['id'];
         $experience_list_arr[$i]['exp_type'] = !empty($row['exp_type']) ? $experience_type[$row['exp_type']] : '-';
-        $experience_list_arr[$i]['total_experience'] = !empty($row['total_experience']) ? $row['total_experience'] : '-';
         $experience_list_arr[$i]['pre_company'] = !empty($row['pre_company']) ? $row['pre_company'] : '-';
         $experience_list_arr[$i]['pre_designation'] = !empty($row['pre_designation']) ? $row['pre_designation'] : '-';
-        $experience_list_arr[$i]['work_duration'] = !empty($row['work_duration']) ? $row['work_duration'] : '-';
+        $experience_list_arr[$i]['work_experience'] = !empty($row['work_experience']) ? $row['work_experience'] : '-';
         $experience_list_arr[$i]['last_salary'] = !empty($row['last_salary']) ? moneyFormatIndia($row['last_salary']) : '-';
         $experience_list_arr[$i]['reason_for_leaving'] = !empty($row['reason_for_leaving']) ? $row['reason_for_leaving'] : '-';
 

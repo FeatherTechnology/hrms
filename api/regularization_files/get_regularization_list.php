@@ -51,6 +51,7 @@ $reg_status = [0 => 'Pending', 1 => 'Approved', 2 => 'Cancel'];
 
 /* ---------- Column map for ordering ---------- */
 $columns = [
+    'reg.id',
     'stfcr.staff_id',
     'stfcr.staff_name',
     'cc.company_name',
@@ -60,10 +61,11 @@ $columns = [
     'tc.team_name',
     'reg.req_date',
     'reg.req_type',
-    'reg.from_date',
+    'reg.from_date',    
     'reg.to_date',
     'reg.total_min',
-    'reg.status'
+    'reg.status',
+    'reg.id'
 ];
 
 /* ---------- Base Query ---------- */
@@ -175,11 +177,19 @@ if (!empty($_POST['search']['value'])) {
 $orderBy = '';
 if (isset($_POST['order'][0]['column'])) {
     $colIndex = (int) $_POST['order'][0]['column'];
-    $dir = ($_POST['order'][0]['dir'] === 'desc') ? 'DESC' : 'ASC';
+
+    $dir = (
+        isset($_POST['order'][0]['dir']) &&
+        $_POST['order'][0]['dir'] === 'desc'
+    ) ? 'DESC' : 'ASC';
 
     if (isset($columns[$colIndex])) {
-        $orderBy = " ORDER BY {$columns[$colIndex]} $dir ";
+        $orderBy = " ORDER BY {$columns[$colIndex]} {$dir}";
     }
+} else {
+
+    // Default: latest inserted record first
+    $orderBy = " ORDER BY regularization_id DESC";
 }
 
 /* ---------- LIMIT ---------- */

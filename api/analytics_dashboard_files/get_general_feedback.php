@@ -15,7 +15,7 @@ $userQry->execute([':user_id' => $user_id]);
 
 $user = $userQry->fetch(PDO::FETCH_ASSOC);
 
-if ($user) {
+if (!empty($user) && !empty($user['feedback_access_type'])) {
 
     $sql = "SELECT
             gf.feedback_name,

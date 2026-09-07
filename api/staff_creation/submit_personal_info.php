@@ -32,9 +32,6 @@ $gender = $_POST['gender'];
 $marital_status = $_POST['marital_status'];
 $spouse_name = $_POST['spouse_name'];
 $anniversary_date = $_POST['anniversary_date'];
-$joining_date = $_POST['joining_date'];
-$relieve_date = $_POST['relieve_date'];
-$notice_period = $_POST['notice_period'];
 $email = $_POST['email'];
 $mobile1 = $_POST['mobile1'];
 $mobile2 = $_POST['mobile2'];
@@ -99,7 +96,7 @@ try {
 
         $staff_id = $prefix . '-001';
     }
-    $qry = $pdo->query("INSERT INTO `staff_creation`(`company_id`, `staff_id`, `staff_name`, `staff_type`, `address`, `gender`, `state`, `district`, `place`, `pincode`, `dob`, `age`, `blood_group`, `marital_status`, `spouse_name`, `anniversary_date`, `joining_date`, `relieve_date`, `notice_period`,`email`, `mobile1`, `mobile2`, `whatsapp`, `instagram`, `facebook`, `acc_holder_name`, `acc_number`, `bank_name`, `ifsc_code`, `bank_branch`, `status`, `insert_login_id`, `created_on` ) VALUES ('$company_id','$staff_id','$staff_name','2','$address','$gender','$state','$district','$place','$pincode','$dob', '$age','$blood_group','$marital_status','$spouse_name','$anniversary_date','$joining_date','$relieve_date','$notice_period','$email','$mobile1','$mobile2','$whatsapp','$instagram','$facebook','$acc_holder_name','$acc_number','$bank_name','$ifsc_code','$bank_branch','0','$user_id',CURRENT_TIMESTAMP())");
+    $qry = $pdo->query("INSERT INTO `staff_creation`(`company_id`, `staff_id`, `staff_name`, `staff_type`, `address`, `gender`, `state`, `district`, `place`, `pincode`, `dob`, `age`, `blood_group`, `marital_status`, `spouse_name`, `anniversary_date`, `email`, `mobile1`, `mobile2`, `whatsapp`, `instagram`, `facebook`, `acc_holder_name`, `acc_number`, `bank_name`, `ifsc_code`, `bank_branch`, `status`, `insert_login_id`, `created_on` ) VALUES ('$company_id','$staff_id','$staff_name','2','$address','$gender','$state','$district','$place','$pincode','$dob', '$age','$blood_group','$marital_status','$spouse_name','$anniversary_date','$email','$mobile1','$mobile2','$whatsapp','$instagram','$facebook','$acc_holder_name','$acc_number','$bank_name','$ifsc_code','$bank_branch','0','$user_id',CURRENT_TIMESTAMP())");
     if ($qry) {
         $result = 1; // Insert successful
     }
