@@ -17,13 +17,13 @@ $column = array(
     'sc.id',
     'sc.staff_id',
     'sc.staff_name',
-    'sc.staff_type',
     'cc.company_name',
     'bc.branch_name',
     'd.department_name',
     'ti.team_name',
     'des.designation',
-    'sc.mobile1'
+    'sc.mobile1',
+    'sc.id'
 );
 
 /* Main Query */

@@ -39,9 +39,9 @@
                         </div>
                         <div class="col-md-4 col-sm-6">
                             <div class="form-group">
-                                <label for="user_name">User Name</label><span class="text-danger">*</span>
+                                <label for="user_name">Shared With</label><span class="text-danger">*</span>
                                 <select class="form-control" id="user_name" name="user_name" tabindex="1">
-                                    <option> Select User Name</option>
+                                    <option> Select Name</option>
 
                                 </select>
                             </div>

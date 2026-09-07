@@ -15,7 +15,7 @@ $company_id = $_POST['company_id'] ?? '';
 
 $result = [];
 
-if ($screen == 'feedback_screen') {
+if ($screen == 'feedback_screen' || $screen == 'performance_analysis') {
 
     $stmt = $pdo->prepare("SELECT
             dc.id,

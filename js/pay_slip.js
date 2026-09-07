@@ -91,7 +91,7 @@ function getPayslip(company_id, branch_id, stf_prf_id, month) {
 
         $("#ps_department").text(row.department);
         $("#ps_designation").text(row.designation);
-        $("#team_name").text(row.team_name);
+        $("#team_name").text(row.team);
 
         $("#ps_total_days").text(row.total_days);
         $("#ps_working_days").text(row.working_days);

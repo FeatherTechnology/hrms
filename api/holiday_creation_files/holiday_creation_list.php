@@ -26,27 +26,26 @@ if ($stmt->rowCount() > 0) {
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
         // Format Dates
-        $current_date = date('Y-m-d');
-        $to_date = $row['to_date'];
+        $current_month = date('Y-m');
+        $holiday_month = date('Y-m', strtotime($row['to_date']));
 
         $row['from_date'] = date('d-m-Y', strtotime($row['from_date']));
         $row['to_date']   = date('d-m-Y', strtotime($row['to_date']));
 
-        // Action Button
-        if ($current_date > $to_date) {
+        if ($holiday_month < $current_month) {
 
             $row['action'] = "
-                <span class='icon-border_color text-secondary' style='pointer-events:none; opacity:0.5;'></span>
-                &nbsp;
-                <span class='icon-delete text-secondary' style='pointer-events:none; opacity:0.5;'></span>
-            ";
+        <span class='icon-border_color text-secondary' style='pointer-events:none; opacity:0.5;'></span>
+        &nbsp;
+        <span class='icon-delete text-secondary' style='pointer-events:none; opacity:0.5;'></span>
+    ";
         } else {
 
             $row['action'] = "
-                <span class='icon-border_color holidayActionBtn' value='" . $row['id'] . "'></span>
-                &nbsp;&nbsp;&nbsp;
-                <span class='icon-delete holidayDeleteBtn' value='" . $row['id'] . "'></span>
-            ";
+        <span class='icon-border_color holidayActionBtn' value='" . $row['id'] . "'></span>
+        &nbsp;&nbsp;&nbsp;
+        <span class='icon-delete holidayDeleteBtn' value='" . $row['id'] . "'></span>
+    ";
         }
 
         $holiday_list_arr[$i] = $row;

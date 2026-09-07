@@ -309,6 +309,7 @@ function setdtable(table_id, excelTitle) {
     // Initialize DataTable with conditional buttons
     $(table_id).DataTable({
       processing: true,
+      order: [[0, "desc"]],
       iDisplayLength: 10,
       lengthMenu: [
         [10, 25, 50, -1],
@@ -683,9 +684,7 @@ function moneyFormatIndia(num) {
     let lastthree = integerPart.slice(-3);
     let restunits = integerPart.slice(0, -3);
 
-    restunits = restunits.length % 2 === 1
-      ? "0" + restunits
-      : restunits;
+    restunits = restunits.length % 2 === 1 ? "0" + restunits : restunits;
 
     let expunit = restunits.match(/.{1,2}/g);
 
@@ -815,20 +814,29 @@ function nameFormatter(selector) {
   $(selector).on("input", function () {
     let value = $(this).val();
 
-    // Split by space
+    // Allow only alphabets and spaces
+    value = value.replace(/[^a-zA-Z ]/g, "");
+
+    // Remove extra spaces
+    value = value.replace(/\s+/g, " ").trimStart();
+
     let parts = value.split(" ");
 
+    // First name
+    if (parts[0]) {
+      parts[0] =
+        parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
+    }
+
+    // Second part - maximum 2 letters and uppercase
     if (parts.length > 1) {
-      // Convert second part to CAPS and allow only 2 letters
       parts[1] = parts[1]
         .toUpperCase()
         .replace(/[^A-Z]/g, "")
         .substring(0, 2);
 
-      // Block more than 2 parts
-      if (parts.length > 2) {
-        parts = parts.slice(0, 2);
-      }
+      // Only allow 2 parts
+      parts = parts.slice(0, 2);
     }
 
     $(this).val(parts.join(" "));

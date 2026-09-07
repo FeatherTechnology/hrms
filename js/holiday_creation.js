@@ -6,9 +6,23 @@ $(document).ready(function () {
     let from_date = $("#from_date").val();
     let to_date = $("#to_date").val();
 
+    $("#no_of_days").val("");
+    $("#holiday_days").val("");
+
     if (from_date != "" && to_date != "") {
       let from = new Date(from_date);
       let to = new Date(to_date);
+
+      // To Date must be greater than or equal to From Date
+      if (to < from) {
+        swalError(
+          "Warning",
+          "To Date must be greater than or equal to From Date.",
+        );
+
+        $("#to_date").val("");
+        return;
+      }
 
       // Calculate difference in milliseconds
       let diffTime = to - from;
@@ -16,13 +30,10 @@ $(document).ready(function () {
       // Convert to days
       let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-      // Prevent negative values
-      if (diffDays > 0) {
-        $("#no_of_days").val(diffDays);
-      } else {
-        $("#no_of_days").val("");
-      }
+      $("#no_of_days").val(diffDays);
     }
+
+    getHolidayDays();
   });
 
   $("#company_name").on("change", function () {
@@ -50,10 +61,11 @@ $(document).ready(function () {
     let holiday_id = $("#holiday_id").val();
     let from_date = $("#from_date").val();
     let to_date = $("#to_date").val();
+    let holiday_days = $("#holiday_days").val();
     let no_of_days = $("#no_of_days").val();
     let holiday_name = $("#holiday_name").val();
 
-    var data = ["from_date", "to_date", "no_of_days", "holiday_name"];
+    var data = ["from_date", "to_date", "holiday_days", "no_of_days", "holiday_name"];
 
     var isValid = true;
     data.forEach(function (entry) {
@@ -75,6 +87,7 @@ $(document).ready(function () {
               holiday_id,
               from_date,
               to_date,
+              holiday_days,
               no_of_days,
               holiday_name,
             },
@@ -83,6 +96,11 @@ $(document).ready(function () {
                 swalSuccess("Success", "Holiday Added Successfully!");
               } else if (response === "1") {
                 swalSuccess("Success", "Holiday Updated Successfully!");
+              } else if (response === "3") {
+                swalError(
+                  "Warning",
+                  "A holiday already exists for the selected date or the selected date range overlaps an existing holiday.",
+                );
               } else {
                 swalError("Error", "Error Occurred!");
               }
@@ -107,6 +125,7 @@ $(document).ready(function () {
         $("#holiday_id").val(id);
         $("#from_date").val(response[0].from_date);
         $("#to_date").val(response[0].to_date);
+        $("#holiday_days").val(response[0].holiday_days);
         $("#no_of_days").val(response[0].no_of_days);
         $("#holiday_name").val(response[0].holiday_name);
       },
@@ -167,6 +186,7 @@ function getHolidayTable() {
         "sno",
         "from_date",
         "to_date",
+        "holiday_days",
         "no_of_days",
         "holiday_name",
         "action",
@@ -196,10 +216,45 @@ function getHolidayDelete(id) {
   );
 }
 
+/* --- Get Holidays --- */
+function getHolidayDays() {
+  let fromDate = $("#from_date").val();
+  let toDate = $("#to_date").val();
+
+  $("#holiday_days").val("");
+
+  if (!fromDate || !toDate) {
+    return;
+  }
+
+  let startDate = new Date(fromDate);
+  let endDate = new Date(toDate);
+
+  if (endDate < startDate) {
+    $("#holiday_days").val("");
+    return;
+  }
+
+  let days = [];
+
+  while (startDate <= endDate) {
+    days.push(
+      startDate.toLocaleDateString("en-US", {
+        weekday: "long",
+      }),
+    );
+
+    startDate.setDate(startDate.getDate() + 1);
+  }
+
+  $("#holiday_days").val(days.join(", "));
+}
+
 /* --- Clear Holiday Creation Fields --- */
 function clearFields() {
   $("#from_date").val("");
   $("#to_date").val("");
+  $("#holiday_days").val("");
   $("#no_of_days").val("");
   $("#holiday_name").val("");
   $("#holiday_creation").val("");

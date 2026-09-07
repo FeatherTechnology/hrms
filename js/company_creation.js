@@ -608,11 +608,12 @@ function getDesignationNameTable() {
 async function getDesignationNameDropdown() {
   const designation_name2 = $("#designation_name2").val();
   const company_id = $("#companyid").val();
+  const screen_name = "company_creation";
 
   try {
     const response = await $.ajax({
       url: "api/company_creation_files/get_designation_name_dropdown.php",
-      data: { company_id },
+      data: { company_id, screen_name },
       type: "POST",
       dataType: "json",
     });

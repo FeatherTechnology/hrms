@@ -24,11 +24,13 @@ $employee_contribution         = $_POST['employee_contribution'];
 $employer_contribution         = $_POST['employer_contribution'];
 $admin_charge                  = $_POST['admin_charge'];
 $pension                       = $_POST['pension'];
-$apply_wage_limit              = $_POST['apply_wage_limit'];
+$apply_pf_wage_limit           = $_POST['apply_pf_wage_limit'];
 $pf_wage_limit                 = $_POST['pf_wage_limit'];
 $esi_applicable                = $_POST['esi_applicable'];
 $employee_share                = $_POST['employee_share'];
 $employer_share                = $_POST['employer_share'];
+$apply_esi_wage_limit          = $_POST['apply_esi_wage_limit'];
+$esi_wage_limit                = $_POST['esi_wage_limit'];
 $professional_tax_applicable   = $_POST['professional_tax_applicable'];
 $calculation_type              = $_POST['calculation_type'];
 $percentage                    = $_POST['percentage'];
@@ -51,11 +53,13 @@ if (!empty($statutory_compliance_id)) {
             employer_contribution = ?,
             admin_charge = ?,
             pension = ?,
-            apply_wage_limit = ?,
+            apply_pf_wage_limit = ?,
             pf_wage_limit = ?,
             esi_applicable = ?,
             employee_share = ?,
             employer_share = ?,
+            apply_esi_wage_limit = ?,
+            esi_wage_limit = ?,
             professional_tax_applicable = ?,
             calculation_type = ?,
             percentage = ?,
@@ -74,11 +78,13 @@ if (!empty($statutory_compliance_id)) {
         $employer_contribution,
         $admin_charge,
         $pension,
-        $apply_wage_limit,
+        $apply_pf_wage_limit,
         $pf_wage_limit,
         $esi_applicable,
         $employee_share,
         $employer_share,
+        $apply_esi_wage_limit,
+        $esi_wage_limit,
         $professional_tax_applicable,
         $calculation_type,
         $percentage,
@@ -103,11 +109,13 @@ if (!empty($statutory_compliance_id)) {
             employer_contribution,
             admin_charge,
             pension,
-            apply_wage_limit,
+            apply_pf_wage_limit,
             pf_wage_limit,
             esi_applicable,
             employee_share,
             employer_share,
+            apply_esi_wage_limit,
+            esi_wage_limit,
             professional_tax_applicable,
             calculation_type,
             percentage,
@@ -116,7 +124,7 @@ if (!empty($statutory_compliance_id)) {
         )
         VALUES
         (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     ");
 
@@ -129,11 +137,13 @@ if (!empty($statutory_compliance_id)) {
         $employer_contribution,
         $admin_charge,
         $pension,
-        $apply_wage_limit,
+        $apply_pf_wage_limit,
         $pf_wage_limit,
         $esi_applicable,
         $employee_share,
         $employer_share,
+        $apply_esi_wage_limit,
+        $esi_wage_limit,
         $professional_tax_applicable,
         $calculation_type,
         $percentage,

@@ -9,6 +9,7 @@ while($row = $qry->fetch(PDO::FETCH_ASSOC)) {
 
     $classification = '';
     $category = '';
+    $frequency = '';
 
     if($row['component_classification'] == '1') {
         $classification = 'CTC';
@@ -22,11 +23,19 @@ while($row = $qry->fetch(PDO::FETCH_ASSOC)) {
         $category = 'Reimbursement';
     }
 
+    if($row['pay_frequency'] == '1') {
+        $frequency = 'Per Month';
+    } else {
+        $frequency = 'Per Day';
+    }
+
     $data[] = array(
         'id' => $row['id'],
         'salary_component' => $row['salary_component'],
         'component_classification' => $classification,
-        'component_category' => $category
+        'component_category' => $category,
+        'pay_frequency' => $frequency,
+
     );
 }
 

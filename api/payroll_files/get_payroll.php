@@ -426,7 +426,7 @@ while ($staff = $getStaff->fetch()) {
 
         $pf_salary = $gross_total;
 
-        if ($stat['apply_wage_limit'] == 1 && $pf_salary > $stat['pf_wage_limit']) {
+        if ($stat['apply_pf_wage_limit'] == 1 && $pf_salary > $stat['pf_wage_limit']) {
             $pf_salary = $stat['pf_wage_limit'];
         }
 
