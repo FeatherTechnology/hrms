@@ -281,8 +281,15 @@
                         <span>OT Hours</span>
                     </div>
 
+                    <!-- Advance Attendance -->
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #F44336; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #c4f3bf; border-radius: 3px;"></div>
+                        <span>Advance Attendance</span>
+                    </div>
+
+                    <!-- Later Entry -->
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #f75d52; border-radius: 3px;"></div>
                         <span>Later Entry</span>
                     </div>
 
@@ -297,7 +304,7 @@
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #009688; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #02756a; border-radius: 3px;"></div>
                         <span>Paid Leave</span>
                     </div>
 
@@ -307,7 +314,7 @@
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #424242; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #ff0000; border-radius: 3px;"></div>
                         <span>LOP</span>
                     </div>
                 </div>

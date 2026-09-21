@@ -3,7 +3,11 @@ $(document).ready(function () {
         $("#exit_detail_div input").css("border", "1px solid #cecece");
         $("#exit_detail_div select").css("border", "1px solid #cecece");
         $("#exit_detail_div textarea").css("border", "1px solid #cecece");
+        let company_id = $('#company_search').val();
+        let branch_id = $('#branch_search').val();
+        let department_id = $('#department_search').val();
         swapTableAndCreation();
+        getStaffTable(company_id, branch_id, department_id);
 
     });
 
@@ -77,29 +81,6 @@ $(document).ready(function () {
         let company_id = $('#company_search').val();
         let branch_id = $('#branch_search').val();
         let department_id = $('#department_search').val();
-
-        // Check document rows and return date before submit
-        let rowCount = $('#doc_info_table').DataTable().rows().count();
-
-        if (rowCount > 0) {
-
-            let allReturned = true;
-
-            $('#doc_info_table tbody tr').each(function () {
-
-                let returnDate = $(this).find('td:eq(5)').text().trim();
-
-                if (returnDate === '' || returnDate === '-' || returnDate == null) {
-                    allReturned = false;
-                    return false; // break loop
-                }
-            });
-
-            if (!allReturned) {
-                swalError('Warning', 'All documents must be returned before Staff Exit!');
-                return false;
-            }
-        }
 
         // Validation
         let staff_profile_id = $('#staff_profile_id').val();
@@ -186,7 +167,7 @@ $(function () {
 
 function getStaffTable(company_id, branch_id, department_id) {
 
-    let status = 1;
+    let status = '';
     let params = { 'company_id': company_id, 'branch_id': branch_id, 'department_id': department_id, 'status': status };
     serverSideTable('#staff_exit', params, 'api/staff_creation/staff_list.php', " Staff List");
 }
@@ -248,11 +229,26 @@ async function editStaffProfile(id) {
         $('#branch_admin').prop('disabled', true);
         $('#branch').prop('disabled', true);
 
-        $('#notice_per_served').val('');
-        $('#last_wrk_day').val('');
-        $('#exit_type').val('');
-        $('#reason').val('');
-        toggleNoticeField()
+        if (data.notice_per_served) {
+        $('#notice_per_served').val(data.notice_per_served);
+        $('#last_wrk_day').val(data.relieve_date);
+        $('#exit_type').val(data.exit_type);
+        $('#reason').val(data.reason);
+        if(data.notice_per_served=='1'){
+            $('.notice-div').show();
+            $('#notice_period').val(data.notice_period);
+        }else{
+             $('.notice-div').hide();
+            $('#notice_period').val("");
+        }
+
+        }else{
+            $('#notice_per_served,#last_wrk_day,#exit_type,#reason,#notice_period').val("");
+            $('.notice-div').hide();
+            toggleNoticeField();
+        }
+
+
 
     } catch (error) {
         console.error('Error in editStaffProfile:', error);

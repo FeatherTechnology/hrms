@@ -33,10 +33,12 @@
                                 <th>Team</th>
                                 <th>Request Date</th>
                                 <th>Request Type</th>
+                                <th>Leave Period</th>
                                 <th>From Date</th>
                                 <th>To Date</th>
                                 <th>No. of Days/Hrs</th>
                                 <th>Status</th>
+                                <th>Remarks</th>
                                 <th>Action</th>
                             </thead>
                             <tbody></tbody>
@@ -137,6 +139,32 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-4 col-sm-6 shift_time" style="display: none;">
+                                <div class="form-group">
+                                    <label for="shift_start">Shift Start</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="shift_start" name="shift_start"   readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 shift_time" style="display: none;">
+                                <div class="form-group">
+                                    <label for="shift_end">Shift End</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="shift_end" name="shift_end" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 leveType" style="display: none;">
+                                <div class="form-group">
+                                    <label for="leave_type">Leave Type</label><span class="text-danger">*</span>
+                                    <select class="form-control" id="leave_type" name="leave_type" tabindex="9">
+                                        <option value="">Select Leve Type</option>
+                                    </select>
+                                </div>
+                            </div>
+                             <div class="col-md-4 col-sm-6 bal_req" style="display: none;">
+                                <div class="form-group">
+                                    <label for="ave_balance">Available Balance </label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="ave_balance" name="ave_balance" placeholder="Available Balance" tabindex="10" readonly>
+                                </div>
+                            </div>
                             <div class="col-md-4 col-sm-6 Lev_per" style="display: none;">
                                 <div class="form-group">
                                     <label for="leave_period">Leave Period</label><span class="text-danger">*</span>
@@ -145,14 +173,6 @@
                                         <option value="1">First Half</option>
                                         <option value="2">Second Half</option>
                                         <option value="3">Full Day</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6 leveType" style="display: none;">
-                                <div class="form-group">
-                                    <label for="leave_type">Leave Type</label><span class="text-danger">*</span>
-                                    <select class="form-control" id="leave_type" name="leave_type" tabindex="9">
-                                        <option value="">Select Leve Type</option>
                                     </select>
                                 </div>
                             </div>
@@ -182,7 +202,7 @@
                             </div>
                             <div class="col-md-4 col-sm-6 bal_req" style="display: none;">
                                 <div class="form-group">
-                                    <label for="balance_req">Balance Request</label><span class="text-danger">*</span>
+                                    <label for="balance_req">Remaining Balance</label><span class="text-danger">*</span>
                                     <input type="text" class="form-control" id="balance_req" name="balance_req" placeholder="Balance Request" tabindex="10" readonly>
                                 </div>
                             </div>
@@ -195,8 +215,8 @@
 
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
-                                    <label for="reason">Reason</label><span class="text-danger">*</span>
-                                    <textarea type="textarea" class="form-control" id="reason" name="reason" placeholder="Enter Reason" tabindex="15"></textarea>
+                                    <label for="purpose">Purpose</label><span class="text-danger">*</span>
+                                    <textarea type="textarea" class="form-control" id="purpose" name="purpose" placeholder="Enter Purpose" tabindex="15"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -239,6 +259,39 @@
                 <div class="text-right">
                     <button type="submit" name="submit_regularization" id="submit_regularization" class="btn btn-primary" value="Submit" tabindex="21">Submit</button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- Modal for Personal Info   -->
+<div class="modal fade" id="remarksModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="height: 90vh;width:300vh;">
+        <div class="modal-content" style="background-color: white">
+            <div class="modal-header">
+				<!-- <h5 id="remarksTitle"> Remarks Status</h5> -->
+
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid row" id="remarksDiv" style="display: flex;justify-content:center;align-items:center">
+        				<div class="col-12">
+							<div class="form-group">
+								<h5><b>Remarks</b></h5> 
+							</div>
+    					</div>
+        				<div class="col-12">
+							<div class="form-group" style="display: flex;justify-content:center;align-items:center">
+								<textarea class="form-control" name="sts_remarks" id="sts_remarks" placeholder="Remarks" readonly></textarea>
+							</div>
+    					</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1">
+                    Close
+                </button>
             </div>
         </div>
     </div>

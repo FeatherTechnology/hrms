@@ -125,7 +125,7 @@ function getStaffName(company_id, shift_id) {
 function loadChart(company_id, shift_id, staff_id, date) {
   $.post(
     "api/attendance_ot_monitor_chart_files/get_staff_info.php",
-    { company_id, shift_id, staff_id, date },
+    { company_id, shift_id, staff_id, date ,type :'monitor' },
     function (response) {
       drawChart(response,date);
     },

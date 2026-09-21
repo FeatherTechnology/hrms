@@ -58,6 +58,12 @@ function getstaffdetails() {
   );
 }
 
+function formatAmount(amount) {
+  let value = String(amount ?? "0").replace(/,/g, "");
+  return "₹" + Number(value || 0).toFixed(2);
+}
+
+
 // to get the pay slip
 function getPayslip(company_id, branch_id, stf_prf_id, month) {
   $.post(
@@ -112,6 +118,10 @@ function getPayslip(company_id, branch_id, stf_prf_id, month) {
         $("#ps_deduction_total").text("₹" + row.deduction_total);
         $("#ps_net_salary").text("₹" + row.net_salary);
 
+
+        console.log("Loan Due:", row.loan_due);
+console.log("Salary Advance:", row.salary_advance);
+console.log(row);
         //////////////////////////////////////////////////////
         // COMPONENTS
         //////////////////////////////////////////////////////
@@ -147,6 +157,14 @@ function getPayslip(company_id, branch_id, stf_prf_id, month) {
           name: "PT",
           amount: row.pt,
         });
+        deductions.push({
+          name: "Loan Due",
+          amount: row.loan_due,
+        });
+        deductions.push({
+          name: "Salary Advance",
+          amount: row.salary_advance,
+        });
 
         let earningKeys = Object.keys(earnings);
 
@@ -179,15 +197,16 @@ function getPayslip(company_id, branch_id, stf_prf_id, month) {
             dedAmount = deductions[i].amount;
           }
 
-          html += `
-      <tr>
-        <td>${earnName}</td>
-        <td>${earnName ? "₹" + Number(earnAmount).toFixed(2) : ""}</td>
+        html += `
+          <tr>
+            <td>${earnName}</td>
+            <td>${earnName ? formatAmount(earnAmount) : ""}</td>
 
-        <td>${dedName}</td>
-        <td>${dedName ? "₹" + Number(dedAmount).toFixed(2) : ""}</td>
-      </tr>
-    `;
+            <td>${dedName}</td>
+            <td>${dedName ? formatAmount(dedAmount) : ""}</td>
+          </tr>
+        `;
+
         }
 
         $("#salary_component_body").html(html);

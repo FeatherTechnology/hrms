@@ -47,7 +47,7 @@ $columns = [
     'dsc.designation',
     'tc.team_name',
     'sc.staff_type',
-    'a.entry_time',
+    'COALESCE(a.updated_time, a.entry_time)',
     'u.user_name',
     'a.reason'
 ];
@@ -65,7 +65,7 @@ $baseQuery = "
 
     LEFT JOIN attendance a 
         ON a.staff_profile_id = sc.id 
-        AND DATE(a.entry_time) = :att_date
+        AND DATE(COALESCE(a.updated_time, a.entry_time)) = :att_date
 
     LEFT JOIN users u 
         ON u.id = a.updated_by
@@ -203,6 +203,7 @@ $dataQuery = "
         dsc.designation,
         tc.team_name,
         a.entry_time,
+        a.updated_time,
         a.reason,
         a.id as att_id,
         a.insert_login_id,
@@ -266,7 +267,7 @@ foreach ($result as $row) {
         data-staff_id='{$row['stf_id']}'
         data-staff_name=\"{$row['staff_name']}\"
         data-date='{$att_date}'>
-        Chart
+        Attendance Chart
     </button>";
 
     $data[] = [
@@ -279,7 +280,7 @@ foreach ($result as $row) {
         $row['designation'],
         $row['team_name'],
         $staff_type[$row['staff_type']] ?? '',
-        !empty($row['entry_time']) ? date('d-m-Y h:i A', strtotime($row['entry_time'])) : '',
+        !empty($row['updated_time'])  ? date('d-m-Y h:i A', strtotime($row['updated_time']))  : (!empty($row['entry_time']) ? date('d-m-Y h:i A', strtotime($row['entry_time'])) : ''),
         $row['updated_by'],
         $row['reason'],
         $chartBtn, // Attendance Chart

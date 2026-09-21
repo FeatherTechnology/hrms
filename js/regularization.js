@@ -13,7 +13,7 @@ $(document).ready(function () {
   $(".add_reg").click(function () {
     getRequestType();
     $(
-      "#req_type,#leave_type,#balance_req,#from_date,#to_date,#reason,#hidden_id,#leave_type_id,#leave_period",
+      "#req_type,#leave_type,#balance_req,#from_date,#to_date,#purpose,#hidden_id,#leave_type_id,#leave_period,#ave_balance,#shift_start,#shift_end",
     ).val("");
 
     $(".req_div input, .req_div select,.req_div textarea").css(
@@ -26,7 +26,7 @@ $(document).ready(function () {
     $("#leave_type").attr("disabled", false);
     $("#leave_period").attr("disabled", false);
     $("#from_date").attr("readonly", false);
-    $("#reason").attr("readonly", false);
+    $("#purpose").attr("readonly", false);
 
     $("#back_btn,#balance_req,.staff_info_div").show();
 
@@ -40,22 +40,6 @@ $(document).ready(function () {
   // back button hide and show
   $("#back_btn").click(function () {
     userTypeIdentification();
-    // if (approval_required == 1) {
-    //   $('input[name="regularization_type"][value="Approval"]').prop(
-    //     "checked",
-    //     true,
-    //   );
-
-    //   getregularizationlist("Approval");
-    // } else {
-    //   $('input[name="regularization_type"][value="Request"]').prop(
-    //     "checked",
-    //     true,
-    //   );
-
-    //   getregularizationlist("Request");
-    // }
-
     $("#back_btn").hide();
     $(".staff_info_div").hide();
     $(".approval_div").hide();
@@ -74,7 +58,6 @@ $(document).ready(function () {
   });
 
   $("#from_date, #to_date").on("change", async function () {
-    console.log("ff");
     let reqType = $("#req_type").val();
 
     if (!$("#from_date").val() || !$("#to_date").val()) {
@@ -166,39 +149,40 @@ $(document).ready(function () {
     let cmpy_id = $("#cmpy_id").val();
     let value = $(this).val();
     $("#total_days").empty();
-    $(
-      ".leveType,#from_date,#to_date,#leave_type_id,#balance_req,#leave_period",
-    ).val("");
+    $( ".leveType,#from_date,#to_date,#leave_type_id,#balance_req,#leave_period,#ave_balance,#shift_start,#shift_end").val("");
     if (value == "1") {
       $(".leveType").show();
       $(".Lev_per").show();
       $(".bal_req").show();
       $(".ot_req").hide();
+      $(".shift_time").hide();
       $("#from_date,#to_date").attr("type", "date");
       getcmpyleavelist(cmpy_id);
     } else if (value == "2") {
       $(".Lev_per").hide();
       $(".bal_req").show();
+      $(".shift_time").show();
       $(".leveType").hide();
       $(".ot_req").hide();
       $("#from_date,#to_date").attr("type", "datetime-local");
-      // getbalancerequest("2", cmpy_id);
+      getbalancerequest();
     } else if (value == "3") {
       $(".Lev_per").show();
       $(".bal_req").show();
       $(".leveType").hide();
       $(".ot_req").hide();
+      $(".shift_time").hide();
       $("#from_date,#to_date").attr("type", "date");
-      // getbalancerequest("3", cmpy_id);
+      getbalancerequest();
     } else if (value == "4") {
       $(".Lev_per").hide();
       $(".bal_req").hide();
       $(".leveType").hide();
       $(".ot_req").show();
-      $("#leave_type,#leave_type_id,#balance_req,#leave_period").val("");
+      $(".shift_time").show();
+      $("#leave_type,#leave_type_id,#balance_req,#leave_period,#ave_balance,#shift_start,#shift_end").val("");
       $("#from_date,#to_date").attr("type", "datetime-local");
-
-      // getbalancerequest("4", cmpy_id);
+      getbalancerequest();
     }
 
     $("#request_form input").css("border", "1px solid #cecece");
@@ -206,14 +190,6 @@ $(document).ready(function () {
     $("#request_form textarea").css("border", "1px solid #cecece");
 
     setCurrentMonthRestriction("#from_date", "#to_date");
-  });
-
-  // leave type change
-  $("#leave_type").change(function () {
-    let leave_type = $("#leave_type").val();
-    $("#to_date").val("");
-    $("#to_date,#total_days,#from_date,#balance_req").val("");
-    // getbalancerequest("1", leave_type);
   });
 
   // Leave Day change
@@ -249,11 +225,6 @@ $(document).ready(function () {
 
       $("#to_date").val("").attr("min", fromDate).attr("max", maxDate);
     }
-
-    // Recalculate total days after changing leave period
-    // if ($("#from_date").val() && $("#to_date").val()) {
-    //   calculateDateDiff("#from_date", "#to_date", "#total_min", "#total_days");
-    // }
   });
 
   // delete regularization
@@ -264,15 +235,7 @@ $(document).ready(function () {
     let currentdate = new Date();
 
     if (status == "1") {
-      // // swalError("Error", "This request has already been approved");
-      // let appFromDate = new Date(from_date);
-
-      // if (appFromDate > currentdate) {
-      //   // app_from date is greater than current date
-      //   deleteregularization(id);
-      // } else {
       swalError("Error", "This request has already Approved.");
-      // }
     } else if (status == "2") {
       swalError("Error", "This request has already been cancelled");
     } else {
@@ -298,6 +261,9 @@ $(document).ready(function () {
       team_id: $("#team_id").val(),
       req_type: $("#req_type").val(),
       leave_type: $("#leave_type").val(),
+      ave_balance: $("#ave_balance").val(),
+      shift_end: $("#shift_end").val(),
+      shift_start: $("#shift_start").val(),
       leave_period: $("#leave_period").val(),
       balance_req: $("#balance_req").val(),
       current_month_ot_count: $("#current_month_ot_count").val(),
@@ -305,7 +271,7 @@ $(document).ready(function () {
       from_date: $("#from_date").val(),
       to_date: $("#to_date").val(),
       total_min: $("#total_min").val(),
-      reason: $("#reason").val(),
+      purpose: $("#purpose").val(),
       approval_type: $("#approval_type").val(),
       remarks: $("#remarks").val(),
       hidden_id: $("#hidden_id").val(),
@@ -317,7 +283,7 @@ $(document).ready(function () {
       validateField(collData["req_date"], "req_date"),
       validateField(collData["from_date"], "from_date"),
       validateField(collData["to_date"], "to_date"),
-      validateField(collData["reason"], "reason"),
+      validateField(collData["purpose"], "purpose"),
     ];
 
     if (collData["req_type"] == 1) {
@@ -409,12 +375,25 @@ $(document).ready(function () {
     }
   }); //submit END.
 
-  // First section
-  $("#from_date, #to_date").on("change", function () {
-    // calculateDateDiff("#from_date", "#to_date", "#total_min", "#total_days");
-  });
-
   setDateValidation("#from_date", "#to_date");
+
+  $("#leave_type").on("change", async function () {
+    let leave_type = $("#leave_type").val();
+    $("#to_date,#total_days,#from_date,#balance_req").val("");
+    if(leave_type == 0){
+      $('.bal_req').hide();
+    }else{
+       $('.bal_req').show();
+    }
+    await getbalancerequest();
+});
+  
+    $(document).on("click", ".sts_remarks", function (e) {
+        e.preventDefault();
+        let remarks = $(this).data('remarks') || ''; 
+        console.log("remarks",remarks)
+        $('#sts_remarks').val(remarks);
+    });
 });
 // document end
 $(function () {
@@ -540,7 +519,7 @@ function getedituserdetails(id, userid) {
       $("#leave_type").prop("disabled", true);
       $("#leave_period").prop("disabled", true);
       $("#from_date").attr("readonly", true);
-      $("#reason").attr("readonly", true);
+      $("#purpose").attr("readonly", true);
       $("#approval_type,#remarks").val("");
       if ($("#req_type option").length <= 1) {
         $("#req_type").append(`
@@ -568,12 +547,14 @@ function getedituserdetails(id, userid) {
       $("#designation").val(response.designation);
       $("#team_id").val(response.team_id);
       $("#team").val(response.team_name);
-      // $("#req_type").val(response.req_type);
+      $("#ave_balance").val(response.ave_balance);
+      $("#shift_start").val(response.shift_start);
+      $("#shift_end").val(response.shift_end);
       $("#req_date").val(
         response.req_date.split(" ")[0].split("-").reverse().join("-"),
       );
       $("#leave_type_id").val(response.leave_type);
-      $("#reason").val(response.reason);
+      $("#purpose").val(response.purpose);
       $("#from_date").val(response.from_date.replace(" ", "T").slice(0, 16));
       $("#to_date").val(response.to_date.replace(" ", "T").slice(0, 16));
 
@@ -620,6 +601,17 @@ function getedituserdetails(id, userid) {
           <span><span style="color:#f26b35">${minutes}</span> M</span>
         </div>`,
       );
+      
+      if (response.req_type == '2'  || response.req_type == '4') {
+        $(".shift_time").show();
+      } else {
+        $(".shift_time").hide();
+      }
+      if (response.req_type == '1'  && response.leave_type == '0') {
+        $(".bal_req").show();
+      } else {
+        $(".bal_req").hide();
+      }
     },
     "json",
   );
@@ -635,6 +627,13 @@ function getcmpyleavelist(cmpy_id) {
     function (response) {
       $("#leave_type").empty();
       $("#leave_type").append("<option value=''>Select Leave Type</option>");
+
+      // LOP
+      let lopSelected = (leave_type_id == "0") ? "selected" : "";
+
+      $("#leave_type").append(
+        "<option value='0' " + lopSelected + ">LOP</option>"
+      );
 
       $.each(response, function (index, val) {
         let selected = "";
@@ -680,7 +679,13 @@ async function getbalancerequest() {
     );
 
     $("#balance_req").val(response.balance);
+    $("#ave_balance").val(response.ave_balance);
     $("#current_month_ot_count").val(response.current_month_ot_count);
+    const startTime = formatTime(response.start_time);
+    const endTime = formatTime(response.end_time);
+
+    $("#shift_start").val(startTime);
+    $("#shift_end").val(endTime);
 
     shiftStart = response.start_time;
     shiftEnd = response.end_time;
@@ -754,6 +759,53 @@ function calculateDateDiff(
   let reqType = $("#req_type").val();
 
   let leave_period = $("#leave_period").val();
+  if ( (reqType == "1" || reqType == "3") &&
+  (leave_period == "1" || leave_period == "2") ) {
+    let start = new Date(`1970-01-01T${shiftStart}`);
+    let end = new Date(`1970-01-01T${shiftEnd}`);
+
+    if (end <= start) {
+        end.setDate(end.getDate() + 1);
+    }
+
+    let totalMinutes = (end - start) / (1000 * 60);
+    let halfDayMinutes = totalMinutes / 2;
+
+    $(totalMinSelector).val(halfDayMinutes);
+
+    let hours = Math.floor(halfDayMinutes / 60);
+    let minutes = halfDayMinutes % 60;
+
+    $(totalDaysSelector).html(`
+      <div style="display:flex; gap:15px;">
+        <span><span style="color:#f26b35">0</span> D</span>
+        <span><span style="color:#f26b35">${hours}</span> H</span>
+        <span><span style="color:#f26b35">${minutes}</span> M</span>
+      </div>
+    `);
+
+    return;
+}
+
+// LOP Full Day
+if (reqType == "1" && $("#leave_type").val() == "0" && leave_period == "3") {
+
+    let totalMinutes = Math.floor(diffMs / 60000) + 1440;
+
+    $(totalMinSelector).val(totalMinutes);
+
+    let days = Math.floor(totalMinutes / 1440);
+
+    $(totalDaysSelector).html(`
+      <div style="display:flex; gap:15px;">
+        <span><span style="color:#f26b35">${days}</span> D</span>
+        <span><span style="color:#f26b35">0</span> H</span>
+        <span><span style="color:#f26b35">0</span> M</span>
+      </div>
+    `);
+
+    return;
+}
 
   if (
     (reqType == "1" || reqType == "3") &&

@@ -10,6 +10,7 @@ try {
     $shift_id   = $_POST['shift_id'] ?? '';
     $staff_id   = $_POST['staff_id'] ?? '';
     $date       = $_POST['date'] ?? '';
+    $type       = $_POST['type'] ?? 'attendance';
 
     $where = [];
     $params = [];
@@ -29,10 +30,16 @@ try {
         $params[':staff_id'] = $staff_id;
     }
 
-    if (!empty($date)) {
-        $where[] = "DATE(a.entry_time) = :date";
-        $params[':date'] = $date;
+if (!empty($date)) {
+
+    if ($type == 'attendance') {
+        $where[] = "DATE(COALESCE(a.updated_time, a.entry_time)) = :date";
+    } else {
+        $where[] = "DATE(COALESCE(a.entry_time, a.updated_time)) = :date";
     }
+
+    $params[':date'] = $date;
+}
 
     $where_sql = '';
 
@@ -48,7 +55,8 @@ try {
     sc.start_time,
     sc.end_time,
     sc.grace_time,
-    a.entry_time
+    a.entry_time,
+    a.updated_time
 
     FROM attendance a
 
@@ -58,7 +66,11 @@ try {
 
     $where_sql
 
-    ORDER BY a.entry_time ASC
+    ORDER BY " . (
+            $type == 'attendance'
+                ? "COALESCE(a.updated_time, a.entry_time)"
+                : "COALESCE(a.entry_time, a.updated_time)"
+        ) . " ASC
     ";
 
     $stmt = $pdo->prepare($query);
@@ -69,7 +81,24 @@ try {
 
     foreach ($result as $row) {
 
-        $entry_time = strtotime($row['entry_time']);
+        if ($type == 'attendance') {
+
+            $attendance_time = !empty($row['updated_time'])
+                ? $row['updated_time']
+                : $row['entry_time'];
+
+        } else {
+
+            $attendance_time = !empty($row['entry_time'])
+                ? $row['entry_time']
+                : $row['updated_time'];
+        }
+
+        if (empty($attendance_time)) {
+            continue;
+        }
+
+        $entry_time = strtotime($attendance_time);
 
         // ================= SHIFT START / END =================
 
@@ -108,6 +137,20 @@ try {
 
         // Employee actually starts working
         $working_start = max($entry_time, $shift_start);
+                // =========================================
+        // ADVANCE ATTENDANCE
+        // =========================================
+
+        if ($entry_time < $shift_start) {
+
+            $response[] = [
+                'staff_name' => $row['staff_name'],
+                'type'       => 'Advance Attendance',
+                'color'      => '#c4f3bf',
+                'start'      => date('Y-m-d H:i:s', $entry_time),
+                'end'        => date('Y-m-d H:i:s', $shift_start)
+            ];
+        }
 
         // Arrays used later
         $permissions = [];
@@ -231,7 +274,7 @@ try {
                         'staff_name' => $row['staff_name'],
                         'type'       => $leaveName,
                         'color' => ($reg['req_type'] == 1)
-                            ? '#009688'      // Leave
+                            ? '#02756a'      // Leave
                             : '#9E9E9E',     // Week Off
                         'start'      => date('Y-m-d H:i:s', $leaveStart),
                         'end'        => date('Y-m-d H:i:s', $leaveEnd)
@@ -297,7 +340,7 @@ try {
             $response[] = [
                 'staff_name' => $row['staff_name'],
                 'type'       => 'Late Entry',
-                'color'      => '#F44336',
+                'color'      => '#f75d52',
                 'start'      => date('Y-m-d H:i:s', $grace_end),
                 'end'        => date('Y-m-d H:i:s', $entry_time)
             ];
@@ -424,15 +467,11 @@ try {
     AND r.status = 1
     AND :date BETWEEN DATE(r.from_date) AND DATE(r.to_date)
     AND NOT EXISTS (
-    SELECT 1
-    FROM attendance a
-    WHERE a.staff_profile_id = r.staff_profile_id
-    AND DATE(a.entry_time)=:date)
-    AND NOT EXISTS (
-    SELECT 1
-    FROM attendance a
-    WHERE a.staff_profile_id = r.staff_profile_id
-    AND DATE(a.entry_time)=:date)
+        SELECT 1
+        FROM attendance a
+        WHERE a.staff_profile_id = r.staff_profile_id
+        AND DATE(COALESCE(a.entry_time, a.updated_time)) = :date
+    )
     ");
 
     $leaveQry->execute([
@@ -479,7 +518,7 @@ try {
                 ? $leaveRow['leave_name']
                 : 'Week Off',
             'color' => ($leaveRow['req_type'] == 1)
-                ? '#009688'
+                ? '#02756a'
                 : '#9E9E9E',
             'start' => date('Y-m-d H:i:s', $leaveStart),
             'end' => date('Y-m-d H:i:s', $leaveEnd)
@@ -493,7 +532,7 @@ try {
             $response[] = [
                 'staff_name' => $leaveRow['staff_name'],
                 'type'       => 'LOP',
-                'color'      => '#424242',
+                'color'      => '#ff0000',
                 'start'      => date('Y-m-d H:i:s', $mid_shift),
                 'end'        => date('Y-m-d H:i:s', $shift_end)
             ];
@@ -503,7 +542,7 @@ try {
             $response[] = [
                 'staff_name' => $leaveRow['staff_name'],
                 'type'       => 'LOP',
-                'color'      => '#424242',
+                'color'      => '#ff0000',
                 'start'      => date('Y-m-d H:i:s', $shift_start),
                 'end'        => date('Y-m-d H:i:s', $mid_shift)
             ];
@@ -558,7 +597,7 @@ try {
         SELECT 1
         FROM attendance a
         WHERE a.staff_profile_id = st.id
-        AND DATE(a.entry_time) = :date
+        AND DATE(COALESCE(a.entry_time, a.updated_time)) = :date
     )
 
     AND NOT EXISTS (
@@ -586,7 +625,7 @@ try {
         $response[] = [
             'staff_name' => $lopRow['staff_name'],
             'type'       => 'LOP',
-            'color'      => '#424242',
+            'color'      => '#ff0000',
             'start'      => date('Y-m-d H:i:s', $shift_start),
             'end'        => date('Y-m-d H:i:s', $shift_end)
         ];

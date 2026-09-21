@@ -7,11 +7,23 @@ const companyMultiple = new Choices("#multi_company_name", {
   allowHTML: false,
   searchEnabled: false,
 });
+const DepMultiple = new Choices("#dir_branch", {
+  removeItemButton: true,
+  placeholder: true,
+  placeholderValue: "Select Branch Name",
+  itemSelectText: "",
+  allowHTML: false,
+  searchEnabled: false,
+});
 
 $(document).ready(function () {
   // to change the user type director or staff
   $("#user_type").on("change", function () {
     var usertype = $(this).val();
+    // Remove selected Choices values when user type changes
+    if (typeof DepMultiple !== "undefined" && DepMultiple){ 
+      DepMultiple.removeActiveItems(); DepMultiple.clearChoices(); 
+    }
 
     if (usertype == 1) {
       $(".director_div").show();
@@ -56,6 +68,11 @@ $(document).ready(function () {
       .nextAll(".regularization-options")
       .slice(0, 3)
       .toggle(this.checked);
+  });
+  $(document).on("change", "#multi_company_name", function () {
+    var company_name = $(this).val();
+    getBranchNameDropdown(company_name);
+     
   });
 
   $(document).on("change", "#regularization", function () {
@@ -148,7 +165,7 @@ $(document).ready(function () {
 
     $("#feedback_access_type_div").hide();
 
-    $("#user_type").val("");
+    $("#user_type,#dir_branch2,#multi_company_name2").val("");
     $(".credential_info").find("input, select").val("");
 
     let userid = $("#user_creation_id").val();
@@ -251,6 +268,17 @@ $(document).ready(function () {
   /* --- Submit User Creation --- */
   $("#submit_user_creation").click(function (event) {
     event.preventDefault();
+    console.log("staff select:", $("#staff_name"));
+console.log("staff value:", $("#staff_name").val());
+console.log("staff selected:", $("#staff_name option:selected").text());
+console.log("staff options:", $("#staff_name option").map(function () {
+    return {
+        value: $(this).val(),
+        text: $(this).text()
+    };
+}).get());
+    var user =$("#staff_name").val();
+    console.log("username",user);
 
     // Collect selected submenu IDs
     let selectedSubmenuIds = [];
@@ -263,6 +291,7 @@ $(document).ready(function () {
       user_type: $("#user_type").val(),
       director_name: $("#director_name").val(),
       multi_company_name: $("#multi_company_name").val(),
+      multiple_dir_branch: $("#dir_branch").val(),
       company_name: $("#company_name").val(),
       staff_name: $("#staff_name").val(),
       staff_id: $("#staff_id").val(),
@@ -306,8 +335,12 @@ $(document).ready(function () {
         "multi_company_name",
         companyMultiple,
       );
+      let departmentValid = validateMultiSelectField(
+        "dir_branch",
+        DepMultiple,
+      );
 
-      if (!companyValid) {
+      if (!companyValid || !departmentValid) {
         isValid = false;
       }
     } else if (userType == "2") {
@@ -422,24 +455,31 @@ $(document).ready(function () {
 
       await getMenuSubMenuList(userid);
       await getCompanyName("#company_name");
-      await getCompanyNameDropdown();
+      // await getCompanyNameDropdown();
 
       $("#user_type").val(response[0].user_type);
       if (response[0].user_type == 1) {
-        await getDirectorName();
+        const currentDirectorId = response[0].director_name;
+
+        await getDirectorName(currentDirectorId);
+
         $(".director_div").show();
         $(".user_div").hide();
-        $("#director_name").val(response[0].director_name).trigger("change");
+
+        $("#director_name").val(currentDirectorId) .trigger("change");
         $("#multi_company_name2").val(response[0].director_company);
+        $("#dir_branch2").val(response[0].director_branch);
 
         await getCompanyNameDropdown();
+        await getBranchNameDropdown(response[0].director_company);
       } else {
         $(".director_div").hide();
         $(".user_div").show();
         $("#company_name").val(response[0].company_id);
         // $("#role").val(response[0].role);
-        await getStaffName(response[0].company_id);
-        $("#staff_name").val(response[0].staff_name);
+        await getStaffName(response[0].company_id, response[0].staff_name_id );
+
+        $("#staff_name").val(response[0].staff_name_id);
         $("#staff_id").val(response[0].staff_id);
 
         $("#branch").val(response[0].branch_name);
@@ -552,7 +592,7 @@ $(document).ready(function () {
     $("#download_access").css("border", "1px solid #cecece");
     $("#report_access").css("border", "1px solid #cecece");
     $("#staff_name").css("border", "1px solid #cecece");
-    $("#home_access,#staff_id,#director_name,#multi_company_name").css(
+    $("#home_access,#staff_id,#director_name,#multi_company_name,#dir_branch").css(
       "border",
       "1px solid #cecece",
     );
@@ -628,7 +668,7 @@ function loadStaff() {
 // }
 
 /* --- Get Staff Name --- */
-async function getStaffName(company_id) {
+ async function getStaffName(company_id, currentStaffId = "") {
   try {
     const response = await $.ajax({
       url: "api/user_creation_files/getStaffName.php",
@@ -645,12 +685,21 @@ async function getStaffName(company_id) {
     dropdown.append('<option value="">Select Staff Name</option>');
 
     $.each(response, function (index, item) {
+
+      // Disable staff only if already mapped to another user.
+      // Keep the currently edited staff selectable.
+      let disabled =
+        item.already_exists == 1 && String(item.id) !== String(currentStaffId)
+          ? "disabled"
+          : "";
+
       dropdown.append(`
-                <option value="${item.id}">
-                    ${item.staff_name}
-                </option>
-            `);
+        <option value="${item.id}" ${disabled}>
+          ${item.staff_name}
+        </option>
+      `);
     });
+
   } catch (error) {
     console.error(error);
 
@@ -699,6 +748,7 @@ function getUserCreationTable(company_id, user_type) {
         <th>Director Name</th>
         <th>User ID</th>
         <th>Companies</th>
+        <th>Branch</th>
         <th>Action</th>
       </tr>
     `);
@@ -729,6 +779,7 @@ function getUserCreationTable(company_id, user_type) {
           "director_name",
           "user_id",
           "company_names",
+          "branch_names",
           "action",
         ];
       } else {
@@ -982,28 +1033,75 @@ async function getCompanyNameDropdown() {
   }
 }
 
+async function getBranchNameDropdown(company_id)  {
+  const dir_branch2 = $("#dir_branch2").val();
+
+  try {
+    const response = await $.ajax({
+      url: "api/user_creation_files/get_branch_name.php",
+      type: "POST",
+      data: {company_id:company_id},
+      dataType: "json",
+    });
+
+    DepMultiple.clearChoices();
+    DepMultiple.removeActiveItems();
+
+    const selectedIds = dir_branch2
+      ? dir_branch2.split(",")
+      : [];
+
+    const items = response.map((val) => ({
+      value: val.id,
+      label: val.branch_name,
+      selected: selectedIds.includes(val.id.toString()),
+      disabled: val.disabled && !selectedIds.includes(val.id.toString()),
+    }));
+
+    DepMultiple.setChoices(items, "value", "label", true);
+  } catch (err) {
+    console.error("Error loading department dropdown:", err);
+  }
+}
+ 
 // to get the director name
-function getDirectorName() {
+function getDirectorName(selectedDirectorId = "") {
   return new Promise((resolve, reject) => {
     $.post(
       "api/user_creation_files/get_director_name.php",
       {},
-
       function (response) {
+
         let dropdown = $("#director_name");
+
         dropdown.empty();
-        dropdown.append('<option value="">Select Director Name</option>');
+
+        dropdown.append(
+          '<option value="">Select Director Name</option>'
+        );
+
         $.each(response, function (index, item) {
-          dropdown.append(
-            `<option value="${item.id}">${item.director_name}
-                        </option>`,
-          );
+
+          let disabled = "";
+
+          // If director is already used
+          if (
+            item.already_exists == 1 &&
+            item.id.toString() != selectedDirectorId.toString()
+          ) {
+            disabled = "disabled";
+          }
+
+          dropdown.append(`
+            <option value="${item.id}" ${disabled}>
+              ${item.director_name}
+            </option>
+          `);
         });
 
         resolve();
       },
-
-      "json",
+      "json"
     ).fail(function (xhr, status, error) {
       reject(error);
     });

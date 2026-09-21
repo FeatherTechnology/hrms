@@ -48,6 +48,7 @@ $director_company   = $userData['director_company'] ?? '';
 /* ---------- Mappings ---------- */
 $Req_type = [1 => 'Leave', 2 => 'Permission', 3 => 'Week Off', 4 => 'OT'];
 $reg_status = [0 => 'Pending', 1 => 'Approved', 2 => 'Cancel'];
+$leave_period = [ 1 => 'First Half', 2 => 'Second Half',3=>'Full Day'];
 
 /* ---------- Column map for ordering ---------- */
 $columns = [
@@ -307,23 +308,33 @@ foreach ($result as $row) {
         $action = "<span class='icon-border_color edit_reg' data-id='{$row['id']}' data-staff_id='{$row['insert_login_id']}' data-status='{$row['status']}'</span>";
     }
 
-    $data[] = [
-        $sno++,
-        $row['staff_id'],
-        $row['staff_name'],
-        $row['company_name'],
-        $row['branch_name'],
-        $row['department_name'],
-        $row['designation'],
-        $row['team_name'],
-        !empty($row['req_date']) ? date('d-m-Y H:i:s', strtotime($row['req_date'])) : '',
-        $Req_type[$row['req_type']] ?? '',
-        !empty($row['from_date']) ? date('d-m-Y H:i:s', strtotime($row['from_date'])) : '',
-        !empty($row['to_date']) ? date('d-m-Y H:i:s', strtotime($row['to_date'])) : '',
-        $duration,
-        $statusBadge,
-        $action
-    ];
+$remarks = '';
+
+if (!empty($row['remarks'])) {
+    $remarks = "<a href='#' class='sts_remarks' data-toggle='modal' data-target='#remarksModal' data-remarks='" . htmlspecialchars($row['remarks'], ENT_QUOTES) . "'>
+                    <span class='icon-eye' style='font-size: 12px; position: relative; top: 2px;'></span>
+                </a>";
+}
+
+$data[] = [
+    $sno++,
+    $row['staff_id'],
+    $row['staff_name'],
+    $row['company_name'],
+    $row['branch_name'],
+    $row['department_name'],
+    $row['designation'],
+    $row['team_name'],
+    !empty($row['req_date']) ? date('d-m-Y H:i:s', strtotime($row['req_date'])) : '',
+    $Req_type[$row['req_type']] ?? '',
+    $leave_period[$row['leave_period']] ?? '',
+    !empty($row['from_date']) ? date('d-m-Y H:i:s', strtotime($row['from_date'])) : '',
+    !empty($row['to_date']) ? date('d-m-Y H:i:s', strtotime($row['to_date'])) : '',
+    $duration,
+    $statusBadge,
+    $remarks,
+    $action
+];
 }
 
 /* ---------- OUTPUT ---------- */

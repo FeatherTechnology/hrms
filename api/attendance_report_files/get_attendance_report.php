@@ -78,11 +78,12 @@ $stmt->execute();
 $staffList = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 /* ---------------- ATTENDANCE DATA ---------------- */
-$attStmt = $pdo->prepare(" SELECT
-    staff_profile_id,
-    DATE(entry_time) dt
+$attStmt = $pdo->prepare("
+    SELECT
+        staff_profile_id,
+        DATE(COALESCE(updated_time, entry_time)) AS dt
     FROM attendance
-    WHERE DATE_FORMAT(entry_time,'%Y-%m')=?
+    WHERE DATE_FORMAT(COALESCE(updated_time, entry_time), '%Y-%m') = ?
 ");
 
 $attStmt->execute([$month]);

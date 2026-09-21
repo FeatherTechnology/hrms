@@ -14,6 +14,9 @@ $des_id = $_POST['des_id'];
 $team_id = $_POST['team_id'];
 $req_type = $_POST['req_type'];
 $leave_type = $_POST['leave_type'];
+$ave_balance = $_POST['ave_balance'];
+$shift_start = $_POST['shift_start'];
+$shift_end = $_POST['shift_end'];
 $leave_period = $_POST['leave_period'];
 $balance_req = $_POST['balance_req'];
 $current_month_ot_count = $_POST['current_month_ot_count'];
@@ -32,7 +35,7 @@ $to_date = !empty($_POST['to_date'])
     ? date('Y-m-d H:i:s', strtotime($_POST['to_date']))
     : null;
 
-$reason = $_POST['reason'] ?? '';
+$purpose = $_POST['purpose'] ?? '';
 $remarks = $_POST['remarks'] ?? '';
 
 /* ---------------- STATUS ---------------- */
@@ -94,14 +97,14 @@ try {
 
         $sql = "INSERT INTO regularization (
             staff_profile_id, company_id, branch_id, dep_id, des_id, team_id,
-            req_type, leave_type,leave_period, balance_req, current_month_ot_count, req_date,
+            req_type, shift_start ,shift_end ,leave_type, ave_balance, leave_period, balance_req, current_month_ot_count, req_date,
             from_date, to_date, total_min,
-            reason, status, insert_login_id, created_date
+            purpose, status, insert_login_id, created_date
         ) VALUES (
             '$stf_prf_id', '$cmpy_id', '$branch_id', '$dep_id', '$des_id', '$team_id',
-            '$req_type', '$leave_type', '$leave_period','$balance_req', '$current_month_ot_count', '$req_date',
+            '$req_type','$shift_start','$shift_end', '$leave_type','$ave_balance', '$leave_period','$balance_req', '$current_month_ot_count', '$req_date',
             '$from_date', '$to_date', '$total_min',
-            '$reason', '$approval_type', '$user_id', NOW()
+            '$purpose', '$approval_type', '$user_id', NOW()
         )";
 
         $qry = $pdo->query($sql);

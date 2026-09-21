@@ -30,6 +30,7 @@ $sql = "SELECT
         u.user_type,
         u.company_id,
         u.director_company,
+        u.director_branch,
         drc.director_name
     FROM users u
     LEFT JOIN occupation_info oi
@@ -77,26 +78,52 @@ if ($stmt->rowCount() > 0) {
    while ($user_info = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
     // Get company names for directors
-    if (!empty($user_info['director_company'])) {
+// Get company names for directors
+if (!empty($user_info['director_company'])) {
 
-        $companyIds = explode(',', $user_info['director_company']);
+    $companyIds = explode(',', $user_info['director_company']);
 
-        $placeholders = implode(',', array_fill(0, count($companyIds), '?'));
+    $placeholders = implode(',', array_fill(0, count($companyIds), '?'));
 
-        $companyStmt = $pdo->prepare("
-            SELECT company_name
-            FROM company_creation
-            WHERE id IN ($placeholders)
-        ");
+    $companyStmt = $pdo->prepare("
+        SELECT company_name
+        FROM company_creation
+        WHERE id IN ($placeholders)
+    ");
 
-        $companyStmt->execute($companyIds);
+    $companyStmt->execute($companyIds);
 
-        $companyNames = $companyStmt->fetchAll(PDO::FETCH_COLUMN);
+    $companyNames = $companyStmt->fetchAll(PDO::FETCH_COLUMN);
 
-        $user_info['company_names'] = implode(', ', $companyNames);
-    } else {
-        $user_info['company_names'] = '';
-    }
+    $user_info['company_names'] = implode(', ', $companyNames);
+
+} else {
+    $user_info['company_names'] = '';
+}
+
+
+// Get branch names for directors
+if (!empty($user_info['director_branch'])) {
+
+    $branchIds = explode(',', $user_info['director_branch']);
+
+    $placeholders = implode(',', array_fill(0, count($branchIds), '?'));
+
+    $branchStmt = $pdo->prepare("
+        SELECT branch_name
+        FROM branch_creation
+        WHERE id IN ($placeholders)
+    ");
+
+    $branchStmt->execute($branchIds);
+
+    $branchNames = $branchStmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $user_info['branch_names'] = implode(', ', $branchNames);
+
+} else {
+    $user_info['branch_names'] = '';
+}
 
     // Action buttons
     if ($status_value == 0) {

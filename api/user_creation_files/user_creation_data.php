@@ -16,7 +16,9 @@ $result = [];
 $stmt = $pdo->prepare("SELECT
         u.user_name,
         u.user_type,
+        u.staff_name_id,
         u.director_company,
+        u.director_branch,
         u.director_name,
         u.password,
         u.download_access,
