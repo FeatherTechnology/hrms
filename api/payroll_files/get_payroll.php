@@ -10,10 +10,12 @@ $branch_id  = $_POST['branch_id'];
 $month      = $_POST['month'];
 $month_end = date("Y-m-t", strtotime($month . "-01"));
 $stff_con = '';
+$stff_ctc_con = '';
 // in pay slip we use this condition to get the seperate pay slip 
 if (isset($_POST['stf_prf_id']) && $_POST['stf_prf_id'] != '') {
     $stf_prf_id = $_POST['stf_prf_id'];
     $stff_con = "AND o.staff_profile_id = '$stf_prf_id'";
+    $stff_ctc_con = "AND sci.staff_profile_id = '$stf_prf_id' AND  sci.ctc_amount > 0 ";
 }
 $result = array();
 // CHECK PENDING REGULARIZATION BEFORE PAYROLL GENERATION
@@ -204,16 +206,17 @@ while ($staff = $getStaff->fetch()) {
 
     if ($shift) {
 
-
         // GET ATTENDANCE RECORDS
         $attQry = $pdo->query("
-        SELECT 
-            DATE(entry_time) AS att_date,
-            entry_time
-        FROM attendance
-        WHERE staff_profile_id = '$staff_profile_id'
-        AND DATE(entry_time) BETWEEN '$start_date' AND '$end_date'
-    ");
+            SELECT 
+                DATE(COALESCE(updated_time, entry_time)) AS att_date,
+                COALESCE(updated_time, entry_time) AS entry_time
+            FROM attendance
+            WHERE staff_profile_id = '$staff_profile_id'
+            AND DATE(COALESCE(updated_time, entry_time)) 
+                BETWEEN '$start_date' AND '$end_date'
+        ");
+
 
         while ($att = $attQry->fetch()) {
 
@@ -332,6 +335,41 @@ while ($staff = $getStaff->fetch()) {
 
     $ot_hours_text = floor($total_ot_hours) . " hrs " . ($total_ot_minutes % 60) . " mins";
 
+        // STAFF LOAN / ADVANCE DEDUCTION
+    $loan_due = 0;
+
+    $loanQry = $pdo->query("
+        SELECT COALESCE(SUM(due_amount), 0) AS loan_due
+        FROM staff_loan
+        WHERE staff_id = '$staff_profile_id'
+        AND DATE(due_start_date) <= '$end_date'
+        AND DATE(due_end_date) >= '$start_date'
+    ");
+
+    $loanData = $loanQry->fetch();
+
+    if ($loanData) {
+        $loan_due = (float)$loanData['loan_due'];
+    }
+
+    $salary_advance = 0;
+
+    $advanceQry = $pdo->query("
+        SELECT COALESCE(SUM(advance_amount), 0) AS salary_advance
+        FROM staff_salary_adavance
+        WHERE company_id = '$company_id'
+        AND staff_id = '$staff_profile_id'
+        AND DATE(dedection_month) >= '$start_date'
+        AND DATE(dedection_month) <= '$end_date'
+    ");
+
+    $advanceData = $advanceQry->fetch();
+
+    if ($advanceData) {
+        $salary_advance = (float)$advanceData['salary_advance'];
+    }
+
+
     // OT AMOUNT
     $ot_amount = 0;
 
@@ -369,6 +407,7 @@ while ($staff = $getStaff->fetch()) {
         GROUP BY ctc_id, staff_profile_id
     ) latest 
         ON latest.last_id = sci.id
+    WHERE  sci.effective_from >= $month_end  $stff_ctc_con  
 ");
 
     while ($salary = $getSalary->fetch()) {
@@ -472,7 +511,7 @@ while ($staff = $getStaff->fetch()) {
         $esi_amount = $employee_esi;
     }
 
-    $deduction_total = $pf_amount + $admin_charge + $pension + $esi_amount + $pt;
+    $deduction_total = $pf_amount + $admin_charge + $pension + $esi_amount + $pt+ $loan_due + $salary_advance;;
 
     $net_salary = $gross_total - $deduction_total;
 
@@ -502,6 +541,9 @@ while ($staff = $getStaff->fetch()) {
         'pension' => number_format($pension, 2),
         'esi' => number_format($esi_amount, 2),
         'pt' => number_format($pt, 2),
+        // LOAN / ADVANCE
+        'loan_due' => number_format($loan_due, 2),
+        'salary_advance' => number_format($salary_advance, 2),
         'deduction_total' => number_format($deduction_total, 2),
         'net_salary' => number_format($net_salary, 2),
 

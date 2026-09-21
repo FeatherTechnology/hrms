@@ -37,7 +37,30 @@ $query = "SELECT
             d.department_name,
             des.designation,
             ti.team_name,
-            sc.mobile1
+            sc.mobile1,
+            sc.relieve_date,
+
+            CASE
+                WHEN NOT EXISTS (
+                    SELECT 1
+                    FROM document_info di
+                    WHERE di.staff_profile_id = sc.id
+                )
+                THEN 'No Document'
+
+                WHEN NOT EXISTS (
+                    SELECT 1
+                    FROM document_info di
+                    WHERE di.staff_profile_id = sc.id
+                      AND (
+                          di.return_date IS NULL
+                          OR di.return_date = ''
+                      )
+                )
+                THEN 'Completed'
+
+                ELSE 'Pending'
+            END AS document_status
 
           FROM staff_creation sc
 
@@ -94,6 +117,13 @@ if ($status != '') {
                         )
                     )";
     }
+}else{
+     $query .= " 
+                    AND (
+                        date(sc.relieve_date) >= '$today'
+                        OR sc.relieve_date IS NULL
+                        OR sc.relieve_date = ''
+                    )";
 }
 
 /* Company Filter */
@@ -146,6 +176,7 @@ if ($_POST['length'] != -1) {
     $query1 = " LIMIT " . $_POST['start'] . "," . $_POST['length'];
 }
 
+// echo $query;die;
 /* Execute */
 $statement = $pdo->prepare($query);
 $statement->execute();
@@ -172,6 +203,26 @@ foreach ($result as $row) {
     $sub_array[] = $row['team_name'];
     $sub_array[] = $row['designation'];
     $sub_array[] = $row['mobile1'];
+   
+    // $sub_array[] = $row['relieve_date'];
+ if ($status == '') {
+
+    if ($row['document_status'] == 'Completed' || $row['document_status'] == 'No Document') {
+        $document_status = "<span style='background-color: #d4edda; color: #155724; padding: 5px 10px; border-radius: 5px; font-weight: 500;'>
+                                " . $row['document_status'] . "
+                            </span>";
+    } else {
+        $document_status = "<span style='background-color: #FFFF00; color: #856404; padding: 5px 10px; border-radius: 5px; font-weight: 500;'>
+                                " . $row['document_status'] . "
+                            </span>";
+    }
+
+    $sub_array[] = $document_status;
+
+    $sub_array[] = !empty($row['relieve_date'])
+        ? date('d-m-Y', strtotime($row['relieve_date']))
+        : '';
+}
 
     $sub_array[] =
         "<span class='icon-border_color staffEditBtn'

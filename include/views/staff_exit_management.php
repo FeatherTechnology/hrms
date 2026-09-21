@@ -62,6 +62,8 @@
                                 <th>Team</th>
                                 <th>Designation</th>
                                 <th>Mobile</th>
+                                <th>Document Status</th>
+                                <th>Relieve Date</th>
                                 <th>Action</th>
                             </tr>
                         </thead>

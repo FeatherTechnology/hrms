@@ -15,14 +15,25 @@ $response = [];
 
 try {
 
-    $stmt = $pdo->prepare("SELECT
-            id,
-            staff_name,
-            staff_type
-        FROM staff_creation
-        WHERE company_id = ?
-        AND status = ?
-    ");
+$stmt = $pdo->prepare("
+    SELECT
+        sc.id,
+        sc.staff_name,
+        sc.staff_type,
+
+        CASE
+            WHEN u.staff_name_id IS NOT NULL THEN 1
+            ELSE 0
+        END AS already_exists
+
+    FROM staff_creation sc
+
+    LEFT JOIN users u
+        ON u.staff_name_id = sc.id
+
+    WHERE sc.company_id = ?
+    AND sc.status = ?
+");
 
     $stmt->execute([
         $company_id,

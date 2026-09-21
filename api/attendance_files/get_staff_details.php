@@ -36,7 +36,7 @@ $query = "SELECT
     tc.team_name,
     tc.id as team_id,
     a.id as att_id,
-    a.entry_time,
+    COALESCE(a.updated_time, a.entry_time) AS entry_time,
     a.reason
     
 FROM staff_creation sc

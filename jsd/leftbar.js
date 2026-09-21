@@ -14,6 +14,8 @@ const moduleMapping = {
   director_creation: "staff_management",
   staff_creation: "staff_management",
   staff_exit_management: "staff_management",
+  staff_loan: "employee_loans_advances",
+  staff_salary_advance: "employee_loans_advances",
   manage_user: "staff_management",
   regularization: "regularization",
   location_access: "attendance_Management",

@@ -165,6 +165,7 @@ if ($occ_status == '3') {
 
             total_ctc        = '$total_ctc',
             total_amount     = '$total_amount',
+            effective_from   = '$effective_date',
 
             insert_login_id  = '$user_id',
             created_date     = NOW()

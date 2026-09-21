@@ -137,6 +137,13 @@
                                         <select class="form-control" id="multi_company_name" name="multi_company_name[]" tabindex="13" multiple></select>
                                     </div>
                                 </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 director_div">
+                                    <div class="form-group">
+                                        <label for="dir_branch">Branch</label><span class="text-danger">*</span>
+                                        <input type="hidden" id="dir_branch2">
+                                        <select class="form-control" id="dir_branch" name="dir_branch[]" tabindex="13" multiple></select>
+                                    </div>
+                                </div>
 
                                 <!-- user content -->
 

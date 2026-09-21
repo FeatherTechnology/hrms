@@ -99,8 +99,9 @@ if ($check->rowCount() == 0) {
         shift='$shift',
         ot_payment='$ot_payment',
         ot_per_day='$ot_per_day',
+        effective_from = Now(),
         insert_login_id='$user_id',
-        created_on=NOW()
+        created_on = NOW()
     ");
 }
 
@@ -126,7 +127,8 @@ if ($checkCTC->rowCount() == 0) {
             ctc_amount='$ctc_amount',
             ctc_percentage='$ctc_percentage',
             total_ctc='$total_ctc',
-            total_amount='$total_amount',
+            total_amount='$total_amount', 
+            effective_from = Now(),
             insert_login_id='$user_id',
             created_date=NOW()
         ");

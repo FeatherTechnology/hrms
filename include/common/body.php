@@ -1,4 +1,82 @@
 <!-- Page wrapper start -->
+<style>
+    .notification-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        background: #FFFFFF;
+    }
+
+    .notification-table th,
+    .notification-table td {
+        border: 1px solid #000;
+        padding: 6px 8px;
+    }
+
+    .notification-table thead th {
+        background: #4a5258;
+        /* Light gray header */
+        color: #FFFFFF;
+        /* Black text */
+        font-weight: 600;
+    }
+
+    .notification-table .table-title {
+        background: #FFFFFF;
+        /* Slightly darker for title */
+        color: #f26b35;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .notification-table td:first-child {
+        text-align: left;
+    }
+
+    .notification-table td.text-center,
+    .notification-table th {
+        text-align: center;
+    }
+
+    .notification-table tbody tr:hover {
+        background: #FFFFFF;
+        cursor: pointer;
+    }
+
+    .notification-tooltip {
+        position: fixed;
+        display: none;
+        min-width: 250px;
+        background: #fff;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+        z-index: 999999;
+        padding: 0;
+    }
+
+    .notification-tooltip table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #000;
+    }
+
+    .notification-tooltip th,
+    .notification-tooltip td {
+        border: 1px solid #000;
+        padding: 6px 8px;
+        text-align: center;
+    }
+
+    .notification-tooltip td:first-child {
+        text-align: center;
+    }
+
+    .notification-tooltip th {
+        background: #5b6168;
+        color: #fff;
+    }
+</style>
+
 <div class="page-wrapper">
     <?php include "include/common/leftbar.php"; ?>
 
@@ -7,7 +85,7 @@
 
         <!-- Header start -->
         <header class="header">
-            
+
             <div class="toggle-btns" style="display: flex; align-items: center; justify-content: space-between;">
                 <a id="toggle-sidebar" href="#">
                     <i class="icon-list"></i>
@@ -29,9 +107,7 @@
                             <div class="dropdown-menu-header">
                                 Results
                             </div>
-                            <div class="customScroll5 quickscard">
-                                <ul class="header-notifications" id='search_ul'></ul>
-                            </div>
+                            <div class="header-notifications"></div>
                         </div>
                     </li>
                 </ul>
@@ -50,9 +126,10 @@
                                 Notifications
                             </div>
                             <div class="customScroll5 quickscard">
-                                <ul class="header-notifications"></ul>
+                                <div class="header-notifications"></div>
                             </div>
                         </div>
+                        <div id="notificationTooltip" class="notification-tooltip"></div>
                     </li>
                     <li class="dropdown">
                         <a href="#" id="userSettings" class="user-settings" data-toggle="dropdown" aria-haspopup="true">
