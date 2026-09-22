@@ -108,6 +108,8 @@ $(document).ready(function () {
       $("#team_creation_id").val(id);
       $("#company_name").val(response[0].company_id);
 
+      getModalAttr();
+
       await getDepartmentName();
       $("#department_name").val(response[0].department_id);
 

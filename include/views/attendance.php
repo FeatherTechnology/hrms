@@ -237,8 +237,14 @@
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="form-group">
+                            <label for="deduction_amount">Deduction Amount</label>
+                            <input type="number" class="form-control" id="deduction_amount" name="deduction_amount" placeholder="Deduction Amount" tabindex="16">
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="form-group">
                             <label for="reason">Reason</label><span class="text-danger">*</span>
-                            <textarea type="textarea" class="form-control" id="reason" name="reason" placeholder="Enter Reason" tabindex="16"></textarea>
+                            <textarea type="textarea" class="form-control" id="reason" name="reason" placeholder="Enter Reason" tabindex="17"></textarea>
                         </div>
                     </div>
                     <div class="col-md-12 ">

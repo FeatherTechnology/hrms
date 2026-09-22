@@ -270,8 +270,7 @@ function getUserAccess(callback) {
 }
 
 // Initialize DataTable with user access controls
-function setdtable(table_id, excelTitle) {
-  // Fetch user access and initialize DataTable based on it
+function setdtable(table_id, excelTitle, defaultOrder = [[0, "desc"]]) {
   getUserAccess(function (downloadAccess) {
     let buttons = [];
 
@@ -309,7 +308,7 @@ function setdtable(table_id, excelTitle) {
     // Initialize DataTable with conditional buttons
     $(table_id).DataTable({
       processing: true,
-      order: [[0, "desc"]],
+      order: defaultOrder,
       iDisplayLength: 10,
       lengthMenu: [
         [10, 25, 50, -1],
@@ -327,6 +326,7 @@ function setdtable(table_id, excelTitle) {
           .each(function (cell, i) {
             cell.innerHTML = i + 1;
           });
+        searchFunction(table_id.replace(/^#/, ""));
       },
       dom: "lBfrtip",
       buttons: buttons,
@@ -433,6 +433,7 @@ function serverSideTable(tableSelector, params, apiUrl, excelTitle) {
         [10, 25, 50, "All"],
       ],
       drawCallback: function () {
+        searchFunction(tableSelector.replace(/^#/, ""));
         setDropdownScripts();
       },
     });
@@ -840,5 +841,34 @@ function nameFormatter(selector) {
     }
 
     $(this).val(parts.join(" "));
+  });
+}
+
+// <--- Function to handle search functionality for DataTables --->
+function searchFunction(table_name) {
+  let $searchInput = $(
+    `#${table_name}_wrapper .dataTables_filter input[type=search]`,
+  );
+
+  $searchInput.attr({
+    title: "Press Enter or click outside to search",
+    autocomplete: "off",
+  }); // Remove DataTables' own default keyup/input search listener + any of ours from before
+
+  $searchInput.off("keyup.DT input.DT keyup blur");
+
+  function doSearch() {
+    let table = $(`#${table_name}`).DataTable();
+    table.search($searchInput.val()).draw();
+  } // Trigger on Enter key
+
+  $searchInput.on("keyup", function (e) {
+    if (e.key === "Enter" || e.keyCode === 13) {
+      doSearch();
+    }
+  }); // Trigger on blur (click/tab outside the box)
+
+  $searchInput.on("blur", function (e) {
+    doSearch();
   });
 }

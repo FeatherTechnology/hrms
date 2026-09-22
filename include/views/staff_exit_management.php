@@ -48,8 +48,7 @@
         <br>
         <div class="card staff_exit_table_content">
             <div class="card-body">
-                <div class="col-12">
-
+                <div class="col-12" style="overflow-x: auto;">
                     <table id="staff_exit" class="table custom-table">
                         <thead>
                             <tr>
@@ -68,7 +67,6 @@
                             </tr>
                         </thead>
                         <tbody>
-
                         </tbody>
                     </table>
                 </div>
@@ -220,7 +218,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                                 <div class="form-group">
                                     <table id="doc_info_table" class="table custom-table">
                                         <thead>

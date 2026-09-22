@@ -86,16 +86,16 @@ $total_stmt = $pdo->query("SELECT COUNT(oi.id) " . $base_query);
 $total_records = $total_stmt->fetchColumn();
 
 /* Apply DataTables Global Text Search */
-if (isset($_POST['search']['value']) && $_POST['search']['value'] != "") {
-    $search = $pdo->quote($_POST['search']['value']);
-    $search_val = trim($search, "'");
+if (isset($_POST['search']) && $_POST['search'] != "") {
+
+    $search = trim($_POST['search']);
 
     $base_query .= " AND (
-        sc.staff_id LIKE '$search_val%'
-        OR sc.staff_name LIKE '%$search_val%'
-        OR dc.department_name LIKE '%$search_val%'
-        OR bc.branch_name LIKE '%$search_val%'
-        OR bcs.branch_name LIKE '%$search_val%'
+        sc.staff_id LIKE '$search%'
+        OR sc.staff_name LIKE '%$search%'
+        OR dc.department_name LIKE '%$search%'
+        OR bc.branch_name LIKE '%$search%'
+        OR bcs.branch_name LIKE '%$search%'
     )";
 }
 

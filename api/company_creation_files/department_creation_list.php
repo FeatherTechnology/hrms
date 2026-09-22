@@ -16,7 +16,6 @@ $i = 0;
 $stmt = $pdo->prepare("SELECT *
     FROM department_creation
     WHERE department_status = ?
-    ORDER BY department_name ASC
 ");
 
 $stmt->execute([0]);

@@ -25,11 +25,13 @@ if (isset($_POST['search'])) {
     if ($_POST['search'] != "") {
         $search = $_POST['search'];
         $query .= " AND (bc.branch_code LIKE '" . $search . "%'
-                      OR bc.branch_name LIKE '%" . $search . "%'
-                      OR cc.company_name LIKE '%" . $search . "%'
-                      OR bc.place LIKE '%" . $search . "%'
-                      OR bc.mobile_number LIKE '%" . $search . "%'
-                      OR bc.email_id LIKE '%" . $search . "%')";
+        OR cc.company_name LIKE '%" . $search . "%'
+        OR bc.branch_name LIKE '%" . $search . "%'
+        OR bc.place LIKE '%" . $search . "%'
+        OR st.state_name LIKE '%" . $search . "%'
+        OR dt.district_name LIKE '%" . $search . "%'
+        OR bc.mobile_number LIKE '%" . $search . "%'
+        OR bc.email_id LIKE '%" . $search . "%')";
     }
 }
 

@@ -9,10 +9,10 @@ $att_id = '';
 
 if (isset($_POST['staff_id']) && $_POST['staff_id'] != '') {
     $staff_id = $_POST['staff_id'];
-    $stf_con="oi.staff_profile_id =:staff_id";
+    $stf_con = "oi.staff_profile_id =:staff_id";
 } else {
     $staff_id = $userid;
-    $stf_con ="u.id =:staff_id";
+    $stf_con = "u.id =:staff_id";
 }
 if (isset($_POST['att_id']) && $_POST['att_id'] != '') {
     $att_id = $_POST['att_id'];
@@ -37,6 +37,7 @@ $query = "SELECT
     tc.id as team_id,
     a.id as att_id,
     COALESCE(a.updated_time, a.entry_time) AS entry_time,
+    a.deduction_amount,
     a.reason
     
 FROM staff_creation sc
@@ -59,14 +60,9 @@ LEFT JOIN users u ON u.staff_name_id = sc.id
 
 WHERE $stf_con $att_con ";
 
-
 $stmt = $pdo->prepare($query);
 
 $stmt->bindParam(':staff_id', $staff_id, PDO::PARAM_INT);
-
-
-
-
 
 $stmt->execute();
 

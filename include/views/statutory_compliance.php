@@ -7,7 +7,7 @@
     <br>
     <div class="card statutory_compliance_table_content">
         <div class="card-body">
-            <div class="col-12">
+            <div class="col-12" style="overflow-x: auto;">
                 <table id="statutory_compliance_table" class="table custom-table">
                     <thead>
                         <tr>
@@ -92,7 +92,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
                                         <label for="employee_contribution">Employee Contribution</label> <span class="text-danger">(0% - 100%)</span>
-                                        <input type="number" class="form-control" id="employee_contribution" name="employee_contribution"   min="0" max="100" step="0.01" placeholder="Enter Employee Contribution" tabindex="8">
+                                        <input type="number" class="form-control" id="employee_contribution" name="employee_contribution" min="0" max="100" step="0.01" placeholder="Enter Employee Contribution" tabindex="8">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">

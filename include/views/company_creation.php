@@ -27,7 +27,7 @@
         <div class="card company_table_content">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-12" style="overflow-x: auto;">
                         <table id="company_creation_table" class="table custom-table">
                             <thead>
                                 <tr>

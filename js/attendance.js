@@ -50,6 +50,7 @@ $(document).ready(function () {
       team_id: $("#team_id").val(),
       staff_type: $("#staff_type").val(),
       entry_time: entryDateTime, // Combined Date + Time
+      deduction_amount: $("#deduction_amount").val(),
       reason: $("#reason").val(),
     };
     let cmy = $("#cmpy_name").val();
@@ -235,6 +236,9 @@ function getAttendanceList(company_id, branch_id, date) {
         [10, 25, 50, "All"],
       ],
     });
+
+    // Add search functionality
+    searchFunction("attendance_table");
   });
 }
 
@@ -261,6 +265,9 @@ function getStaffDetails(staff_id, att_id, date) {
       $("#staff_type_id").val(response.staff_type);
       $("#staff_type").val(staffType[response.staff_type] || "");
       $("#att_id").val(response.att_id);
+      $("#deduction_amount").val(
+        response.deduction_amount ? response.deduction_amount : "",
+      );
       $("#reason").val(response.reason ? response.reason : "");
       if (response.entry_time) {
         $("#entry_date").val(response.entry_time.slice(0, 10));

@@ -54,8 +54,18 @@ $(document).ready(function () {
 
   $("#dob, #fam_dob, #anniversary_date").on("change", function () {
     var dobValue = $(this).val();
+    var fieldId = $(this).attr("id");
 
-    if (!dobValue) return;
+    // If DOB is cleared, clear corresponding age
+    if (!dobValue) {
+      if (fieldId === "dob") {
+        $("#age").val("");
+      } else if (fieldId === "fam_dob") {
+        $("#fam_age").val("");
+      }
+
+      return;
+    }
 
     var dob = new Date(dobValue);
     var today = new Date();
@@ -68,18 +78,17 @@ $(document).ready(function () {
       swalError("Warning", "Future date is not allowed.");
       $(this).val("");
 
-      // Clear corresponding age field
-      if ($(this).attr("id") === "dob") {
+      if (fieldId === "dob") {
         $("#age").val("");
-      } else if ($(this).attr("id") === "fam_dob") {
+      } else if (fieldId === "fam_dob") {
         $("#fam_age").val("");
       }
 
       return;
     }
 
-    // Calculate age for DOB and Family DOB
-    if ($(this).attr("id") === "dob" || $(this).attr("id") === "fam_dob") {
+    // Calculate age
+    if (fieldId === "dob" || fieldId === "fam_dob") {
       var age = today.getFullYear() - dob.getFullYear();
       var m = today.getMonth() - dob.getMonth();
 
@@ -87,10 +96,9 @@ $(document).ready(function () {
         age--;
       }
 
-      // Set age to corresponding field
-      if ($(this).attr("id") === "dob") {
+      if (fieldId === "dob") {
         $("#age").val(age);
-      } else if ($(this).attr("id") === "fam_dob") {
+      } else if (fieldId === "fam_dob") {
         $("#fam_age").val(age);
       }
     }
@@ -484,9 +492,18 @@ $(document).ready(function () {
     let pre_company = $("#pre_company").val();
     let pre_designation = $("#pre_designation").val();
 
-    let work_year = $("#work_year").val() || 0;
-    let work_month = $("#work_month").val() || 0;
-    let work_experience = work_year + " Years " + work_month + " Months";
+    let work_year = $("#work_year").val() || "";
+    let work_month = $("#work_month").val() || "";
+
+    let work_experience = "";
+
+    if (work_year !== "" && work_month !== "") {
+      work_experience = work_year + " Years " + work_month + " Months";
+    } else if (work_year !== "") {
+      work_experience = work_year + " Years";
+    } else if (work_month !== "") {
+      work_experience = work_month + " Months";
+    }
 
     let last_salary = $("#last_salary").val();
     let reason_for_leaving = $("#reason_for_leaving").val();

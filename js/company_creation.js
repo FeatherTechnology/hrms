@@ -584,15 +584,20 @@ function getDepartmentDelete(id) {
 
 /* --- Get Designation Table --- */
 function getDesignationNameTable() {
-     let company_id = $("#companyid").val();
+  let company_id = $("#companyid").val();
   $.post(
     "api/company_creation_files/designation_creation_list.php",
-    {company_id},
+    { company_id },
     function (response) {
       var columnMapping = ["sno", "designation", "designation_level", "action"];
 
       appendDataToTable("#designation_creation_table", response, columnMapping);
-      setdtable("#designation_creation_table", "Designation Creation List");
+
+      // Designation ASC
+      setdtable("#designation_creation_table", "Designation Creation List", [
+        [2, "asc"],
+      ]);
+
       $("#designation_form input").val("");
       $("#designation_form select").each(function () {
         $(this).val($(this).find("option:first").val());

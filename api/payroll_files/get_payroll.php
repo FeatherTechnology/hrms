@@ -200,9 +200,8 @@ while ($staff = $getStaff->fetch()) {
 
     $shift = $shiftQry->fetch();
 
-
     $present_days = 0;
-
+    $total_attendance_deduction = 0;
 
     if ($shift) {
 
@@ -210,7 +209,8 @@ while ($staff = $getStaff->fetch()) {
         $attQry = $pdo->query("
             SELECT 
                 DATE(COALESCE(updated_time, entry_time)) AS att_date,
-                COALESCE(updated_time, entry_time) AS entry_time
+                COALESCE(updated_time, entry_time) AS entry_time,
+                deduction_amount
             FROM attendance
             WHERE staff_profile_id = '$staff_profile_id'
             AND DATE(COALESCE(updated_time, entry_time)) 
@@ -255,6 +255,9 @@ while ($staff = $getStaff->fetch()) {
             else {
                 $present_days += 0;
             }
+
+            // Accumulate the attendance deduction for this staff member
+            $total_attendance_deduction += $att['deduction_amount'];
         }
     }
 
@@ -511,7 +514,7 @@ while ($staff = $getStaff->fetch()) {
         $esi_amount = $employee_esi;
     }
 
-    $deduction_total = $pf_amount + $admin_charge + $pension + $esi_amount + $pt+ $loan_due + $salary_advance;;
+    $deduction_total = $pf_amount + $admin_charge + $pension + $esi_amount + $pt + $total_attendance_deduction + $loan_due + $salary_advance;
 
     $net_salary = $gross_total - $deduction_total;
 
@@ -541,6 +544,7 @@ while ($staff = $getStaff->fetch()) {
         'pension' => number_format($pension, 2),
         'esi' => number_format($esi_amount, 2),
         'pt' => number_format($pt, 2),
+        'attendance_deduction' => number_format($total_attendance_deduction, 2),
         // LOAN / ADVANCE
         'loan_due' => number_format($loan_due, 2),
         'salary_advance' => number_format($salary_advance, 2),

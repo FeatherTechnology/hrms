@@ -39,6 +39,7 @@ $director_company   = $userData['director_company'] ?? '';
 
 /* ---------- Column mapping ---------- */
 $columns = [
+    'sc.id',
     'sc.staff_id',
     'sc.staff_name',
     'cc.company_name',
@@ -239,8 +240,6 @@ $result = $dataStmt->fetchAll(PDO::FETCH_ASSOC);
 
 /* ---------- MONTH RESTRICTION ---------- */
 $currentMonth  = date('Y-m');
-$previousMonth  = date('Y-m');
-$previousMonth  = date('Y-m', strtotime('-1 month'));
 $selectedMonth  = date('Y-m', strtotime($att_date));
 
 /* ---------- RESPONSE ---------- */
@@ -249,7 +248,7 @@ $sno = $_POST['start'] + 1;
 
 foreach ($result as $row) {
 
-    if ($selectedMonth == $currentMonth || $selectedMonth == $previousMonth) {
+    if ($selectedMonth == $currentMonth ) {
         $editBtn = "<span class='icon-border_color edit_add'
                         data-id='{$row['stf_id']}'
                         data-att_id='{$row['att_id']}'></span>";

@@ -25,15 +25,29 @@ LEFT JOIN company_creation cc ON sc.company_id = cc.id
 LEFT JOIN States st ON sc.state = st.id 
 WHERE 1 ";
 
-if (isset($_POST['search'])) {
-    if ($_POST['search'] != "") {
-        $search = $_POST['search'];
-        $query .= " AND (sc.id LIKE '" . $search . "%'
-                      OR cc.company_name LIKE '%" . $search . "%'
-                      OR sc.pf_applicable LIKE '%" . $search . "%'
-                      OR sc.esi_applicable LIKE '%" . $search . "%'
-                      OR st.state_name LIKE '%" . $search . "%')";
+if (isset($_POST['search']) && $_POST['search'] != "") {
+
+    $search = trim($_POST['search']);
+
+    $applicableSearch = '';
+
+    if (strcasecmp($search, 'yes') === 0) {
+        $applicableSearch = '1';
+    } elseif (strcasecmp($search, 'no') === 0) {
+        $applicableSearch = '2';
     }
+
+    $query .= " AND (
+        sc.id LIKE '" . $search . "%'
+        OR cc.company_name LIKE '%" . $search . "%'
+        OR st.state_name LIKE '%" . $search . "%'";
+
+    if ($applicableSearch !== '') {
+        $query .= " OR sc.pf_applicable = '" . $applicableSearch . "'
+                    OR sc.esi_applicable = '" . $applicableSearch . "'";
+    }
+
+    $query .= ")";
 }
 
 if (isset($_POST['order'])) {

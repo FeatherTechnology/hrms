@@ -9,8 +9,7 @@
 
         <div class="card branch_table_content">
             <div class="card-body">
-                <div class="col-12">
-
+                <div class="col-12" style="overflow-x: auto;">
                     <table id="branch_create" class="table custom-table dtable">
                         <thead>
                             <tr>
@@ -27,7 +26,6 @@
                             </tr>
                         </thead>
                         <tbody>
-
                         </tbody>
                     </table>
                 </div>

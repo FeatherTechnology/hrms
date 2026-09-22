@@ -62,7 +62,7 @@ $columns = [
     'tc.team_name',
     'reg.req_date',
     'reg.req_type',
-    'reg.from_date',    
+    'reg.from_date',
     'reg.to_date',
     'reg.total_min',
     'reg.status',
@@ -156,7 +156,9 @@ if ($user_type == 1) {
 
 /* ---------- Search ---------- */
 if (!empty($_POST['search']['value'])) {
-    $search = '%' . $_POST['search']['value'] . '%';
+
+    $searchText = trim($_POST['search']['value']);
+    $search = '%' . $searchText . '%';
 
     $baseQuery .= "
         AND (
@@ -168,8 +170,31 @@ if (!empty($_POST['search']['value'])) {
             OR descr.designation LIKE :search
             OR tc.team_name LIKE :search
             OR reg.req_date LIKE :search
-        )
     ";
+
+    $reqTypeMap = [
+        1 => ['leave'],
+        2 => ['permission'],
+        3 => ['week off'],
+        4 => ['ot']
+    ];
+
+    $searchLower = strtolower($searchText);
+
+    foreach ($reqTypeMap as $type => $keywords) {
+        foreach ($keywords as $keyword) {
+            if (
+                strpos($keyword, $searchLower) !== false ||
+                strpos($searchLower, $keyword) !== false
+            ) {
+                $baseQuery .= " OR reg.req_type = :req_type ";
+                $params[':req_type'] = $type;
+                break 2;
+            }
+        }
+    }
+
+    $baseQuery .= ")";
 
     $params[':search'] = $search;
 }
@@ -328,8 +353,8 @@ $data[] = [
     !empty($row['req_date']) ? date('d-m-Y H:i:s', strtotime($row['req_date'])) : '',
     $Req_type[$row['req_type']] ?? '',
     $leave_period[$row['leave_period']] ?? '',
-    !empty($row['from_date']) ? date('d-m-Y H:i:s', strtotime($row['from_date'])) : '',
-    !empty($row['to_date']) ? date('d-m-Y H:i:s', strtotime($row['to_date'])) : '',
+        !empty($row['from_date']) ? date(in_array($row['req_type'], [1, 3]) ? 'd-m-Y' : 'd-m-Y h:i A', strtotime($row['from_date'])) : '',
+        !empty($row['to_date']) ? date(in_array($row['req_type'], [1, 3]) ? 'd-m-Y' : 'd-m-Y h:i A', strtotime($row['to_date'])) : '',
     $duration,
     $statusBadge,
     $remarks,
