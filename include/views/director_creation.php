@@ -9,8 +9,7 @@
 
         <div class="card director_table_content">
             <div class="card-body">
-                <div class="col-12">
-
+                <div class="col-12" style="overflow-x: auto;">
                     <table id="director_creation" class="table custom-table dtable">
                         <thead>
                             <tr>
@@ -25,7 +24,6 @@
                             </tr>
                         </thead>
                         <tbody>
-
                         </tbody>
                     </table>
                 </div>

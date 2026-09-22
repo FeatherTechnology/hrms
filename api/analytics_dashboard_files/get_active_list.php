@@ -186,11 +186,11 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
         'id' => $row['id'],
         'title' => $row['title'],
         'start_date' => date(
-            'd-m-Y H:i:s',
+            'd-m-Y h:i A',
             strtotime($row['start_date_time'])
         ),
         'end_date' => date(
-            'd-m-Y H:i:s',
+            'd-m-Y h:i A',
             strtotime($row['end_date_time'])
         ),
         'total_staff' => $staff['total_staff'],

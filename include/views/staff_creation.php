@@ -62,7 +62,7 @@
 
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="overflow-x: auto;">
                 <table id="staff_create" class="table custom-table">
                     <thead>
                         <tr>
@@ -323,7 +323,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                                             <div class="form-group">
                                                 <table id="fam_info_table" class="table custom-table">
                                                     <thead>
@@ -353,7 +353,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                                             <div class="form-group">
                                                 <table id="qual_info_table" class="table custom-table">
                                                     <thead>
@@ -382,7 +382,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                                             <div class="form-group">
                                                 <table id="exp_info_table" class="table custom-table">
                                                     <thead>
@@ -411,7 +411,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                                             <div class="form-group">
                                                 <table id="doc_info_table" class="table custom-table">
                                                     <thead>
@@ -637,7 +637,7 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                                             <div class="form-group">
                                                 <table id="ctc_info_table" class="table custom-table">
                                                     <thead>

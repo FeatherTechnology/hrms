@@ -438,7 +438,7 @@ function getregularizationlist(type) {
 
     // Add Excel button only if download access is granted
     if (downloadAccess === 1) {
-      excelTitle = "Regularization Report List";
+      let excelTitle = "Regularization Report List";
       buttons.push({
         extend: "excelHtml5",
         action: function (e, dt, button, config) {
@@ -472,6 +472,11 @@ function getregularizationlist(type) {
         [10, 25, 50, -1],
         [10, 25, 50, "All"],
       ],
+
+      // Call searchFunction after DataTable is drawn
+      drawCallback: function () {
+        searchFunction("regularization_table");
+      },
     });
   });
 }

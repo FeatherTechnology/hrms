@@ -84,7 +84,7 @@
 
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                             <div class="form-group">
                                 <table id="ctc_creation_table" class="table custom-table">
                                     <thead>

@@ -166,6 +166,11 @@ console.log(row);
           amount: row.salary_advance,
         });
 
+        deductions.push({
+          name: "Attendance Deduction",
+          amount: row.attendance_deduction,
+        });
+
         let earningKeys = Object.keys(earnings);
 
         let totalRows = Math.max(earningKeys.length, deductions.length);

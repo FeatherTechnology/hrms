@@ -42,7 +42,7 @@ $sql = "
             )
         )
     )
-    ORDER BY dc.designation
+    ORDER BY dc.designation_level ASC
 ";
 
 $stmt = $pdo->prepare($sql);

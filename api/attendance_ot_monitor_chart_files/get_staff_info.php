@@ -410,21 +410,46 @@ if (!empty($date)) {
     }
 
     // <------ OT ----->
+    $otWhere = [];
+    $otParams = [':date' => $date];
+
+    if (!empty($company_id)) {
+        $otWhere[] = "st.company_id = :company_id";
+        $otParams[':company_id'] = $company_id;
+    }
+
+    if (!empty($shift_id)) {
+        $otWhere[] = "oi.shift = :shift_id";
+        $otParams[':shift_id'] = $shift_id;
+    }
+
+    if (!empty($staff_id) && $staff_id != 'all') {
+        $otWhere[] = "st.id = :staff_id";
+        $otParams[':staff_id'] = $staff_id;
+    }
+
+    $otWhereSql = !empty($otWhere) ? " AND " . implode(" AND ", $otWhere) : "";
+
     $otQry = $pdo->prepare("SELECT
-        st.staff_name,
-        r.from_date,
-        r.to_date
+    st.staff_name,
+    r.from_date,
+    r.to_date
     FROM regularization r
     LEFT JOIN staff_creation st
         ON st.id = r.staff_profile_id
+    LEFT JOIN occupation_info oi
+        ON oi.id = (
+            SELECT MAX(id)
+            FROM occupation_info
+            WHERE staff_profile_id = st.id
+        )
     WHERE r.req_type = 4
     AND r.status = 1
-    AND DATE(r.from_date) = :date
+    AND DATE(r.from_date)=:date
+    $otWhereSql
     ");
 
-    $otQry->execute([
-        ':date' => $date
-    ]);
+    $otQry->execute($otParams);
 
     $otResult = $otQry->fetchAll(PDO::FETCH_ASSOC);
 
@@ -438,6 +463,28 @@ if (!empty($date)) {
             'end'        => $ot['to_date']
         ];
     }
+
+    $leaveWhere = [];
+    $leaveParams = [':date' => $date];
+
+    if (!empty($company_id)) {
+        $leaveWhere[] = "st.company_id = :company_id";
+        $leaveParams[':company_id'] = $company_id;
+    }
+
+    if (!empty($shift_id)) {
+        $leaveWhere[] = "oi.shift = :shift_id";
+        $leaveParams[':shift_id'] = $shift_id;
+    }
+
+    if (!empty($staff_id) && $staff_id != 'all') {
+        $leaveWhere[] = "st.id = :staff_id";
+        $leaveParams[':staff_id'] = $staff_id;
+    }
+
+    $leaveWhereSql = !empty($leaveWhere)
+        ? " AND " . implode(" AND ", $leaveWhere)
+        : "";
 
     // First Half / Second Half / Full Day Leave and Week Off Requests without attendance
     $leaveQry = $pdo->prepare("SELECT
@@ -466,6 +513,7 @@ if (!empty($date)) {
     WHERE r.req_type IN (1,3)
     AND r.status = 1
     AND :date BETWEEN DATE(r.from_date) AND DATE(r.to_date)
+    $leaveWhereSql
     AND NOT EXISTS (
         SELECT 1
         FROM attendance a
@@ -474,9 +522,7 @@ if (!empty($date)) {
     )
     ");
 
-    $leaveQry->execute([
-        ':date' => $date
-    ]);
+    $leaveQry->execute($leaveParams);
 
     $leaveResult = $leaveQry->fetchAll(PDO::FETCH_ASSOC);
 

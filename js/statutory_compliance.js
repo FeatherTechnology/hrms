@@ -6,6 +6,7 @@ $(document).ready(function () {
     $(".pf_apply").find("input").prop("readonly", false);
     $(".pf_apply").find("select").prop("disabled", false);
     $(".esi_apply").find("input").prop("readonly", false);
+    $(".esi_apply").find("select").prop("disabled", false);
     $(".professional_tax_apply").find("select").prop("disabled", false);
     $("#pf_wage_div").hide();
     $("#esi_wage_div").hide();
@@ -78,6 +79,7 @@ $(document).ready(function () {
 
       // Make input fields readonly
       $(".esi_apply").find("input").prop("readonly", true);
+      $(".esi_apply").find("select").val("").prop("disabled", true);
       $("#esi_wage_div").hide();
 
       $("#esi_components_div input").css("border", "1px solid #cecece");
@@ -85,6 +87,7 @@ $(document).ready(function () {
     } else {
       // Enable input fields
       $(".esi_apply").find("input").prop("readonly", false);
+      $(".esi_apply").find("select").prop("disabled", false);
     }
   });
 
@@ -306,9 +309,11 @@ $(document).ready(function () {
 
       if (response[0].esi_applicable == 2) {
         $(".esi_apply").find("input").prop("readonly", true);
+        $(".esi_apply").find("select").val("").prop("disabled", true);
         $(".esi_apply").find("input").val("");
       } else {
         $(".esi_apply").find("input").prop("readonly", false);
+        $(".esi_apply").find("select").prop("disabled", false);
       }
 
       if (response[0].professional_tax_applicable == 2) {

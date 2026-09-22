@@ -122,7 +122,7 @@ function getPayRoll(company_id, branch_id, month) {
 
               <th rowspan="2">Gross Total</th>
 
-              <th colspan="7">Total Deductions</th>
+              <th colspan="8">Total Deductions</th>
 
               <th rowspan="2">Deduction</th>
               <th rowspan="2">Net Salary</th>
@@ -146,6 +146,7 @@ function getPayRoll(company_id, branch_id, month) {
           <th>Pension</th>
           <th>ESI</th>
           <th>PT</th>
+          <th>Attendance Deduction</th>
           <th>Loan Due</th>
           <th>Salary Advance</th>
 
@@ -200,6 +201,7 @@ function getPayRoll(company_id, branch_id, month) {
         "pension",
         "esi",
         "pt",
+        "attendance_deduction",
         "loan_due",
         "salary_advance",
         "deduction_total",

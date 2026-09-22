@@ -174,7 +174,8 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="effective_date">Effective From</label><span class="text-danger">*</span>
-                                    <input type="month"  class="form-control" id="effective_date" name="effective_date" min="<?php echo date('Y-m', strtotime('+1 month')); ?>">                                        </div>
+                                            <input type="month" class="form-control" id="effective_date" name="effective_date" min="<?php echo date('Y-m', strtotime('+1 month')); ?>">
+                                        </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
@@ -287,7 +288,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                                 <div class="form-group">
                                     <table id="ctc_info_table" class="table custom-table">
                                         <thead>

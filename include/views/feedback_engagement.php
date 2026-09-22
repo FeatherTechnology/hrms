@@ -77,7 +77,7 @@
                     <!--- General Feedback Table --->
                     <div class="card-body" id="general_feedback_table_content" style="display: none;">
                         <div class="row">
-                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                                 <div class="form-group">
                                     <table id="general_feedback_table" class="table custom-table">
                                         <thead>
@@ -232,7 +232,7 @@
                         <!--- Feedback Configuration Table --->
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                                     <div class="form-group">
                                         <table id="feedback_configuration_table" class="table custom-table">
                                             <thead>
@@ -320,7 +320,7 @@
                         <!--- Ratings Table --->
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                                     <div class="form-group">
                                         <table id="rating_table" class="table custom-table">
                                             <thead>
@@ -451,7 +451,7 @@
                         <!--- Poll Table --->
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
                                     <div class="form-group">
                                         <table id="poll_table" class="table custom-table">
                                             <thead>
