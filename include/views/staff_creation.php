@@ -359,7 +359,7 @@
                                                     <thead>
                                                         <tr>
                                                             <th width="20">S.NO</th>
-                                                            <th>Highest Qualification</th>
+                                                            <th>Qualification</th>
                                                             <th>Course/Degree</th>
                                                             <th>Specialization</th>
                                                             <th>College/Institution</th>
@@ -563,14 +563,14 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 reporting_person_div">
+                                        <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 reporting_person_div">
                                             <div class="form-group">
                                                 <label for="reporting_person">Reporting Person</label><span class="text-danger">*</span>
                                                 <select class="form-control" id="reporting_person" name="reporting_person" tabindex="41">
                                                     <option value="">Select Reporting Person</option>
                                                 </select>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                             <div class="form-group">
                                                 <label for="branch_admin">Branch Admin</label><span class="text-danger">*</span>
@@ -893,8 +893,8 @@
                             <input type="hidden" name="qualification_id" id='qualification_id'>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="highest_qualification">Highest Qualification</label><span class="text-danger">*</span>
-                                    <input class="form-control" name="highest_qualification" id="highest_qualification" tabindex="1" placeholder="Enter Highest Qualification">
+                                    <label for="qualification">Qualification</label><span class="text-danger">*</span>
+                                    <input class="form-control" name="qualification" id="qualification" tabindex="1" placeholder="Enter Qualification">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -948,7 +948,7 @@
                                 <tr>
 
                                     <th width="20">S.NO</th>
-                                    <th>Highest Qualification</th>
+                                    <th>Qualification</th>
                                     <th>Course/Degree</th>
                                     <th>Specialization</th>
                                     <th>College/Institution</th>

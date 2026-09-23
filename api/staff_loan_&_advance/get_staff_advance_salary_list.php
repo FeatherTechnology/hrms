@@ -1,6 +1,5 @@
-<!-- to get the salary advance outer list -->
-
 <?php
+// <!-- to get the salary advance outer list -->
 
 require '../../ajaxconfig.php';
 @session_start();

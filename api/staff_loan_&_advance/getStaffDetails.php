@@ -1,5 +1,5 @@
-<!-- to get the staff details  -->
 <?php
+// <!-- to get the staff details  -->
 require '../../ajaxconfig.php';
 
 $id = $_POST['id'];

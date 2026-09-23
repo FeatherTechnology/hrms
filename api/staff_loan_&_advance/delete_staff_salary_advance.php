@@ -1,5 +1,5 @@
-<!-- to delete the salary advance screen -->
 <?php
+// <!-- to delete the salary advance screen -->
 require '../../ajaxconfig.php';
 @session_start();
 $id = $_POST['id'] ?? '';

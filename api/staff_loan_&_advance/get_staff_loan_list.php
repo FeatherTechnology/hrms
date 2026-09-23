@@ -1,5 +1,5 @@
-<!-- to get the staff loan outer list -->
 <?php
+// <!-- to get the staff loan outer list -->
 require '../../ajaxconfig.php';
 @session_start();
 
@@ -93,7 +93,7 @@ if ($user) {
                 );
 
             $staffLoan['action'] = "
-                <span class='icon-border_color staffLoanActionBtn' value='" . $staffLoan['id'] . "'></span>
+                <span class='icon-border_color staffLoanActionBtn' value='" . $staffLoan['id'] . "' data-id='" . $staffLoan['due_start_date'] . "'></span>
                 <span class='icon-trash-2 staffLoanDeleteBtn' value='" . $staffLoan['id'] . "' data-id='".$staffLoan['due_start_date']."'></span>
             ";
         

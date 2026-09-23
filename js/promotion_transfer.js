@@ -100,13 +100,13 @@ $(document).ready(function () {
     getStaffTable(company_id, status, department_id, staff_id);
   });
 
-  $("#designation").on("change", async function () {
-    let selectedLevel = parseInt(
-      $("#designation option:selected").data("level"),
-    );
-    let company_id = $("#company_name").val();
-    await getReportingPerson(company_id, selectedLevel);
-  });
+  // $("#designation").on("change", async function () {
+  //   let selectedLevel = parseInt(
+  //     $("#designation option:selected").data("level"),
+  //   );
+  //   let company_id = $("#company_name").val();
+  //   // await getReportingPerson(company_id, selectedLevel);
+  // });
 
   $(document).on("input", ".ctc_amount", function () {
     let totalCTC = parseFloat($("#total_ctc").val().replace(/,/g, "")) || 0;
@@ -133,9 +133,9 @@ $(document).ready(function () {
     calculateTotals($(this));
   });
 
-  $("#staff_type").on("change", function () {
-    toggleReportingField();
-  });
+  // $("#staff_type").on("change", function () {
+  //   toggleReportingField();
+  // });
 
   $("#branch_admin").on("change", function () {
     toggleBranchField();
@@ -169,9 +169,9 @@ $(document).ready(function () {
     if (occ_status == 1) {
       occStatusText = "Promotion";
       data.push("designation");
-      if ($("#staff_type").val() != "1") {
-        data.push("reporting_person");
-      }
+      // if ($("#staff_type").val() != "1") {
+      //   data.push("reporting_person");
+      // }
     }
     // Transfer
     else if (occ_status == 2) {
@@ -250,10 +250,10 @@ $(document).ready(function () {
     let team = $("#team").val();
     let designation = $("#designation").val();
     let off_type = $("#off_type").val();
-    let reporting_person = $("#reporting_person").val();
-    let reporting_person_type = $("#reporting_person")
-      .find(":selected")
-      .data("type");
+    // let reporting_person = $("#reporting_person").val();
+    // let reporting_person_type = $("#reporting_person")
+    //   .find(":selected")
+    //   .data("type");
     let branch_admin = $("#branch_admin").val();
     let branch = $("#branch").val();
     let total_ctc = $("#total_ctc").val().replace(/,/g, "");
@@ -271,8 +271,8 @@ $(document).ready(function () {
         team: team,
         designation: designation,
         off_type: off_type,
-        reporting_person: reporting_person,
-        reporting_person_type: reporting_person_type,
+        // reporting_person: reporting_person,
+        // reporting_person_type: reporting_person_type,
         branch_admin: branch_admin,
         branch: branch,
         total_ctc: total_ctc,
@@ -484,12 +484,12 @@ async function editStaffProfile() {
     $("#department").val(data.department);
     $("#team").val(data.team);
 
-    let selectedLevel = parseInt(
-      $("#designation option:selected").data("level"),
-    );
-    await getReportingPerson(data.company_id, selectedLevel);
+    // let selectedLevel = parseInt(
+    //   $("#designation option:selected").data("level"),
+    // );
+    // await getReportingPerson(data.company_id, selectedLevel);
 
-    $("#reporting_person").val(data.reporting_person);
+    // $("#reporting_person").val(data.reporting_person);
     $("#branch_admin").val(data.branch_admin);
     $("#branch").val(data.branch);
     $("#staff_type").trigger("change");
@@ -653,41 +653,41 @@ async function getTeamList(dep_id, selected_team = "") {
   }
 }
 
-async function getReportingPerson(company_id, selectedLevel) {
-  try {
-    if (!selectedLevel) {
-      $("#reporting_person")
-        .empty()
-        .append('<option value="">Select Reporting Person</option>');
+// async function getReportingPerson(company_id, selectedLevel) {
+//   try {
+//     if (!selectedLevel) {
+//       $("#reporting_person")
+//         .empty()
+//         .append('<option value="">Select Reporting Person</option>');
 
-      return;
-    }
+//       return;
+//     }
 
-    const response = await $.ajax({
-      url: "api/staff_creation/get_reporting_person.php",
-      type: "POST",
-      dataType: "json",
-      data: {
-        company_id: company_id,
-        designation_level: selectedLevel,
-      },
-    });
+//     const response = await $.ajax({
+//       url: "api/staff_creation/get_reporting_person.php",
+//       type: "POST",
+//       dataType: "json",
+//       data: {
+//         company_id: company_id,
+//         designation_level: selectedLevel,
+//       },
+//     });
 
-    let option = '<option value="">Select Reporting Person</option>';
+//     let option = '<option value="">Select Reporting Person</option>';
 
-    $.each(response, function (index, value) {
-      option += `
-                <option value="${value.id}"  data-type="${value.designation}">
-                    ${value.staff_name} (${value.designation})
-                </option>
-            `;
-    });
+//     $.each(response, function (index, value) {
+//       option += `
+//                 <option value="${value.id}"  data-type="${value.designation}">
+//                     ${value.staff_name} (${value.designation})
+//                 </option>
+//             `;
+//     });
 
-    $("#reporting_person").empty().append(option);
-  } catch (error) {
-    console.error("Error loading Reporting Person:", error);
-  }
-}
+//     $("#reporting_person").empty().append(option);
+//   } catch (error) {
+//     console.error("Error loading Reporting Person:", error);
+//   }
+// }
 function toggleBranchField() {
   if ($("#branch_admin").val() == "1") {
     // Yes
@@ -698,15 +698,15 @@ function toggleBranchField() {
   }
 }
 
-function toggleReportingField() {
-  if ($("#staff_type").val() != "1") {
-    // Yes
-    $(".reporting_person_div").show();
-  } else {
-    $(".reporting_person_div").hide();
-    $("#reporting_person").val("");
-  }
-}
+// function toggleReportingField() {
+//   if ($("#staff_type").val() != "1") {
+//     // Yes
+//     $(".reporting_person_div").show();
+//   } else {
+//     $(".reporting_person_div").hide();
+//     $("#reporting_person").val("");
+//   }
+// }
 async function getDesignationList(company_id, selected_designation = "") {
   try {
     const response = await $.ajax({
@@ -833,7 +833,7 @@ function disableAllSections() {
   $("#branch_name").prop("disabled", true);
   $("#department").prop("disabled", true);
   $("#team").prop("disabled", true);
-  $("#reporting_person").prop("disabled", true);
+  // $("#reporting_person").prop("disabled", true);
   $("#branch_admin").prop("disabled", true);
   $("#branch").prop("disabled", true);
   $("#effective_date").val("");
@@ -859,7 +859,7 @@ function enablePromotionSection() {
   // Enable ONLY designation, clear it for new selection
   setCTCTableReadonly(true);
   $("#designation").prop("disabled", false);
-  $("#reporting_person").prop("disabled", false);
+  // $("#reporting_person").prop("disabled", false);
 }
 
 function enableTransferSection() {

@@ -17,7 +17,6 @@ $qry = $pdo->query("
         oi.designation,
         oi.off_type,
         oi.branch_admin,
-        oi.reporting_person,
         oi.branch,
         oi.total_ctc,
         oi.annual_ctc,

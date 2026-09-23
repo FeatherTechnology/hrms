@@ -16,8 +16,8 @@ $branch_name      = $_POST['branch_name'];
 $department       = $_POST['department'];
 $team             = $_POST['team'];
 $designation      = $_POST['designation'];
-$reporting_person = $_POST['reporting_person'];
-$reporting_person_type = (strtolower($_POST['reporting_person_type']) == 'director') ? 1 : 2;
+// $reporting_person = $_POST['reporting_person'];
+// $reporting_person_type = (strtolower($_POST['reporting_person_type']) == 'director') ? 1 : 2;
 
 $branch_admin     = $_POST['branch_admin'];
 $branch           = $_POST['branch'];
@@ -52,8 +52,8 @@ $team_old           = $oldOcc['team'];
 $designation_old    = $oldOcc['designation'];
 $off_type_old       = $oldOcc['off_type'];
 $branch_admin_old   = $oldOcc['branch_admin'];
-$reporting_old      = $oldOcc['reporting_person'];
-$reporting_person_type_old     = $oldOcc['reporting_person_type'];
+// $reporting_old      = $oldOcc['reporting_person'];
+// $reporting_person_type_old     = $oldOcc['reporting_person_type'];
 $branch_old         = $oldOcc['branch'];
 
 $total_ctc_old      = $oldOcc['total_ctc'];
@@ -71,11 +71,11 @@ if ($occ_status == '1') {
 
     $designation_old = $designation;
 
-    if ($staff_type != '1') {
+    // if ($staff_type != '1') {
 
-        $reporting_old = $reporting_person;
-        $reporting_person_type_old = $reporting_person_type;
-    }
+    //     $reporting_old = $reporting_person;
+    //     $reporting_person_type_old = $reporting_person_type;
+    // }
 }
 
 
@@ -123,8 +123,6 @@ $pdo->query("
     off_type         = '$off_type_old',
 
     branch_admin     = '$branch_admin_old',
-    reporting_person = '$reporting_old',
-    reporting_person_type = '$reporting_person_type_old',
     branch           = '$branch_old',
 
     total_ctc        = '$total_ctc_old',

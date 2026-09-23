@@ -91,7 +91,7 @@
                                 <th>Department</th>
                                 <th>Team</th>
                                 <th>Designation</th>
-                                <th>Reporting Person</th>
+                                <!-- <th>Reporting Person</th> -->
                                 <th>PF Applicable</th>
                                 <th>ESI Applicable</th>
                                 <th>PT Applicable</th>
@@ -211,14 +211,14 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 reporting_person_div" style="display: none;">
+                                    <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 reporting_person_div" style="display: none;">
                                         <div class="form-group">
                                             <label for="reporting_person">Reporting Person</label><span class="text-danger">*</span>
                                             <select class="form-control" id="reporting_person" name="reporting_person" tabindex="10">
                                                 <option value="">Select Reporting Person</option>
                                             </select>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="branch_admin">Branch Admin</label><span class="text-danger">*</span>
