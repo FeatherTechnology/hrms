@@ -1,5 +1,5 @@
-<!-- to submit staff loan  -->
 <?php
+// <!-- to submit staff loan  -->
 require '../../ajaxconfig.php';
 @session_start();
 

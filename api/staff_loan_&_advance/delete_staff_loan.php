@@ -1,5 +1,5 @@
-<!-- to delet the staff loan -->
-<?php
+<?php 
+// <!-- to delet the staff loan -->
 require '../../ajaxconfig.php';
 
 @session_start();

@@ -54,8 +54,6 @@ $branch_name = $_POST['branch_name'];
 $department = $_POST['department'];
 $designation = $_POST['designation'];
 $team = $_POST['team'];
-$reporting_person = $_POST['reporting_person'];
-$reporting_person_type = (strtolower($_POST['reporting_person_type']) == 'director') ? 1 : 2;
 $branch_admin = $_POST['branch_admin'];
 $branch = $_POST['branch'];
 $off_type = $_POST['off_type'];
@@ -91,8 +89,6 @@ if ($check->rowCount() == 0) {
         designation='$designation',
         off_type='$off_type',
         branch_admin='$branch_admin',
-        reporting_person='$reporting_person',
-        reporting_person_type='$reporting_person_type',
         branch='$branch',
         total_ctc='$total_ctc',
         annual_ctc='$annual_ctc',

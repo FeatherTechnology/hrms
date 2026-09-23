@@ -1,5 +1,5 @@
-<!-- to submit the staff salary advance -->
 <?php
+// <!-- to submit the staff salary advance -->
 
 require '../../ajaxconfig.php';
 @session_start();

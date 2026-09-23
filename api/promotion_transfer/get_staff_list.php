@@ -54,13 +54,7 @@ $query = "SELECT
             oc.total_ctc,
             oc.occ_status,
             oc.created_on,
-            oc.effective_from,
-
-            CASE
-                WHEN oc.reporting_person_type = '1' THEN dc.director_name
-                WHEN oc.reporting_person_type = '2' THEN rp.staff_name
-                ELSE ''
-                END AS reporting_person_name
+            oc.effective_from
 
           FROM staff_creation sc
 
@@ -81,16 +75,6 @@ $query = "SELECT
 
           LEFT JOIN designation_creation des 
                  ON oc.designation = des.id
-
-          LEFT JOIN staff_creation rp
-                ON oc.reporting_person = rp.id
-                AND oc.reporting_person_type = 2
-
-        LEFT JOIN director_creation dc
-                ON oc.reporting_person = dc.id
-                AND oc.reporting_person_type = 1
-
-                 
 
           WHERE sc.id = '$staff_id'
 ";
@@ -186,7 +170,6 @@ foreach ($result as $row) {
     $sub_array[] = $row['department_name'];
     $sub_array[] = $row['team_name'];
     $sub_array[] = $row['designation'];
-    $sub_array[] = $row['reporting_person_name'];
     $sub_array[] = isset($available_arr[$row['pf_available']]) ? $available_arr[$row['pf_available']]  : '';
     $sub_array[] = isset($available_arr[$row['esi_available']])  ? $available_arr[$row['esi_available']] : '';
     $sub_array[] = isset($available_arr[$row['pt_available']])  ? $available_arr[$row['pt_available']]    : '';

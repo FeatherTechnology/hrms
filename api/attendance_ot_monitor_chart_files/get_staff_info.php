@@ -30,16 +30,16 @@ try {
         $params[':staff_id'] = $staff_id;
     }
 
-if (!empty($date)) {
+    if (!empty($date)) {
 
-    if ($type == 'attendance') {
-        $where[] = "DATE(COALESCE(a.updated_time, a.entry_time)) = :date";
-    } else {
-        $where[] = "DATE(COALESCE(a.entry_time, a.updated_time)) = :date";
+        if ($type == 'attendance') {
+            $where[] = "DATE(COALESCE(a.updated_time, a.entry_time)) = :date";
+        } else {
+            $where[] = "DATE(COALESCE(a.entry_time, a.updated_time)) = :date";
+        }
+
+        $params[':date'] = $date;
     }
-
-    $params[':date'] = $date;
-}
 
     $where_sql = '';
 
@@ -67,10 +67,10 @@ if (!empty($date)) {
     $where_sql
 
     ORDER BY " . (
-            $type == 'attendance'
-                ? "COALESCE(a.updated_time, a.entry_time)"
-                : "COALESCE(a.entry_time, a.updated_time)"
-        ) . " ASC
+        $type == 'attendance'
+        ? "COALESCE(a.updated_time, a.entry_time)"
+        : "COALESCE(a.entry_time, a.updated_time)"
+    ) . " ASC
     ";
 
     $stmt = $pdo->prepare($query);
@@ -86,7 +86,6 @@ if (!empty($date)) {
             $attendance_time = !empty($row['updated_time'])
                 ? $row['updated_time']
                 : $row['entry_time'];
-
         } else {
 
             $attendance_time = !empty($row['entry_time'])
@@ -137,7 +136,7 @@ if (!empty($date)) {
 
         // Employee actually starts working
         $working_start = max($entry_time, $shift_start);
-                // =========================================
+        // =========================================
         // ADVANCE ATTENDANCE
         // =========================================
 
@@ -335,14 +334,38 @@ if (!empty($date)) {
         // LATE ENTRY
         // =========================================
 
-        if ($entry_time > $grace_end) {
+        $lateStart = $grace_end;
+
+        // Check approved permission
+        foreach ($permissions as $permission) {
+
+            // Permission covers the employee's entry time
+            if (
+                $permission['start'] <= $entry_time &&
+                $permission['end'] >= $entry_time
+            ) {
+                $lateStart = $permission['end'];
+                break;
+            }
+
+            // Employee entered after permission ended
+            if (
+                $permission['start'] <= $entry_time &&
+                $permission['end'] < $entry_time
+            ) {
+                $lateStart = $permission['end'];
+            }
+        }
+
+        // Show Late Entry only after permission/grace ends
+        if ($entry_time > $lateStart) {
 
             $response[] = [
                 'staff_name' => $row['staff_name'],
                 'type'       => 'Late Entry',
                 'color'      => '#f75d52',
-                'start'      => date('Y-m-d H:i:s', $grace_end),
-                'end'        => date('Y-m-d H:i:s', $entry_time)
+                'start'      => date('Y-m-d H\:i:s', $lateStart),
+                'end'        => date('Y-m-d H\:i:s', $entry_time)
             ];
         }
 

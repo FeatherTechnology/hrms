@@ -10,7 +10,7 @@ if ($qry->rowCount() > 0) {
     while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
         // Construct action buttons
             $qualification_list_arr[$i]['id'] = $row['id']; 
-        $qualification_list_arr[$i]['highest_qualification'] = $row['highest_qualification'];
+        $qualification_list_arr[$i]['qualification'] = $row['qualification'];
         $qualification_list_arr[$i]['degree'] = $row['degree'];   
         $qualification_list_arr[$i]['specialization'] = $row['specialization'];   
         $qualification_list_arr[$i]['college'] = $row['college'];
