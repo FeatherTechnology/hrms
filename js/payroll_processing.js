@@ -133,7 +133,7 @@ function getPayRoll(company_id, branch_id, month) {
 
 
       components.forEach(function (component) {
-        table += `<th>${component}</th>`;
+        table += `<th>${component.name}</th>`;
       });
 
 
@@ -179,17 +179,17 @@ function getPayRoll(company_id, branch_id, month) {
 
         components.forEach(function (component) {
 
-          val[`comp_${component}`] =
-            val.components?.[component] || 0;
+          val[`comp_${component.id}`] =
+            val.components?.[component.id] || 0;
 
         });
 
       });
 
 
-      components.forEach(function (component) {
-        columnMapping.push(`comp_${component}`);
-      });
+     components.forEach(function (component) {
+      columnMapping.push(`comp_${component.id}`);
+    });
 
 
       columnMapping.push(

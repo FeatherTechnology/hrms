@@ -26,7 +26,7 @@ $userStmt = $pdo->prepare("SELECT
         ON oi.id = (
             SELECT MAX(id)
             FROM occupation_info
-            WHERE staff_profile_id = u.staff_name_id
+            WHERE staff_profile_id = u.staff_name_id AND effective_from <= NOW()
         )
     LEFT JOIN designation_creation dc ON dc.id = oi.designation
     WHERE u.id = ?

@@ -14,7 +14,7 @@ try {
         LEFT JOIN team_name_creation tnc ON oi.team = tnc.id 
         LEFT JOIN designation_creation ds ON oi.designation = ds.id
         WHERE oi.staff_profile_id = ?
-        AND oi.id = (SELECT MAX(id) FROM occupation_info WHERE staff_profile_id = ?)
+        AND oi.id = (SELECT MAX(id) FROM occupation_info WHERE staff_profile_id = ? AND effective_from <= NOW())
     ");
 
     $stmt->execute([$id, $id]);

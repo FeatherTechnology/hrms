@@ -53,8 +53,7 @@ $query = "SELECT
                     FROM document_info di
                     WHERE di.staff_profile_id = sc.id
                       AND (
-                          di.return_date IS NULL
-                          OR di.return_date = ''
+                          di.return_date IS NULL 
                       )
                 )
                 THEN 'Completed'
@@ -73,7 +72,7 @@ $query = "SELECT
                 WHERE oi1.id = (
                     SELECT MAX(oi2.id)
                     FROM occupation_info oi2
-                    WHERE oi2.staff_profile_id = oi1.staff_profile_id
+                    WHERE oi2.staff_profile_id = oi1.staff_profile_id AND oi2.effective_from <= NOW()
                 )
           ) oc ON oc.staff_profile_id = sc.id
 
@@ -117,13 +116,22 @@ if ($status != '') {
                         )
                     )";
     }
-}else{
-     $query .= " 
-                    AND (
-                        date(sc.relieve_date) >= '$today'
-                        OR sc.relieve_date IS NULL
-                        OR sc.relieve_date = ''
-                    )";
+}else{ 
+    $query .= "  
+        AND ( 
+            date(sc.relieve_date) >= '$today' 
+            OR sc.relieve_date IS NULL 
+            OR sc.relieve_date = ''
+
+            OR EXISTS (
+                SELECT 1
+                FROM document_info di
+                WHERE di.staff_profile_id = sc.id
+                  AND (
+                      di.return_date IS NULL
+                  )
+            )
+        )";
 }
 
 /* Company Filter */

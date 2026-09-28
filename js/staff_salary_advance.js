@@ -87,9 +87,9 @@ $(document).on("click", ".staffSalaryAdvanceDeleteBtn", function () {
             },
             function (response) {
               if (response == "1") {
-                swalSuccess("Success", "Staff Loan Updated Successfully!");
+                swalSuccess("Success", "Staff Salary Advance Updated Successfully!");
               } else if (response == "2") {
-                swalSuccess("Success", "Staff Loan Added Successfully!");
+                swalSuccess("Success", "Staff Salary Advance Added Successfully!");
               } else {
                 swalError("Error", "Error Occurred!");
               }
@@ -260,7 +260,7 @@ function getStaffSalaryAdvanceDetails(id) {
                 $("#advance_amount").val(data.advance_amount);
                 $("#dedection_month").val(data.dedection_month.substring(0, 7));
             } else {
-                swalError("Warning", "Staff Loan Details Not Found");
+                swalError("Warning", "Staff advance salary Details Not Found");
             }
         },
         "json"

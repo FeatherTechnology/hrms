@@ -818,6 +818,7 @@ $(document).ready(function () {
     let branch_id = $("#branch_search").val();
     let department_id = $("#department_search").val();
     let total_ctc_amount = $("#total_ctc_amount").val();
+    let esi_wage_limit = $("#esi_wage_limit").val();
 
     var data = [
       "staff_auto_id",
@@ -858,6 +859,14 @@ $(document).ready(function () {
     }
     if (branch_admin == "1") {
       data.push("branch");
+    }
+    if(esi_wage_limit > 0 &&  total_ctc > esi_wage_limit && esi_available ==1){
+      swalError(
+          "Warning",
+          "CTC exceeds ESI limit of ₹" + esi_wage_limit + ". Please select ESI Applicable as No.",
+        );
+      return false;
+
     }
 
     var isValid = true;
@@ -1016,7 +1025,7 @@ $(document).ready(function () {
               if (response.result == 0) {
                 swalError("Error", "Staff Info Not Added!");
               } else if (response.result == 1) {
-                swalSuccess("Success", "Staff Info Updated Successfully!");
+                swalSuccess("Success", "Staff Info Added Successfully!");
                 $("#staff_profile_id").val("");
                 swapTableAndCreation();
                 getStaffTable(company_id, branch_id, department_id);
@@ -1467,6 +1476,11 @@ async function getCompanyPFDetails(company_name) {
       $("#esi_available")
         .val(response[0].esi_applicable)
         .prop("disabled", false);
+    }
+    if (response[0].esi_wage_limit != '') {
+      $("#esi_wage_limit").val(response[0].esi_wage_limit);
+    } else {
+      $("#esi_wage_limit").val("");
     }
 
     if (response[0].professional_tax_applicable == 2) {

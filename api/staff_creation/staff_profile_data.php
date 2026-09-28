@@ -30,7 +30,7 @@ $qry = $pdo->query("
         ON oi.id = (
             SELECT MAX(id)
             FROM occupation_info
-            WHERE staff_profile_id = sc.id
+            WHERE staff_profile_id = sc.id AND effective_from <= NOW()
         )
 
     WHERE sc.id = '$id'

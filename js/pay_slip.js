@@ -126,7 +126,15 @@ console.log(row);
         // COMPONENTS
         //////////////////////////////////////////////////////
 
-        let earnings = { ...(row.components || {}) };
+        let earnings = {};
+
+        $.each(row.components || {}, function (id, amount) {
+            let component = response.components.find(c => String(c.id) === String(id));
+
+            if (component) {
+                earnings[component.name] = amount;
+            }
+        });
 
         // Add OT Amount as the last earning component
         earnings["OT Amount"] = row.ot_amount || 0;
