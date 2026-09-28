@@ -37,7 +37,7 @@ $sql = "SELECT
         ON oi.id = (
             SELECT MAX(id)
             FROM occupation_info
-            WHERE staff_profile_id = u.staff_name_id
+            WHERE staff_profile_id = u.staff_name_id AND effective_from <= NOW()
         )
     LEFT JOIN director_creation drc ON drc.id = u.director_name
     LEFT JOIN branch_creation bc ON oi.branch_id = bc.id

@@ -265,7 +265,7 @@
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title">Monitoring Chart</h5>
+                <h5 class="modal-title">Attendance Chart</h5>
 
                 <button type="button"
                     class="close"

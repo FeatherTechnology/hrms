@@ -89,6 +89,7 @@
         <div id="staff_creation_content" style="display: none;">
             <form id="staff_creation" name="staff_creation" action="" method="post" enctype="multipart/form-data">
                 <input type="hidden" id="staff_profile_id">
+                <input type="hidden" id="esi_wage_limit">
                 <div class="row gutters">
                     <div class="col-12">
                         <div class="card">

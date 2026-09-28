@@ -19,7 +19,7 @@ $user_stmt = $pdo->prepare("
     LEFT JOIN occupation_info oi ON oi.id = (
         SELECT MAX(id)
         FROM occupation_info
-        WHERE staff_profile_id = u.staff_name_id
+        WHERE staff_profile_id = u.staff_name_id AND effective_from <= NOW()
     )
     LEFT JOIN designation_creation dc ON dc.id = oi.designation
     WHERE u.id = ?
@@ -60,7 +60,7 @@ $base_query = " FROM occupation_info oi
                 )
                 LEFT JOIN branch_creation bcs ON lam.assigned_branch = bcs.id
                 WHERE oi.off_type = 1 
-                AND oi.id IN (SELECT MAX(id) FROM occupation_info GROUP BY staff_profile_id) 
+                AND oi.id IN (SELECT MAX(id) FROM occupation_info GROUP BY staff_profile_id AND effective_from <= NOW()) 
                 AND (DATE(sc.relieve_date) >= '$today' OR sc.relieve_date = '' OR sc.relieve_date IS NULL)";
                 
 if ($user_type == 2) {

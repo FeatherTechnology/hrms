@@ -46,64 +46,68 @@ $(document).ready(function () {
 
  $(document).on("mouseenter", ".notification-row", function (e) {
 
-  let module = $(this).data("module");
+    let module = $(this).data("module");
 
-  let filteredData = notificationSummary.filter(item => item.module == module);
+    // Only show tooltip for Regularization
+    if (module !== "Regularization") {
+        $("#notificationTooltip").hide();
+        return;
+    }
 
-  let html = `
-    <table class="notification-table">
-        <thead>
+    let filteredData = notificationSummary.filter(
+        item => item.module == module
+    );
+
+    let html = `
+        <table class="notification-table">
+            <thead>
+                <tr>
+                    <th>Request Type</th>
+                    <th>Today</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    if (filteredData.length) {
+
+        $.each(filteredData, function (i, row) {
+
+            html += `
+                <tr>
+                    <td>${row.request_type}</td>
+                    <td class="text-center">${row.today_count}</td>
+                    <td class="text-center">${row.total_count}</td>
+                </tr>
+            `;
+
+        });
+
+    } else {
+
+        html += `
             <tr>
-                <th>Request Type</th>
-                <th>Today</th>
-                <th>Total</th>
+                <td colspan="3" style="text-align:center">
+                    No Data Found
+                </td>
             </tr>
-        </thead>
-        <tbody>
-  `;
-
-if (filteredData.length) {
-
-  $.each(filteredData, function (i, row) {
-
-    // ❗ BLOCK FEEDBACK INSIDE HOVER
-    if (row.module !== "Regularization") {
-      return; // skip anything not regularization
+        `;
     }
 
     html += `
-      <tr>
-          <td>${row.request_type}</td>
-          <td class="text-center">${row.today_count}</td>
-          <td class="text-center">${row.total_count}</td>
-      </tr>
+            </tbody>
+        </table>
     `;
-  });
 
-} else {
-
-    html += `
-      <tr>
-          <td colspan="3" style="text-align:center">
-              No Data Found
-          </td>
-      </tr>
-    `;
-  }
-
-  html += `
-        </tbody>
-    </table>
-  `;
-
-  $("#notificationTooltip")
-    .appendTo("body")
-    .html(html)
-    .css({
-      display: "block",
-      top: e.clientY + "px",
-      left: e.clientX + 15 + "px",
-    });
+    $("#notificationTooltip")
+        .appendTo("body")
+        .html(html)
+        .css({
+            display: "block",
+            top: e.clientY + "px",
+            left: e.clientX + 15 + "px"
+        });
 
 });
 
@@ -179,11 +183,11 @@ function getNotifications() {
                     };
                 }
 
-                moduleTotals[item.module].today += parseInt(item.today_count);
-                moduleTotals[item.module].total += parseInt(item.total_count);
+                moduleTotals[item.module].today += parseInt(item.today_count) || 0;
+                moduleTotals[item.module].total += parseInt(item.total_count) || 0;
             });
 
-            // STEP 2: Build HTML dynamically
+            // STEP 2: Build HTML
             let html = `
                 <table class="notification-table">
                     <thead>
@@ -200,7 +204,21 @@ function getNotifications() {
 
             $.each(moduleTotals, function (module, data) {
 
-                let label = (module === "Regularization") ? "Regularization" : "My Feedback";
+                // Convert module name to display name
+                let label = module;
+
+                if (module === "Regularization") {
+                    label = "Regularization";
+                }
+                else if (module === "Feedback") {
+                    label = "My Feedback";
+                }
+                else if (module === "rating") {
+                    label = "Rating";
+                }
+                else if (module === "poll") {
+                    label = "Poll";
+                }
 
                 html += `
                     <tr class="notification-row" data-module="${module}">
@@ -220,12 +238,14 @@ function getNotifications() {
 
             $(".header-notifications").html(html);
 
+            // Total notification count
             $(".count-label").text(totalNotification);
 
-            if (totalNotification == 0)
+            if (totalNotification == 0) {
                 $(".count-label").hide();
-            else
+            } else {
                 $(".count-label").show();
+            }
 
         },
         "json"

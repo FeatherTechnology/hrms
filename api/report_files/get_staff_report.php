@@ -60,7 +60,7 @@ INNER JOIN (
     FROM occupation_info oi
     INNER JOIN (
         SELECT staff_profile_id, MAX(id) AS max_id
-        FROM occupation_info
+        FROM occupation_info Where effective_from <= NOW()
         GROUP BY staff_profile_id
     ) latest
     ON oi.id = latest.max_id
