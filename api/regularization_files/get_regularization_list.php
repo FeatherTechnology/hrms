@@ -62,10 +62,12 @@ $columns = [
     'tc.team_name',
     'reg.req_date',
     'reg.req_type',
+    'reg.leave_period',
     'reg.from_date',
     'reg.to_date',
     'reg.total_min',
     'reg.status',
+    'reg.id',
     'reg.id'
 ];
 
@@ -350,7 +352,7 @@ $data[] = [
     $row['department_name'],
     $row['designation'],
     $row['team_name'],
-    !empty($row['req_date']) ? date('d-m-Y H:i:s', strtotime($row['req_date'])) : '',
+    !empty($row['req_date']) ? date('d-m-Y', strtotime($row['req_date'])) : '',
     $Req_type[$row['req_type']] ?? '',
     $leave_period[$row['leave_period']] ?? '',
         !empty($row['from_date']) ? date(in_array($row['req_type'], [1, 3]) ? 'd-m-Y' : 'd-m-Y h:i A', strtotime($row['from_date'])) : '',

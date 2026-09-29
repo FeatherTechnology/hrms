@@ -149,7 +149,9 @@ $(document).ready(function () {
     let cmpy_id = $("#cmpy_id").val();
     let value = $(this).val();
     $("#total_days").empty();
-    $( ".leveType,#from_date,#to_date,#leave_type_id,#balance_req,#leave_period,#ave_balance,#shift_start,#shift_end").val("");
+    $(
+      ".leveType,#from_date,#to_date,#leave_type_id,#balance_req,#leave_period,#ave_balance,#shift_start,#shift_end",
+    ).val("");
     if (value == "1") {
       $(".leveType").show();
       $(".Lev_per").show();
@@ -180,7 +182,9 @@ $(document).ready(function () {
       $(".leveType").hide();
       $(".ot_req").show();
       $(".shift_time").show();
-      $("#leave_type,#leave_type_id,#balance_req,#leave_period,#ave_balance,#shift_start,#shift_end").val("");
+      $(
+        "#leave_type,#leave_type_id,#balance_req,#leave_period,#ave_balance,#shift_start,#shift_end",
+      ).val("");
       $("#from_date,#to_date").attr("type", "datetime-local");
       getbalancerequest();
     }
@@ -380,20 +384,20 @@ $(document).ready(function () {
   $("#leave_type").on("change", async function () {
     let leave_type = $("#leave_type").val();
     $("#to_date,#total_days,#from_date,#balance_req").val("");
-    if(leave_type == 0){
-      $('.bal_req').hide();
-    }else{
-       $('.bal_req').show();
+    if (leave_type == 0) {
+      $(".bal_req").hide();
+    } else {
+      $(".bal_req").show();
     }
     await getbalancerequest();
-});
-  
-    $(document).on("click", ".sts_remarks", function (e) {
-        e.preventDefault();
-        let remarks = $(this).data('remarks') || ''; 
-        console.log("remarks",remarks)
-        $('#sts_remarks').val(remarks);
-    });
+  });
+
+  $(document).on("click", ".sts_remarks", function (e) {
+    e.preventDefault();
+    let remarks = $(this).data("remarks") || "";
+    console.log("remarks", remarks);
+    $("#sts_remarks").val(remarks);
+  });
 });
 // document end
 $(function () {
@@ -606,13 +610,13 @@ function getedituserdetails(id, userid) {
           <span><span style="color:#f26b35">${minutes}</span> M</span>
         </div>`,
       );
-      
-      if (response.req_type == '2'  || response.req_type == '4') {
+
+      if (response.req_type == "2" || response.req_type == "4") {
         $(".shift_time").show();
       } else {
         $(".shift_time").hide();
       }
-      if (response.req_type == '1'  && response.leave_type == '0') {
+      if (response.req_type == "1" && response.leave_type == "0") {
         $(".bal_req").show();
       } else {
         $(".bal_req").hide();
@@ -634,10 +638,10 @@ function getcmpyleavelist(cmpy_id) {
       $("#leave_type").append("<option value=''>Select Leave Type</option>");
 
       // LOP
-      let lopSelected = (leave_type_id == "0") ? "selected" : "";
+      let lopSelected = leave_type_id == "0" ? "selected" : "";
 
       $("#leave_type").append(
-        "<option value='0' " + lopSelected + ">LOP</option>"
+        "<option value='0' " + lopSelected + ">LOP</option>",
       );
 
       $.each(response, function (index, val) {
@@ -764,13 +768,15 @@ function calculateDateDiff(
   let reqType = $("#req_type").val();
 
   let leave_period = $("#leave_period").val();
-  if ( (reqType == "1" || reqType == "3") &&
-  (leave_period == "1" || leave_period == "2") ) {
+  if (
+    (reqType == "1" || reqType == "3") &&
+    (leave_period == "1" || leave_period == "2")
+  ) {
     let start = new Date(`1970-01-01T${shiftStart}`);
     let end = new Date(`1970-01-01T${shiftEnd}`);
 
     if (end <= start) {
-        end.setDate(end.getDate() + 1);
+      end.setDate(end.getDate() + 1);
     }
 
     let totalMinutes = (end - start) / (1000 * 60);
@@ -790,11 +796,10 @@ function calculateDateDiff(
     `);
 
     return;
-}
+  }
 
-// LOP Full Day
-if (reqType == "1" && $("#leave_type").val() == "0" && leave_period == "3") {
-
+  // LOP Full Day
+  if (reqType == "1" && $("#leave_type").val() == "0" && leave_period == "3") {
     let totalMinutes = Math.floor(diffMs / 60000) + 1440;
 
     $(totalMinSelector).val(totalMinutes);
@@ -810,7 +815,7 @@ if (reqType == "1" && $("#leave_type").val() == "0" && leave_period == "3") {
     `);
 
     return;
-}
+  }
 
   if (
     (reqType == "1" || reqType == "3") &&
