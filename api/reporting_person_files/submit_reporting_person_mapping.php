@@ -9,8 +9,8 @@ try {
 
     $company_name       = $_POST['company_name'] ?? '';
     $user_type          = $_POST['user_type'] ?? '';
-    $designation        = $_POST['designation'] ?? '';
-    $reporting_person   = $_POST['reporting_person'] ?? '';
+    $designation        = !empty($_POST['designation']) ? (int)$_POST['designation'] : null;
+    $reporting_person   = !empty($_POST['reporting_person']) ? (int)$_POST['reporting_person'] : null;
 
     // Selected staff IDs from Choices.js
     $reporting_staff = $_POST['reporting_staff'] ?? [];
@@ -19,7 +19,7 @@ try {
     // Example: 12||15||20
     $reporting_staff2 = $_POST['reporting_staff2'] ?? '';
 
-    $director_name     = $_POST['director_name'] ?? '';
+    $director_name = !empty($_POST['director_name']) ? (int)$_POST['director_name'] : null;
     $reporting_person_id = $_POST['reporting_person_id'] ?? '';
 
     $user_id = $_SESSION['user_id'] ?? 0;
