@@ -17,6 +17,7 @@ $userStmt = $pdo->prepare("SELECT
         u.approval_required,
         u.allowed_request_type,
         u.approved_request_type,
+        u.approval_view,
         sc.staff_type,
         sc.company_id,
         dc.designation_level
@@ -41,6 +42,7 @@ $my_staff_id        = $userData['staff_name_id'] ?? 0;
 $approval_required  = $userData['approval_required'] ?? '';
 $allowed_request_type  = $userData['allowed_request_type'] ?? '';
 $approved_request_type  = $userData['approved_request_type'] ?? '';
+$approval_view  = $userData['approval_view'] ?? '';
 $my_level           = $userData['designation_level'] ?? 0;
 $user_type          = $userData['user_type'] ?? 0;
 $director_company   = $userData['director_company'] ?? '';
@@ -48,7 +50,7 @@ $director_company   = $userData['director_company'] ?? '';
 /* ---------- Mappings ---------- */
 $Req_type = [1 => 'Leave', 2 => 'Permission', 3 => 'Week Off', 4 => 'OT'];
 $reg_status = [0 => 'Pending', 1 => 'Approved', 2 => 'Cancel'];
-$leave_period = [ 1 => 'First Half', 2 => 'Second Half',3=>'Full Day'];
+$leave_period = [1 => 'First Half', 2 => 'Second Half', 3 => 'Full Day'];
 
 /* ---------- Column map for ordering ---------- */
 $columns = [
@@ -128,9 +130,13 @@ if ($type == 'Approval') {
         $baseQuery .= " AND descr.designation_level > :my_level ";
         $params[':my_level'] = $my_level;
     }
-
-    $types = array_map('intval', explode(',', $approved_request_type));
-    $baseQuery .= " AND reg.req_type IN (" . implode(',', $types) . ")";
+    if (
+        $approval_required == 1 ||
+        ($approval_required == 2 && $approval_view == 2)
+    ) {
+        $types = array_map('intval', explode(',', $approved_request_type));
+        $baseQuery .= " AND reg.req_type IN (" . implode(',', $types) . ")";
+    }
 }
 
 if ($user_type == 1) {
@@ -331,17 +337,19 @@ foreach ($result as $row) {
     /* action */
     if ($row['insert_login_id'] == $userid) {
         $action = "<span class='icon-delete delete_reg' data-id='{$row['id']}' data-status='{$row['status']}' data-from-date='{$row['from_date']}'> </span>";
-    } else {
+    } elseif ($approval_required == 1) {
         $action = "<span class='icon-border_color edit_reg' data-id='{$row['id']}' data-staff_id='{$row['insert_login_id']}' data-status='{$row['status']}'</span>";
+    } else {
+        $action = "<span class='icon-border_color text-secondary' style='pointer-events:none; opacity:0.5;'></span>";
     }
 
-$remarks = '';
+    $remarks = '';
 
-if (!empty($row['remarks'])) {
-    $remarks = "<a href='#' class='sts_remarks' data-toggle='modal' data-target='#remarksModal' data-remarks='" . htmlspecialchars($row['remarks'], ENT_QUOTES) . "'>
+    if (!empty($row['remarks'])) {
+        $remarks = "<a href='#' class='sts_remarks' data-toggle='modal' data-target='#remarksModal' data-remarks='" . htmlspecialchars($row['remarks'], ENT_QUOTES) . "'>
                     <span class='icon-eye' style='font-size: 12px; position: relative; top: 2px;'></span>
                 </a>";
-}
+    }
 
 $data[] = [
     $sno++,
@@ -357,11 +365,11 @@ $data[] = [
     $leave_period[$row['leave_period']] ?? '',
         !empty($row['from_date']) ? date(in_array($row['req_type'], [1, 3]) ? 'd-m-Y' : 'd-m-Y h:i A', strtotime($row['from_date'])) : '',
         !empty($row['to_date']) ? date(in_array($row['req_type'], [1, 3]) ? 'd-m-Y' : 'd-m-Y h:i A', strtotime($row['to_date'])) : '',
-    $duration,
-    $statusBadge,
-    $remarks,
-    $action
-];
+        $duration,
+        $statusBadge,
+        $remarks,
+        $action
+    ];
 }
 
 /* ---------- OUTPUT ---------- */

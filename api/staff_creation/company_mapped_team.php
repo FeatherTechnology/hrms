@@ -16,7 +16,7 @@ $qry = $pdo->query("
         ON ti.id = tct.team_id
     LEFT JOIN team_creation tc 
         ON tct.team_creation_id = tc.id
-    WHERE ti.team_status = 0
+    WHERE ti.team_status = 0  AND tc.status = 0
     AND (
         (tc.company_id = '$company_id' AND tc.department_id = '$dep_id')
         OR ti.id = '$selected_team'

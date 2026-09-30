@@ -520,7 +520,7 @@ function getDepartmentNameTable() {
       ];
 
       appendDataToTable("#department_creation_table", response, columnMapping);
-      setdtable("#department_creation_table", "Department Creation List");
+      setdtable("#department_creation_table", "Department Creation List", [[0, "asc"]]);
       $("#department_form input").not("#modal_department_code").val("");
       $("#department_form select").each(function () {
         $(this).val($(this).find("option:first").val());
@@ -595,7 +595,7 @@ function getDesignationNameTable() {
 
       // Designation ASC
       setdtable("#designation_creation_table", "Designation Creation List", [
-        [2, "asc"],
+        [0, "asc"],
       ]);
 
       $("#designation_form input").val("");

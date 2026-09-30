@@ -17,6 +17,7 @@ $column = array(
     'sc.id',
     'sc.staff_id',
     'sc.staff_name',
+    'sc.place',
     'cc.company_name',
     'bc.branch_name',
     'd.department_name',
@@ -31,6 +32,7 @@ $query = "SELECT
             sc.id,
             sc.staff_id,
             sc.staff_name,
+            sc.place,
             sc.staff_type,
             cc.company_name,
             bc.branch_name,
@@ -157,6 +159,7 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
     $query .= " AND (
         sc.staff_id LIKE '$search%'
         OR sc.staff_name LIKE '%$search%'
+        OR sc.place LIKE '%$search%'
         OR sc.staff_type LIKE '%$search%'
         OR sc.mobile1 LIKE '%$search%'
         OR cc.company_name LIKE '%$search%'
@@ -205,6 +208,7 @@ foreach ($result as $row) {
     $sub_array[] = $sno++;
     $sub_array[] = $row['staff_id'];
     $sub_array[] = $row['staff_name'];
+    $sub_array[] = $row['place'];
     $sub_array[] = $row['company_name'];
     $sub_array[] = $row['branch_name'];
     $sub_array[] = $row['department_name'];

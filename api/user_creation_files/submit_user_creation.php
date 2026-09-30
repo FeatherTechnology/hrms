@@ -33,6 +33,7 @@ if (is_array($allowed_request_type)) {
 }
 
 $approval_required = $_POST['approval_required'];
+$approval_view = $_POST['approval_view'];
 
 $approved_request_type = $_POST['approved_request_type'] ?? [];
 if (is_array($approved_request_type)) {
@@ -54,13 +55,13 @@ try {
     // Get the latest Branch code
 
     if ($id != '0' && $id != '') {
-        $qry = $pdo->query("UPDATE `users` SET `user_type`='$user_type',`director_name` = '$director_name',`director_company` = '$multi_company_name',`director_branch`='$multiple_dir_branch', `company_id`='$company_name',`staff_name_id`='$staff_name', `staff_id`='$staff_id',`user_name`='$user_name',`password`='$password',`confirm_password`='$confirm_password',`download_access`='$download_access', `feedback_access`='$feedback_access', `feedback_access_type`='$feedback_access_type', `report_access`= '$report_access', `home_access`='$home_access', `allowed_request_type`='$allowed_request_type', `approval_required`='$approval_required', `approved_request_type`='$approved_request_type', `screens`='$submenus', `status` = '0', `update_login_id`='$user_id',`updated_on`=now() WHERE `id`='$id'");
+        $qry = $pdo->query("UPDATE `users` SET `user_type`='$user_type',`director_name` = '$director_name',`director_company` = '$multi_company_name',`director_branch`='$multiple_dir_branch', `company_id`='$company_name',`staff_name_id`='$staff_name', `staff_id`='$staff_id',`user_name`='$user_name',`password`='$password',`confirm_password`='$confirm_password',`download_access`='$download_access', `feedback_access`='$feedback_access', `feedback_access_type`='$feedback_access_type', `report_access`= '$report_access', `home_access`='$home_access', `allowed_request_type`='$allowed_request_type', `approval_required`='$approval_required',`approval_view`='$approval_view', `approved_request_type`='$approved_request_type', `screens`='$submenus', `status` = '0', `update_login_id`='$user_id',`updated_on`=now() WHERE `id`='$id'");
         if ($qry) {
             $status = '1';
             $last_id = $id;
         }
     } else {
-        $qry = $pdo->query("INSERT INTO `users`(`user_type`,`director_name`,`director_company`,`director_branch`, `company_id`,   `staff_name_id`, `staff_id`, `user_name`, `password`, `confirm_password`, `download_access`, `feedback_access`, `feedback_access_type`, `report_access`,`home_access`, `allowed_request_type`, `approval_required`, `approved_request_type`, `screens`, `insert_login_id`, `created_on`) VALUES ('$user_type','$director_name','$multi_company_name','$multiple_dir_branch', '$company_name', '$staff_name', '$staff_id', '$user_name', '$password', '$confirm_password', '$download_access','$feedback_access','$feedback_access_type','$report_access','$home_access', '$allowed_request_type', '$approval_required', '$approved_request_type', '$submenus','$user_id',now())");
+        $qry = $pdo->query("INSERT INTO `users`(`user_type`,`director_name`,`director_company`,`director_branch`, `company_id`,   `staff_name_id`, `staff_id`, `user_name`, `password`, `confirm_password`, `download_access`, `feedback_access`, `feedback_access_type`, `report_access`,`home_access`, `allowed_request_type`, `approval_required`,`approval_view`,`approved_request_type`, `screens`, `insert_login_id`, `created_on`) VALUES ('$user_type','$director_name','$multi_company_name','$multiple_dir_branch', '$company_name', '$staff_name', '$staff_id', '$user_name', '$password', '$confirm_password', '$download_access','$feedback_access','$feedback_access_type','$report_access','$home_access', '$allowed_request_type', '$approval_required','$approval_view', '$approved_request_type', '$submenus','$user_id',now())");
         if ($qry) {
             $status = '2';
             $last_id = $pdo->lastInsertId();

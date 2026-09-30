@@ -21,6 +21,7 @@ $team_code = $_POST['team_code'];
 $team_name = $_POST['team_name'];
 $team_id   = $_POST['team_id'];
 $company_id   = $_POST['company_id'];
+$department_id   = $_POST['department_id'];
 $user_id   = $_SESSION['user_id'];
 
 $result = 0;
@@ -29,10 +30,10 @@ $result = 0;
 $stmt = $pdo->prepare("SELECT id
     FROM team_name_creation
     WHERE REPLACE(TRIM(team_name), ' ', '') = REPLACE(TRIM(?), ' ', '')
-    AND team_status = 0 AND company_id = ?
+    AND team_status = 0 AND company_id = ? AND department_id = ?
 ");
 
-$stmt->execute([$team_name,$company_id]);
+$stmt->execute([$team_name,$company_id,$department_id]);
 
 if ($stmt->rowCount() > 0) {
 
@@ -72,12 +73,13 @@ if ($stmt->rowCount() > 0) {
                 team_code,
                 team_name,
                 company_id,
+                department_id,
                 insert_login_id,
                 created_date
             )
             VALUES
             (
-                ?, ?, ?,?, NOW()
+                ?, ?, ?,?,?, NOW()
             )
         ");
 
@@ -85,6 +87,7 @@ if ($stmt->rowCount() > 0) {
             $team_code,
             $team_name,
             $company_id,
+            $department_id,
             $user_id
         ]);
 

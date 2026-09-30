@@ -7,22 +7,22 @@ const companyMultiple = new Choices("#multi_company_name", {
   allowHTML: false,
   searchEnabled: false,
 });
-const DepMultiple = new Choices("#dir_branch", {
-  removeItemButton: true,
-  placeholder: true,
-  placeholderValue: "Select Branch Name",
-  itemSelectText: "",
-  allowHTML: false,
-  searchEnabled: false,
-});
+// const DepMultiple = new Choices("#dir_branch", {
+//   removeItemButton: true,
+//   placeholder: true,
+//   placeholderValue: "Select Branch Name",
+//   itemSelectText: "",
+//   allowHTML: false,
+//   searchEnabled: false,
+// });
 
 $(document).ready(function () {
   // to change the user type director or staff
   $("#user_type").on("change", function () {
     var usertype = $(this).val();
     // Remove selected Choices values when user type changes
-    if (typeof DepMultiple !== "undefined" && DepMultiple){ 
-      DepMultiple.removeActiveItems(); DepMultiple.clearChoices(); 
+    if (typeof DepMultiple !== "undefined" && DepMultiple) {
+      DepMultiple.removeActiveItems(); DepMultiple.clearChoices();
     }
 
     if (usertype == 1) {
@@ -51,6 +51,7 @@ $(document).ready(function () {
 
     // Hide Approval Types section
     $(".approval-type-container").hide();
+    $(".approval-view-container").hide();
 
     // Show/Hide Allowed Request Types
     if ($("#regularization").is(":checked")) {
@@ -69,11 +70,11 @@ $(document).ready(function () {
       .slice(0, 3)
       .toggle(this.checked);
   });
-  $(document).on("change", "#multi_company_name", function () {
-    var company_name = $(this).val();
-    getBranchNameDropdown(company_name);
-     
-  });
+  // $(document).on("change", "#multi_company_name", function () {
+  //   var company_name = $(this).val();
+  //   getBranchNameDropdown(company_name);
+
+  // });
 
   $(document).on("change", "#regularization", function () {
     if ($(this).is(":checked")) {
@@ -90,7 +91,7 @@ $(document).ready(function () {
     }
 
     // Hide all Regularization fields
-    $(".regularization-options, .approval-type-container").hide();
+    $(".regularization-options, .approval-type-container .approval-view-container").hide();
 
     // Reset normal select
     $(".approval-required").val("").css("border", "");
@@ -109,11 +110,15 @@ $(document).ready(function () {
 
   $(document).on("change", ".approval-required", function () {
     let container = $(this).closest(".row").find(".approval-type-container");
+    let view_container = $(this).closest(".row").find(".approval-view-container");
 
     if ($(this).val() === "1") {
       container.show();
+      view_container.hide();
+      $("#approval_view").val('')
     } else {
       container.hide();
+      view_container.show();
       $(".approval-type").each(function () {
         let choices = $(this).data("choices");
         if (choices) choices.removeActiveItems();
@@ -269,16 +274,16 @@ $(document).ready(function () {
   $("#submit_user_creation").click(function (event) {
     event.preventDefault();
     console.log("staff select:", $("#staff_name"));
-console.log("staff value:", $("#staff_name").val());
-console.log("staff selected:", $("#staff_name option:selected").text());
-console.log("staff options:", $("#staff_name option").map(function () {
-    return {
+    console.log("staff value:", $("#staff_name").val());
+    console.log("staff selected:", $("#staff_name option:selected").text());
+    console.log("staff options:", $("#staff_name option").map(function () {
+      return {
         value: $(this).val(),
         text: $(this).text()
-    };
-}).get());
-    var user =$("#staff_name").val();
-    console.log("username",user);
+      };
+    }).get());
+    var user = $("#staff_name").val();
+    console.log("username", user);
 
     // Collect selected submenu IDs
     let selectedSubmenuIds = [];
@@ -291,7 +296,7 @@ console.log("staff options:", $("#staff_name option").map(function () {
       user_type: $("#user_type").val(),
       director_name: $("#director_name").val(),
       multi_company_name: $("#multi_company_name").val(),
-      multiple_dir_branch: $("#dir_branch").val(),
+      // multiple_dir_branch: $("#dir_branch").val(),
       company_name: $("#company_name").val(),
       staff_name: $("#staff_name").val(),
       staff_id: $("#staff_id").val(),
@@ -302,6 +307,7 @@ console.log("staff options:", $("#staff_name option").map(function () {
       home_access: $("#home_access").val(),
       allowed_request_type: $("#allowed_request_type").val(),
       approval_required: $("#approval_required").val(),
+      approval_view: $("#approval_view").val(),
       approved_request_type: $("#approved_request_type").val(),
       report_access: $("#report_access").val(),
       feedback_access: $("#feedback_access").val(),
@@ -335,12 +341,12 @@ console.log("staff options:", $("#staff_name option").map(function () {
         "multi_company_name",
         companyMultiple,
       );
-      let departmentValid = validateMultiSelectField(
-        "dir_branch",
-        DepMultiple,
-      );
+      // let departmentValid = validateMultiSelectField(
+      //   "dir_branch",
+      //   DepMultiple,
+      // );
 
-      if (!companyValid || !departmentValid) {
+      if (!companyValid) {
         isValid = false;
       }
     } else if (userType == "2") {
@@ -466,18 +472,18 @@ console.log("staff options:", $("#staff_name option").map(function () {
         $(".director_div").show();
         $(".user_div").hide();
 
-        $("#director_name").val(currentDirectorId) .trigger("change");
+        $("#director_name").val(currentDirectorId).trigger("change");
         $("#multi_company_name2").val(response[0].director_company);
-        $("#dir_branch2").val(response[0].director_branch);
+        // $("#dir_branch2").val(response[0].director_branch);
 
         await getCompanyNameDropdown();
-        await getBranchNameDropdown(response[0].director_company);
+        // await getBranchNameDropdown(response[0].director_company);
       } else {
         $(".director_div").hide();
         $(".user_div").show();
         $("#company_name").val(response[0].company_id);
         // $("#role").val(response[0].role);
-        await getStaffName(response[0].company_id, response[0].staff_name_id );
+        await getStaffName(response[0].company_id, response[0].staff_name_id);
 
         $("#staff_name").val(response[0].staff_name_id);
         $("#staff_id").val(response[0].staff_id);
@@ -539,6 +545,10 @@ console.log("staff options:", $("#staff_name option").map(function () {
               );
             }
           }
+        }
+       else if (response[0].approval_required == "2") {
+          $(".approval-view-container").show();
+          $("#approval_view").val(response[0].approval_view);
         }
 
         // Apply User Type visibility after showing regularization fields
@@ -668,7 +678,7 @@ function loadStaff() {
 // }
 
 /* --- Get Staff Name --- */
- async function getStaffName(company_id, currentStaffId = "") {
+async function getStaffName(company_id, currentStaffId = "") {
   try {
     const response = await $.ajax({
       url: "api/user_creation_files/getStaffName.php",
@@ -748,7 +758,6 @@ function getUserCreationTable(company_id, user_type) {
         <th>Director Name</th>
         <th>User ID</th>
         <th>Companies</th>
-        <th>Branch</th>
         <th>Action</th>
       </tr>
     `);
@@ -779,7 +788,6 @@ function getUserCreationTable(company_id, user_type) {
           "director_name",
           "user_id",
           "company_names",
-          "branch_names",
           "action",
         ];
       } else {
@@ -887,6 +895,17 @@ function getMenuSubMenuList(userId) {
                   <div class="form-group">
                       <label>Approval Required</label>
                       <select class="form-control approval-required" id="approval_required">
+                          <option value="">Select</option>
+                          <option value="1">Yes</option>
+                          <option value="2">No</option>
+                      </select>
+                  </div>
+              </div>
+
+              <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 approval-view-container" style="display:none;">
+                  <div class="form-group">
+                      <label>Approval View</label>
+                      <select class="form-control approval-view" id="approval_view">
                           <option value="">Select</option>
                           <option value="1">Yes</option>
                           <option value="2">No</option>
@@ -1033,37 +1052,37 @@ async function getCompanyNameDropdown() {
   }
 }
 
-async function getBranchNameDropdown(company_id)  {
-  const dir_branch2 = $("#dir_branch2").val();
+// async function getBranchNameDropdown(company_id)  {
+//   const dir_branch2 = $("#dir_branch2").val();
 
-  try {
-    const response = await $.ajax({
-      url: "api/user_creation_files/get_branch_name.php",
-      type: "POST",
-      data: {company_id:company_id},
-      dataType: "json",
-    });
+//   try {
+//     const response = await $.ajax({
+//       url: "api/user_creation_files/get_branch_name.php",
+//       type: "POST",
+//       data: {company_id:company_id},
+//       dataType: "json",
+//     });
 
-    DepMultiple.clearChoices();
-    DepMultiple.removeActiveItems();
+//     DepMultiple.clearChoices();
+//     DepMultiple.removeActiveItems();
 
-    const selectedIds = dir_branch2
-      ? dir_branch2.split(",")
-      : [];
+//     const selectedIds = dir_branch2
+//       ? dir_branch2.split(",")
+//       : [];
 
-    const items = response.map((val) => ({
-      value: val.id,
-      label: val.branch_name,
-      selected: selectedIds.includes(val.id.toString()),
-      disabled: val.disabled && !selectedIds.includes(val.id.toString()),
-    }));
+//     const items = response.map((val) => ({
+//       value: val.id,
+//       label: val.branch_name,
+//       selected: selectedIds.includes(val.id.toString()),
+//       disabled: val.disabled && !selectedIds.includes(val.id.toString()),
+//     }));
 
-    DepMultiple.setChoices(items, "value", "label", true);
-  } catch (err) {
-    console.error("Error loading department dropdown:", err);
-  }
-}
- 
+//     DepMultiple.setChoices(items, "value", "label", true);
+//   } catch (err) {
+//     console.error("Error loading department dropdown:", err);
+//   }
+// }
+
 // to get the director name
 function getDirectorName(selectedDirectorId = "") {
   return new Promise((resolve, reject) => {
@@ -1170,10 +1189,12 @@ function validateRegularization() {
   const requestTypes = $(".regularization-type").val();
   const approvalRequired = $(".approval-required").val();
   const approvalTypes = $(".approval-type").val();
+  const approvalView = $(".approval-view").val();
 
   // Reset borders
   $(".regularization-type").closest(".choices").css("border", "");
   $(".approval-type").closest(".choices").css("border", "");
+  $(".approval-view").closest(".choices").css("border", "");
   $(".approval-required").css("border", "");
 
   if (userType === "1") {
@@ -1190,6 +1211,11 @@ function validateRegularization() {
     if (approvalRequired === "1") {
       if (!approvalTypes || approvalTypes.length === 0) {
         $(".approval-type").closest(".choices").css("border", "1px solid red");
+        valid = false;
+      }
+    } else if (approvalRequired === "2") {
+      if (!approvalView || approvalView.length === 0) {
+         $(".approval-view").css("border", "1px solid red");
         valid = false;
       }
     }
@@ -1234,6 +1260,13 @@ function validateRegularization() {
       if (!approvalTypes || approvalTypes.length === 0) {
         $(".approval-type").closest(".choices").css("border", "1px solid red");
 
+        valid = false;
+      }
+    }
+
+    if (approvalRequired === "2") {
+      if (!approvalView || approvalView.length === 0) {
+        $(".approval-view").css("border", "1px solid red");
         valid = false;
       }
     }

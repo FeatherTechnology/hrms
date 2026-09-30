@@ -10,16 +10,17 @@
 require '../../ajaxconfig.php';
 
 $company_id = $_POST['company_id'];
+$department_id = $_POST['department_name'];
 $team_list_arr = [];
 
 $i = 0;
 
 $stmt = $pdo->prepare("SELECT *
     FROM team_name_creation
-    WHERE team_status = ? and company_id = ?
+    WHERE team_status = ? and company_id = ? AND department_id =?
 ");
 
-$stmt->execute([0, $company_id]);
+$stmt->execute([0, $company_id,$department_id]);
 
 if ($stmt->rowCount() > 0) {
 

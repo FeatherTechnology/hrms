@@ -4,7 +4,7 @@ session_start();
 
 $userid = $_SESSION['user_id'];
 
-$stmt = $pdo->prepare("SELECT allowed_request_type, approval_required , user_type
+$stmt = $pdo->prepare("SELECT allowed_request_type, approval_required , user_type,approval_view
     FROM users
     WHERE id = ?
 ");

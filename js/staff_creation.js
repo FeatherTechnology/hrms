@@ -1,3 +1,9 @@
+const assignedBranchChoices = new Choices('#assigned_branches', {
+  removeItemButton: true,
+  noChoicesText: 'No branches available',
+  allowHTML: true,
+});
+
 $(document).ready(function () {
   $(document).on("click", "#add_staff", function () {
     swapTableAndCreation();
@@ -209,8 +215,12 @@ $(document).ready(function () {
     toggleSpouseField();
   });
 
-  $("#branch_admin").on("change", function () {
-    toggleBranchField();
+  // $("#branch_admin").on("change", function () {
+  //   toggleBranchField();
+  // });
+
+  $("#off_type").on("change", function () {
+    toggleMultipleBrnchField();
   });
 
   $("#ot_payment").on("change", function () {
@@ -625,11 +635,6 @@ $(document).ready(function () {
     let whatsapp = $("#whatsapp").val();
     let instagram = $("#instagram").val();
     let facebook = $("#facebook").val();
-    let acc_holder_name = $("#acc_holder_name").val();
-    let bank_name = $("#bank_name").val();
-    let acc_number = $("#acc_number").val();
-    let ifsc_code = $("#ifsc_code").val();
-    let bank_branch = $("#bank_branch").val();
     let staff_profile_id = $("#staff_profile_id").val();
 
     var data = [
@@ -644,12 +649,7 @@ $(document).ready(function () {
       "gender",
       "marital_status",
       "mailid",
-      "mobile1",
-      "acc_holder_name",
-      "bank_name",
-      "acc_number",
-      "ifsc_code",
-      "bank_branch",
+      "mobile1"
     ];
     var isValid = true;
     data.forEach(function (entry) {
@@ -715,11 +715,6 @@ $(document).ready(function () {
       personalDetail.append("whatsapp", whatsapp);
       personalDetail.append("instagram", instagram);
       personalDetail.append("facebook", facebook);
-      personalDetail.append("acc_holder_name", acc_holder_name);
-      personalDetail.append("bank_name", bank_name);
-      personalDetail.append("acc_number", acc_number);
-      personalDetail.append("ifsc_code", ifsc_code);
-      personalDetail.append("bank_branch", bank_branch);
       personalDetail.append("staff_profile_id", staff_profile_id);
       $.ajax({
         url: "api/staff_creation/submit_personal_info.php",
@@ -806,8 +801,9 @@ $(document).ready(function () {
     // let reporting_person_type = $("#reporting_person")
     //   .find(":selected")
     //   .data("type");
-    let branch_admin = $("#branch_admin").val();
-    let branch = $("#branch").val();
+    // let branch_admin = $("#branch_admin").val();
+    // let branch = $("#branch").val();
+    let assigned_branches = $('#assigned_branches').val();
     let total_ctc = $("#total_ctc").val().replace(/,/g, "");
     let annual_ctc = $("#annual_ctc").val().replace(/,/g, "");
     let shift = $("#shift").val();
@@ -844,7 +840,6 @@ $(document).ready(function () {
       "department",
       "designation",
       "team",
-      "branch_admin",
       "total_ctc",
       "annual_ctc",
       "shift",
@@ -857,14 +852,18 @@ $(document).ready(function () {
     if (ot_payment == "2") {
       data.push("ot_per_day");
     }
-    if (branch_admin == "1") {
-      data.push("branch");
+    // if (branch_admin == "1") {
+    //   data.push("branch");
+    // }
+    let isMultiSelectValid = true;
+    if (off_type == "3") {
+      isMultiSelectValid = validateMultiSelectField('assigned_branches', assignedBranchChoices);
     }
-    if(esi_wage_limit > 0 &&  total_ctc > esi_wage_limit && esi_available ==1){
+    if (esi_wage_limit > 0 && total_ctc > esi_wage_limit && esi_available == 1) {
       swalError(
-          "Warning",
-          "CTC exceeds ESI limit of ₹" + esi_wage_limit + ". Please select ESI Applicable as No.",
-        );
+        "Warning",
+        "CTC exceeds ESI limit of ₹" + esi_wage_limit + ". Please select ESI Applicable as No.",
+      );
       return false;
 
     }
@@ -890,7 +889,7 @@ $(document).ready(function () {
       $("#per_pic").css("border", "1px solid #cecece");
     }
 
-    if (isValid) {
+    if (isValid && isMultiSelectValid) {
       // CTC Table Validation
       let totalCTC = parseFloat($("#total_ctc").val().replace(/,/g, "")) || 0;
 
@@ -979,14 +978,15 @@ $(document).ready(function () {
       staffDetail.append("designation", designation);
       // staffDetail.append("reporting_person", reporting_person);
       // staffDetail.append("reporting_person_type", reporting_person_type);
-      staffDetail.append("branch_admin", branch_admin);
-      staffDetail.append("branch", branch);
+      // staffDetail.append("branch_admin", branch_admin);
+      // staffDetail.append("branch", branch);
       staffDetail.append("total_ctc", total_ctc);
       staffDetail.append("annual_ctc", annual_ctc);
       staffDetail.append("shift", shift);
       staffDetail.append("ot_payment", ot_payment);
       staffDetail.append("ot_per_day", ot_per_day);
       staffDetail.append("off_type", off_type);
+      staffDetail.append("assigned_branches", assigned_branches);
       staffDetail.append("total_ctc_amount", total_ctc_amount);
       let ctcDetails = [];
 
@@ -1068,10 +1068,10 @@ $(document).ready(function () {
     // Only Salary rows calculate %
     if (category == "Salary") {
       percentage = (currentAmount / totalCTC) * 100;
-      $(this).closest("tr").find(".ctc_percentage").val(percentage.toFixed(2));
+      $(this).closest("tr").find(".ctc_percentage").val(percentage.toFixed(2) + " %");
     } else {
       // Reimbursement no %
-      $(this).closest("tr").find(".ctc_percentage").val("0");
+      $(this).closest("tr").find(".ctc_percentage").val("0 %");
     }
 
     calculateTotals($(this));
@@ -1189,6 +1189,17 @@ function toggleBranchField() {
   }
 }
 
+function toggleMultipleBrnchField() {
+  if ($("#off_type").val() == "3") {
+    // Yes
+    $(".assigned_branches_div").show();
+    getUnderBranchDropdown()
+  } else {
+    $(".assigned_branches_div").hide();
+    assignedBranchChoices.removeActiveItems();
+  }
+}
+
 function toggleOTField() {
   if ($("#ot_payment").val() == "1") {
     $(".ot_per_day_div").hide();
@@ -1214,7 +1225,7 @@ function getDocumentTable() {
         "action",
       ];
       appendDataToTable("#document_table", response, columnMapping);
-      setdtable("#document_table", "Document Info List");
+      setdtable("#document_table", "Document Info List", [[0, "asc"]]);
       $("#document_form input").val("");
       $("#document_form input").css("border", "1px solid #cecece");
       $("#document_form select").css("border", "1px solid #cecece");
@@ -1249,7 +1260,7 @@ async function getDocumentInfoTable() {
     ];
 
     appendDataToTable("#doc_info_table", response, columnMapping);
-    setdtable("#doc_info_table", "Document Info List");
+    setdtable("#doc_info_table", "Document Info List", [[0, "asc"]]);
   } catch (error) {
     console.error("Document Table Error:", error);
   }
@@ -1292,7 +1303,7 @@ async function getFamilyInfoTable() {
       "fam_mobile",
     ];
     appendDataToTable("#fam_info_table", response, columnMapping);
-    setdtable("#fam_info_table", "Family Info List");
+    setdtable("#fam_info_table", "Family Info List", [[0, "asc"]]);
   } catch (error) {
     console.error("Family Info Table Error:", error);
   }
@@ -1316,7 +1327,7 @@ function getFamilyTable() {
         "action",
       ];
       appendDataToTable("#family_creation_table", response, columnMapping);
-      setdtable("#family_creation_table", "Family Info List");
+      setdtable("#family_creation_table", "Family Info List", [[0, "asc"]]);
       $("#family_form input").val("");
       $("#family_form input").css("border", "1px solid #cecece");
       $("#family_form select").css("border", "1px solid #cecece");
@@ -1369,7 +1380,7 @@ async function getQualificationInfoTable() {
       "year_of_passing",
     ];
     appendDataToTable("#qual_info_table", response, columnMapping);
-    setdtable("#qual_info_table", "Qualification Info List");
+    setdtable("#qual_info_table", "Qualification Info List", [[0, "asc"]]);
   } catch (error) {
     console.error("Qualification Info Table Error:", error);
   }
@@ -1396,7 +1407,7 @@ function getQualificationTable() {
         response,
         columnMapping,
       );
-      setdtable("#qualification_creation_table", "Qualification Info List");
+      setdtable("#qualification_creation_table", "Qualification Info List", [[0, "asc"]]);
       $("#qualification_form input").val("");
       $("#qualification_form input").css("border", "1px solid #cecece");
       $("#qualification_form select").css("border", "1px solid #cecece");
@@ -1447,7 +1458,7 @@ async function getExperienceInfoTable() {
       "reason_for_leaving",
     ];
     appendDataToTable("#exp_info_table", response, columnMapping);
-    setdtable("#exp_info_table", "Experience Info List");
+    setdtable("#exp_info_table", "Experience Info List", [[0, "asc"]]);
     $(".experience").find("input").prop("readonly", false);
   } catch (error) {
     console.error("Experience Info Table Error:", error);
@@ -1514,7 +1525,7 @@ function getExperienceTable() {
         "action",
       ];
       appendDataToTable("#experience_creation_table", response, columnMapping);
-      setdtable("#experience_creation_table", "Experience Info List");
+      setdtable("#experience_creation_table", "Experience Info List", [[0, "asc"]]);
       $("#experience_form input").val("");
       $("#experience_form input").css("border", "1px solid #cecece");
       $("#experience_form select").css("border", "1px solid #cecece");
@@ -1697,19 +1708,36 @@ async function getShiftList(company_id) {
     let shiftOption = '<option value="">Select Shift</option>';
 
     $.each(response, function (index, val) {
+
       shiftOption += `
-                <option 
-                    value="${val.id}"
-                    data-time="${val.shift_time}">
-                    ${val.shift_name}
-                </option>
-            `;
+        <option 
+            value="${val.id}"
+            data-time="${val.shift_time}">
+            ${val.shift_name} (${formatTime(val.start_time)} - ${formatTime(val.end_time)})
+        </option>
+      `;
     });
 
     $("#shift").empty().append(shiftOption);
+
   } catch (error) {
     console.error("Error loading shift list:", error);
   }
+}
+
+function formatTime(time) {
+  if (!time) return "";
+
+  let [hours, minutes] = time.split(":");
+
+  hours = parseInt(hours);
+
+  let ampm = hours >= 12 ? "PM" : "AM";
+
+  hours = hours % 12;
+  hours = hours === 0 ? 12 : hours;
+
+  return `${hours}:${minutes} ${ampm}`;
 }
 
 async function getDesignationList(company_id, selected_designation = "") {
@@ -1836,7 +1864,8 @@ function calculateTotals(currentInput) {
   $("#ctc_info_table tbody tr").each(function () {
     let amount =
       parseFloat($(this).find(".ctc_amount").val().replace(/,/g, "")) || 0;
-    let percentage = parseFloat($(this).find(".ctc_percentage").val()) || 0;
+    let percentage = parseFloat($(this).find(".ctc_percentage").val().replace("%", "")
+    ) || 0;
     let category = $(this).find("td:eq(3)").text().trim();
 
     totalAmount += amount;
@@ -1858,8 +1887,7 @@ function calculateTotals(currentInput) {
   $("#total_ctc_amount").val(totalAmount);
 
   let finalPercentage = enteredCTC > 0 ? (salaryAmount / enteredCTC) * 100 : 0;
-  $("#total_ctc_percentage").val(finalPercentage.toFixed(2));
-
+  $("#total_ctc_percentage").val(finalPercentage.toFixed(2) + " %");
   // Salary should not exceed CTC
   if (salaryAmount > enteredCTC) {
     swalError("Warning", "Salary Components should not exceed Total CTC");
@@ -1912,7 +1940,7 @@ function recalculateTotals() {
     finalPercentage = 100;
   }
 
-  $("#total_ctc_percentage").val(finalPercentage.toFixed(2));
+  $("#total_ctc_percentage").val(finalPercentage.toFixed(2) + " %");
 }
 
 // async function getReportingPerson(company_id, selectedLevel) {
@@ -2020,7 +2048,7 @@ async function editStaffProfile(id) {
     $("#designation").val(data.designation);
     $("#off_type").val(data.off_type);
 
-    $("#branch_admin").val(moneyFormatIndia(data.branch_admin));
+    // $("#branch_admin").val(moneyFormatIndia(data.branch_admin));
     $("#pf_available").val(data.pf_available);
     $("#esi_available").val(data.esi_available);
     $("#pt_available").val(data.pt_available);
@@ -2050,7 +2078,18 @@ async function editStaffProfile(id) {
 
     $("#marital_status").trigger("change");
 
-    $("#branch_admin").trigger("change");
+    $("#branch_name2").val(data.assigned_branches || "");
+
+    $("#off_type").trigger("change");
+
+    if (data.off_type == "3") {
+      $(".assigned_branches_div").show();
+      await getUnderBranchDropdown();
+    } else {
+      $(".assigned_branches_div").hide();
+      assignedBranchChoices.removeActiveItems();
+    }
+
     toggleOTField();
     let path = "uploads/staff_creation/staff_pic/";
     $("#per_pic").val(data.pic);
@@ -2063,14 +2102,20 @@ async function editStaffProfile(id) {
       let amount = (row.ctc_amount || "").toString().replace(/,/g, "");
 
       $("#ctc_amount_" + row.ctc_id).val(moneyFormatIndia(amount));
-      $("#ctc_percentage_" + row.ctc_id).val(row.ctc_percentage);
+
+      $("#ctc_percentage_" + row.ctc_id).val(
+    row.ctc_percentage !== null && row.ctc_percentage !== ""
+        ? parseFloat(row.ctc_percentage).toFixed(2) + " %"
+        : ""
+);
 
       totalAmt += parseFloat(amount || 0);
       totalPer += parseFloat(row.ctc_percentage || 0);
     });
 
     $("#total_ctc_amount").val(moneyFormatIndia(totalAmt));
-    $("#total_ctc_percentage").val(totalPer);
+
+    $("#total_ctc_percentage").val(totalPer.toFixed(2) + " %");
 
     enableEditMode();
   } catch (error) {
@@ -2093,10 +2138,10 @@ function enableEditMode() {
   $("#department").prop("disabled", true);
   $("#team").prop("disabled", true);
   $("#designation").prop("disabled", true);
-  $("#off_type").prop("disabled", true);
+  assignedBranchChoices.enable();
   // $("#reporting_person").prop("disabled", true);
-  $("#branch_admin").prop("disabled", true);
-  $("#branch").prop("disabled", true);
+  // $("#branch_admin").prop("disabled", true);
+  // $("#branch").prop("disabled", true);
   // $("#pf_available").prop("disabled", true);
   // $("#esi_available").prop("disabled", true);
   // $("#pt_available").prop("disabled", true);
@@ -2104,7 +2149,6 @@ function enableEditMode() {
   /* CTC Card Fields Readonly */
   $("#total_ctc").prop("readonly", true);
   $("#annual_ctc").prop("readonly", true);
-  $("#shift").prop("disabled", true);
   $("#ot_payment").prop("disabled", true);
   $("#ot_per_day").prop("readonly", true);
 
@@ -2126,24 +2170,22 @@ function enableEditMode() {
 
 function clearStaffProfileForm() {
   // Clear input fields except those with IDs 'loan_id_calc' and 'loan_date_calc'
-  $("#staff_creation")
-    .find("input")
-    .each(function () {
-      let id = $(this).attr("id");
-      $(".personal_info_disble").val("");
-      $("#staff_profile_id").val("");
-      $("#per_pic").val("");
-      $("#submit_staff").attr("disabled", false);
+  $(".personal_info_disble").val("");
+  $("#staff_profile_id").val("");
+  $("#per_pic").val("");
+  $("#submit_staff").attr("disabled", false);
 
-      $("#staff_creation input").css("border", "1px solid #cecece");
-      $("#staff_creation select").css("border", "1px solid #cecece");
-      $("#staff_creation").find('input[type="radio"]').prop("checked", false);
-    });
+  $("#staff_creation input").not(".choices__input").css("border", "1px solid #cecece");
+  $("#staff_creation select").css("border", "1px solid #cecece");
+  $("#staff_creation").find('input[type="radio"]').prop("checked", false);
+
+  assignedBranchChoices.clearInput();
+  assignedBranchChoices.removeActiveItems();
   $("#staff_creation").find('input[type="radio"]').prop("checked", false);
 
   // Clear all textarea fields within the specific form
   $("#staff_creation").find("textarea").val("");
-
+  $('#assigned_branches').closest('.choices').find('.choices__inner').css('border', '1px solid #cecece');
   //clear all upload inputs within the form.
   $("#staff_creation").find('input[type="file"]').val("");
 
@@ -2161,6 +2203,43 @@ function clearStaffProfileForm() {
   $("#imgshow").attr("src", "img/avatar.png");
 }
 
+function getUnderBranchDropdown() {
+  let branch_id = $("#branch_name").val();
+  let company_id = $("#company_name").val();
+  let branch_name2 = $("#branch_name2").val() || "";
+
+  return $.post(
+    "api/staff_creation/company_mapped_branches.php",
+    {
+      company_id: company_id,
+      branch_id: branch_id
+    },
+    function (response) {
+
+      assignedBranchChoices.clearStore();
+
+      $.each(response, function (index, val) {
+
+        let selected = "";
+
+        if (branch_name2.includes(val.id.toString())) {
+          selected = true;
+        }
+
+        assignedBranchChoices.setChoices([
+          {
+            value: val.id,
+            label: val.branch_name,
+            selected: selected
+          }
+        ], "value", "label", false);
+      });
+
+    },
+    "json"
+  );
+}
+
 function resetStaffData() {
   $("#submit_staff").show();
   $("#company_name").prop("disabled", false);
@@ -2172,9 +2251,12 @@ function resetStaffData() {
   $("#team").prop("disabled", false);
   $("#designation").prop("disabled", false);
   $("#off_type").prop("disabled", false);
+  assignedBranchChoices.enable();
+  assignedBranchChoices.removeActiveItems();
+  assignedBranchChoices.clearInput();
   // $("#reporting_person").prop("disabled", false);
-  $("#branch_admin").prop("disabled", false);
-  $("#branch").prop("disabled", false);
+  // $("#branch_admin").prop("disabled", false);
+  // $("#branch").prop("disabled", false);
   // $("#pf_available").prop("disabled", false);
   // $("#esi_available").prop("disabled", false);
   // $("#pt_available").prop("disabled", false);
@@ -2182,8 +2264,8 @@ function resetStaffData() {
   /* Joining Info */
   $("#joining_date").val("");
   $("#relieve_date").val("");
+  $("#acc_holder_name,#bank_name,#acc_number,#ifsc_code,#bank_branch,#branch_name2").val("");
   $("#notice_period").val("");
-
   /* CTC Card Fields */
   $("#total_ctc").prop("readonly", false).val("");
   $("#annual_ctc").prop("readonly", true).val("");
@@ -2209,4 +2291,5 @@ function resetStaffData() {
   $(".spouse-div").hide();
   $(".branch_div").hide();
   $(".ot_per_day_div").hide();
+  $(".assigned_branches_div").hide();
 }

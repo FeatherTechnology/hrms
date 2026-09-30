@@ -22,7 +22,8 @@ $qry = $pdo->query("
         oi.annual_ctc,
         oi.shift,
         oi.ot_payment, 
-        oi.ot_per_day
+        oi.ot_per_day,
+        oi.assigned_branches
 
     FROM staff_creation sc
 

@@ -698,6 +698,14 @@ async function getbalancerequest() {
 
     shiftStart = response.start_time;
     shiftEnd = response.end_time;
+
+    if ($("#req_type").val() == "2" && response.permission_exceeded == 1) {
+      swalError("Warning","You have exceeded the available permission balance.");
+      $("#from_date, #to_date").val("");
+      $("#balance_req").val(0);
+      return;
+    }
+    
   } catch (error) {
     console.error(error);
   }
@@ -1054,6 +1062,7 @@ function userTypeIdentification() {
         approval_required,
         user_type,
         allowed_request_type = "",
+        approval_view,
       } = JSON.parse(response);
 
       const hasRequestPermission = allowed_request_type
@@ -1064,28 +1073,32 @@ function userTypeIdentification() {
       $("#request_div, .add_reg").toggle(hasRequestPermission);
 
       // Approval UI
-      $("#approval_div").toggle(approval_required == "1");
+      const showMyApproval =
+        approval_required == "1" ||
+        (approval_required == "2" && approval_view == "1");
+
+      $("#approval_div").toggle(showMyApproval);
 
       // Default selected radio
       if (user_type == "1") {
         $('input[name="regularization_type"][value="Approval"]').prop(
           "checked",
-          true,
+          true
         );
         getregularizationlist("Approval");
       } else if (hasRequestPermission) {
         $('input[name="regularization_type"][value="Request"]').prop(
           "checked",
-          true,
+          true
         );
         getregularizationlist("Request");
       } else {
         $('input[name="regularization_type"][value="Approval"]').prop(
           "checked",
-          true,
+          true
         );
         getregularizationlist("Approval");
       }
-    },
+    }
   );
 }

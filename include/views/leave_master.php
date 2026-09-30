@@ -35,8 +35,18 @@
                             <div class="row">
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
+                                        <label for="permission_type">Permission Type</label><span class="text-danger">*</span>
+                                        <select class="form-control" id="permission_type" name="permission_type" tabindex="3">
+                                             <option value="">Select Permission Type</option>
+                                            <option value="1">Count</option>
+                                            <option value="2">Minute</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 ">
+                                    <div class="form-group">
                                         <label for="max_permission">Max Permission Per Month</label>
-                                        <input type="number" class="form-control" id="max_permission" name="max_permission" placeholder="Enter Max Permission" tabindex="3">
+                                        <input type="number" class="form-control" id="max_permission" name="max_permission" placeholder="Enter Max Permission" tabindex="4">
                                     </div>
                                 </div>
                             </div>

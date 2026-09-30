@@ -509,7 +509,7 @@ CREATE TABLE `menu_list` (
 INSERT INTO `menu_list` (`id`, `menu`, `link`, `icon`) VALUES
 (1, 'Home', 'home', 'home'),
 (2, 'Organization Management', 'organization_management', 'camera1'),
-(3, 'Staff Management', 'staff_management', 'user-check'),
+(3, 'Staff Management', 'administration', 'user-check'),
 (4, 'Regularization', 'regularization', 'event_note'),
 (5, 'Attendance Management', 'attendance_Management', 'schedule'),
 (6, 'Promotion And Transfer', 'promotion_transfer', 'trending_up'),

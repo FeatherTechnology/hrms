@@ -137,13 +137,13 @@
                                         <select class="form-control" id="multi_company_name" name="multi_company_name[]" tabindex="13" multiple></select>
                                     </div>
                                 </div>
-                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 director_div">
+                                <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 director_div">
                                     <div class="form-group">
                                         <label for="dir_branch">Branch</label><span class="text-danger">*</span>
                                         <input type="hidden" id="dir_branch2">
                                         <select class="form-control" id="dir_branch" name="dir_branch[]" tabindex="13" multiple></select>
                                     </div>
-                                </div>
+                                </div> -->
 
                                 <!-- user content -->
 
@@ -239,6 +239,18 @@
                                         <input type="text" class="form-control" id="confirm_password" name="confirm_password" tabindex="13" placeholder="Enter Confirm Password">
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--- ---------------------- Credential Info END  ----------------------------- -->
+
+                      <!--- ---------------------- Access Info START  ----------------------------- -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Access Info</h5>
+                        </div>
+                        <div class="card-body access_info">
+                            <div class="row">
                                 <div class="col-sm-4 col-md-4 col-lg-4">
                                     <div class="form-group">
                                         <label for="download_access">Download Access</label><span class="text-danger">*</span>

@@ -19,8 +19,8 @@ $designation      = $_POST['designation'];
 // $reporting_person = $_POST['reporting_person'];
 // $reporting_person_type = (strtolower($_POST['reporting_person_type']) == 'director') ? 1 : 2;
 
-$branch_admin     = $_POST['branch_admin'];
-$branch           = $_POST['branch'];
+// $branch_admin     = $_POST['branch_admin'];
+// $branch           = $_POST['branch'];
 $total_ctc        = $_POST['total_ctc'];
 $annual_ctc       = $_POST['annual_ctc'];
 $occ_status       = $_POST['occ_status'];
@@ -51,10 +51,11 @@ $department_old     = $oldOcc['department'];
 $team_old           = $oldOcc['team'];
 $designation_old    = $oldOcc['designation'];
 $off_type_old       = $oldOcc['off_type'];
-$branch_admin_old   = $oldOcc['branch_admin'];
+$assigned_branches_old       = $oldOcc['assigned_branches'];
+// $branch_admin_old   = $oldOcc['branch_admin'];
 // $reporting_old      = $oldOcc['reporting_person'];
 // $reporting_person_type_old     = $oldOcc['reporting_person_type'];
-$branch_old         = $oldOcc['branch'];
+// $branch_old         = $oldOcc['branch'];
 
 $total_ctc_old      = $oldOcc['total_ctc'];
 $annual_ctc_old     = $oldOcc['annual_ctc'];
@@ -87,8 +88,8 @@ if ($occ_status == '2') {
     $branch_id_old    = $branch_name;
     $department_old   = $department;
     $team_old         = $team;
-    $branch_admin_old = $branch_admin;
-    $branch_old       = $branch;
+    // $branch_admin_old = $branch_admin;
+    // $branch_old       = $branch;
 }
 
 
@@ -122,8 +123,7 @@ $pdo->query("
 
     off_type         = '$off_type_old',
 
-    branch_admin     = '$branch_admin_old',
-    branch           = '$branch_old',
+    assigned_branches     = '$assigned_branches_old',
 
     total_ctc        = '$total_ctc_old',
     annual_ctc       = '$annual_ctc_old',

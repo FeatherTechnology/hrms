@@ -36,8 +36,6 @@ if ($id != '0' && $id != '') {
         }
     }
 
-    // Add S for Staff
-    $prefix .= 'S';
     // Get Last Staff ID
     $qry = $pdo->query("SELECT MAX(staff_id) as staff_id 
                         FROM staff_creation 

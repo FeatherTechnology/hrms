@@ -15,6 +15,7 @@ $result = [];
 
 $stmt = $pdo->prepare("SELECT
         cp.max_permission,
+        cp.permission_type,
         cw.week_off,
         cw.week_day
     FROM company_policies cp
