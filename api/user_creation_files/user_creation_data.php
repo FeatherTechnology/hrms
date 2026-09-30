@@ -28,6 +28,7 @@ $stmt = $pdo->prepare("SELECT
         u.home_access,
         u.staff_id,
         u.allowed_request_type,
+        u.approval_view,
         u.approval_required,
         u.approved_request_type,
         cc.id AS company_id,

@@ -69,6 +69,7 @@
                             <th>S.NO</th>
                             <th>Staff ID</th>
                             <th>Staff Name</th>
+                            <th>Area</th>
                             <th>Company</th>
                             <th>Branch</th>
                             <th>Department</th>
@@ -266,51 +267,12 @@
                                         </div>
                                     </div>
 
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card mt-3">
-                            <div class="card-header">
-                                <h5 class="card-title">Bank Info</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <!-- Fields -->
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <div class="form-group">
-                                            <label for="acc_holder_name">Account Holder Name</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control personal_info_disble" id="acc_holder_name" name="acc_holder_name" placeholder="Enter Account Holder Name" tabindex="26">
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <div class="form-group">
-                                            <label for="bank_name"> Bank Name</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control personal_info_disble" id="bank_name" name="bank_name" placeholder="Enter Bank Name" tabindex="27">
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <div class="form-group">
-                                            <label for="acc_number"> Account Number </label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control personal_info_disble" id="acc_number" name="acc_number" placeholder="Enter Account Number" tabindex="28">
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <div class="form-group">
-                                            <label for="ifsc_code"> IFSC Code</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control personal_info_disble" id="ifsc_code" name="ifsc_code" placeholder="Enter IFSC Code" tabindex="29">
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <div class="form-group">
-                                            <label for="bank_branch">Branch</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control personal_info_disble" id="bank_branch" name="bank_branch" placeholder="Enter Branch" tabindex="30">
-                                        </div>
-                                    </div>
                                     <div class="col-md-12 ">
                                         <div class="text-right">
                                             <button type="submit" name="submit_staff" id="submit_staff" class="btn btn-primary" value="Submit"><span class="icon-check"></span>&nbsp;Next</button>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -404,6 +366,46 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="card mt-3">
+                            <div class="card-header">
+                                <h5 class="card-title">Bank Info</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Fields -->
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="acc_holder_name">Account Holder Name</label><span class="text-danger">*</span>
+                                            <input type="text" class="form-control" id="acc_holder_name" name="acc_holder_name" placeholder="Enter Account Holder Name" tabindex="26">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="bank_name"> Bank Name</label><span class="text-danger">*</span>
+                                            <input type="text" class="form-control" id="bank_name" name="bank_name" placeholder="Enter Bank Name" tabindex="27">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="acc_number"> Account Number </label><span class="text-danger">*</span>
+                                            <input type="number" class="form-control" id="acc_number" name="acc_number" placeholder="Enter Account Number" tabindex="28">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="ifsc_code"> IFSC Code</label><span class="text-danger">*</span>
+                                            <input type="text" class="form-control" id="ifsc_code" name="ifsc_code" placeholder="Enter IFSC Code" tabindex="29">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="bank_branch">Branch</label><span class="text-danger">*</span>
+                                            <input type="text" class="form-control" id="bank_branch" name="bank_branch" placeholder="Enter Branch" tabindex="30">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                             <div class="card">
                                 <div class="card-header">
                                     <div class="card-title">Documents Info
@@ -551,8 +553,18 @@
                                                 <label for="off_type">Type</label><span class="text-danger">*</span>
                                                 <select class="form-control" id="off_type" name="off_type" tabindex="40">
                                                     <option value="">Select Type</option>
-                                                    <option value="1">Office</option>
-                                                    <option value="2">Field</option>
+                                                    <option value="1">Branch</option>
+                                                    <option value="2">AnyWhere</option>
+                                                    <option value="3">Multiple Branch</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 assigned_branches_div" style="display: none;">
+                                            <div class="form-group">
+                                                <label for="assigned_branches">Assign Branch</label>&nbsp;<span class="text-danger">*</span>
+                                                <input type="hidden" id="branch_name2">
+                                                <select class="" id="assigned_branches" name="assigned_branches" tabindex='8' multiple>
+                                                    <option value=''>Select Branch name</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -572,7 +584,7 @@
                                                 </select>
                                             </div>
                                         </div> -->
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                             <div class="form-group">
                                                 <label for="branch_admin">Branch Admin</label><span class="text-danger">*</span>
                                                 <select class="form-control" id="branch_admin" name="branch_admin" tabindex="42">
@@ -589,7 +601,7 @@
                                                     <option value="">Select Branch</option>
                                                 </select>
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </div>

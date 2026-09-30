@@ -27,8 +27,11 @@ $(document).ready(function () {
   /* --- Team Creation On Change Events --- */
   $("#company_name").change(function () {
     getDepartmentName();
-    getModalAttr();
-    getTeamNameDropdown();
+  });
+  
+  $("#department_name").change(function () {
+     getModalAttr();
+     getTeamNameDropdown();
   });
   /* --- Submit Team Modal --- */
   $("#submit_team_creation").click(function () {
@@ -108,13 +111,13 @@ $(document).ready(function () {
       $("#team_creation_id").val(id);
       $("#company_name").val(response[0].company_id);
 
-      getModalAttr();
-
       await getDepartmentName();
       $("#department_name").val(response[0].department_id);
 
       $("#team_name2").val(response[0].team_ids);
       await getTeamNameDropdown();
+      getModalAttr();
+
     } catch (error) {
       console.error("Failed to fetch company data:", error);
     }
@@ -140,6 +143,7 @@ $(document).ready(function () {
     let team_name = $("#modal_team_name").val();
     let team_id = $("#team_id").val();
     let company_id = $("#company_name").val();
+    let department_id = $("#department_name").val();
 
     var data = ["modal_team_code", "modal_team_name"];
 
@@ -163,6 +167,7 @@ $(document).ready(function () {
               team_name,
               team_id,
               company_id,
+              department_id,
             },
             function (response) {
               if (response === "3") {
@@ -345,15 +350,16 @@ function getAutoGenTeamId(id) {
 /* --- Get Team Name Modal Table --- */
 function getTeamNameTable() {
   let company_id = $("#company_name").val();
-  if (company_id != "") {
+  let department_name = $("#department_name").val();
+  if (company_id != "" && department_name != "") {
     $.post(
       "api/team_creation_files/team_modal_list.php",
-      { company_id },
+      { company_id ,department_name},
       function (response) {
         var columnMapping = ["sno", "team_code", "team_name", "action"];
 
         appendDataToTable("#team_modal_table", response, columnMapping);
-        setdtable("#team_modal_table", "Team Creation List");
+        setdtable("#team_modal_table", "Team Creation List", [[0, "asc"]]);
 
         $("#team_form input").not("#modal_team_code").val("");
         $("#team_form select").each(function () {
@@ -368,7 +374,7 @@ function getTeamNameTable() {
       "json",
     );
   } else {
-    swalError("Warning", "Kindly Select the Company Name");
+    swalError("Warning", "Kindly Select Both Company and Department Name");
   }
 }
 
@@ -395,12 +401,13 @@ function getTeamModalDelete(id) {
 async function getTeamNameDropdown() {
   const team_name2 = $("#team_name2").val();
   const company_id = $("#company_name").val();
+  const department_id = $("#department_name").val();
 
   try {
     const response = await $.ajax({
       url: "api/team_creation_files/get_team_name_dropdown.php",
       type: "POST",
-      data: { company_id: company_id },
+      data: { company_id: company_id,department_id: department_id },
       dataType: "json",
     });
 
@@ -440,7 +447,8 @@ function getTeamDelete(id) {
 
 function getModalAttr() {
   let company_id = $("#company_name").val();
-  if (company_id != "") {
+  let department_name = $("#department_name").val();
+  if (company_id != "" && department_name != "") {
     $("#team_modal_btn")
       .attr("data-toggle", "modal")
       .attr("data-target", "#add_team_info");

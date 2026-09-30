@@ -114,8 +114,9 @@
                                             <label for="off_type">Type</label><span class="text-danger">*</span>
                                             <select class="form-control" id="off_type" name="off_type" tabindex="4" readonly>
                                                 <option value="">Select Type</option>
-                                                <option value="1">Office</option>
-                                                <option value="2">Field</option>
+                                                <option value="1">Branch</option>
+                                                <option value="2">AnyWhere</option>
+                                                <option value="3">Multiple Branch</option>
                                             </select>
                                         </div>
                                     </div>

@@ -102,28 +102,28 @@ if (!empty($user_info['director_company'])) {
 }
 
 
-// Get branch names for directors
-if (!empty($user_info['director_branch'])) {
+// // Get branch names for directors
+// if (!empty($user_info['director_branch'])) {
 
-    $branchIds = explode(',', $user_info['director_branch']);
+//     $branchIds = explode(',', $user_info['director_branch']);
 
-    $placeholders = implode(',', array_fill(0, count($branchIds), '?'));
+//     $placeholders = implode(',', array_fill(0, count($branchIds), '?'));
 
-    $branchStmt = $pdo->prepare("
-        SELECT branch_name
-        FROM branch_creation
-        WHERE id IN ($placeholders)
-    ");
+//     $branchStmt = $pdo->prepare("
+//         SELECT branch_name
+//         FROM branch_creation
+//         WHERE id IN ($placeholders)
+//     ");
 
-    $branchStmt->execute($branchIds);
+//     $branchStmt->execute($branchIds);
 
-    $branchNames = $branchStmt->fetchAll(PDO::FETCH_COLUMN);
+//     $branchNames = $branchStmt->fetchAll(PDO::FETCH_COLUMN);
 
-    $user_info['branch_names'] = implode(', ', $branchNames);
+//     $user_info['branch_names'] = implode(', ', $branchNames);
 
-} else {
-    $user_info['branch_names'] = '';
-}
+// } else {
+//     $user_info['branch_names'] = '';
+// }
 
     // Action buttons
     if ($status_value == 0) {

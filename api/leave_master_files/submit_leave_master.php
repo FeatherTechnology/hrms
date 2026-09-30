@@ -5,6 +5,7 @@ require '../../ajaxconfig.php';
 @session_start();
 
 $company_name   = $_POST['company_name'];
+$permission_type   = $_POST['permission_type'];
 $max_permission = $_POST['max_permission'];
 $week_off       = $_POST['week_off'];
 
@@ -24,7 +25,7 @@ if ($checkCount > 0) {
 
     $company_policies_id = $row['id'];
 
-    $qry = $pdo->query("UPDATE company_policies SET max_permission = '$max_permission', update_login_id = '$user_id', updated_date = NOW() 
+    $qry = $pdo->query("UPDATE company_policies SET permission_type ='$permission_type', max_permission = '$max_permission', update_login_id = '$user_id', updated_date = NOW() 
     WHERE company_id = '$company_name'");
 
     /*--- DELETE OLD WEEKOFFS ---- */
@@ -44,7 +45,7 @@ if ($checkCount > 0) {
 } else {
 
     /*--- INSERT company_policies ---- */
-    $qry = $pdo->query("INSERT INTO company_policies (company_id, max_permission, insert_login_id, created_date) VALUES ('$company_name', '$max_permission', '$user_id', NOW())");
+    $qry = $pdo->query("INSERT INTO company_policies (company_id,permission_type, max_permission, insert_login_id, created_date) VALUES ('$company_name','$permission_type', '$max_permission', '$user_id', NOW())");
 
     $company_policies_id = $pdo->lastInsertId();
 

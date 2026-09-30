@@ -38,11 +38,6 @@ $mobile2 = $_POST['mobile2'];
 $whatsapp = $_POST['whatsapp'];
 $instagram = $_POST['instagram'];
 $facebook = $_POST['facebook'];
-$acc_holder_name = $_POST['acc_holder_name'];
-$acc_number = $_POST['acc_number'];
-$bank_name = $_POST['bank_name'];
-$ifsc_code = $_POST['ifsc_code'];
-$bank_branch = $_POST['bank_branch'];
 $user_id = $_SESSION['user_id'];
 $staff_profile_id = $_POST['staff_profile_id'];
 
@@ -74,8 +69,7 @@ try {
         }
     }
 
-    // Add S for Staff
-    $prefix .= 'S';
+
     // Get Last Staff ID
     $qry = $pdo->query("SELECT MAX(staff_id) as staff_id 
                         FROM staff_creation 
@@ -96,7 +90,7 @@ try {
 
         $staff_id = $prefix . '-001';
     }
-    $qry = $pdo->query("INSERT INTO `staff_creation`(`company_id`, `staff_id`, `staff_name`, `staff_type`, `address`, `gender`, `state`, `district`, `place`, `pincode`, `dob`, `age`, `blood_group`, `marital_status`, `spouse_name`, `anniversary_date`, `email`, `mobile1`, `mobile2`, `whatsapp`, `instagram`, `facebook`, `acc_holder_name`, `acc_number`, `bank_name`, `ifsc_code`, `bank_branch`, `status`, `insert_login_id`, `created_on` ) VALUES ('$company_id','$staff_id','$staff_name','2','$address','$gender','$state','$district','$place','$pincode','$dob', '$age','$blood_group','$marital_status','$spouse_name','$anniversary_date','$email','$mobile1','$mobile2','$whatsapp','$instagram','$facebook','$acc_holder_name','$acc_number','$bank_name','$ifsc_code','$bank_branch','0','$user_id',CURRENT_TIMESTAMP())");
+    $qry = $pdo->query("INSERT INTO `staff_creation`(`company_id`, `staff_id`, `staff_name`, `staff_type`, `address`, `gender`, `state`, `district`, `place`, `pincode`, `dob`, `age`, `blood_group`, `marital_status`, `spouse_name`, `anniversary_date`, `email`, `mobile1`, `mobile2`, `whatsapp`, `instagram`, `facebook`,`status`, `insert_login_id`, `created_on` ) VALUES ('$company_id','$staff_id','$staff_name','2','$address','$gender','$state','$district','$place','$pincode','$dob', '$age','$blood_group','$marital_status','$spouse_name','$anniversary_date','$email','$mobile1','$mobile2','$whatsapp','$instagram','$facebook','0','$user_id',CURRENT_TIMESTAMP())");
     if ($qry) {
         $result = 1; // Insert successful
     }

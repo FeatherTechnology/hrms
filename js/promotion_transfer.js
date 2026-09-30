@@ -124,10 +124,10 @@ $(document).ready(function () {
     // Only Salary rows calculate %
     if (category == "Salary") {
       percentage = (currentAmount / totalCTC) * 100;
-      $(this).closest("tr").find(".ctc_percentage").val(percentage.toFixed(2));
+            $(this).closest("tr").find(".ctc_percentage").val(percentage.toFixed(2) + " %");
     } else {
       // Reimbursement no %
-      $(this).closest("tr").find(".ctc_percentage").val("0");
+     $(this).closest("tr").find(".ctc_percentage").val("0 %");
     }
 
     calculateTotals($(this));
@@ -137,9 +137,9 @@ $(document).ready(function () {
   //   toggleReportingField();
   // });
 
-  $("#branch_admin").on("change", function () {
-    toggleBranchField();
-  });
+  // $("#branch_admin").on("change", function () {
+  //   toggleBranchField();
+  // });
 
   $("#department").on("change", function () {
     let dept_id = $(this).val();
@@ -176,10 +176,10 @@ $(document).ready(function () {
     // Transfer
     else if (occ_status == 2) {
       occStatusText = "Transfer";
-      data.push("branch_name", "department", "team", "branch_admin");
-      if ($("#branch_admin").val() == "1") {
-        data.push("branch");
-      }
+      data.push("branch_name", "department", "team");
+      // if ($("#branch_admin").val() == "1") {
+      //   data.push("branch");
+      // }
     }
     // Increment
     else if (occ_status == 3) {
@@ -254,8 +254,8 @@ $(document).ready(function () {
     // let reporting_person_type = $("#reporting_person")
     //   .find(":selected")
     //   .data("type");
-    let branch_admin = $("#branch_admin").val();
-    let branch = $("#branch").val();
+    // let branch_admin = $("#branch_admin").val();
+    // let branch = $("#branch").val();
     let total_ctc = $("#total_ctc").val().replace(/,/g, "");
     let annual_ctc = parseFloat(total_ctc || 0) * 12;
     let staff_profile_id = $("#staff_profile_id").val();
@@ -273,8 +273,8 @@ $(document).ready(function () {
         off_type: off_type,
         // reporting_person: reporting_person,
         // reporting_person_type: reporting_person_type,
-        branch_admin: branch_admin,
-        branch: branch,
+        // branch_admin: branch_admin,
+        // branch: branch,
         total_ctc: total_ctc,
         annual_ctc: annual_ctc,
         staff_id: staff_id,
@@ -490,10 +490,10 @@ async function editStaffProfile() {
     // await getReportingPerson(data.company_id, selectedLevel);
 
     // $("#reporting_person").val(data.reporting_person);
-    $("#branch_admin").val(data.branch_admin);
-    $("#branch").val(data.branch);
+    // $("#branch_admin").val(data.branch_admin);
+    // $("#branch").val(data.branch);
     $("#staff_type").trigger("change");
-    $("#branch_admin").trigger("change");
+    // $("#branch_admin").trigger("change");
     // Increment Info
     // $('#pf_available').val(data.pf_available);
     // $('#esi_available').val(data.esi_available);
@@ -506,18 +506,23 @@ async function editStaffProfile() {
     let totalAmt = 0;
     let totalPer = 0;
 
-    $.each(ctcData, function (index, row) {
+     $.each(ctcData, function (index, row) {
       let amount = (row.ctc_amount || "").toString().replace(/,/g, "");
 
       $("#ctc_amount_" + row.ctc_id).val(moneyFormatIndia(amount));
-      $("#ctc_percentage_" + row.ctc_id).val(row.ctc_percentage);
+
+      $("#ctc_percentage_" + row.ctc_id).val(
+    row.ctc_percentage !== null && row.ctc_percentage !== ""
+        ? parseFloat(row.ctc_percentage).toFixed(2) + " %"
+        : ""
+);
 
       totalAmt += parseFloat(amount || 0);
       totalPer += parseFloat(row.ctc_percentage || 0);
     });
 
     $("#total_ctc_amount").val(moneyFormatIndia(totalAmt));
-    $("#total_ctc_percentage").val(totalPer);
+    $("#total_ctc_percentage").val(totalPer.toFixed(2) + " %");
 
     // Disable readonly fields
     $("#company_name").prop("disabled", true);
@@ -688,15 +693,15 @@ async function getTeamList(dep_id, selected_team = "") {
 //     console.error("Error loading Reporting Person:", error);
 //   }
 // }
-function toggleBranchField() {
-  if ($("#branch_admin").val() == "1") {
-    // Yes
-    $(".branch_div").show();
-  } else {
-    $(".branch_div").hide();
-    $("#branch").val("");
-  }
-}
+// function toggleBranchField() {
+//   if ($("#branch_admin").val() == "1") {
+//     // Yes
+//     $(".branch_div").show();
+//   } else {
+//     $(".branch_div").hide();
+//     $("#branch").val("");
+//   }
+// }
 
 // function toggleReportingField() {
 //   if ($("#staff_type").val() != "1") {
@@ -749,7 +754,8 @@ function calculateTotals(currentInput) {
   $("#ctc_info_table tbody tr").each(function () {
     let amount =
       parseFloat($(this).find(".ctc_amount").val().replace(/,/g, "")) || 0;
-    let percentage = parseFloat($(this).find(".ctc_percentage").val()) || 0;
+    let percentage = parseFloat($(this).find(".ctc_percentage").val().replace("%", "")
+    ) || 0;
     let category = $(this).find("td:eq(3)").text().trim();
 
     totalAmount += amount;
@@ -771,7 +777,7 @@ function calculateTotals(currentInput) {
   $("#total_ctc_amount").val(totalAmount);
 
   let finalPercentage = enteredCTC > 0 ? (salaryAmount / enteredCTC) * 100 : 0;
-  $("#total_ctc_percentage").val(finalPercentage.toFixed(2));
+  $("#total_ctc_percentage").val(finalPercentage.toFixed(2) + " %");
 
   // Salary should not exceed CTC
   if (salaryAmount > enteredCTC) {
@@ -825,7 +831,7 @@ function recalculateTotals() {
     finalPercentage = 100;
   }
 
-  $("#total_ctc_percentage").val(finalPercentage.toFixed(2));
+  $("#total_ctc_percentage").val(finalPercentage.toFixed(2) + " %");
 }
 
 function disableAllSections() {
@@ -834,8 +840,8 @@ function disableAllSections() {
   $("#department").prop("disabled", true);
   $("#team").prop("disabled", true);
   // $("#reporting_person").prop("disabled", true);
-  $("#branch_admin").prop("disabled", true);
-  $("#branch").prop("disabled", true);
+  // $("#branch_admin").prop("disabled", true);
+  // $("#branch").prop("disabled", true);
   $("#effective_date").val("");
 
   // Promotion Fields - disable and keep value
@@ -869,8 +875,8 @@ function enableTransferSection() {
   $("#branch").prop("disabled", false);
   $("#department").prop("disabled", false);
   $("#team").prop("disabled", false);
-  $("#branch_admin").prop("disabled", false);
-  $(".branch_div").hide();
+  // $("#branch_admin").prop("disabled", false);
+  // $(".branch_div").hide();
 }
 
 function enableIncrementSection() {

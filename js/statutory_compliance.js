@@ -342,12 +342,12 @@ $(document).ready(function () {
   });
 
   $(
-    "#employee_contribution, #employer_contribution, #admin_charge, #pension, #employee_share,#employer_share",
+    "#employee_contribution, #employer_contribution, #admin_charge, #pension, #employee_share,#employer_share,#percentage",
   ).on("blur", function () {
     let value = parseFloat($(this).val());
 
-    if (value > 100) {
-      alert("Value cannot be greater than 100");
+    if (value > 20) {
+      alert("Value cannot be greater than 20");
 
       $(this).val("");
       $(this).focus();

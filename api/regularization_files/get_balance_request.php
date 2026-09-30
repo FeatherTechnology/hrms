@@ -121,32 +121,147 @@ if ($req_type == '1') {
 
 
 
+/* ================= PERMISSION ================= */
 
-/* ================= PERMISSION ================= */ else if ($req_type == '2') {
+else if ($req_type == '2') {
 
-    // Always calculate available permission balance
-    $query = "SELECT 
-        sc.start_time,
+    /* permission_type: 1 = Count 2 = Minute */
+
+    $query = "SELECT sc.start_time,
         sc.end_time,
+
+        cp.permission_type,
         cp.max_permission,
 
+        /* Count of permissions already used this month */
         COUNT(reg.id) AS used_count,
 
-        (cp.max_permission - COUNT(reg.id)) AS ave_balance";
+        /*
+            Available balance before current request
+        */
+        CASE
+            WHEN cp.permission_type = 1 THEN
+                cp.max_permission - COUNT(reg.id)
 
-    // Calculate balance only when date is selected
-    if (!empty($from_Date)) {
+            WHEN cp.permission_type = 2 THEN
+                cp.max_permission -
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN reg.from_date IS NOT NULL
+                            AND reg.to_date IS NOT NULL
+                            THEN TIMESTAMPDIFF(
+                                MINUTE,
+                                reg.from_date,
+                                reg.to_date
+                            )
+                            ELSE 0
+                        END
+                    ),
+                    0
+                )
+
+            ELSE 0
+        END AS ave_balance";
+
+    /*
+        Calculate balance after current request
+    */
+    if (!empty($from_Date) && !empty($to_date)) {
 
         $query .= ",
-        (
-            cp.max_permission 
-            - COUNT(reg.id)
-            - 1
-        ) AS balance";
+
+        CASE
+            WHEN cp.permission_type = 1 THEN
+                GREATEST(
+                    cp.max_permission
+                    - COUNT(reg.id)
+                    - 1,
+                    0
+                )
+
+            WHEN cp.permission_type = 2 THEN
+                GREATEST(
+                    cp.max_permission
+                    -
+                    COALESCE(
+                        SUM(
+                            CASE
+                                WHEN reg.from_date IS NOT NULL
+                                AND reg.to_date IS NOT NULL
+                                THEN TIMESTAMPDIFF(
+                                    MINUTE,
+                                    reg.from_date,
+                                    reg.to_date
+                                )
+                                ELSE 0
+                            END
+                        ),
+                        0
+                    )
+                    -
+                    TIMESTAMPDIFF(
+                        MINUTE,
+                        :from_date,
+                        :to_date
+                    ),
+                    0
+                )
+
+            ELSE 0
+        END AS balance,
+
+        /*
+            Check whether current request exceeds available balance
+
+            0 = Valid
+            1 = Exceeded
+        */
+        CASE
+            WHEN cp.permission_type = 1 THEN
+                CASE
+                    WHEN COUNT(reg.id) + 1 > cp.max_permission
+                    THEN 1
+                    ELSE 0
+                END
+
+            WHEN cp.permission_type = 2 THEN
+                CASE
+                    WHEN
+                        COALESCE(
+                            SUM(
+                                CASE
+                                    WHEN reg.from_date IS NOT NULL
+                                    AND reg.to_date IS NOT NULL
+                                    THEN TIMESTAMPDIFF(
+                                        MINUTE,
+                                        reg.from_date,
+                                        reg.to_date
+                                    )
+                                    ELSE 0
+                                END
+                            ),
+                            0
+                        )
+                        +
+                        TIMESTAMPDIFF(
+                            MINUTE,
+                            :from_date,
+                            :to_date
+                        )
+                        > cp.max_permission
+                    THEN 1
+                    ELSE 0
+                END
+
+            ELSE 0
+        END AS permission_exceeded";
     }
 
     $query .= "
+
     FROM company_policies cp
+
     LEFT JOIN regularization reg
         ON reg.company_id = cp.company_id
         AND reg.req_type = :req_type
@@ -154,20 +269,25 @@ if ($req_type == '1') {
         AND YEAR(reg.from_date) = YEAR(CURDATE())
         AND MONTH(reg.from_date) = MONTH(CURDATE())
         AND reg.status IN (0,1)
+
     LEFT JOIN occupation_info oi
         ON oi.id = (
             SELECT MAX(id)
             FROM occupation_info
             WHERE staff_profile_id = :staff_id
         )
-    INNER JOIN shift_creation sc 
+
+    INNER JOIN shift_creation sc
         ON sc.id = oi.shift
+
     WHERE cp.company_id = :cmpy_id
-    GROUP BY cp.max_permission ";
+
+    GROUP BY
+        cp.permission_type,
+        cp.max_permission,
+        sc.start_time,
+        sc.end_time";
 }
-
-
-/* ================= WEEK OFF ================= */ 
 /* ================= WEEK OFF ================= */
 else if ($req_type == '3') {
 
@@ -306,6 +426,11 @@ if ($req_type == '1') {
     $stmt->bindParam(':req_type', $req_type, PDO::PARAM_INT);
     $stmt->bindParam(':cmpy_id', $cmpy_id, PDO::PARAM_INT);
     $stmt->bindParam(':staff_id', $staff_id);
+     if (!empty($from_Date) && !empty($to_date)) {
+
+        $stmt->bindParam(':from_date',$from_Date);
+        $stmt->bindParam(':to_date',$to_date);
+    }
 
 } else if ($req_type == '3') {
 

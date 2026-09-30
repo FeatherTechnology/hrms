@@ -10,16 +10,17 @@
 require '../../ajaxconfig.php';
 
 $company_id = $_POST['company_id'];
+$department_id = $_POST['department_id'];
 $result = [];
 
 $stmt = $pdo->prepare("
     SELECT id, team_name
     FROM team_name_creation
     WHERE team_status = ?
-      AND company_id = ?
+      AND company_id = ? AND department_id = ?
 ");
 
-$stmt->execute([0, $company_id]);
+$stmt->execute([0, $company_id,$department_id]);
 
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 

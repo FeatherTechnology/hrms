@@ -1,8 +1,14 @@
 $(document).ready(function () {
   getCompanyName();
 
-  /* --- Holiday Creation On Change & Click Events --- */
-  $("#from_date, #to_date").on("change", function () {
+ /* --- Holiday Creation On Change & Click Events --- */
+
+const today = new Date().toISOString().split("T")[0];
+
+// Prevent selecting previous dates
+$("#from_date,#to_date").attr("min", today);
+
+$("#from_date, #to_date").on("change", function () {
     let from_date = $("#from_date").val();
     let to_date = $("#to_date").val();
 
@@ -10,31 +16,31 @@ $(document).ready(function () {
     $("#holiday_days").val("");
 
     if (from_date != "" && to_date != "") {
-      let from = new Date(from_date);
-      let to = new Date(to_date);
+        let from = new Date(from_date);
+        let to = new Date(to_date);
 
-      // To Date must be greater than or equal to From Date
-      if (to < from) {
-        swalError(
-          "Warning",
-          "To Date must be greater than or equal to From Date.",
-        );
+        // To Date must be greater than or equal to From Date
+        if (to < from) {
+            swalError(
+                "Warning",
+                "To Date must be greater than or equal to From Date."
+            );
 
-        $("#to_date").val("");
-        return;
-      }
+            $("#to_date").val("");
+            return;
+        }
 
-      // Calculate difference in milliseconds
-      let diffTime = to - from;
+        // Calculate difference in milliseconds
+        let diffTime = to - from;
 
-      // Convert to days
-      let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        // Convert to days
+        let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-      $("#no_of_days").val(diffDays);
+        $("#no_of_days").val(diffDays);
     }
 
     getHolidayDays();
-  });
+});
 
   $("#company_name").on("change", function () {
     getHolidayTable();

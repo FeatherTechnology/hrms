@@ -54,9 +54,10 @@ $branch_name = $_POST['branch_name'];
 $department = $_POST['department'];
 $designation = $_POST['designation'];
 $team = $_POST['team'];
-$branch_admin = $_POST['branch_admin'];
-$branch = $_POST['branch'];
+// $branch_admin = $_POST['branch_admin'];
+// $branch = $_POST['branch'];
 $off_type = $_POST['off_type'];
+$assigned_branches = $_POST['assigned_branches'];
 $total_ctc = $_POST['total_ctc'];
 $annual_ctc = $_POST['annual_ctc'];
 $shift = $_POST['shift'];
@@ -88,8 +89,7 @@ if ($check->rowCount() == 0) {
         team='$team',
         designation='$designation',
         off_type='$off_type',
-        branch_admin='$branch_admin',
-        branch='$branch',
+        assigned_branches='$assigned_branches',
         total_ctc='$total_ctc',
         annual_ctc='$annual_ctc',
         shift='$shift',
@@ -99,6 +99,29 @@ if ($check->rowCount() == 0) {
         insert_login_id='$user_id',
         created_on = NOW()
     ");
+}else{
+    /* ===============================
+   OCCUPATION INFO
+   UPDATE LAST ROW ONLY
+=================================*/
+
+$pdo->query("
+    UPDATE occupation_info
+    SET
+        shift = '$shift',
+        assigned_branches = '$assigned_branches',
+        off_type = '$off_type'
+    WHERE id = (
+        SELECT id
+        FROM (
+            SELECT id
+            FROM occupation_info
+            WHERE staff_profile_id = '$staff_profile_id'
+            ORDER BY id DESC
+            LIMIT 1
+        ) AS latest
+    )
+");
 }
 
 /* ===============================

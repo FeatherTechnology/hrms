@@ -6,6 +6,7 @@ $(document).ready(function () {
     // Reset first
     $("#week_off_table_body").empty();
     $("#max_permission").val("");
+    $("#permission_type").val("");
     $("#leave_master_settings").hide();
 
     getLeaveCriteriaTable();
@@ -27,6 +28,9 @@ $(document).ready(function () {
 
   $("#start_time, #end_time").on("change", function () {
     calculateShiftTime();
+  });
+  $("#permission_type").on("change", function () {
+    $('#max_permission').val('')
   });
 
   /* --- Submit Leave Creation --- */
@@ -205,6 +209,7 @@ $(document).ready(function () {
     event.preventDefault();
 
     let company_name = $("#company_name").val();
+    let permission_type = $("#permission_type").val();
     let max_permission = $("#max_permission").val();
     let shiftCreationRowCount = $("#shift_info_table")
       .DataTable()
@@ -250,6 +255,7 @@ $(document).ready(function () {
             "api/leave_master_files/submit_leave_master.php",
             {
               company_name,
+              permission_type,
               max_permission,
               week_off,
             },
@@ -309,7 +315,7 @@ function getLeaveCriteriaTable() {
         var columnMapping = ["sno", "leave_type", "no_of_days"];
 
         appendDataToTable("#leave_info_table", response, columnMapping);
-        setdtable("#leave_info_table", "Leave Criteria Info List");
+        setdtable("#leave_info_table", "Leave Criteria Info List",[[0, "asc"]]);
         resolve();
       },
       "json",
@@ -327,7 +333,7 @@ function getLeaveInfoTable() {
       var columnMapping = ["sno", "leave_type", "no_of_days", "action"];
 
       appendDataToTable("#leave_creation_table", response, columnMapping);
-      setdtable("#leave_creation_table", "Family Creation List");
+      setdtable("#leave_creation_table", "Leave Criteria Info List",[[0, "asc"]]);
       $("#leave_info_form input").val("");
       $("#leave_info_form input").css("border", "1px solid #cecece");
       $("#leave_info_form select").css("border", "1px solid #cecece");
@@ -410,7 +416,7 @@ function getShiftTable() {
         ];
 
         appendDataToTable("#shift_info_table", response, columnMapping);
-        setdtable("#shift_info_table", "Shift Info List");
+        setdtable("#shift_info_table", "Shift Info List",[[0, "asc"]]);
         resolve();
       },
       "json",
@@ -436,7 +442,7 @@ function getShiftInfoTable() {
       ];
 
       appendDataToTable("#shift_creation_table", response, columnMapping);
-      setdtable("#shift_creation_table", "Shift Creation List");
+      setdtable("#shift_creation_table", "Shift Creation List", [[0, "asc"]]);
       $("#shift_info_form input").val("");
       $("#shift_info_form input").css("border", "1px solid #cecece");
       $("#shift_info_form select").css("border", "1px solid #cecece");
@@ -514,6 +520,7 @@ function getLeaveMaster(id) {
     { id },
     function (response) {
       $("#max_permission").val(response[0]?.max_permission || "");
+      $("#permission_type").val(response[0]?.permission_type || "");
 
       $("#week_off_table_body").empty();
 
