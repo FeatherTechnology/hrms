@@ -117,12 +117,12 @@
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <div style="width: 20px; height: 20px; background-color: #c4f3bf; border-radius: 3px;"></div>
-                        <span>Advance Attendance</span>
+                        <span>Advance Attendance / Late Exit</span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <div style="width: 20px; height: 20px; background-color: #f75d52; border-radius: 3px;"></div>
-                        <span>Later Entry</span>
+                        <span>Later Entry / Early Exit</span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">

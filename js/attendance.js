@@ -11,7 +11,7 @@ $(document).ready(function () {
     let branch_id = $("#branch_name").val();
     let date = $("#date").val();
     if (company_id == "" || branch_id == "" || date == "") {
-      swalError("Error", "Please Filled The Manditaory Feild");
+      swalError("Warning", "Please Filled The Manditaory Feild");
     } else {
       getAttendanceList(company_id, branch_id, date);
     }
@@ -34,10 +34,16 @@ $(document).ready(function () {
 
     let entryDate = $("#entry_date").val();
     let entryTime = $("#entry_time").val();
+    let exitTime = $("#exit_time").val();
 
     let entryDateTime = "";
     if (entryDate && entryTime) {
       entryDateTime = entryDate + " " + entryTime + ":00";
+    }
+
+    let exitDateTime = "";
+    if (entryDate && exitTime) {
+      exitDateTime = entryDate + " " + exitTime + ":00";
     }
 
     let collData = {
@@ -50,6 +56,7 @@ $(document).ready(function () {
       team_id: $("#team_id").val(),
       staff_type: $("#staff_type").val(),
       entry_time: entryDateTime, // Combined Date + Time
+      exit_time: exitDateTime, // Combined Date + Time
       deduction_amount: $("#deduction_amount").val(),
       reason: $("#reason").val(),
     };
@@ -58,19 +65,24 @@ $(document).ready(function () {
     let date = $("#date").val();
 
     let isValid = true;
-    let entry_date = collData["entry_date"];
     let entry_time = collData["entry_time"];
+    let exit_time = collData["exit_time"];
     let reason = collData["reason"];
-    let validationResults = [
-      validateField($("#entry_date").val(), "entry_date"),
-      validateField($("#entry_time").val(), "entry_time"),
-      validateField(collData["reason"], "reason"),
-    ];
 
-    if (!validationResults.every((result) => result)) {
+    // Entry OR Exit time - at least one is required
+    if (!entry_time && !exit_time) {
+      swalError(
+        "Warning",
+        "Please enter either Entry Time or Exit Time."
+      );
+
       isValid = false;
     }
 
+    // Reason validation
+    if (!validateField(reason, "reason")) {
+      isValid = false;
+    }
     if (isValid) {
       swalConfirm(
         "Are you sure?",
@@ -159,10 +171,10 @@ function getCompanyList() {
       $.each(response, function (index, val) {
         $("#cmpy_name").append(
           "<option value='" +
-            val["id"] +
-            "'>" +
-            val["company_name"] +
-            "</option>",
+          val["id"] +
+          "'>" +
+          val["company_name"] +
+          "</option>",
         );
       });
     },
@@ -182,10 +194,10 @@ function getBranchList(cmpy_id) {
       $.each(response, function (index, val) {
         $("#branch_name").append(
           "<option value='" +
-            val["id"] +
-            "'>" +
-            val["branch_name"] +
-            "</option>",
+          val["id"] +
+          "'>" +
+          val["branch_name"] +
+          "</option>",
         );
       });
     },
@@ -277,6 +289,9 @@ function getStaffDetails(staff_id, att_id, date) {
       $("#entry_time").val(
         response.entry_time ? response.entry_time.slice(11) : "",
       );
+      $("#exit_time").val(
+        response.exit_time ? response.exit_time.slice(11) : "",
+      );
     },
     "json",
   );
@@ -312,7 +327,7 @@ function submitAttendance(collData, cmy, brnh, date) {
 function loadChart(company_id, shift_id, staff_id, date) {
   $.post(
     "api/attendance_ot_monitor_chart_files/get_staff_info.php",
-    { company_id, shift_id, staff_id, date, type :'attendance' },
+    { company_id, shift_id, staff_id, date, type: 'attendance' },
     function (response) {
       drawChart(response, date);
     },

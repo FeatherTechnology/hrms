@@ -277,6 +277,7 @@ $(document).ready(function () {
       total_min: $("#total_min").val(),
       purpose: $("#purpose").val(),
       approval_type: $("#approval_type").val(),
+      permission_type: $("#permission_type").val(),
       remarks: $("#remarks").val(),
       hidden_id: $("#hidden_id").val(),
     };
@@ -689,6 +690,7 @@ async function getbalancerequest() {
 
     $("#balance_req").val(response.balance);
     $("#ave_balance").val(response.ave_balance);
+    $("#permission_type").val(response.permission_type);
     $("#current_month_ot_count").val(response.current_month_ot_count);
     const startTime = formatTime(response.start_time);
     const endTime = formatTime(response.end_time);
