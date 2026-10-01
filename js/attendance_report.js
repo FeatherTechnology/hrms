@@ -34,7 +34,7 @@ $(document).ready(function () {
       date == "" ||
       stf_name == ""
     ) {
-      swalError("Error", "Please Filled The Manditaory Feild");
+      swalError("Warning", "Please Filled The Manditaory Feild");
     } else {
       $(".attendance_report").show();
       getAttendanceList();

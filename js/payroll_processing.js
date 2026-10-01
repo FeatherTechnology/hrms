@@ -133,6 +133,7 @@ function getPayRoll(company_id, branch_id, month) {
 
 
       components.forEach(function (component) {
+        console.log(component.name);
         table += `<th>${component.name}</th>`;
       });
 

@@ -125,54 +125,85 @@ if ($req_type == '1') {
 
 else if ($req_type == '2') {
 
-    /* permission_type: 1 = Count 2 = Minute */
+    /*
+        permission_type:
+        1 = Count
+        2 = Minute
+    */
 
-    $query = "SELECT sc.start_time,
+    $query = "SELECT
+        sc.start_time,
         sc.end_time,
 
         cp.permission_type,
         cp.max_permission,
 
-        /* Count of permissions already used this month */
+        /* Number of permissions already used this month */
         COUNT(reg.id) AS used_count,
 
         /*
             Available balance before current request
+
+            Count:
+                max_permission - number of count permissions used
+
+            Minute:
+                max_permission - total minutes used
         */
         CASE
-            WHEN cp.permission_type = 1 THEN
-                cp.max_permission - COUNT(reg.id)
 
+            /* COUNT BASED */
+            WHEN cp.permission_type = 1 THEN
+
+                GREATEST(
+                    cp.max_permission - COUNT(reg.id),
+                    0
+                )
+
+            /* MINUTE BASED */
             WHEN cp.permission_type = 2 THEN
-                cp.max_permission -
-                COALESCE(
-                    SUM(
-                        CASE
-                            WHEN reg.from_date IS NOT NULL
-                            AND reg.to_date IS NOT NULL
-                            THEN TIMESTAMPDIFF(
-                                MINUTE,
-                                reg.from_date,
-                                reg.to_date
-                            )
-                            ELSE 0
-                        END
+
+                GREATEST(
+                    cp.max_permission -
+                    COALESCE(
+                        SUM(
+                            CASE
+                                WHEN reg.from_date IS NOT NULL
+                                AND reg.to_date IS NOT NULL
+                                THEN TIMESTAMPDIFF(
+                                    MINUTE,
+                                    reg.from_date,
+                                    reg.to_date
+                                )
+                                ELSE 0
+                            END
+                        ),
+                        0
                     ),
                     0
                 )
 
             ELSE 0
+
         END AS ave_balance";
+
 
     /*
         Calculate balance after current request
     */
+
     if (!empty($from_Date) && !empty($to_date)) {
 
         $query .= ",
 
+        /*
+            Balance after current request
+        */
         CASE
+
+            /* COUNT */
             WHEN cp.permission_type = 1 THEN
+
                 GREATEST(
                     cp.max_permission
                     - COUNT(reg.id)
@@ -180,7 +211,9 @@ else if ($req_type == '2') {
                     0
                 )
 
+            /* MINUTE */
             WHEN cp.permission_type = 2 THEN
+
                 GREATEST(
                     cp.max_permission
                     -
@@ -209,23 +242,31 @@ else if ($req_type == '2') {
                 )
 
             ELSE 0
+
         END AS balance,
 
+
         /*
-            Check whether current request exceeds available balance
+            Check whether current request exceeds balance
 
             0 = Valid
             1 = Exceeded
         */
         CASE
+
+            /* COUNT */
             WHEN cp.permission_type = 1 THEN
+
                 CASE
                     WHEN COUNT(reg.id) + 1 > cp.max_permission
                     THEN 1
                     ELSE 0
                 END
 
+
+            /* MINUTE */
             WHEN cp.permission_type = 2 THEN
+
                 CASE
                     WHEN
                         COALESCE(
@@ -255,8 +296,10 @@ else if ($req_type == '2') {
                 END
 
             ELSE 0
+
         END AS permission_exceeded";
     }
+
 
     $query .= "
 
@@ -266,9 +309,20 @@ else if ($req_type == '2') {
         ON reg.company_id = cp.company_id
         AND reg.req_type = :req_type
         AND reg.staff_profile_id = :staff_id
+
+        /* Current month */
         AND YEAR(reg.from_date) = YEAR(CURDATE())
         AND MONTH(reg.from_date) = MONTH(CURDATE())
+
+        /* Only approved/pending records */
         AND reg.status IN (0,1)
+
+        /*
+            IMPORTANT:
+            Count policy checks only Count records.
+            Minute policy checks only Minute records.
+        */
+        AND reg.permission_type = cp.permission_type
 
     LEFT JOIN occupation_info oi
         ON oi.id = (

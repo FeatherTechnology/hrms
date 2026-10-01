@@ -50,6 +50,8 @@ $columns = [
     'sc.staff_type',
     'COALESCE(a.updated_time, a.entry_time)',
     'u.user_name',
+    'COALESCE(a.updated_exit_time, a.exit_time)',
+    'u.user_name',
     'a.reason'
 ];
 
@@ -68,8 +70,11 @@ $baseQuery = "
         ON a.staff_profile_id = sc.id 
         AND DATE(COALESCE(a.updated_time, a.entry_time)) = :att_date
 
-    LEFT JOIN users u 
-        ON u.id = a.updated_by
+    LEFT JOIN users u
+    ON u.id = a.updated_by
+
+    LEFT JOIN users eu
+    ON eu.id = a.updated_exit_by
 
     LEFT JOIN company_creation cc 
         ON cc.id = oi.company_id
@@ -205,16 +210,14 @@ $dataQuery = "
         tc.team_name,
         a.entry_time,
         a.updated_time,
+        a.exit_time,
+        a.updated_exit_time,
         a.reason,
         a.id as att_id,
         a.insert_login_id,
         oi.shift,
-
-        CASE 
-            WHEN a.entry_time IS NULL THEN ''
-            WHEN a.updated_by = :userid THEN u.user_name 
-            ELSE 'Self'
-        END as updated_by
+        u.user_name AS updated_by,
+        eu.user_name AS updated_exit_by
 
     $baseQuery
     $orderBy
@@ -227,7 +230,6 @@ foreach ($params as $key => $value) {
     $dataStmt->bindValue($key, $value);
 }
 
-$dataStmt->bindValue(':userid', $userid);
 
 /* Bind pagination */
 if ($_POST['length'] != -1) {
@@ -281,6 +283,16 @@ foreach ($result as $row) {
         $staff_type[$row['staff_type']] ?? '',
         !empty($row['updated_time'])  ? date('d-m-Y h:i A', strtotime($row['updated_time']))  : (!empty($row['entry_time']) ? date('d-m-Y h:i A', strtotime($row['entry_time'])) : ''),
         $row['updated_by'],
+       !empty($row['updated_exit_time']) &&
+      $row['updated_exit_time'] !== '0000-00-00 00:00:00'
+        ? date('d-m-Y h:i A', strtotime($row['updated_exit_time']))
+        : (
+            !empty($row['exit_time']) &&
+            $row['exit_time'] !== '0000-00-00 00:00:00'
+                ? date('d-m-Y h:i A', strtotime($row['exit_time']))
+                : ''
+        ),
+        $row['updated_exit_by'],
         $row['reason'],
         $chartBtn, // Attendance Chart
         $editBtn

@@ -69,6 +69,7 @@
                         <input type="hidden" name="team_id" id="team_id" value="" />
                         <input type="hidden" name="hidden_id" id="hidden_id" value="" />
                         <input type="hidden" name="staff_type" id="staff_type" value="" />
+                        <input type="hidden" name="permission_type" id="permission_type" value="" />
 
                         <div class="col-md-4 col-sm-6">
                             <div class="form-group">

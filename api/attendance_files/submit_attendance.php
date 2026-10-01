@@ -25,11 +25,15 @@ $deduction_amount = $_POST['deduction_amount'];
 $reason = $_POST['reason'];
 
 $entry_datetime = $_POST['entry_time'];
+$exit_datetime = $_POST['exit_time'];
+
+$updated_by      = !empty($entry_datetime) ? $user_id : '';
+$updated_exit_by = !empty($exit_datetime) ? $user_id : '';
 
 try {
     if ($att_id != '') {
         
-        $qry = $pdo->query("UPDATE `attendance` SET `updated_time`='$entry_datetime',`updated_by`='$user_id',`reason`='$reason',`update_login_id`='$user_id',`updated_date`= now(),`deduction_amount`='$deduction_amount' WHERE id = $att_id ");
+        $qry = $pdo->query("UPDATE `attendance` SET `updated_time`='$entry_datetime',updated_exit_time='$exit_datetime',`updated_by`='$updated_by',`updated_exit_by`='$updated_exit_by',`reason`='$reason',`update_login_id`='$user_id',`updated_date`= now(),`deduction_amount`='$deduction_amount' WHERE id = $att_id ");
 
         if ($qry) {
             $result = '3';
@@ -39,7 +43,7 @@ try {
 
     } else {
 
-        $qry = $pdo->query("INSERT INTO `attendance`( `staff_profile_id`, `company_id`, `branch_id`, `dep_id`, `des_id`, `team_id`, `staff_type`, `updated_time`, `updated_by`, `deduction_amount`, `reason`, `update_login_id`, `updated_date`) VALUES ('$stf_prf_id','$cmpy_id','$branch_id','$dep_id','$des_id ','$team_id','$staff_type','$entry_datetime','$user_id','$deduction_amount','$reason','$user_id',now())");
+        $qry = $pdo->query("INSERT INTO `attendance`( `staff_profile_id`, `company_id`, `branch_id`, `dep_id`, `des_id`, `team_id`, `staff_type`, `updated_time`, `updated_exit_time`,`updated_by`,`updated_exit_by`, `deduction_amount`, `reason`, `update_login_id`, `updated_date`) VALUES ('$stf_prf_id','$cmpy_id','$branch_id','$dep_id','$des_id ','$team_id','$staff_type','$entry_datetime','$exit_datetime','$updated_by','$updated_exit_by','$deduction_amount','$reason','$user_id',now())");
 
         if ($qry) {
             $result = '1';

@@ -8,7 +8,10 @@ include '../../ajaxconfig.php';
 $company_id = $_POST['company_id'];
 $branch_id  = $_POST['branch_id'];
 $month      = $_POST['month'];
-$month_end = date("Y-m-t", strtotime($month . "-01"));
+
+$month_start = $month . "-01";
+$month_end   = date("Y-m-t", strtotime($month_start));
+
 $stff_con = '';
 $stff_ctc_con = '';
 // in pay slip we use this condition to get the seperate pay slip 
@@ -18,11 +21,6 @@ if (isset($_POST['stf_prf_id']) && $_POST['stf_prf_id'] != '') {
     $stff_ctc_con = "AND sci.staff_profile_id = '$stf_prf_id' AND  sci.ctc_amount > 0 ";
 }
 $result = array();
-// CHECK PENDING REGULARIZATION BEFORE PAYROLL GENERATION
-
-$month_start = $month . "-01";
-$month_end = date("Y-m-t", strtotime($month_start));
-
 
 $pendingRegQry = $pdo->query("
     SELECT COUNT(*) AS pending_count
@@ -60,7 +58,10 @@ $getComponents = $pdo->query("
 ");
 
 while ($row = $getComponents->fetch()) {
-    $componentArr[$row['id']] = $row['salary_component'];
+    $componentArr[] = array(
+        'id'   => $row['id'],
+        'name' => $row['salary_component']
+    );
 }
 
 // GET STAFF LIS
@@ -201,63 +202,148 @@ while ($staff = $getStaff->fetch()) {
     $shift = $shiftQry->fetch();
 
     $present_days = 0;
+    //EXIT TIME BASED LOP
+    $exit_lop_days = 0;
+    //ATTENDANCE DEDUCTION
     $total_attendance_deduction = 0;
 
     if ($shift) {
-
-        // GET ATTENDANCE RECORDS
         $attQry = $pdo->query("
-            SELECT 
-                DATE(COALESCE(updated_time, entry_time)) AS att_date,
-                COALESCE(updated_time, entry_time) AS entry_time,
+            SELECT  DATE(COALESCE(updated_time, entry_time)) AS att_date,
+                COALESCE( updated_time, entry_time) AS entry_time,
+                COALESCE( updated_exit_time, exit_time) AS exit_time,
                 deduction_amount
             FROM attendance
             WHERE staff_profile_id = '$staff_profile_id'
-            AND DATE(COALESCE(updated_time, entry_time)) 
-                BETWEEN '$start_date' AND '$end_date'
+            AND DATE(
+                COALESCE(updated_time, entry_time)
+            ) BETWEEN '$start_date' AND '$end_date'
         ");
 
-
         while ($att = $attQry->fetch()) {
-
-            $shift_start = strtotime(
-                $att['att_date'] . " " . $shift['start_time']
-            );
-
-            $shift_end = strtotime(
-                $att['att_date'] . " " . $shift['end_time']
-            );
-
-            $allowed_time = $shift_start +
-                (intval($shift['grace_time']) * 60);
-
-
-            $second_half_start =
-                $shift_start +
-                (($shift_end - $shift_start) / 2);
-
-            $second_half_allowed_time = $second_half_start +
-                (intval($shift['grace_time']) * 60);
-
-
-            $entry_time = strtotime($att['entry_time']);
-
-            // FULL DAY PRESENT
-            if ($entry_time <= $allowed_time) {
-                $present_days += 1;
+            $shift_start = strtotime($att['att_date'] . " " . $shift['start_time'] );
+            $shift_end = strtotime( $att['att_date'] . " " . $shift['end_time']);
+            // GRACE TIME
+            $grace_minutes = intval(  $shift['grace_time']);
+            // ALLOWED ENTRY TIME
+            $allowed_entry_time = $shift_start + ($grace_minutes * 60);
+           //SECOND HALF START
+            $second_half_start =$shift_start+ (  ($shift_end - $shift_start) / 2);
+            // SECOND HALF ALLOWED TIME
+            $second_half_allowed_time = $second_half_start + ($grace_minutes * 60);
+            //EMPLOYEE ENTRY TIME
+            $entry_time = strtotime( $att['entry_time'] );
+            //  ENTRY BASED PRESENT
+            $entry_present = 0;
+            // Full day
+            if ($entry_time <= $allowed_entry_time) { 
+                $entry_present = 1;}
+            // Half day
+            elseif ( $entry_time <= $second_half_allowed_time) {
+                $entry_present = 0.5;
             }
-
-            // HALF DAY PRESENT
-            else if ($entry_time <= $second_half_allowed_time) {
-                $present_days += 0.5;
-            }
-            // AFTER SECOND HALF
+          // Full LOP
             else {
-                $present_days += 0;
+                $entry_present = 0;
+            }
+          // EARLY EXIT LOP
+            $early_exit_lop = 0;
+           // CHECK EXIT TIME
+            if (!empty($att['exit_time'])) {
+                $exit_time = strtotime( $att['exit_time'] );
+             // CHECK IF EXIT TIME IS EARLIER THAN SHIFT END
+                if ($exit_time < $shift_end) {
+                   // CHECK APPROVED PERMISSION(req_type = 2, status = 1 = Approved)
+                    $permission_exists = false;
+                    $permissionQry = $pdo->query("SELECT
+                            from_date,to_date
+                        FROM regularization
+                        WHERE staff_profile_id = '$staff_profile_id'
+                        AND req_type = 2
+                        AND status = 1
+                        AND DATE(from_date) <= '" . $att['att_date'] . "'
+                        AND DATE(to_date) >= '" . $att['att_date'] . "'
+                    ");
+                    while ( $permission = $permissionQry->fetch()) {
+                        $permission_start = strtotime( $permission['from_date'] );
+
+                        $permission_end =strtotime($permission['to_date']);
+                        //PERMISSION COVERS EARLY EXIT
+
+                        if ( $permission_start <= $exit_time && $permission_end >= $shift_end ) {
+                            $permission_exists = true;
+                            break;
+                        }
+                    }
+                   // NO PERMISSION
+
+                    if (!$permission_exists) {
+                        /*
+                        | EXIT LOP RULE
+                        | For a 10:00 AM - 6:00 PM shift:
+                        | 6:00 PM or later = 0 LOP
+                        | 3:00 PM to before 6:00 PM = 0.5 LOP
+                        | Before 3:00 PM = 1 LOP
+                        */
+
+                        /*
+                        | Calculate the half-day cutoff.
+                        | Shift end - 3 hours
+                        | 10:00 - 18:00
+                        | cutoff = 15:00
+                        */
+                        $half_day_exit_cutoff = $shift_end - (3 * 60 * 60);
+                       // FULL DAY LOP
+                        if ( $exit_time < $half_day_exit_cutoff) {
+                            $early_exit_lop = 1;
+                        }
+                        //HALF DAY LOP
+                        else {
+                            $early_exit_lop = 0.5;
+                        }
+                    }
+                }
             }
 
-            // Accumulate the attendance deduction for this staff member
-            $total_attendance_deduction += $att['deduction_amount'];
+           // COMBINE ENTRY + EXIT LOP
+          //   Employee came after second half.Full day LOP.
+            if ($entry_present == 0) {
+                $present_for_day = 0;
+            }
+          // Employee came late.
+            elseif ($entry_present == 0.5) {
+                /*
+                | If exit is also very early,
+                | make the day full LOP.
+                */
+                if ($early_exit_lop >= 1) {
+                    $present_for_day = 0;
+                }
+                else {
+                    $present_for_day = 0.5;
+                }
+            }
+        //Normal entry.
+            else {
+                //Full day LOP due to early exit
+                if ($early_exit_lop >= 1) {
+                    $present_for_day = 0;
+                }
+              //Half day LOP due to early exit.
+                elseif ($early_exit_lop == 0.5) {
+                    $present_for_day = 0.5;
+                }
+              //Full present.
+                else {
+                    $present_for_day = 1;
+                }
+            }
+            //ADD PRESENT DAYS
+            $present_days += $present_for_day;
+           //ADD EXIT LOP
+            $exit_lop_days += $early_exit_lop;
+            //ATTENDANCE DEDUCTION
+            $total_attendance_deduction += floatval( $att['deduction_amount']);
         }
     }
 
@@ -309,7 +395,10 @@ while ($staff = $getStaff->fetch()) {
         $lop_days = $working_days - $total_payable_days;
     }
 
-    // OT (req_type = 4)
+   
+
+
+
     $otQry = $pdo->query("
         SELECT from_date, to_date
         FROM regularization
@@ -415,8 +504,20 @@ while ($staff = $getStaff->fetch()) {
 
     while ($salary = $getSalary->fetch()) {
 
-        $name = $salary['salary_component'];
-        $amount = floatval(str_replace(',', '', $salary['ctc_amount']));
+        $component_id =
+            $salary['ctc_id'];
+
+        $name =
+            $salary['salary_component'];
+
+        $amount =
+            floatval(
+                str_replace(
+                    ',',
+                    '',
+                    $salary['ctc_amount']
+                )
+            );
 
         $component_category = $salary['component_category'];
         $pay_frequency      = $salary['pay_frequency'];
@@ -443,7 +544,8 @@ while ($staff = $getStaff->fetch()) {
             }
         }
 
-        $components[$name] = round($amount, 2);
+        $components[$component_id] =
+            round($amount, 2);
 
         $gross_total += $amount;
     }
@@ -535,7 +637,7 @@ while ($staff = $getStaff->fetch()) {
         'present_days' => $present_days,
         'approved_leave' => $approved_leave,
         'lop_days' => $lop_days,
-
+         'exit_lop_days' => round( $exit_lop_days,2),
         'components' => $components,
 
         'gross_total' => number_format($gross_total, 2),
@@ -563,6 +665,6 @@ while ($staff = $getStaff->fetch()) {
 }
 
 echo json_encode([
-    'components' => array_values($componentArr),
-    'data' => $result
+    'components' => $componentArr,
+    'data'       => $result
 ]);

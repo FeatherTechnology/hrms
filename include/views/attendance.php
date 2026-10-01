@@ -123,6 +123,8 @@
                                 <th>Staff Type</th>
                                 <th>Entry Time</th>
                                 <th>Updated By</th>
+                                <th>Exit Time</th>
+                                <th>Exit Updated By</th>
                                 <th>Reason</th>
                                 <th>Attendance Chart</th>
                                 <th>Action</th>
@@ -221,16 +223,22 @@
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="row">
-                            <div class="col-md-8 col-sm-6">
+                            <div class="col-md-4 col-sm-4">
                                 <div class="form-group">
                                     <label for="entry_date">Entry Date</label><span class="text-danger">*</span>
                                     <input type="date" class="form-control" id="entry_date" name="entry_date" tabindex="14" readonly>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-sm-6">
+                            <div class="col-md-4 col-sm-4">
                                 <div class="form-group">
                                     <label for="entry_time">Entry Time</label><span class="text-danger">*</span>
                                     <input type="time" class="form-control" id="entry_time" name="entry_time" tabindex="15">
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-4">
+                                <div class="form-group">
+                                    <label for="exit_time">Exit Time</label><span class="text-danger">*</span>
+                                    <input type="time" class="form-control" id="exit_time" name="exit_time" tabindex="15">
                                 </div>
                             </div>
                         </div>
@@ -290,13 +298,13 @@
                     <!-- Advance Attendance -->
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <div style="width: 20px; height: 20px; background-color: #c4f3bf; border-radius: 3px;"></div>
-                        <span>Advance Attendance</span>
+                        <span>Advance Attendance / Late Exit</span>
                     </div>
 
                     <!-- Later Entry -->
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <div style="width: 20px; height: 20px; background-color: #f75d52; border-radius: 3px;"></div>
-                        <span>Later Entry</span>
+                        <span>Later Entry / Early Exit</span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">

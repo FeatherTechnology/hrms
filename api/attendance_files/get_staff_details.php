@@ -37,6 +37,7 @@ $query = "SELECT
     tc.id as team_id,
     a.id as att_id,
     COALESCE(a.updated_time, a.entry_time) AS entry_time,
+    COALESCE(a.updated_exit_time, a.exit_time) AS exit_time,
     a.deduction_amount,
     a.reason
     
