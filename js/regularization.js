@@ -297,9 +297,17 @@ $(document).ready(function () {
         validateField($("#leave_period").val(), "leave_period"),
       );
     }
+    if (collData["req_type"] == 2) {
+      validationResults.push(
+        validateField($("#ave_balance").val(), "ave_balance"),
+        validateField($("#balance_req").val(), "balance_req"),
+      );
+    }
     if (collData["req_type"] == 3) {
       validationResults.push(
         validateField($("#leave_period").val(), "leave_period"),
+        validateField($("#ave_balance").val(), "ave_balance"),
+        validateField($("#balance_req").val(), "balance_req"),
       );
     }
 
@@ -565,8 +573,25 @@ function getedituserdetails(id, userid) {
       );
       $("#leave_type_id").val(response.leave_type);
       $("#purpose").val(response.purpose);
-      $("#from_date").val(response.from_date.replace(" ", "T").slice(0, 16));
-      $("#to_date").val(response.to_date.replace(" ", "T").slice(0, 16));
+      if (response.from_date.endsWith("00:00:00")) {
+          $("#from_date")
+              .attr("type", "date")
+              .val(response.from_date.substring(0, 10));
+      } else {
+          $("#from_date")
+              .attr("type", "datetime-local")
+              .val(response.from_date.replace(" ", "T").slice(0, 16));
+      }
+
+      if (response.to_date.endsWith("00:00:00")) {
+          $("#to_date")
+              .attr("type", "date")
+              .val(response.to_date.substring(0, 10));
+      } else {
+          $("#to_date")
+              .attr("type", "datetime-local")
+              .val(response.to_date.replace(" ", "T").slice(0, 16));
+      }
 
       $("#approval_type").val(response.status || 0);
       $("#remarks").val(response.remarks);
@@ -618,9 +643,9 @@ function getedituserdetails(id, userid) {
         $(".shift_time").hide();
       }
       if (response.req_type == "1" && response.leave_type == "0") {
-        $(".bal_req").show();
-      } else {
         $(".bal_req").hide();
+      } else {
+        $(".bal_req").show();
       }
     },
     "json",

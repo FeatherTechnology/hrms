@@ -509,5 +509,30 @@ if ($req_type == '1') {
 $stmt->execute();
 
 $result = $stmt->fetch(PDO::FETCH_ASSOC);
+/* ================= PERMISSION BALANCE DISPLAY ================= */
+
+if ($req_type == '2' && $result) {
+
+    if ($result['permission_type'] == 2) {
+
+        // Minute based permission
+        $result['ave_balance'] = $result['ave_balance'] . ' min';
+
+        // Balance exists only when from_date and to_date are selected
+        if (isset($result['balance'])) {
+            $result['balance'] = $result['balance'] . ' min';
+        }
+
+    } else {
+
+        // Count based permission
+        $result['ave_balance'] = $result['ave_balance'] . '';
+
+        // Balance exists only when from_date and to_date are selected
+        if (isset($result['balance'])) {
+            $result['balance'] = $result['balance'] . '';
+        }
+    }
+}
 
 echo json_encode($result);

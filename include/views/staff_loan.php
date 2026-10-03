@@ -139,15 +139,20 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="due_start_date">Due Start Date</label><span class="text-danger">*</span>
-                                            <input type="date"  class="form-control" id="due_start_date"  name="due_start_date"  tabindex="7"  min="<?php echo date('Y-m-01'); ?>">
+                                            <input type="month"  class="form-control" id="due_start_date"  name="due_start_date"  tabindex="7"  min="<?php echo date('Y-m'); ?>" >
                                         </div>
                                     </div> 
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <div class="form-group">
-                                            <label for="due_end_date">Due End Date</label>
-                                            <input type="date" class="form-control"  id="due_end_date"  name="due_end_date" readonly>
-                                        </div>
-                                    </div>                                  
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12"> 
+                                            <div class="form-group"> 
+                                                <label for="due_end_date">Due End Date</label>
+
+                                                <input type="text"
+                                                    class="form-control"
+                                                    id="due_end_date"
+                                                    name="due_end_date"
+                                                    readonly>
+                                            </div> 
+                                        </div>                                 
                                 </div>
                             </div>
                         </div>

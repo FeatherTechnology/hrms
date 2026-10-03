@@ -13,6 +13,7 @@ $type = $_POST['type'] ?? '';
 $userStmt = $pdo->prepare("SELECT
         u.staff_name_id,
         u.user_type,
+        u.director_name,
         u.director_company,
         u.approval_required,
         u.allowed_request_type,
@@ -46,6 +47,7 @@ $approval_view  = $userData['approval_view'] ?? '';
 $my_level           = $userData['designation_level'] ?? 0;
 $user_type          = $userData['user_type'] ?? 0;
 $director_company   = $userData['director_company'] ?? '';
+$director_id        = $userData['director_name'] ?? 0;
 
 /* ---------- Mappings ---------- */
 $Req_type = [1 => 'Leave', 2 => 'Permission', 3 => 'Week Off', 4 => 'OT'];
@@ -123,19 +125,82 @@ if ($type == 'Request') {
 
 if ($type == 'Approval') {
 
-    // Only pending requests for approval
-    // $baseQuery .= " AND reg.status = 0 ";
 
     if ($user_type == 2) {
-        $baseQuery .= " AND descr.designation_level > :my_level ";
-        $params[':my_level'] = $my_level;
+
+        $baseQuery .= "
+            AND reg.staff_profile_id IN (
+
+                SELECT rpm.reporting_staff
+                FROM reporting_person rp
+
+                INNER JOIN reporting_person_mapping rpm
+                    ON rpm.reporting_person_id = rp.id
+
+                WHERE rp.user_type = 2
+                  AND rp.reporting_person = :my_staff_id
+            )
+        ";
+
+        $params[':my_staff_id'] = $my_staff_id;
     }
+
+if ($user_type == 1) {
+
+    $baseQuery .= "
+        AND reg.staff_profile_id IN (
+
+            WITH RECURSIVE staff_hierarchy AS (
+
+                SELECT rpm.reporting_staff AS staff_id
+                FROM reporting_person rp
+
+                INNER JOIN reporting_person_mapping rpm
+                    ON rpm.reporting_person_id = rp.id
+
+                WHERE rp.user_type = 1
+                  AND rp.director_id = :director_id
+
+                UNION ALL
+
+                SELECT rpm2.reporting_staff AS staff_id
+                FROM staff_hierarchy sh
+
+                INNER JOIN reporting_person rp2
+                    ON rp2.user_type = 2
+                   AND rp2.reporting_person = sh.staff_id
+
+                INNER JOIN reporting_person_mapping rpm2
+                    ON rpm2.reporting_person_id = rp2.id
+            )
+
+            SELECT staff_id
+            FROM staff_hierarchy
+        )
+    ";
+
+    $params[':director_id'] = $director_id;
+}
+
+
     if (
         $approval_required == 1 ||
         ($approval_required == 2 && $approval_view == 2)
     ) {
-        $types = array_map('intval', explode(',', $approved_request_type));
-        $baseQuery .= " AND reg.req_type IN (" . implode(',', $types) . ")";
+
+        $types = array_filter(
+            array_map(
+                'intval',
+                explode(',', $approved_request_type)
+            )
+        );
+
+        if (!empty($types)) {
+
+            $baseQuery .= "
+                AND reg.req_type IN (" . implode(',', $types) . ")
+            ";
+        }
     }
 }
 

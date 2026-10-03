@@ -7,6 +7,22 @@ const companyMultiple = new Choices("#multi_company_name", {
   allowHTML: false,
   searchEnabled: false,
 });
+const mapping_branch = new Choices("#mapping_branch", {
+  removeItemButton: true,
+  placeholder: true,
+  placeholderValue: "Select Branch Name",
+  itemSelectText: "",
+  allowHTML: false,
+  searchEnabled: false,
+});
+const mapping_department = new Choices("#mapping_department", {
+  removeItemButton: true,
+  placeholder: true,
+  placeholderValue: "Select Department Name",
+  itemSelectText: "",
+  allowHTML: false,
+  searchEnabled: false,
+});
 // const DepMultiple = new Choices("#dir_branch", {
 //   removeItemButton: true,
 //   placeholder: true,
@@ -21,18 +37,23 @@ $(document).ready(function () {
   $("#user_type").on("change", function () {
     var usertype = $(this).val();
     // Remove selected Choices values when user type changes
-    if (typeof DepMultiple !== "undefined" && DepMultiple) {
-      DepMultiple.removeActiveItems(); DepMultiple.clearChoices();
+    if (typeof mapping_branch !== "undefined" && mapping_branch) {
+      mapping_branch.removeActiveItems(); mapping_branch.clearChoices();
+    }
+    if (typeof mapping_department !== "undefined" && mapping_department) {
+      mapping_department.removeActiveItems(); mapping_department.clearChoices();
     }
 
     if (usertype == 1) {
       $(".director_div").show();
       $(".user_div").hide();
+      $(".mapping_card").hide();
       getDirectorName();
       getCompanyNameDropdown();
     } else {
       $(".director_div").hide();
       $(".user_div").show();
+      $(".mapping_card").show();
       getCompanyName("#company_name");
     }
 
@@ -167,11 +188,13 @@ $(document).ready(function () {
 
     $(".director_div").hide();
     $(".user_div").hide();
+    $(".mapping_card").hide();
 
     $("#feedback_access_type_div").hide();
 
     $("#user_type,#dir_branch2,#multi_company_name2").val("");
     $(".credential_info").find("input, select").val("");
+    $(".mapping_info").find("input, select").val("");
 
     let userid = $("#user_creation_id").val();
 
@@ -195,7 +218,8 @@ $(document).ready(function () {
 
   /* --- User Creation On Change & Click Events --- */
   $("#company_name").on("change", function () {
-    var cmpy_id = $(this).val();
+  var companyName = $(this).find("option:selected").text();
+  $("#staff_company_name").val(companyName);
     $("#staff_name").val("");
     $("#staff_id").val("");
     $("#branch").val("");
@@ -300,6 +324,8 @@ $(document).ready(function () {
       company_name: $("#company_name").val(),
       staff_name: $("#staff_name").val(),
       staff_id: $("#staff_id").val(),
+      staff_branch_mapping: $("#mapping_branch").val(),
+      staff_department_mapping: $("#mapping_department").val(),
       user_name: $("#user_name").val(),
       password: $("#password").val(),
       confirm_password: $("#confirm_password").val(),
@@ -361,6 +387,30 @@ $(document).ready(function () {
         "feedback_access",
         "home_access",
       ];
+      const branchSelected = mapping_branch.getValue(true);
+      const departmentSelected = mapping_department.getValue(true);
+
+      if (branchSelected.length === 0 && departmentSelected.length === 0) {
+
+          // Both are empty → show validation
+          validateMultiSelectField("mapping_branch", mapping_branch);
+          validateMultiSelectField( "mapping_department",mapping_department,);
+
+          isValid = false;
+
+      } else {
+
+          // At least one is filled → remove red border from both
+          $("#mapping_branch")
+              .closest(".choices")
+              .find(".choices__inner")
+              .css("border", "1px solid #cecece");
+
+          $("#mapping_department")
+              .closest(".choices")
+              .find(".choices__inner")
+              .css("border", "1px solid #cecece");
+      }
     }
 
     // Validate report access only if Reports menu is selected
@@ -443,6 +493,15 @@ $(document).ready(function () {
   $(document).on("click", ".userActionBtn", async function () {
     $("#reset_btn").hide();
     var id = $(this).attr("value"); // Get value attribute
+    var relieve_date = $(this).attr("data-relieve_date");
+    var currentdate = new Date().toISOString().split('T')[0];
+    console.log('relieve date',relieve_date);
+    console.log('currentdate date',currentdate);
+    if(relieve_date !='' && relieve_date < currentdate){
+      
+      swalError("Error", "This staff has already been relieved...! ");
+      return;
+    }
     $(".add_user_btn").hide();
     $(".back_to_userList_btn").show();
     $("#search_container,.radio_container,.table_container").hide();
@@ -471,6 +530,7 @@ $(document).ready(function () {
 
         $(".director_div").show();
         $(".user_div").hide();
+        $(".mapping_card").hide();
 
         $("#director_name").val(currentDirectorId).trigger("change");
         $("#multi_company_name2").val(response[0].director_company);
@@ -481,7 +541,11 @@ $(document).ready(function () {
       } else {
         $(".director_div").hide();
         $(".user_div").show();
+        $(".mapping_card").show();
         $("#company_name").val(response[0].company_id);
+        $("#staff_company_name").val(response[0].company_name);
+        $("#multi_branch_name2").val(response[0].mapping_branch);
+        $("#multi_department_name2").val(response[0].mapping_department);
         // $("#role").val(response[0].role);
         await getStaffName(response[0].company_id, response[0].staff_name_id);
 
@@ -501,6 +565,8 @@ $(document).ready(function () {
       $("#feedback_access").val(response[0].feedback_access);
       $("#home_access").val(response[0].home_access);
       $("#report_access").val(response[0].report_access);
+      getBranchName(response[0].company_id);
+      getDepartmentName(response[0].company_id);
 
       // Apply Feedback Access Type visibility based on Feedback Access value
       if (response[0].feedback_access == "1") {
@@ -646,6 +712,8 @@ function loadStaff() {
 
   if (company_id != "") {
     getStaffName(company_id);
+    getBranchName(company_id);
+    getDepartmentName(company_id);
   }
 }
 
@@ -677,7 +745,66 @@ function loadStaff() {
 //   });
 // }
 
-/* --- Get Staff Name --- */
+async function getBranchName(company_id) {
+  const multi_branch_name2 = $("#multi_branch_name2").val();
+
+  try {
+    const response = await $.ajax({
+      url: "api/user_creation_files/getBranchName.php",
+      type: "POST",
+      data: {company_id},
+      dataType: "json",
+    });
+
+    mapping_branch.clearChoices();
+    mapping_branch.removeActiveItems();
+
+    const selectedIds = multi_branch_name2
+      ? multi_branch_name2.split(",")
+      : [];
+
+    const items = response.map((val) => ({
+      value: val.id,
+      label: val.branch_name,
+      selected: selectedIds.includes(val.id.toString()),
+      disabled: val.disabled && !selectedIds.includes(val.id.toString()),
+    }));
+
+    mapping_branch.setChoices(items, "value", "label", true);
+  } catch (err) {
+    console.error("Error loading department dropdown:", err);
+  }
+}
+async function getDepartmentName(company_id) {
+  const multi_department_name2 = $("#multi_department_name2").val();
+
+  try {
+    const response = await $.ajax({
+      url: "api/user_creation_files/getDepartmentName.php",
+      type: "POST",
+      data: {company_id},
+      dataType: "json",
+    });
+
+    mapping_department.clearChoices();
+    mapping_department.removeActiveItems();
+
+    const selectedIds = multi_department_name2
+      ? multi_department_name2.split(",")
+      : [];
+
+    const items = response.map((val) => ({
+      value: val.id,
+      label: val.department_name,
+      selected: selectedIds.includes(val.id.toString()),
+      disabled: val.disabled && !selectedIds.includes(val.id.toString()),
+    }));
+
+    mapping_department.setChoices(items, "value", "label", true);
+  } catch (err) {
+    console.error("Error loading department dropdown:", err);
+  }
+}
 async function getStaffName(company_id, currentStaffId = "") {
   try {
     const response = await $.ajax({
@@ -771,6 +898,8 @@ function getUserCreationTable(company_id, user_type) {
         <th>Department Name</th>
         <th>Team Name</th>
         <th>Designation</th>
+        <th>Mapped Branch</th>
+        <th>Mapped Department</th>
         <th>Action</th>
       </tr>
     `);
@@ -799,6 +928,8 @@ function getUserCreationTable(company_id, user_type) {
           "department_name",
           "team_name",
           "designation",
+          "mapping_branch_names",
+          "mapping_department_names",
           "action",
         ];
       }
@@ -874,7 +1005,7 @@ function getMenuSubMenuList(userId) {
 
                       <label class="custom-control-label"
                           for="${submenu.sub_menu_link}">
-                          ${submenu.sub_menu}
+                          ${submenu.sub_menu}   <span style="color: #f26b35;">(Mapping Based)</span>
                       </label>
                   </div>
               </div>
@@ -926,23 +1057,41 @@ function getMenuSubMenuList(userId) {
               </div>
             `;
             } else {
-              submenuHtml = `
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
-            <div class="custom-control custom-checkbox">
-                <input type="checkbox"
-                    value="${submenu.sub_menu_id}"
-                    class="submenu-checkbox"
-                    name="${submenu.sub_menu_link}"
-                    id="${submenu.sub_menu_link}"
-                    tabindex="${tabindex}"
-                    disabled>
 
-                <label class="custom-control-label ms-2"
-                    for="${submenu.sub_menu_link}">
-                    ${submenu.sub_menu}
-                </label>
-            </div>
-        </div>`;
+              let mappingBasedText = "";
+
+              if (
+                submenu.sub_menu.toLowerCase() === "location access" ||
+                submenu.sub_menu.toLowerCase() === "attendance"
+              ) {
+                mappingBasedText = `<span style="color: #f26b35;">(Mapping Based)</span>`;
+              }
+              if (
+                submenu.sub_menu.toLowerCase() === "staff" ||
+                submenu.sub_menu.toLowerCase() === "staff exit management" ||
+                submenu.sub_menu.toLowerCase() === "promotion and transfer" 
+
+              ) {
+                mappingBasedText = `<span style="color: #f26b35;">(User Based)</span>`;
+              }
+
+              submenuHtml = `
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox"
+                            value="${submenu.sub_menu_id}"
+                            class="submenu-checkbox"
+                            name="${submenu.sub_menu_link}"
+                            id="${submenu.sub_menu_link}"
+                            tabindex="${tabindex}"
+                            disabled>
+
+                        <label class="custom-control-label ms-2"
+                            for="${submenu.sub_menu_link}">
+                            ${submenu.sub_menu} ${mappingBasedText}
+                        </label>
+                    </div>
+                </div>`;
             }
 
             $(`#${mainMenuLink}-mainmenu-submenus`).append(submenuHtml);

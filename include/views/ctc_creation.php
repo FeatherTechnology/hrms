@@ -75,6 +75,22 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 edit_ctc_div">
+                                <div class="form-group">
+                                    <label for="status">Status</label><span class="text-danger">*</span>
+                                    <select class="form-control" name="status" id="status" tabindex="1">
+                                        <option value="">Select Status</option>
+                                        <option value="0">Active</option>
+                                        <option value="1">In-Active</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 edit_ctc_div">
+                                <div class="form-group">
+                                    <label for="effective_from">Effective From</label><span class="text-danger">*</span>
+                                    <input type="month"  class="form-control" id="effective_from"  name="effective_from"  tabindex="7"  >
+                                </div>
+                            </div> 
                             <div class="col-md-3" style="display: flex; align-items: center;">
                                 <button type="submit" name="submit_ctc_settings_info" id="submit_ctc_settings_info" class="btn btn-primary" value="Add" tabindex="18"> &nbsp;Submit</button>
                             </div>
@@ -94,6 +110,8 @@
                                             <th>Component Classification</th>
                                             <th>Component Category</th>
                                             <th>Pay Frequency</th>
+                                            <th>Status</th>
+                                            <th>Effective From</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>

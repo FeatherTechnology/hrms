@@ -31,12 +31,15 @@ $stmt = $pdo->prepare("SELECT
         u.approval_view,
         u.approval_required,
         u.approved_request_type,
+        u.mapping_branch,
+        u.mapping_department,
         cc.id AS company_id,
         sc.id AS staff_name,
         bc.branch_name,
         dc.department_name,
         tnc.team_name,
-        ds.designation
+        ds.designation,
+        cc.company_name
     FROM users u
     LEFT JOIN occupation_info oi
         ON oi.id = (

@@ -859,13 +859,14 @@ $(document).ready(function () {
     if (off_type == "3") {
       isMultiSelectValid = validateMultiSelectField('assigned_branches', assignedBranchChoices);
     }
-    if (esi_wage_limit > 0 && total_ctc > esi_wage_limit && esi_available == 1) {
-      swalError(
-        "Warning",
-        "CTC exceeds ESI limit of ₹" + esi_wage_limit + ". Please select ESI Applicable as No.",
-      );
-      return false;
+    let totalCtcValue = parseFloat(total_ctc) || 0;
+    let esiWageLimitValue = parseFloat(esi_wage_limit) || 0;
+    let esiAvailableValue = parseInt(esi_available, 10) || 0;
 
+
+    if (esiWageLimitValue > 0 &&  totalCtcValue > esiWageLimitValue && esiAvailableValue === 1 ) {
+      swalError("Warning", "CTC exceeds ESI limit of ₹" + esiWageLimitValue + ". Please select ESI Applicable as No.");
+      return false;
     }
 
     var isValid = true;
@@ -1082,8 +1083,8 @@ $(document).ready(function () {
     let company_id = $("#company_search").val();
     let branch_id = $("#branch_search").val();
     let department_id = $("#department_search").val();
-    if (!company_id && !branch_id && !department_id) {
-      swalError("Warning", "Please Select Atleast One Fields!");
+    if (!company_id || !branch_id || !department_id) {
+      swalError("Warning", "Please Select All Fields!");
       return;
     }
     getStaffTable(company_id, branch_id, department_id);
@@ -1094,8 +1095,8 @@ $(document).ready(function () {
     let branch_id = $("#branch_search").val();
     let department_id = $("#department_search").val();
 
-    if (!company_id && !branch_id && !department_id) {
-      swalError("Warning", "Please Select Atleast One Fields!");
+    if (!company_id || !branch_id || !department_id) {
+      swalError("Warning", "Please Select All Fields!");
       return;
     }
     $(".radio-card").show();

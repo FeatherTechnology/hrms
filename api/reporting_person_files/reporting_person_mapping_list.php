@@ -529,6 +529,7 @@ foreach ($result as $row) {
             class='icon-border_color reportingPersonActionBtn'
             value='" . (int)$row['reporting_person_id'] . "'>
         </span>
+        <span class='icon-trash-2 reportingPersonDeleteBtn' value='" . (int)$row['reporting_person_id'] . "' ></span>
     ";
 
     $sub_array[] = $action;

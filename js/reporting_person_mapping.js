@@ -10,10 +10,11 @@ const reportingStaffInstance = new Choices("#reporting_staff", {
 
 $(document).ready(function () {
   /* --- Add Company Button & Back Button Click --- */
-  $(document).on("click", "#add_reporting_person,#back_btn", function () {
+  $(document).on("click", "#add_reporting_person", function () {
     $("#director_div").hide();
     $(".staff_div").show();
     swapTableAndCreation();
+    getCompanyName();
   });
 
   $(document).on(
@@ -221,6 +222,27 @@ $(document).ready(function () {
     }
   });
 
+  $(document).on("click", ".reportingPersonDeleteBtn", async function () {
+    const id = $(this).attr("value");
+  swalConfirm(
+        "Are you sure?",
+        "Do you want to Delete this Reporting Person Mapping?",
+        function () {
+          $.post(
+            "api/reporting_person_files/delete_reporting_person_mapping.php",
+            { id: id },
+            function (response) {
+              if (response == "1") {
+                swalSuccess("Success", "Reporting Person Mappind Deleted Successfully!");
+              } else if (response == "2") {
+                swalError("Error", "Error While Submiting ...!");
+              }
+              geteReportingPersonMapping();
+            },
+          );
+        },
+      );
+    })
   /* --- Edit Reporting Person Mapping --- */
   $(document).on("click", ".reportingPersonActionBtn", async function () {
     $("#reset_btn").hide();
@@ -319,6 +341,10 @@ $(document).ready(function () {
   /* --- Reporting Person Mapping Reset --- */
   $('button[type="reset"], #back_btn').click(function (event) {
     event.preventDefault();
+
+    $("#director_div").hide();
+    $(".staff_div").show();
+    swapTableAndCreation();
 
     $("input").val("");
 
@@ -435,7 +461,6 @@ async function swapTableAndCreation() {
     $(".reporting_person_table_content").hide();
     $(".backBtn").show();
     $(".addReportingPersonbtn").hide();
-    getCompanyName();
   }
 }
 

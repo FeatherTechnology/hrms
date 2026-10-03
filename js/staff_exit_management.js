@@ -16,7 +16,7 @@ $(document).ready(function () {
     let branch_id = $("#branch_search").val();
     let department_id = $("#department_search").val();
 
-    if (!company_id && !branch_id && !department_id) {
+    if (!company_id || !branch_id || !department_id) {
       swalError("Warning", "Please Select Atleast One Fields!");
       return;
     }

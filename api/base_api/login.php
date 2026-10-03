@@ -4,10 +4,9 @@ include '../../ajaxconfig.php';
 
 $user_name = $_POST['user_name'];
 $password = $_POST['password'];
-$status = 0;
 
-$qry = $pdo->prepare("SELECT `id` FROM users WHERE `user_name` = ? AND `password` = ? AND (`status` = ? OR (relieve_date IS NULL OR relieve_date >= CURDATE()))");
-$qry->execute([$user_name, $password, $status]);
+$qry = $pdo->prepare("SELECT id FROM users WHERE user_name = ? AND password = ? AND ( (status = 0 AND (relieve_date IS NULL OR relieve_date >= CURDATE())) OR (status = 1 AND relieve_date >= CURDATE()) )");
+$qry->execute([$user_name, $password]);
 $row = $qry->fetch();
 $count = $qry->rowCount();
 

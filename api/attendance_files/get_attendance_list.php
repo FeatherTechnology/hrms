@@ -15,27 +15,23 @@ $att_date   = !empty($_POST['date']) ? date('Y-m-d', strtotime($_POST['date'])) 
 $staff_type = [1 => 'Employer', 2 => 'Employee'];
 
 /* ---------- Logged In User Details ---------- */
-$userStmt = $pdo->prepare("SELECT
+$userStmt = $pdo->prepare("
+    SELECT
+        u.staff_name_id,
         u.user_type,
-        u.director_company,
-        dc.designation_level
+        u.director_name,
+        u.director_company
     FROM users u
-    LEFT JOIN occupation_info oi
-        ON oi.id = (
-            SELECT MAX(id)
-            FROM occupation_info
-            WHERE staff_profile_id = u.staff_name_id AND effective_from <= NOW()
-        )
-    LEFT JOIN designation_creation dc ON dc.id = oi.designation
     WHERE u.id = ?
 ");
 
 $userStmt->execute([$userid]);
 $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
 
-$my_level           = $userData['designation_level'] ?? 0;
-$user_type          = $userData['user_type'] ?? 0;
-$director_company   = $userData['director_company'] ?? '';
+$my_staff_id      = $userData['staff_name_id'] ?? 0;
+$user_type        = $userData['user_type'] ?? 0;
+$director_id      = $userData['director_name'] ?? 0;
+$director_company = $userData['director_company'] ?? '';
 
 /* ---------- Column mapping ---------- */
 $columns = [
@@ -103,34 +99,211 @@ $baseQuery = "
 
 /* ---------- Search ---------- */
 $params = [
-    ':company_id' => $company_id,
-    ':branch_id'  => $branch_id,
-    ':att_date'   => $att_date
+    ':branch_id' => $branch_id,
+    ':att_date'  => $att_date
 ];
+
+
+if ($user_type == 2) {
+
+    $baseQuery .= "
+        AND sc.id IN (
+            SELECT rpm.reporting_staff
+            FROM reporting_person rp
+
+            INNER JOIN reporting_person_mapping rpm
+                ON rpm.reporting_person_id = rp.id
+
+            WHERE rp.user_type = 2
+              AND rp.reporting_person = :my_staff_id
+        )
+    ";
+
+    $params[':my_staff_id'] = $my_staff_id;
+
+    $baseQuery .= "
+        AND oi.company_id = :company_id
+    ";
+
+    $params[':company_id'] = $company_id;
+}
+
 
 if ($user_type == 1) {
 
-    // Director - director_company contains comma separated company ids
-    $companyIds = array_filter(array_map('intval', explode(',', $director_company)));
+    $allStaffIds = [];
 
-    if (!empty($companyIds)) {
-        $placeholders = [];
+    $directStmt = $pdo->prepare("
+        SELECT DISTINCT rpm.reporting_staff
 
-        foreach ($companyIds as $k => $id) {
-            $key = ":cmp$k";
-            $placeholders[] = $key;
-            $params[$key] = $id;
+        FROM reporting_person rp
+
+        INNER JOIN reporting_person_mapping rpm
+            ON rpm.reporting_person_id = rp.id
+
+        WHERE rp.user_type = 1
+          AND rp.director_id = ?
+    ");
+
+    $directStmt->execute([$director_id]);
+
+    $directStaffIds = $directStmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $directStaffIds = array_values(
+        array_filter(
+            array_map('intval', $directStaffIds)
+        )
+    );
+
+    $allStaffIds = $directStaffIds;
+
+    $currentLevelIds = $directStaffIds;
+
+    $processedIds = [];
+
+
+    while (!empty($currentLevelIds)) {
+
+        $currentLevelIds = array_values(
+            array_diff(
+                $currentLevelIds,
+                $processedIds
+            )
+        );
+
+        if (empty($currentLevelIds)) {
+            break;
         }
 
-        $baseQuery .= " AND oi.company_id IN (" . implode(',', $placeholders) . ")";
-    }
-} else if ($user_type == 2) {
+        foreach ($currentLevelIds as $staffId) {
+            $processedIds[] = $staffId;
+        }
+        $placeholders = [];
+        $childParams = [];
 
-    // Company Admin
-    $baseQuery .= " AND oi.company_id = :company_id ";
-    $baseQuery .= " AND dsc.designation_level > :my_level ";
-    $params[':company_id'] = $company_id;
-    $params[':my_level'] = $my_level;
+        foreach ($currentLevelIds as $key => $staffId) {
+
+            $placeholder = ":parent_$key";
+
+            $placeholders[] = $placeholder;
+
+            $childParams[$placeholder] = $staffId;
+        }
+        $childSql = "
+            SELECT DISTINCT rpm.reporting_staff
+
+            FROM reporting_person rp
+
+            INNER JOIN reporting_person_mapping rpm
+                ON rpm.reporting_person_id = rp.id
+
+            WHERE rp.user_type = 2
+
+              AND rp.reporting_person IN (
+                  " . implode(',', $placeholders) . "
+              )
+        ";
+
+        $childStmt = $pdo->prepare($childSql);
+
+
+        foreach ($childParams as $key => $value) {
+
+            $childStmt->bindValue(
+                $key,
+                $value,
+                PDO::PARAM_INT
+            );
+        }
+
+        $childStmt->execute();
+        $childIds = $childStmt->fetchAll(PDO::FETCH_COLUMN);
+        $childIds = array_values(
+            array_filter(
+                array_map('intval', $childIds)
+            )
+        );
+
+        $childIds = array_values(
+            array_diff(
+                $childIds,
+                $allStaffIds
+            )
+        );
+        if (!empty($childIds)) {
+
+            $allStaffIds = array_merge(
+                $allStaffIds,
+                $childIds
+            );
+        }
+        $currentLevelIds = $childIds;
+    }
+
+
+    if (!empty($allStaffIds)) {
+
+        $staffPlaceholders = [];
+
+        foreach ($allStaffIds as $key => $staffId) {
+
+            $placeholder = ":report_staff_$key";
+
+            $staffPlaceholders[] = $placeholder;
+
+            $params[$placeholder] = $staffId;
+        }
+
+
+        $baseQuery .= "
+            AND sc.id IN (
+                " . implode(',', $staffPlaceholders) . "
+            )
+        ";
+
+    } else {
+
+        $baseQuery .= "
+            AND 1 = 0
+        ";
+    }
+
+    $companyIds = array_filter(
+        array_map(
+            'intval',
+            explode(',', $director_company)
+        )
+    );
+
+
+    if (!empty($companyIds)) {
+
+        $companyPlaceholders = [];
+
+        foreach ($companyIds as $key => $companyId) {
+
+            $placeholder = ":director_company_$key";
+
+            $companyPlaceholders[] = $placeholder;
+
+            $params[$placeholder] = $companyId;
+        }
+
+        $baseQuery .= "
+            AND oi.company_id IN (
+                " . implode(',', $companyPlaceholders) . "
+            )
+        ";
+    }
+
+    if ($company_id != '') {
+
+        $baseQuery .= "
+            AND oi.company_id = :selected_company_id
+        ";
+
+        $params[':selected_company_id'] = $company_id;
+    }
 }
 
 // search

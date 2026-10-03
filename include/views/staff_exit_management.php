@@ -55,6 +55,7 @@
                                 <th>S.NO</th>
                                 <th>Staff ID</th>
                                 <th>Staff Name</th>
+                                <th>Place</th>
                                 <th>Company</th>
                                 <th>Branch</th>
                                 <th>Department</th>
