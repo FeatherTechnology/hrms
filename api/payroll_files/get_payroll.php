@@ -8,10 +8,6 @@ include '../../ajaxconfig.php';
 $company_id = $_POST['company_id'];
 $branch_id  = $_POST['branch_id'];
 $month      = $_POST['month'];
-
-$month_start = $month . "-01";
-$month_end   = date("Y-m-t", strtotime($month_start));
-
 $stff_con = '';
 $stff_ctc_con = '';
 // in pay slip we use this condition to get the seperate pay slip 
@@ -21,6 +17,11 @@ if (isset($_POST['stf_prf_id']) && $_POST['stf_prf_id'] != '') {
     $stff_ctc_con = "AND sci.staff_profile_id = '$stf_prf_id' AND  sci.ctc_amount > 0 ";
 }
 $result = array();
+// CHECK PENDING REGULARIZATION BEFORE PAYROLL GENERATION
+
+$month_start = $month . "-01";
+$month_end = date("Y-m-t", strtotime($month_start));
+
 
 $pendingRegQry = $pdo->query("
     SELECT COUNT(*) AS pending_count
@@ -51,17 +52,36 @@ if ($pendingReg['pending_count'] > 0) {
 // GET ALL SALARY COMPONENT
 $componentArr = array();
 
-$getComponents = $pdo->query("
-    SELECT id, salary_component
+$getComponents = $pdo->prepare("
+SELECT id, salary_component
     FROM ctc_creation
-    WHERE company_id = '$company_id'
+    WHERE company_id = ?
+      AND (
+          (
+              status = 0
+              AND effective_from <= ?
+          )
+          OR
+          (
+              status = 1
+              AND effective_from > ?
+          )
+      )
 ");
 
+$getComponents->execute([
+    $company_id,
+    $month_start,
+    $month_start,
+]);
+
 while ($row = $getComponents->fetch()) {
+
     $componentArr[] = array(
         'id'   => $row['id'],
         'name' => $row['salary_component']
     );
+
 }
 
 // GET STAFF LIS

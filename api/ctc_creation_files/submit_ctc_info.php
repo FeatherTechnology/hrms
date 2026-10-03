@@ -24,10 +24,78 @@ $component_classification = $_POST['component_classification'];
 $component_category       = $_POST['component_category'];
 $pay_frequency            = $_POST['pay_frequency'];
 $user_id                  = $_SESSION['user_id'];
+$status                  = $_POST['status']; 
+$effective_from = $_POST['effective_from'] ?? '';
+
+if ($effective_from != '') {
+    $effective_from .= '-01';
+}
 
 $result = 0;
 
-/* Check Duplicate Salary Component */
+// /* Check Duplicate Salary Component */
+// $stmt = $pdo->prepare("SELECT id
+//     FROM ctc_creation
+//     WHERE REPLACE(TRIM(salary_component), ' ', '') = REPLACE(TRIM(?), ' ', '')
+//     AND salary_component = ?
+//     AND component_classification = ?
+//     AND component_category = ?
+//     AND pay_frequency = ?
+//     AND status = 0
+//     AND company_id = ?
+// ");
+
+// $stmt->execute([
+//     $salary_component,
+//     $salary_component,
+//     $component_classification,
+//     $component_category,
+//     $pay_frequency,
+//     $company_id
+// ]);
+
+// if ($stmt->rowCount() > 0) {
+
+//     $result = 3; // Already Exists
+
+// } else {
+
+    if (!empty($ctc_id)) {
+
+        /* Update CTC Component */
+        $stmt = $pdo->prepare("UPDATE ctc_creation
+            SET
+                company_id = ?,
+                salary_component = ?,
+                component_classification = ?,
+                component_category = ?,
+                pay_frequency = ?,
+                status=?,
+                effective_from =?,           
+                update_login_id = ?,
+                updated_date = NOW()
+            WHERE id = ?
+        ");
+
+        $qry = $stmt->execute([
+            $company_id,
+            $salary_component,
+            $component_classification,
+            $component_category,
+            $pay_frequency,
+            $status,
+            $effective_from ,
+            $user_id,
+            $ctc_id
+        ]);
+
+        if ($qry) {
+            $result = 1; // Update Successful
+        }
+    } else {
+
+
+    /* Check Duplicate Salary Component */
 $stmt = $pdo->prepare("SELECT id
     FROM ctc_creation
     WHERE REPLACE(TRIM(salary_component), ' ', '') = REPLACE(TRIM(?), ' ', '')
@@ -47,44 +115,12 @@ $stmt->execute([
     $pay_frequency,
     $company_id
 ]);
-
 if ($stmt->rowCount() > 0) {
 
     $result = 3; // Already Exists
 
-} else {
+} else{
 
-    if (!empty($ctc_id)) {
-
-        /* Update CTC Component */
-        $stmt = $pdo->prepare("UPDATE ctc_creation
-            SET
-                company_id = ?,
-                salary_component = ?,
-                component_classification = ?,
-                component_category = ?,
-                pay_frequency = ?,
-                update_login_id = ?,
-                updated_date = NOW()
-            WHERE id = ?
-        ");
-
-        $qry = $stmt->execute([
-            $company_id,
-            $salary_component,
-            $component_classification,
-            $component_category,
-            $pay_frequency,
-            $user_id,
-            $ctc_id
-        ]);
-
-        if ($qry) {
-            $result = 1; // Update Successful
-        }
-    } else {
-
-        /* Insert CTC Component */
         $stmt = $pdo->prepare("INSERT INTO ctc_creation
             (
                 company_id,
@@ -92,11 +128,13 @@ if ($stmt->rowCount() > 0) {
                 component_classification,
                 component_category,
                 pay_frequency,
+                status,
+                effective_from,
                 insert_login_id
             )
             VALUES
             (
-                ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?,?,?
             )
         ");
 
@@ -106,14 +144,22 @@ if ($stmt->rowCount() > 0) {
             $component_classification,
             $component_category,
             $pay_frequency,
+            $status,
+            $effective_from ,
             $user_id
         ]);
 
         if ($qry) {
             $result = 2; // Insert Successful
         }
-    }
+
 }
+        
+
+        /* Insert CTC Component */
+
+    }
+
 
 $pdo = null; // Close Connection
 

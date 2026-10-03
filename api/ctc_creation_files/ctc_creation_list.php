@@ -18,11 +18,10 @@ $i = 0;
 
 $stmt = $pdo->prepare("SELECT *
     FROM ctc_creation
-    WHERE company_id = ?
-    AND status = ?
+    WHERE company_id = ? 
 ");
 
-$stmt->execute([$company_id, 0]);
+$stmt->execute([$company_id ]);
 
 if ($stmt->rowCount() > 0) {
 
@@ -48,12 +47,21 @@ if ($stmt->rowCount() > 0) {
         } elseif ($row['pay_frequency'] == 2) {
             $row['pay_frequency'] = 'Per Day';
         }
+         // Effective From
+        if (!empty($row['effective_from'])) {
+            $row['effective_from'] = date('d-m-Y', strtotime($row['effective_from']));
+        }
+        // Status
+        if ($row['status'] == 0) {
+            $row['status'] = 'Active';
+        } elseif ($row['status'] == 1) {
+            $row['status'] = 'In-Active';
+        }
 
         // Action Button
         $row['action'] = "
             <span class='icon-border_color ctcActionBtn' value='" . $row['id'] . "'></span>
             &nbsp;&nbsp;&nbsp;
-            <span class='icon-delete ctcDeleteBtn' value='" . $row['id'] . "'></span>
         ";
 
         $ctc_list_arr[$i] = $row;

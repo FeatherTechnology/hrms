@@ -83,6 +83,8 @@
                                     <th>Department Name</th>
                                     <th>Team Name</th>
                                     <th>Designation</th>
+                                    <th>Mapped Branch</th>
+                                    <th>Mapped Department</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -237,6 +239,39 @@
                                     <div class="form-group">
                                         <label for="confirm_password">Confirm Password</label><span class="text-danger">*</span>
                                         <input type="text" class="form-control" id="confirm_password" name="confirm_password" tabindex="13" placeholder="Enter Confirm Password">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--- ---------------------- Credential Info END  ----------------------------- -->
+                    <!--- ---------------------- Credential Info START  ----------------------------- -->
+                    <div class="card mapping_card">
+                        <div class="card-header">
+                            <h5 class="card-title">Mapping Info</h5>
+                        </div>
+                        <div class="card-body mapping_info">
+                            <div class="row">
+                                <div class="col-sm-4 col-md-4 col-lg-4">
+                                    <div class="form-group">
+                                        <label for="staff_company_name">Compay Name</label><span class="text-danger">*</span>
+                                        <input type="text" class="form-control" id="staff_company_name" name="staff_company_name" tabindex="11" placeholder="Enter Company Name" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 col-md-4 col-lg-4">
+                                    <div class="form-group">
+                                        <label for="mapping_branch">Mapping Branch</label><span class="text-danger">*</span>
+                                        <input type="hidden" id="multi_branch_name2">
+                                        <!-- <input type="text" class="form-control" id="mapping_branch" name="mapping_branch" tabindex="12" placeholder="Enter  Mapping branch"> -->
+                                        <select class="form-control" id="mapping_branch" name="mapping_branch[]" tabindex="13" multiple></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 col-md-4 col-lg-4">
+                                    <div class="form-group">
+                                        <label for="mapping_department">Mapping Department</label><span class="text-danger">*</span>
+                                        <input type="hidden" id="multi_department_name2">
+                                        <!-- <input type="text" class="form-control" id="mapping_department" name="mapping_department" tabindex="13" placeholder="Enter Mapping Department"> -->
+                                        <select class="form-control" id="mapping_department" name="mapping_department[]" tabindex="13" multiple></select>
                                     </div>
                                 </div>
                             </div>

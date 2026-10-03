@@ -25,12 +25,15 @@ $sql = "SELECT
         sc.staff_name,
         bc.branch_name,
         dc.department_name,
+        GROUP_CONCAT(DISTINCT mbc.branch_name  ORDER BY mbc.id SEPARATOR ', ') AS mapping_branch_names,
+        GROUP_CONCAT(DISTINCT mdc.department_name ORDER BY mdc.id  SEPARATOR ', ') AS mapping_department_names,
         tnc.team_name,
         ds.designation,
         u.user_type,
         u.company_id,
         u.director_company,
         u.director_branch,
+        u.relieve_date,
         drc.director_name
     FROM users u
     LEFT JOIN occupation_info oi
@@ -39,13 +42,24 @@ $sql = "SELECT
             FROM occupation_info
             WHERE staff_profile_id = u.staff_name_id AND effective_from <= NOW()
         )
-    LEFT JOIN director_creation drc ON drc.id = u.director_name
-    LEFT JOIN branch_creation bc ON oi.branch_id = bc.id
-    LEFT JOIN department_creation dc ON oi.department = dc.id
-    LEFT JOIN team_name_creation tnc ON oi.team = tnc.id
-    LEFT JOIN designation_creation ds ON oi.designation = ds.id
-    LEFT JOIN company_creation cc ON u.company_id = cc.id
-    LEFT JOIN staff_creation sc ON u.staff_name_id = sc.id
+    LEFT JOIN director_creation drc
+        ON drc.id = u.director_name
+    LEFT JOIN branch_creation bc
+        ON oi.branch_id = bc.id
+    LEFT JOIN department_creation dc
+        ON oi.department = dc.id
+    LEFT JOIN branch_creation mbc
+        ON FIND_IN_SET(mbc.id, u.mapping_branch)
+    LEFT JOIN department_creation mdc
+        ON FIND_IN_SET(mdc.id, u.mapping_department)
+    LEFT JOIN team_name_creation tnc
+        ON oi.team = tnc.id
+    LEFT JOIN designation_creation ds
+        ON oi.designation = ds.id
+    LEFT JOIN company_creation cc
+        ON u.company_id = cc.id
+    LEFT JOIN staff_creation sc
+        ON u.staff_name_id = sc.id
     WHERE u.status = ?";
 
 $params = [$status_value];
@@ -133,7 +147,7 @@ if (!empty($user_info['director_company'])) {
         ";
     } else {
         $user_info['action'] = "
-            <span class='icon-border_color userActionBtn' value='" . $user_info['id'] . "' style='pointer-events:none;opacity:0.5;cursor:not-allowed;'></span>
+            <span class='icon-border_color userActionBtn' value='" . $user_info['id'] . "' data-relieve_date='".$user_info['relieve_date']."'></span>
         ";
     }
 

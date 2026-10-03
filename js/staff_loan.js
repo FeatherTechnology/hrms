@@ -72,6 +72,24 @@ $(document).ready(function () {
     var due_start_date = $("#due_start_date").val();
     var due_end_date = $("#due_end_date").val();
 
+    if (due_start_date) {
+      due_start_date += "-01";
+    }
+
+var due_end_date = "";
+
+if ($("#due_end_date").val()) {
+    due_end_date = new Date(
+        $("#due_end_date").val() + " 1"
+    );
+
+    due_end_date =
+        due_end_date.getFullYear() +
+        "-" +
+        String(due_end_date.getMonth() + 1).padStart(2, "0") +
+        "-01";
+}
+
     var data = [
       "company_name",
       "staff_name",
@@ -200,24 +218,28 @@ $(document).ready(function () {
     }
   });
 
-  $("#due_start_date, #due_period").on("change input", function () {
+$("#due_start_date, #due_period").on("change input", function () {
+
     let startDate = $("#due_start_date").val();
     let duePeriod = parseInt($("#due_period").val());
 
     if (startDate && duePeriod > 0) {
-      let date = new Date(startDate);
 
-      date.setMonth(date.getMonth() + duePeriod);
+        let date = new Date(startDate + "-01");
 
-      let year = date.getFullYear();
-      let month = String(date.getMonth() + 1).padStart(2, "0");
-      let day = String(date.getDate()).padStart(2, "0");
+        date.setMonth(date.getMonth() + duePeriod);
 
-      $("#due_end_date").val(year + "-" + month + "-" + day);
+        $("#due_end_date").val(
+            date.toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric"
+            })
+        );
+
     } else {
-      $("#due_end_date").val("");
+        $("#due_end_date").val("");
     }
-  });
+});
 });
 // document end
 
@@ -284,6 +306,7 @@ async function getStaffName(company_id) {
     swalError("Error", "Unable to Fetch Staff Name");
   }
 }
+
 
 function getStaffInfo() {
   let id = $("#staff_name").val();
@@ -390,8 +413,23 @@ function getStaffLoanDetails(id) {
         $("#due_amount").val(data.due_amount);
 
         // Dates
-        $("#due_start_date").val(data.due_start_date);
-        $("#due_end_date").val(data.due_end_date);
+
+        // Due Start Date - type="month"
+        if (data.due_start_date) {
+          $("#due_start_date").val(data.due_start_date.substring(0, 7));
+        }
+
+        // Due End Date - display as Month Year
+        if (data.due_end_date) {
+          let endDate = new Date(data.due_end_date);
+
+          $("#due_end_date").val(
+            endDate.toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            }),
+          );
+        }
       } else {
         swalError("Warning", "Staff Loan Details Not Found");
       }

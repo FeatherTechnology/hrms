@@ -37,12 +37,16 @@ $(document).ready(function () {
     let component_classification = $("#component_classification").val();
     let component_category = $("#component_category").val();
     let pay_frequency = $("#pay_frequency").val();
+    let status = $("#status").val();
+    let effective_from = $("#effective_from").val();
 
     var data = [
       "salary_component",
       "component_classification",
       "component_category",
       "pay_frequency",
+      "effective_from",
+      "status"
     ];
 
     var isValid = true;
@@ -66,6 +70,8 @@ $(document).ready(function () {
               component_classification,
               component_category,
               pay_frequency,
+              status,
+              effective_from,
               ctc_id,
             },
             function (response) {
@@ -105,6 +111,10 @@ $(document).ready(function () {
         );
         $("#component_category").val(response[0].component_category);
         $("#pay_frequency").val(response[0].pay_frequency);
+        $("#status").val(response[0].status);
+          if (response[0].effective_from) {
+                $("#effective_from").val( response[0].effective_from.substring(0, 7)  );
+            }
       },
       "json",
     );
@@ -165,6 +175,8 @@ function getctcTable() {
         "component_classification",
         "component_category",
         "pay_frequency",
+        "status",
+        "effective_from",
         "action",
       ];
       appendDataToTable("#ctc_creation_table", response, columnMapping);
@@ -201,6 +213,8 @@ function clearFields() {
   $("#component_category").val("");
   $("#pay_frequency").val("");
   $("#ctc_id").val("");
+  $("#status").val("");
+  $("#effective_from").val("");
   $("#ctc_settings_form input").css("border", "1px solid #cecece");
   $("#ctc_settings_form select").css("border", "1px solid #cecece");
 }
