@@ -50,7 +50,7 @@ if (!empty($_POST['approval_type'])) {
 }
 
 try {
-    if ($req_type != 4) {
+    if ($req_type != 4 && $req_type != 2) {
         $check_sql = "SELECT id FROM regularization
             WHERE staff_profile_id = '$stf_prf_id' AND status IN (0,1) AND req_type != 4";
 
