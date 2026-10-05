@@ -88,7 +88,7 @@ $base_query = "
     LEFT JOIN branch_creation bcs 
         ON lam.assigned_branch = bcs.id
 
-    WHERE oi.off_type = 1 
+    WHERE (oi.off_type = 1 OR oi.off_type = 3)
 
       AND oi.id IN (
           SELECT MAX(id) 
@@ -104,18 +104,6 @@ $base_query = "
       )
 ";
 
-
-/* =========================================================
-   REPORTING PERSON ACCESS
-   ========================================================= */
-
-/*
-    USER TYPE 2
-    ---------------------------------------------------------
-    Staff / Manager
-
-    Show only staff directly mapped to the logged-in staff.
-*/
 if ($user_type == 2) {
 
     $base_query .= "
@@ -133,34 +121,6 @@ if ($user_type == 2) {
     ";
 }
 
-
-/*
-    USER TYPE 1
-    ---------------------------------------------------------
-    Director
-
-    First get staff directly mapped to the Director.
-
-    Then recursively get staff mapped under those staff.
-
-    Example:
-
-        Director
-           |
-           +-- Staff A
-           |     +-- Staff X
-           |     +-- Staff Y
-           |
-           +-- Staff B
-                 +-- Staff Z
-
-    Result:
-        Staff A
-        Staff B
-        Staff X
-        Staff Y
-        Staff Z
-*/
 if ($user_type == 1) {
 
     $base_query .= "
