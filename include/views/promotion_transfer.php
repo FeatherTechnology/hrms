@@ -148,7 +148,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="joining_date">Joining Date</label><span class="text-danger">*</span>
-                                            <input type="date" class="form-control personal_info_disble" id="joining_date" name="joining_date" placeholder="Joining Date" tabindex="5" readonly>
+                                            <input type="date" class="form-control personal_info_disble" id="joining_date" name="joining_date" placeholder="Joining Date" tabindex="4" readonly>
                                         </div>
                                     </div>
 
@@ -166,7 +166,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="company_name">Company Name</label><span class="text-danger">*</span>
-                                            <select class="form-control" id="company_name" name="company_name" tabindex="1">
+                                            <select class="form-control" id="company_name" name="company_name" tabindex="5">
                                                 <option value="">Select Company Name</option>
                                             </select>
                                         </div>
@@ -174,7 +174,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="effective_date">Effective From</label><span class="text-danger">*</span>
-                                            <input type="month" class="form-control" id="effective_date" name="effective_date" min="<?php echo date('Y-m', strtotime('+1 month')); ?>">
+                                            <input type="month" class="form-control" id="effective_date" name="effective_date"  tabindex="6" min="<?php echo date('Y-m', strtotime('+1 month')); ?>">
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -205,7 +205,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="designation">Designation</label><span class="text-danger">*</span>
-                                            <select class="form-control" id="designation" name="designation" tabindex="37">
+                                            <select class="form-control" id="designation" name="designation" tabindex="10">
                                                 <option value="">Select Designation</option>
                                             </select>
                                         </div>
@@ -283,7 +283,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="total_ctc">Total CTC</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="total_ctc" name="total_ctc" placeholder="Enter Total CTC" tabindex="41">
+                                    <input type="text" class="form-control" id="total_ctc" name="total_ctc" placeholder="Enter Total CTC" tabindex="11">
                                 </div>
                             </div>
                         </div>
@@ -323,7 +323,7 @@
                 <div class="col-md-12 ">
                     <div class="text-right">
 
-                        <button type="submit" name="submit_staff_data" id="submit_staff_data" class="btn btn-primary" value="Submit" tabindex="6"><span class="icon-check"></span>&nbsp;Submit</button>
+                        <button type="submit" name="submit_staff_data" id="submit_staff_data" class="btn btn-primary" value="Submit" tabindex="13"><span class="icon-check"></span>&nbsp;Submit</button>
                     </div>
                 </div>
 

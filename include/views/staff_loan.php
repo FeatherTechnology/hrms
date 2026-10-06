@@ -51,7 +51,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 user_div">
                                         <div class="form-group">
                                             <label for="company_name">Company Name</label><span class="text-danger">*</span>
-                                            <select class="form-control" id="company_name" name="company_name" tabindex="6">
+                                            <select class="form-control" id="company_name" name="company_name" tabindex="1">
                                                 <option value="">Select Company Name</option>
                                             </select>
                                         </div>
@@ -60,7 +60,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 user_div">
                                         <div class="form-group">
                                             <label for="staff_name">Staff Name</label><span class="text-danger">*</span>
-                                            <select class="form-control" id="staff_name" name="staff_name" tabindex="6">
+                                            <select class="form-control" id="staff_name" name="staff_name" tabindex="2">
                                                 <option value="">Select Staff Name</option>
                                             </select>
                                         </div>
@@ -68,25 +68,25 @@
                                     <div class="col-sm-4 col-md-4 col-lg-4 user_div">
                                         <div class="form-group">
                                             <label for="staff_id">Staff ID</label>
-                                            <input type="text" class="form-control" id="staff_id" name="staff_id" tabindex="7" readonly>
+                                            <input type="text" class="form-control" id="staff_id" name="staff_id" tabindex="3" readonly>
                                         </div>
                                     </div>
                                     <div class="col-sm-4 col-md-4 col-lg-4 user_div">
                                         <div class="form-group">
                                             <label for="branch">Branch</label>
-                                            <input type="text" class="form-control" id="branch" name="branch" tabindex="7" readonly>
+                                            <input type="text" class="form-control" id="branch" name="branch" tabindex="4" readonly>
                                         </div>
                                     </div>
                                     <div class="col-sm-4 col-md-4 col-lg-4 user_div">
                                         <div class="form-group">
                                             <label for="department">Department</label>
-                                            <input type="text" class="form-control" id="department" name="department" tabindex="7" readonly>
+                                            <input type="text" class="form-control" id="department" name="department" tabindex="5" readonly>
                                         </div>
                                     </div>
                                     <div class="col-sm-4 col-md-4 col-lg-4 user_div">
                                         <div class="form-group">
                                             <label for="team">Team</label>
-                                            <input type="text" class="form-control" id="team" name="team" tabindex="7" readonly>
+                                            <input type="text" class="form-control" id="team" name="team" tabindex="6" readonly>
                                         </div>
                                     </div>
                                     <div class="col-sm-4 col-md-4 col-lg-4 user_div">
@@ -107,39 +107,39 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="loan_amount">Loan Amount</label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control" id="loan_amount" name="loan_amount" tabindex="7" oninput="this.value = this.value.replace(/[^0-9]/g, '')" >
+                                            <input type="number" class="form-control" id="loan_amount" name="loan_amount" tabindex="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" >
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="int_rate">Intrest Rate</label>  <span class="text-danger">*</span> <span class="text-danger"> ( 0% - 5% )</span>
 
-                                            <input type="text"  class="form-control"  id="int_rate"  name="int_rate"  tabindex="7" oninput="if(parseFloat(this.value) > 5) this.value=''; this.value=this.value.replace(/[^0-9.]/g,'');">
+                                            <input type="text"  class="form-control"  id="int_rate"  name="int_rate"  tabindex="9" oninput="if(parseFloat(this.value) > 5) this.value=''; this.value=this.value.replace(/[^0-9.]/g,'');">
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="due_period">Due Period</label><span class="text-danger">*</span><span class="text-danger"> ( 0 - 12 )</span>
-                                            <input type="number" class="form-control" id="due_period" name="due_period" tabindex="7" min="1" max="12" oninput="if(this.value < 1 || this.value > 12) this.value='';">
+                                            <input type="number" class="form-control" id="due_period" name="due_period" tabindex="10" min="1" max="12" oninput="if(this.value < 1 || this.value > 12) this.value='';">
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="total_intrest">Total Intrest</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control" id="total_intrest" name="total_intrest" tabindex="7"  readonly>
+                                            <input type="text" class="form-control" id="total_intrest" name="total_intrest" tabindex="11"  readonly>
                                         </div>
                                     </div> 
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="due_amount">Due Amount</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control" id="due_amount" name="due_amount" tabindex="7"  readonly>
+                                            <input type="text" class="form-control" id="due_amount" name="due_amount" tabindex="12"  readonly>
                                         </div>
                                     </div> 
                                     
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="due_start_date">Due Start Date</label><span class="text-danger">*</span>
-                                            <input type="month"  class="form-control" id="due_start_date"  name="due_start_date"  tabindex="7"  min="<?php echo date('Y-m'); ?>" >
+                                            <input type="month"  class="form-control" id="due_start_date"  name="due_start_date"  tabindex="13"  min="<?php echo date('Y-m'); ?>" >
                                         </div>
                                     </div> 
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12"> 
@@ -149,7 +149,7 @@
                                                 <input type="text"
                                                     class="form-control"
                                                     id="due_end_date"
-                                                    name="due_end_date"
+                                                    name="due_end_date" tabindex="14"
                                                     readonly>
                                             </div> 
                                         </div>                                 
@@ -158,8 +158,8 @@
                         </div>
 
                         <div class="col-12 mt-3 text-right">
-                            <button name="submit_staff_loan" id="submit_staff_loan" class="btn btn-primary" tabindex="5"><span class="icon-check"></span>&nbsp;Submit</button>
-                            <button type="reset" class="btn btn-outline-secondary" id="reset_btn" tabindex="6">Clear</button>
+                            <button name="submit_staff_loan" id="submit_staff_loan" class="btn btn-primary" tabindex="15"><span class="icon-check"></span>&nbsp;Submit</button>
+                            <button type="reset" class="btn btn-outline-secondary" id="reset_btn" tabindex="16">Clear</button>
                         </div>
 
                     </div>

@@ -24,69 +24,6 @@ try {
 
     $user_id = $_SESSION['user_id'] ?? 0;
 
-    // // MAKE REPORTING STAFF ARRAY
-    // if (!is_array($reporting_staff)) {
-    //     $reporting_staff = [$reporting_staff];
-    // }
-
-    // // VALIDATE STAFF IDs Only numeric staff_creation IDs are allowed.
-    // $reporting_staff = array_filter(
-    //     $reporting_staff,
-    //     function ($value) {
-    //         return is_numeric($value) && (int)$value > 0;
-    //     }
-    // );
-
-    // // Convert values to integer
-    // $reporting_staff = array_map('intval', $reporting_staff);
-
-    // // Remove duplicate staff IDs
-    // $reporting_staff = array_values(array_unique($reporting_staff));
-
-    // // EXISTING STAFF IDs Example:reporting_staff2 = "12||15||20"
-    // if (!empty($reporting_staff2)) {
-
-    //     $old_reporting_staff = explode('||', $reporting_staff2);
-
-    //     // Keep only valid numeric IDs
-    //     $old_reporting_staff = array_filter(
-    //         $old_reporting_staff,
-    //         function ($value) {
-    //             return is_numeric($value) && (int)$value > 0;
-    //         }
-    //     );
-
-    //     // Convert to integer
-    //     $old_reporting_staff = array_map('intval', $old_reporting_staff);
-
-    //     // Remove duplicates
-    //     $old_reporting_staff = array_values(array_unique($old_reporting_staff));
-    // } else {
-
-    //     $old_reporting_staff = [];
-    // }
-
-    // // VALIDATE SELECTED STAFF EXISTS This prevents invalid staff IDs from being inserted.
-    // if (!empty($reporting_staff)) {
-
-    //     $placeholders = implode(',', array_fill(0, count($reporting_staff), '?'));
-
-    //     $stmt = $pdo->prepare("SELECT id FROM staff_creation WHERE id IN ($placeholders) AND company_id = ? AND status = 1");
-
-    //     $params = $reporting_staff;
-    //     $params[] = $company_name;
-
-    //     $stmt->execute($params);
-
-    //     $valid_staff_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-    //     // Convert database IDs to integer
-    //     $valid_staff_ids = array_map('intval', $valid_staff_ids);
-
-    //     // Keep only valid staff IDs
-    //     $reporting_staff = array_values(array_intersect($reporting_staff, $valid_staff_ids));
-    // }
-
 
     // Update Reporting Person
     if (!empty($reporting_person_id)) {

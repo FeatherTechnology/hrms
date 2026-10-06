@@ -13,13 +13,13 @@
                         <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                             <div class="form-group">
                                 <label for="company_name">Company Name</label><span class="text-danger">*</span>
-                                <select class="form-control" id="company_name" name="company_name" tabindex="6">
+                                <select class="form-control" id="company_name" name="company_name" tabindex="1">
                                     <option value="">Select Company Name</option>
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-3" style="display: flex; align-items: center;">
-                            <button type="button" name="search_ctc" id="search_ctc" class="btn btn-primary" tabindex="7"></span>&nbsp;Search</button>
+                            <button type="button" name="search_ctc" id="search_ctc" class="btn btn-primary" tabindex="2"></span>&nbsp;Search</button>
                         </div>
                     </div>
                 </div>
@@ -36,19 +36,19 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="company_names"> Company Name </label>
-                                    <input type="text" class="form-control" id="company_names" name="company_names" readonly tabindex="10">
+                                    <input type="text" class="form-control" id="company_names" name="company_names" readonly tabindex="3">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="salary_component">Salary Component</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="salary_component" name="salary_component" placeholder="Enter Salary Component" tabindex="11">
+                                    <input type="text" class="form-control" id="salary_component" name="salary_component" placeholder="Enter Salary Component" tabindex="4">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="component_classification">Component Classification</label><span class="text-danger">*</span>
-                                    <select class="form-control" name="component_classification" id="component_classification" tabindex="1">
+                                    <select class="form-control" name="component_classification" id="component_classification" tabindex="5">
                                         <option value="">Select Component Classification</option>
                                         <option value="1">CTC</option>
                                         <option value="2">NON CTC</option>
@@ -58,7 +58,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="component_category">Component Category</label><span class="text-danger">*</span>
-                                    <select class="form-control" name="component_category" id="component_category" tabindex="1">
+                                    <select class="form-control" name="component_category" id="component_category" tabindex="6">
                                         <option value="">Select Component Category</option>
                                         <option value="1">Salary</option>
                                         <option value="2">Reimbursement</option>
@@ -68,7 +68,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="pay_frequency">Pay Frequency</label><span class="text-danger">*</span>
-                                    <select class="form-control" name="pay_frequency" id="pay_frequency" tabindex="1">
+                                    <select class="form-control" name="pay_frequency" id="pay_frequency" tabindex="7">
                                         <option value="">Select Pay Frequency</option>
                                         <option value="1">Per Month</option>
                                         <option value="2">Per Day</option>
@@ -78,7 +78,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 edit_ctc_div">
                                 <div class="form-group">
                                     <label for="status">Status</label><span class="text-danger">*</span>
-                                    <select class="form-control" name="status" id="status" tabindex="1">
+                                    <select class="form-control" name="status" id="status" tabindex="8">
                                         <option value="">Select Status</option>
                                         <option value="0">Active</option>
                                         <option value="1">In-Active</option>
@@ -88,11 +88,11 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 edit_ctc_div">
                                 <div class="form-group">
                                     <label for="effective_from">Effective From</label><span class="text-danger">*</span>
-                                    <input type="month"  class="form-control" id="effective_from"  name="effective_from"  tabindex="7"  >
+                                    <input type="month"  class="form-control" id="effective_from"  name="effective_from"  tabindex="9">
                                 </div>
                             </div> 
                             <div class="col-md-3" style="display: flex; align-items: center;">
-                                <button type="submit" name="submit_ctc_settings_info" id="submit_ctc_settings_info" class="btn btn-primary" value="Add" tabindex="18"> &nbsp;Submit</button>
+                                <button type="submit" name="submit_ctc_settings_info" id="submit_ctc_settings_info" class="btn btn-primary" value="Add" tabindex="10"> &nbsp;Submit</button>
                             </div>
                         </div>
                     </form>

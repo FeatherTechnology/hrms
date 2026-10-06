@@ -95,19 +95,6 @@ function toggleSection(type) {
   );
 }
 
-//==================================================
-// Average Rating
-//==================================================
-// function getAverageRating() {
-//   $.ajax({
-//     url: "api/analytics_dashboard_files/get_average_rating.php",
-//     type: "POST",
-//     success: function (response) {
-//       $(".average_rating").text(response);
-//     },
-//   });
-// }
-
 function getGeneralFeedback() {
   $.ajax({
     url: "api/analytics_dashboard_files/get_general_feedback.php",
