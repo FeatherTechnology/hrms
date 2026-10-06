@@ -48,7 +48,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="company_name">Company Name</label><span class="text-danger">*</span>
-                                        <select class="form-control" id="company_name" name="company_name" tabindex="6">
+                                        <select class="form-control" id="company_name" name="company_name" tabindex="1">
                                             <option value="">Select Company Name</option>
                                         </select>
                                     </div>
@@ -56,7 +56,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="state">State</label><span class="text-danger">*</span>
-                                        <select class="form-control" id="state" name="state" tabindex="5">
+                                        <select class="form-control" id="state" name="state" tabindex="2">
                                             <option value="">Select State</option>
                                         </select>
                                     </div>
@@ -76,7 +76,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="pf_applicable">PF Applicable</label> <span class="text-danger">*</span>
-                                        <select class="form-control" id="pf_applicable" name="pf_applicable" tabindex="6">
+                                        <select class="form-control" id="pf_applicable" name="pf_applicable" tabindex="3">
                                             <option value="">Select PF Applicable</option>
                                             <option value="1">Yes</option>
                                             <option value="2">No</option>
@@ -86,25 +86,25 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
                                         <label for="pf_number">PF Number</label>
-                                        <input type="number" class="form-control" id="pf_number" name="pf_number" placeholder="Enter PF Number" tabindex="8">
+                                        <input type="number" class="form-control" id="pf_number" name="pf_number" placeholder="Enter PF Number" tabindex="4">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
                                         <label for="employee_contribution">Employee Contribution</label> <span class="text-danger">(0% - 20%)</span>
-                                        <input type="number" class="form-control" id="employee_contribution" name="employee_contribution" min="0" max="20" step="0.01" placeholder="Enter Employee Contribution" tabindex="8">
+                                        <input type="number" class="form-control" id="employee_contribution" name="employee_contribution" min="0" max="20" step="0.01" placeholder="Enter Employee Contribution" tabindex="5">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
                                         <label for="employer_contribution">Employer Contribution</label><span class="text-danger">(0% - 20%)</span>
-                                        <input type="number" class="form-control" id="employer_contribution" name="employer_contribution" placeholder="Enter Employer Contribution" tabindex="8">
+                                        <input type="number" class="form-control" id="employer_contribution" name="employer_contribution" placeholder="Enter Employer Contribution" tabindex="6">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
                                         <label for="admin_charge">Admin Charge</label> <span class="text-danger">(0% - 20%)</span>
-                                        <input type="number" class="form-control" id="admin_charge" name="admin_charge" placeholder="Enter Admin Charge" tabindex="8">
+                                        <input type="number" class="form-control" id="admin_charge" name="admin_charge" placeholder="Enter Admin Charge" tabindex="7">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
@@ -116,7 +116,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
                                         <label for="apply_pf_wage_limit">Apply PF Wage Limit</label><span class="text-danger">*</span>
-                                        <select class="form-control" id="apply_pf_wage_limit" name="apply_pf_wage_limit" tabindex="6">
+                                        <select class="form-control" id="apply_pf_wage_limit" name="apply_pf_wage_limit" tabindex="9">
                                             <option value="">Select PF Wage Limit</option>
                                             <option value="1">Yes</option>
                                             <option value="2">No</option>
@@ -126,7 +126,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="pf_wage_div" style="display:none;">
                                     <div class="form-group">
                                         <label for="pf_wage_limit">PF Wage Limit</label><span class="text-danger">*</span>
-                                        <input type="number" class="form-control" id="pf_wage_limit" name="pf_wage_limit" placeholder="Enter PF Wage Limit" tabindex="8">
+                                        <input type="number" class="form-control" id="pf_wage_limit" name="pf_wage_limit" placeholder="Enter PF Wage Limit" tabindex="10">
                                     </div>
                                 </div>
                             </div>
@@ -144,7 +144,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="esi_applicable">ESI Applicable</label> <span class="text-danger">*</span>
-                                        <select class="form-control" id="esi_applicable" name="esi_applicable" tabindex="6">
+                                        <select class="form-control" id="esi_applicable" name="esi_applicable" tabindex="11">
                                             <option value="">Select ESI Applicable</option>
                                             <option value="1">Yes</option>
                                             <option value="2">No</option>
@@ -154,19 +154,19 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 esi_apply">
                                     <div class="form-group">
                                         <label for="employee_share">Employee Share</label> <span class="text-danger">(0% - 20%)</span>
-                                        <input type="number" class="form-control" id="employee_share" name="employee_share" placeholder="Enter Employee Share" tabindex="7">
+                                        <input type="number" class="form-control" id="employee_share" name="employee_share" placeholder="Enter Employee Share" tabindex="12">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 esi_apply">
                                     <div class="form-group">
                                         <label for="employer_share">Employer Share</label> <span class="text-danger">(0% - 20%)</span>
-                                        <input type="number" class="form-control" id="employer_share" name="employer_share" placeholder="Enter Employer Share" tabindex="8">
+                                        <input type="number" class="form-control" id="employer_share" name="employer_share" placeholder="Enter Employer Share" tabindex="13">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 esi_apply">
                                     <div class="form-group">
                                         <label for="apply_esi_wage_limit">Apply ESI Wage Limit</label><span class="text-danger">*</span>
-                                        <select class="form-control" id="apply_esi_wage_limit" name="apply_esi_wage_limit" tabindex="9">
+                                        <select class="form-control" id="apply_esi_wage_limit" name="apply_esi_wage_limit" tabindex="14">
                                             <option value="">Select ESI Wage Limit</option>
                                             <option value="1">Yes</option>
                                             <option value="2">No</option>
@@ -176,7 +176,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="esi_wage_div" style="display:none;">
                                     <div class="form-group">
                                         <label for="esi_wage_limit">ESI Wage Limit</label><span class="text-danger">*</span>
-                                        <input type="number" class="form-control" id="esi_wage_limit" name="esi_wage_limit" placeholder="Enter ESI Wage Limit" tabindex="10">
+                                        <input type="number" class="form-control" id="esi_wage_limit" name="esi_wage_limit" placeholder="Enter ESI Wage Limit" tabindex="15">
                                     </div>
                                 </div>
                             </div>
@@ -194,7 +194,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="professional_tax_applicable">Professional Tax Applicable</label>
-                                        <select class="form-control" id="professional_tax_applicable" name="professional_tax_applicable" tabindex="6">
+                                        <select class="form-control" id="professional_tax_applicable" name="professional_tax_applicable" tabindex="15">
                                             <option value="">Select Professional Tax Applicable</option>
                                             <option value="1">Yes</option>
                                             <option value="2">No</option>
@@ -204,7 +204,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 professional_tax_apply">
                                     <div class="form-group">
                                         <label for="calculation_type">Calculation Type</label>
-                                        <select class="form-control" id="calculation_type" name="calculation_type" tabindex="6">
+                                        <select class="form-control" id="calculation_type" name="calculation_type" tabindex="17">
                                             <option value="">Select Calculation Type</option>
                                             <option value="1">Percentage</option>
                                             <option value="2">Slab</option>
@@ -214,13 +214,13 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="percentage_div" style="display:none;">
                                     <div class="form-group">
                                         <label for="percentage">Percentage</label> <span class="text-danger">(0% - 20%)</span>
-                                        <input type="number" class="form-control" id="percentage" name="percentage" placeholder="Enter Percentage" tabindex="8">
+                                        <input type="number" class="form-control" id="percentage" name="percentage" placeholder="Enter Percentage" tabindex="18">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="slab_div" style="display:none;">
                                     <div class="form-group">
                                         <label for="slab">Slab</label>
-                                        <input type="number" class="form-control" id="slab" name="slab" placeholder="Enter Slab" tabindex="8">
+                                        <input type="number" class="form-control" id="slab" name="slab" placeholder="Enter Slab" tabindex="19">
                                     </div>
                                 </div>
                             </div>
@@ -230,8 +230,8 @@
 
                 <div class="col-md-12 ">
                     <div class="text-right">
-                        <button type="submit" name="submit_statutory_compliance" id="submit_statutory_compliance" class="btn btn-primary" value="Submit" tabindex="7"><span class="icon-check"></span>&nbsp;Submit</button>
-                        <button type="reset" class="btn btn-outline-secondary" id="sc_reset_btn" tabindex="8">Clear</button>
+                        <button type="submit" name="submit_statutory_compliance" id="submit_statutory_compliance" class="btn btn-primary" value="Submit" tabindex="20"><span class="icon-check"></span>&nbsp;Submit</button>
+                        <button type="reset" class="btn btn-outline-secondary" id="sc_reset_btn" tabindex="21">Clear</button>
                     </div>
                 </div>
 

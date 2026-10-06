@@ -251,7 +251,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="company_name">Company Name</label><span class="text-danger">*</span>
-                                            <select class="form-control" id="company_name" name="company_name" tabindex="6">
+                                            <select class="form-control" id="company_name" name="company_name" tabindex="1">
                                                 <option value="">Select Company Name</option>
                                             </select>
                                         </div>
@@ -259,7 +259,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="user_type">User Type</label><span class="text-danger">*</span>
-                                            <select class="form-control" id="user_type" name="user_type" tabindex="3">
+                                            <select class="form-control" id="user_type" name="user_type" tabindex="2">
                                                 <option value="">Select User Type</option>
                                                 <option value="1">Director</option>
                                                 <option value="2">Staff</option>
@@ -269,7 +269,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="director_div" style="display:none;">
                                         <div class="form-group">
                                             <label for="director_name">Director Name</label><span class="text-danger">*</span>
-                                            <select class="form-control" id="director_name" name="director_name" tabindex="6">
+                                            <select class="form-control" id="director_name" name="director_name" tabindex="3">
                                                 <option value="">Select Director Name</option>
                                             </select>
                                         </div>
@@ -277,7 +277,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 staff_div">
                                         <div class="form-group">
                                             <label for="designation">Designation</label><span class="text-danger">*</span>
-                                            <select class="form-control" id="designation" name="designation" tabindex="6">
+                                            <select class="form-control" id="designation" name="designation" tabindex="4">
                                                 <option value="">Select Designation</option>
                                             </select>
                                         </div>
@@ -285,7 +285,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 staff_div">
                                         <div class="form-group">
                                             <label for="reporting_person">Reporting Person</label><span class="text-danger">*</span>
-                                            <select class="form-control" id="reporting_person" name="reporting_person" tabindex="6">
+                                            <select class="form-control" id="reporting_person" name="reporting_person" tabindex="5">
                                                 <option value="">Select Reporting Person</option>
                                             </select>
                                         </div>
@@ -294,7 +294,7 @@
                                         <div class="form-group">
                                             <label for="reporting_staff">Reporting Staff</label><span class="text-danger">*</span>
                                             <input type="hidden" id="reporting_staff2">
-                                            <select class="form-control" id="reporting_staff" name="reporting_staff[]" tabindex="13" multiple></select>
+                                            <select class="form-control" id="reporting_staff" name="reporting_staff[]" tabindex="6" multiple></select>
                                         </div>
                                     </div>
                                 </div>

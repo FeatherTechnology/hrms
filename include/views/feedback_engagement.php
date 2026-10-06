@@ -46,7 +46,7 @@
                                     <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                         <div class="form-group">
                                             <label for="general_company_name">Company Name</label><span class="text-danger">*</span>
-                                            <select class="form-control" id="general_company_name" name="general_company_name" tabindex="6">
+                                            <select class="form-control" id="general_company_name" name="general_company_name" tabindex="1">
                                                 <option value="">Select Company Name</option>
                                             </select>
                                         </div>
@@ -54,7 +54,7 @@
                                     <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                         <div class="form-group">
                                             <label for="feedback_name">Feedback Name</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control" id="feedback_name" name="feedback_name" placeholder="Enter Feedback Name" tabindex="11">
+                                            <input type="text" class="form-control" id="feedback_name" name="feedback_name" placeholder="Enter Feedback Name" tabindex="2">
                                         </div>
                                     </div>
                                     <!-- <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
@@ -68,7 +68,7 @@
                                         </div>
                                     </div> -->
                                     <div class="col-md-3" style="display: flex; align-items: center;">
-                                        <button type="submit" name="general_feedback_submit" id="general_feedback_submit" class="btn btn-primary" value="Add" tabindex="18"> &nbsp;Submit</button>
+                                        <button type="submit" name="general_feedback_submit" id="general_feedback_submit" class="btn btn-primary" value="Add" tabindex="3"> &nbsp;Submit</button>
                                     </div>
                                 </div>
                             </div>
@@ -112,7 +112,7 @@
                                     <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                         <div class="form-group">
                                             <label for="scheduled_feedback_type">Scheduled Feedback Type</label><span class="text-danger">*</span>
-                                            <select class="form-control" name="scheduled_feedback_type" id="scheduled_feedback_type" tabindex="1">
+                                            <select class="form-control" name="scheduled_feedback_type" id="scheduled_feedback_type" tabindex="4">
                                                 <option value="">Select Scheduled Feedback Type</option>
                                                 <option value="1">Feedback Configuration</option>
                                                 <option value="2">Ratings</option>
@@ -121,7 +121,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4" style="display: flex; align-items: center;">
-                                        <button type="button" name="scheduled_feedback_search" id="scheduled_feedback_search" class="btn btn-primary" value="Add" tabindex="18"> &nbsp;Search</button>
+                                        <button type="button" name="scheduled_feedback_search" id="scheduled_feedback_search" class="btn btn-primary" value="Add" tabindex="5"> &nbsp;Search</button>
                                     </div>
                                 </div>
                             </div>
@@ -147,27 +147,27 @@
                                     <div class="form-group">
                                         <label for="feedback_config_department_name">Department</label><span class="text-danger">*</span>
                                         <input type="hidden" id="feedback_config_department_name2">
-                                        <select class="form-control" id="feedback_config_department_name" name="feedback_config_department_name[]" tabindex="4" multiple></select>
+                                        <select class="form-control" id="feedback_config_department_name" name="feedback_config_department_name[]" tabindex="7" multiple></select>
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="feedback_config_start_date">Start Date & Time</label>
                                         <span class="text-danger">*</span>
-                                        <input type="datetime-local" class="form-control" id="feedback_config_start_date" name="feedback_config_start_date" tabindex="10">
+                                        <input type="datetime-local" class="form-control" id="feedback_config_start_date" name="feedback_config_start_date" tabindex="8">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="feedback_config_end_date">End Date & Time</label>
                                         <span class="text-danger">*</span>
-                                        <input type="datetime-local" class="form-control" id="feedback_config_end_date" name="feedback_config_end_date" tabindex="11">
+                                        <input type="datetime-local" class="form-control" id="feedback_config_end_date" name="feedback_config_end_date" tabindex="9">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="feedback_title">Feedback Title</label><span class="text-danger">*</span>
-                                        <input type="text" class="form-control" id="feedback_title" name="feedback_title" placeholder="Enter Feedback Title" tabindex="4">
+                                        <input type="text" class="form-control" id="feedback_title" name="feedback_title" placeholder="Enter Feedback Title" tabindex="10">
                                     </div>
                                 </div>
                                 <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -226,7 +226,7 @@
                                 </div>
                             </div>
                             <div class="col-12 mt-3 text-right">
-                                <button name="submit_feedback_configuration" id="submit_feedback_configuration" class="btn btn-primary" tabindex="14"><span class="icon-check"></span>&nbsp;Submit</button>
+                                <button name="submit_feedback_configuration" id="submit_feedback_configuration" class="btn btn-primary" tabindex="11"><span class="icon-check"></span>&nbsp;Submit</button>
                             </div>
                         </div>
                         <!--- Feedback Configuration Table --->
@@ -264,7 +264,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="rating_company_name">Company Name</label><span class="text-danger">*</span>
-                                        <select class="form-control" id="rating_company_name" name="rating_company_name" tabindex="6">
+                                        <select class="form-control" id="rating_company_name" name="rating_company_name" tabindex="13">
                                             <option value="">Select Company Name</option>
                                         </select>
                                     </div>
@@ -273,33 +273,33 @@
                                     <div class="form-group">
                                         <label for="rating_department_name">Department</label><span class="text-danger">*</span>
                                         <input type="hidden" id="rating_department_name2">
-                                        <select class="form-control" id="rating_department_name" name="rating_department_name[]" tabindex="4" multiple></select>
+                                        <select class="form-control" id="rating_department_name" name="rating_department_name[]" tabindex="14" multiple></select>
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="rating_start_date">Start Date & Time</label>
                                         <span class="text-danger">*</span>
-                                        <input type="datetime-local" class="form-control" id="rating_start_date" name="rating_start_date" tabindex="10">
+                                        <input type="datetime-local" class="form-control" id="rating_start_date" name="rating_start_date" tabindex="15">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="rating_end_date">End Date & Time</label>
                                         <span class="text-danger">*</span>
-                                        <input type="datetime-local" class="form-control" id="rating_end_date" name="rating_end_date" tabindex="11">
+                                        <input type="datetime-local" class="form-control" id="rating_end_date" name="rating_end_date" tabindex="16">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="rating_title">Rating Title</label><span class="text-danger">*</span>
-                                        <input type="text" class="form-control" id="rating_title" name="rating_title" placeholder="Enter Rating Title" tabindex="4">
+                                        <input type="text" class="form-control" id="rating_title" name="rating_title" placeholder="Enter Rating Title" tabindex="17">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="rating_description">Description</label><span class="text-danger">*</span>
-                                        <textarea class="form-control custom-form-control" id="rating_description" name="rating_description" tabindex="10" placeholder="Add your description here..."></textarea>
+                                        <textarea class="form-control custom-form-control" id="rating_description" name="rating_description" tabindex="18" placeholder="Add your description here..."></textarea>
                                     </div>
                                 </div>
                                 <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -314,7 +314,7 @@
                                 </div> -->
                             </div>
                             <div class="col-12 mt-3 text-right">
-                                <button name="submit_rating" id="submit_rating" class="btn btn-primary" tabindex="14"><span class="icon-check"></span>&nbsp;Submit</button>
+                                <button name="submit_rating" id="submit_rating" class="btn btn-primary" tabindex="19"><span class="icon-check"></span>&nbsp;Submit</button>
                             </div>
                         </div>
                         <!--- Ratings Table --->
@@ -352,7 +352,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="poll_company_name">Company Name</label><span class="text-danger">*</span>
-                                        <select class="form-control" id="poll_company_name" name="poll_company_name" tabindex="6">
+                                        <select class="form-control" id="poll_company_name" name="poll_company_name" tabindex="20">
                                             <option value="">Select Company Name</option>
                                         </select>
                                     </div>
@@ -361,33 +361,33 @@
                                     <div class="form-group">
                                         <label for="poll_department_name">Department</label><span class="text-danger">*</span>
                                         <input type="hidden" id="poll_department_name2">
-                                        <select class="form-control" id="poll_department_name" name="poll_department_name[]" tabindex="4" multiple></select>
+                                        <select class="form-control" id="poll_department_name" name="poll_department_name[]" tabindex="21" multiple></select>
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="poll_start_date">Start Date & Time</label>
                                         <span class="text-danger">*</span>
-                                        <input type="datetime-local" class="form-control" id="poll_start_date" name="poll_start_date" tabindex="10">
+                                        <input type="datetime-local" class="form-control" id="poll_start_date" name="poll_start_date" tabindex="22">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="poll_end_date">End Date & Time</label>
                                         <span class="text-danger">*</span>
-                                        <input type="datetime-local" class="form-control" id="poll_end_date" name="poll_end_date" tabindex="11">
+                                        <input type="datetime-local" class="form-control" id="poll_end_date" name="poll_end_date" tabindex="23">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="poll_title">Poll Title</label><span class="text-danger">*</span>
-                                        <input type="text" class="form-control" id="poll_title" name="poll_title" placeholder="Enter Poll Title" tabindex="4">
+                                        <input type="text" class="form-control" id="poll_title" name="poll_title" placeholder="Enter Poll Title" tabindex="24">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="poll_description">Description</label><span class="text-danger">*</span>
-                                        <textarea class="form-control custom-form-control" id="poll_description" name="poll_description" tabindex="10" placeholder="Add your description here..."></textarea>
+                                        <textarea class="form-control custom-form-control" id="poll_description" name="poll_description" tabindex="25" placeholder="Add your description here..."></textarea>
                                     </div>
                                 </div>
                                 <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -445,7 +445,7 @@
                                 </div>
                             </div>
                             <div class="col-12 mt-3 text-right">
-                                <button name="submit_poll" id="submit_poll" class="btn btn-primary" tabindex="14"><span class="icon-check"></span>&nbsp;Submit</button>
+                                <button name="submit_poll" id="submit_poll" class="btn btn-primary" tabindex="26"><span class="icon-check"></span>&nbsp;Submit</button>
                             </div>
                         </div>
                         <!--- Poll Table --->
