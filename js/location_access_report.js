@@ -83,7 +83,7 @@ async function getCompanyName() {
 async function getBranchName(company_id) {
   return new Promise((resolve, reject) => {
     $.post(
-      "api/location_creation_files/getBranchName.php",
+     "api/staff_creation/company_mapped_branches.php",
       { company_id: company_id },
 
       function (response) {
@@ -107,11 +107,11 @@ async function getBranchName(company_id) {
 }
 
 /* --- Get Department Name --- */
-async function getDepartmentName(company_name) {
+async function getDepartmentName(company_id) {
   return new Promise((resolve, reject) => {
     $.post(
-      "api/team_creation_files/getDepartmentName.php",
-      { company_name: company_name },
+      "api/staff_creation/company_mapped_department.php",
+      { company_id: company_id },
 
       function (response) {
         let dropdown = $("#department_id");

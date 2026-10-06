@@ -75,8 +75,8 @@ function getCompanyList() {
 // to get the branch list
 function getBranchList(cmpy_id) {
   $.post(
-    "api/attendance_files/get_branch_list.php",
-    { cmpy_id },
+      "api/staff_creation/company_mapped_branches.php",
+    {company_id: cmpy_id },
     function (response) {
       $("#branch_name").empty();
       $("#branch_name").append("<option value=''>Select Branch Name</option>");
@@ -98,8 +98,8 @@ function getBranchList(cmpy_id) {
 // to get the department list
 function getDepartmentList(cmpy_id) {
   $.post(
-    "api/attendance_files/get_department_list.php",
-    { cmpy_id },
+     "api/staff_creation/company_mapped_department.php",
+    { company_id:cmpy_id },
     function (response) {
       $("#dep_name").empty();
       $("#dep_name").append("<option value=''>Select Department Name</option>");
@@ -120,27 +120,21 @@ function getDepartmentList(cmpy_id) {
 
 // to get the staff list
 function getstaffList(cmpy_id, dep_name, branch_name) {
-  $.post(
-    "api/attendance_files/get_staff_list.php",
-    { cmpy_id, dep_name, branch_name },
+  $.post("api/attendance_files/get_staff_list.php",{cmpy_id: cmpy_id,dep_name: dep_name,branch_name: branch_name,request_type: 'branch'},
     function (response) {
-      $("#stf_name").empty();
-      $("#stf_name").append("<option value=''>Select Staff Name</option>");
-      if (response.length > 0) {
-        $("#stf_name").append("<option value='0'>All</option>");
-
-        $.each(response, function (index, val) {
-          $("#stf_name").append(
-            "<option value='" +
-              val["id"] +
-              "'>" +
-              val["staff_name"] +
-              "</option>",
-          );
+    $("#stf_name").empty();
+    $("#stf_name").append($("<option>", {value: "",text: "Select Staff Name" }));
+      if (response.staff && response.staff.length > 0) {
+        // Show All only for report_access = 1
+        if (response.show_all === true) {
+          $("#stf_name").append($("<option>", { value: "0", text: "All"}));
+        }
+        $.each(response.staff, function (index, val) {
+          $("#stf_name").append($("<option>", {value: val.id,text: val.staff_name }));
         });
       }
     },
-    "json",
+    "json"
   );
 }
 
