@@ -111,32 +111,35 @@ async function getDepartmentList(company_id, selector, selected_dept = '') {
 }
 
 
-async function getStaffList(company_id, dept_id) {
-    // Validation
-    if (company_id == '' || dept_id == '') {
 
+async function getStaffList(company_id, dept_id) {
+    if (company_id == '' || dept_id == '') {
         $('#staff_id').html('<option value="">Select Staff</option>');
         return false;
     }
     try {
         const response = await $.ajax({
-            url: 'api/staff_creation/company_mapped_staff.php',
+            url: 'api/attendance_files/get_staff_list.php',
             type: 'POST',
             dataType: 'json',
             data: {
-                company_id: company_id,
-                dept_id: dept_id,
+                cmpy_id: company_id,
+                dep_name: dept_id,
+                request_type: 'department'
             }
         });
 
         let option = '<option value="">Select Staff</option>';
-        $.each(response, function (index, val) {
-            option += ` <option value="${val.id}">   ${val.staff_name}  </option> `;
-        });
+        if (response.staff && response.staff.length > 0) {
+            $.each(response.staff, function (index, val) {
+                option += `<option value="${val.id}">${val.staff_name}</option>`;
+            });
+        }
+
         $('#staff_id').empty().append(option);
     } catch (error) {
         console.error(error);
-
+        $('#staff_id').html('<option value="">Select Staff</option>');
     }
 }
 

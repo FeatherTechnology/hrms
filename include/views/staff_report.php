@@ -36,7 +36,7 @@
                                 <th>Office Type</th>
                                 <th>Designation</th>
                                 <th>Reporting Person</th>
-                                <th>Branch Admin</th>
+                                <!-- <th>Branch Admin</th> -->
                                 <th>Relieve Date</th>
                                 <th>PF</th>
                                 <th>ESI</th>

@@ -169,32 +169,30 @@ async function getCompanyName() {
 }
 
 /* --- Get Department Name --- */
-async function getDepartmentName(company_name) {
-  return new Promise((resolve, reject) => {
-    $.post(
-      "api/team_creation_files/getDepartmentName.php",
-      { company_name: company_name },
-
-      function (response) {
-        let dropdown = $("#department_id");
-        dropdown.empty();
-        dropdown.append('<option value="">Select Department Name</option>');
-        $.each(response, function (index, item) {
-          dropdown.append(
-            `<option value="${item.id}">${item.department_name}</option>`,
-          );
+async function getDepartmentName(company_id, selected_dept = '') {
+    try {
+        const response = await $.ajax({
+            url: 'api/staff_creation/company_mapped_department.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                company_id: company_id,
+                selected_dept: selected_dept
+            }
         });
 
-        resolve();
-      },
+        let deptOption = '<option value="">Select Department</option>';
 
-      "json",
-    ).fail(function (xhr, status, error) {
-      reject(error);
-    });
-  });
+        $.each(response, function (index, val) {
+            deptOption += `<option value="${val.id}">${val.department_name}</option>`;
+        });
+
+        $('#department_id').empty().append(deptOption);
+
+    } catch (error) {
+        console.error(error);
+    }
 }
-
 /* --- Get Title Name --- */
 function getTitles(feedback_type, company_id, department_id) {
   $.post(
