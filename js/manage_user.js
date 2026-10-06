@@ -193,9 +193,7 @@ $(document).ready(function () {
     $("#feedback_access_type_div").hide();
 
     $("#user_type,#dir_branch2,#multi_company_name2").val("");
-    $(".credential_info").find("input, select").val("");
-    $(".mapping_info").find("input, select").val("");
-
+    $(".credential_info,.access_info,.mapping_info").find("input, select").val("");
     let userid = $("#user_creation_id").val();
 
     await getMenuSubMenuList(userid);
