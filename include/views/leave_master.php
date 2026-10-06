@@ -45,7 +45,7 @@
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 ">
                                     <div class="form-group">
-                                        <label for="max_permission">Max Permission | Max Hours (Per Month)</label>
+                                        <label for="max_permission">Max Permission | Max Min (Per Month)</label>
                                         <input type="number" class="form-control" id="max_permission" name="max_permission" placeholder="Enter Max Permission" tabindex="4">
                                     </div>
                                 </div>

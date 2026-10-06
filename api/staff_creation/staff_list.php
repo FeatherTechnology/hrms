@@ -10,6 +10,16 @@ $branch_id = isset($_POST['params']['branch_id']) ? $_POST['params']['branch_id'
 $department_id = isset($_POST['params']['department_id']) ? $_POST['params']['department_id'] : '';
 $status = isset($_POST['params']['status']) ? $_POST['params']['status'] : '';   // 1 = Active, 2 = Inactive
 
+if ( $company_id === '' ||  $branch_id === '' || $department_id === '' || $status === '') {
+    echo json_encode([
+        "draw" => intval($_POST['draw']),
+        "recordsTotal" => 0,
+        "recordsFiltered" => 0,
+        "data" => []
+    ]);
+    exit;
+}
+
 $staff_type = [1 => 'Employer', 2 => 'Employee'];
 $today = date('Y-m-d');
 

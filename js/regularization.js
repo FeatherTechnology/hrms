@@ -63,15 +63,25 @@ $(document).ready(function () {
     if (!$("#from_date").val() || !$("#to_date").val()) {
       return;
     }
-    await getbalancerequest();
+    const response = await getbalancerequest();
+
+    if (!response) {
+      return;
+    }
+
     let fromDate = new Date($("#from_date").val());
 
     let toDate = new Date($("#to_date").val());
 
     let shiftDate = $("#from_date").val().split("T")[0];
 
-    let shiftStartDateTime = new Date(shiftDate + "T" + shiftStart);
-    let shiftEndDateTime = new Date(shiftDate + "T" + shiftEnd);
+    let shiftStartDateTime = new Date(
+      shiftDate + "T" + response.start_time
+    );
+
+    let shiftEndDateTime = new Date(
+      shiftDate + "T" + response.end_time
+    );
 
     let formattedStart = formatTime(shiftStart);
     let formattedEnd = formatTime(shiftEnd);
@@ -717,6 +727,7 @@ async function getbalancerequest() {
     $("#ave_balance").val(response.ave_balance);
     $("#permission_type").val(response.permission_type);
     $("#current_month_ot_count").val(response.current_month_ot_count);
+
     const startTime = formatTime(response.start_time);
     const endTime = formatTime(response.end_time);
 
@@ -726,17 +737,100 @@ async function getbalancerequest() {
     shiftStart = response.start_time;
     shiftEnd = response.end_time;
 
-    if ($("#req_type").val() == "2" && response.permission_exceeded == 1) {
-      swalError("Warning","You have exceeded the available permission balance.");
+
+    /* =====================================================
+       PERMISSION LATE ENTRY
+       ===================================================== */
+
+    if (
+      $("#req_type").val() == "2" &&
+      response.late_entry == 1
+    ) {
+
+
+
+      const requiredFrom = response.permission_from
+        ? response.permission_from.substring(0, 5)
+        : "";
+
+      const requiredTo = response.permission_to
+        ? response.permission_to.substring(0, 5)
+        : "";
+
+
+      const selectedFrom = $("#from_date").val();
+      const selectedTo = $("#to_date").val();
+
+      let selectedFromTime = "";
+      let selectedToTime = "";
+
+      if (selectedFrom) {
+        selectedFromTime =
+          selectedFrom.split("T")[1]?.substring(0, 5) || "";
+      }
+
+      if (selectedTo) {
+        selectedToTime =
+          selectedTo.split("T")[1]?.substring(0, 5) || "";
+      }
+
+
+      /*
+        EXACT MATCH CHECK
+
+        Required:
+        09:00 -> 10:00
+
+        If employee selects anything else,
+        show warning.
+      */
+
+      if (
+        selectedFromTime !== requiredFrom ||
+        selectedToTime !== requiredTo
+      ) {
+
+        const requiredFromDisplay =
+          formatTime(response.permission_from);
+
+        const requiredToDisplay =
+          formatTime(response.permission_to);
+
+        swalError(
+          "Warning",
+          `You have Later Entry on that day. Please take the permission from "${requiredFromDisplay}" to "${requiredToDisplay}".`
+        );
+      }
+    }
+
+
+    /* =====================================================
+       PERMISSION BALANCE CHECK
+       ===================================================== */
+
+    if (
+      $("#req_type").val() == "2" &&
+      response.permission_exceeded == 1
+    ) {
+
+      swalError(
+        "Warning",
+        "You have exceeded the available permission balance."
+      );
+
       $("#from_date, #to_date").val("");
       $("#balance_req").val(0);
+
       return;
     }
-    
+
   } catch (error) {
+
     console.error(error);
+
   }
 }
+
 
 // to delete the applied regularization
 function deleteregularization(id) {
@@ -761,6 +855,7 @@ function calculateDateDiff(
   totalMinSelector,
   totalDaysSelector,
 ) {
+  console.log("kkk");
   let fromVal = $(fromSelector).val();
   let toVal = $(toSelector).val();
   // empty check
