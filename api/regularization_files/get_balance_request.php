@@ -1,4 +1,3 @@
-
 <?php
 // Get leave, permission, week-off, or OT balance for selected staff.
 
@@ -20,6 +19,7 @@ $query = "";
 if ($req_type == '1') {
 
     /* ================= LOP ================= */
+
     if ($leave_type == '0') {
 
         $query = "SELECT
@@ -119,40 +119,22 @@ if ($req_type == '1') {
 }
 
 
-
-
 /* ================= PERMISSION ================= */
 
 else if ($req_type == '2') {
 
-    /*
-        permission_type:
-        1 = Count
-        2 = Minute
-    */
-
     $query = "SELECT
         sc.start_time,
         sc.end_time,
+        sc.grace_time,
 
         cp.permission_type,
         cp.max_permission,
 
-        /* Number of permissions already used this month */
         COUNT(reg.id) AS used_count,
 
-        /*
-            Available balance before current request
-
-            Count:
-                max_permission - number of count permissions used
-
-            Minute:
-                max_permission - total minutes used
-        */
         CASE
 
-            /* COUNT BASED */
             WHEN cp.permission_type = 1 THEN
 
                 GREATEST(
@@ -160,7 +142,6 @@ else if ($req_type == '2') {
                     0
                 )
 
-            /* MINUTE BASED */
             WHEN cp.permission_type = 2 THEN
 
                 GREATEST(
@@ -188,20 +169,14 @@ else if ($req_type == '2') {
         END AS ave_balance";
 
 
-    /*
-        Calculate balance after current request
-    */
+    /* ================= DATE SELECTED ================= */
 
     if (!empty($from_Date) && !empty($to_date)) {
 
         $query .= ",
 
-        /*
-            Balance after current request
-        */
         CASE
 
-            /* COUNT */
             WHEN cp.permission_type = 1 THEN
 
                 GREATEST(
@@ -211,7 +186,6 @@ else if ($req_type == '2') {
                     0
                 )
 
-            /* MINUTE */
             WHEN cp.permission_type = 2 THEN
 
                 GREATEST(
@@ -235,8 +209,8 @@ else if ($req_type == '2') {
                     -
                     TIMESTAMPDIFF(
                         MINUTE,
-                        :from_date,
-                        :to_date
+                        :permission_from_date,
+                        :permission_to_date
                     ),
                     0
                 )
@@ -245,16 +219,8 @@ else if ($req_type == '2') {
 
         END AS balance,
 
-
-        /*
-            Check whether current request exceeds balance
-
-            0 = Valid
-            1 = Exceeded
-        */
         CASE
 
-            /* COUNT */
             WHEN cp.permission_type = 1 THEN
 
                 CASE
@@ -263,8 +229,6 @@ else if ($req_type == '2') {
                     ELSE 0
                 END
 
-
-            /* MINUTE */
             WHEN cp.permission_type = 2 THEN
 
                 CASE
@@ -287,8 +251,8 @@ else if ($req_type == '2') {
                         +
                         TIMESTAMPDIFF(
                             MINUTE,
-                            :from_date,
-                            :to_date
+                            :permission_from_date_2,
+                            :permission_to_date_2
                         )
                         > cp.max_permission
                     THEN 1
@@ -298,6 +262,7 @@ else if ($req_type == '2') {
             ELSE 0
 
         END AS permission_exceeded";
+
     }
 
 
@@ -310,25 +275,18 @@ else if ($req_type == '2') {
         AND reg.req_type = :req_type
         AND reg.staff_profile_id = :staff_id
 
-        /* Current month */
         AND YEAR(reg.from_date) = YEAR(CURDATE())
         AND MONTH(reg.from_date) = MONTH(CURDATE())
 
-        /* Only approved/pending records */
         AND reg.status IN (0,1)
 
-        /*
-            IMPORTANT:
-            Count policy checks only Count records.
-            Minute policy checks only Minute records.
-        */
         AND reg.permission_type = cp.permission_type
 
     LEFT JOIN occupation_info oi
         ON oi.id = (
             SELECT MAX(id)
             FROM occupation_info
-            WHERE staff_profile_id = :staff_id
+            WHERE staff_profile_id = :permission_staff_id
         )
 
     INNER JOIN shift_creation sc
@@ -340,9 +298,13 @@ else if ($req_type == '2') {
         cp.permission_type,
         cp.max_permission,
         sc.start_time,
-        sc.end_time";
+        sc.end_time,
+        sc.grace_time";
 }
+
+
 /* ================= WEEK OFF ================= */
+
 else if ($req_type == '3') {
 
     $query = "SELECT 
@@ -372,7 +334,6 @@ else if ($req_type == '3') {
             )
         ) AS ave_balance";
 
-    /* Date selected → send balance also */
     if (!empty($from_Date) && !empty($to_date)) {
 
         $query .= ",
@@ -425,40 +386,47 @@ else if ($req_type == '3') {
 }
 
 
-/* ================= OT ================= */ else if ($req_type == '4') {
-    $query = " SELECT
-    sc.start_time,
-    sc.end_time,
-    (
-        SELECT COUNT(id)
-        FROM regularization
-        WHERE req_type = :req_type
-        AND staff_profile_id = :staff_id
-        AND company_id = :cmpy_id
-        AND status = 1
-        AND MONTH(from_date)=MONTH(CURDATE())
-        AND YEAR(from_date)=YEAR(CURDATE())
-    ) AS current_month_ot_count
-FROM occupation_info oi
-INNER JOIN shift_creation sc
-ON sc.id = oi.shift
-WHERE oi.id = (
+/* ================= OT ================= */
 
-    SELECT MAX(id)
+else if ($req_type == '4') {
 
-    FROM occupation_info
+    $query = "SELECT
+        sc.start_time,
+        sc.end_time,
 
-    WHERE staff_profile_id = :staff_id
+        (
+            SELECT COUNT(id)
+            FROM regularization
+            WHERE req_type = :req_type
+            AND staff_profile_id = :staff_id
+            AND company_id = :cmpy_id
+            AND status = 1
+            AND MONTH(from_date) = MONTH(CURDATE())
+            AND YEAR(from_date) = YEAR(CURDATE())
+        ) AS current_month_ot_count
 
-)
+    FROM occupation_info oi
 
-";
+    INNER JOIN shift_creation sc
+        ON sc.id = oi.shift
+
+    WHERE oi.id = (
+        SELECT MAX(id)
+        FROM occupation_info
+        WHERE staff_profile_id = :staff_id
+    )";
 }
+
+
+/* ================= PREPARE ================= */
+
 $stmt = $pdo->prepare($query);
+
+
+/* ================= BIND ================= */
 
 if ($req_type == '1') {
 
-    // LOP
     if ($leave_type == '0') {
 
         $stmt->bindParam(':staff_id', $staff_id);
@@ -466,7 +434,6 @@ if ($req_type == '1') {
 
     } else {
 
-        // Normal Leave
         $stmt->bindParam(':staff_id', $staff_id);
         $stmt->bindParam(':cmpy_id', $cmpy_id);
         $stmt->bindParam(':from_date', $from_Date);
@@ -475,16 +442,41 @@ if ($req_type == '1') {
         $stmt->bindParam(':leave_period', $leave_period, PDO::PARAM_INT);
     }
 
+
 } else if ($req_type == '2') {
 
     $stmt->bindParam(':req_type', $req_type, PDO::PARAM_INT);
     $stmt->bindParam(':cmpy_id', $cmpy_id, PDO::PARAM_INT);
     $stmt->bindParam(':staff_id', $staff_id);
-     if (!empty($from_Date) && !empty($to_date)) {
 
-        $stmt->bindParam(':from_date',$from_Date);
-        $stmt->bindParam(':to_date',$to_date);
+    /*
+        Separate parameter for occupation_info
+    */
+    $stmt->bindParam(':permission_staff_id', $staff_id);
+
+    if (!empty($from_Date) && !empty($to_date)) {
+
+        $stmt->bindParam(
+            ':permission_from_date',
+            $from_Date
+        );
+
+        $stmt->bindParam(
+            ':permission_to_date',
+            $to_date
+        );
+
+        $stmt->bindParam(
+            ':permission_from_date_2',
+            $from_Date
+        );
+
+        $stmt->bindParam(
+            ':permission_to_date_2',
+            $to_date
+        );
     }
+
 
 } else if ($req_type == '3') {
 
@@ -496,8 +488,13 @@ if ($req_type == '1') {
 
         $stmt->bindParam(':from_date', $from_Date);
         $stmt->bindParam(':to_date', $to_date);
-        $stmt->bindParam(':leave_period', $leave_period, PDO::PARAM_INT);
+        $stmt->bindParam(
+            ':leave_period',
+            $leave_period,
+            PDO::PARAM_INT
+        );
     }
+
 
 } else if ($req_type == '4') {
 
@@ -506,33 +503,277 @@ if ($req_type == '1') {
     $stmt->bindParam(':staff_id', $staff_id);
 }
 
+
+/* ================= EXECUTE ================= */
+
 $stmt->execute();
 
 $result = $stmt->fetch(PDO::FETCH_ASSOC);
-/* ================= PERMISSION BALANCE DISPLAY ================= */
+
+
+/* =========================================================
+   PERMISSION ATTENDANCE CHECK
+   ========================================================= */
+
+if (
+    $req_type == '2'
+    && !empty($from_Date)
+    && !empty($to_date)
+    && $result
+) {
+
+    /*
+        Find attendance for the selected FROM DATE.
+
+        Example:
+
+        from_date = 2026-10-06
+
+        attendance.updated_time =
+        2026-10-06 10:00:00
+    */
+
+    $attendanceQuery = "SELECT
+        COALESCE(updated_time, entry_time) AS attendance_time
+
+    FROM attendance
+
+    WHERE staff_profile_id = :attendance_staff_id
+
+    AND company_id = :attendance_company_id
+
+    AND DATE(
+        COALESCE(updated_time, entry_time)
+    ) = DATE(:attendance_date)
+
+    ORDER BY
+        COALESCE(updated_time, entry_time) DESC
+
+    LIMIT 1";
+
+
+    $attendanceStmt = $pdo->prepare(
+        $attendanceQuery
+    );
+
+
+    $attendanceStmt->execute([
+        ':attendance_staff_id'   => $staff_id,
+        ':attendance_company_id' => $cmpy_id,
+        ':attendance_date'       => $from_Date
+    ]);
+
+
+    $attendanceResult =
+        $attendanceStmt->fetch(PDO::FETCH_ASSOC);
+
+
+    /*
+        Default response values
+    */
+
+    $result['attendance_time'] = null;
+    $result['permission_from'] = null;
+    $result['permission_to'] = null;
+    $result['late_entry'] = 0;
+
+
+    /*
+        Attendance found
+    */
+
+    if (
+        $attendanceResult
+        && !empty($attendanceResult['attendance_time'])
+    ) {
+
+        $attendanceTime =
+            $attendanceResult['attendance_time'];
+
+
+        /*
+            Convert attendance datetime
+            to only time.
+
+            Example:
+            2026-10-06 10:00:00
+
+            becomes:
+            10:00:00
+        */
+
+        $attendanceTimestamp =
+            strtotime($attendanceTime);
+
+        $attendanceOnlyTime =
+            date(
+                'H:i:s',
+                $attendanceTimestamp
+            );
+
+
+        /*
+            Shift start
+        */
+
+        $shiftStart =
+            $result['start_time'];
+
+
+        /*
+            Grace time
+
+            Example:
+            15 = 15 minutes
+        */
+
+        $graceTime =
+            $result['grace_time'] ?? 0;
+
+
+        if (is_numeric($graceTime)) {
+
+            $graceMinutes =
+                (int)$graceTime;
+
+        } else {
+
+            /*
+                If grace_time is stored as
+                HH:MM:SS
+            */
+
+            $graceParts =
+                explode(':', $graceTime);
+
+            $graceMinutes = 0;
+
+            if (count($graceParts) >= 2) {
+
+                $graceMinutes =
+                    ((int)$graceParts[0] * 60)
+                    + (int)$graceParts[1];
+            }
+        }
+
+
+        /*
+            Shift start timestamp
+        */
+
+        $shiftStartTimestamp =
+            strtotime($shiftStart);
+
+
+        /*
+            Shift start + grace
+        */
+
+        $graceEndTimestamp =
+            strtotime(
+                '+' . $graceMinutes . ' minutes',
+                $shiftStartTimestamp
+            );
+
+
+        /*
+            Attendance timestamp
+        */
+
+        $attendanceTimestampOnly =
+            strtotime($attendanceOnlyTime);
+
+
+        /*
+            Check late entry
+        */
+
+        if (
+            $attendanceTimestampOnly
+            > $graceEndTimestamp
+        ) {
+
+            /*
+                Late entry
+            */
+
+            $result['late_entry'] = 1;
+
+
+            /*
+                Permission starts from
+                shift start.
+            */
+
+            $result['permission_from'] =
+                date(
+                    'H:i:s',
+                    $shiftStartTimestamp
+                );
+
+
+            /*
+                Permission ends at
+                actual attendance time.
+            */
+
+            $result['permission_to'] =
+                $attendanceOnlyTime;
+
+        } else {
+
+            /*
+                Within grace period.
+            */
+
+            $result['late_entry'] = 0;
+
+            $result['permission_from'] = null;
+
+            $result['permission_to'] = null;
+        }
+
+
+        /*
+            Actual attendance time
+        */
+
+        $result['attendance_time'] =
+            $attendanceOnlyTime;
+    }
+}
+
+
+/* ================= PERMISSION DISPLAY ================= */
 
 if ($req_type == '2' && $result) {
 
     if ($result['permission_type'] == 2) {
 
-        // Minute based permission
-        $result['ave_balance'] = $result['ave_balance'] . ' min';
+        $result['ave_balance'] =
+            $result['ave_balance'] . ' min';
 
-        // Balance exists only when from_date and to_date are selected
         if (isset($result['balance'])) {
-            $result['balance'] = $result['balance'] . ' min';
+
+            $result['balance'] =
+                $result['balance'] . ' min';
         }
 
     } else {
 
-        // Count based permission
-        $result['ave_balance'] = $result['ave_balance'] . '';
+        $result['ave_balance'] =
+            $result['ave_balance'] . '';
 
-        // Balance exists only when from_date and to_date are selected
         if (isset($result['balance'])) {
-            $result['balance'] = $result['balance'] . '';
+
+            $result['balance'] =
+                $result['balance'] . '';
         }
     }
 }
 
+
+/* ================= JSON RESPONSE ================= */
+
 echo json_encode($result);
+?>

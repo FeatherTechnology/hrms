@@ -3,10 +3,14 @@ $(document).ready(function () {
 
  /* --- Holiday Creation On Change & Click Events --- */
 
-const today = new Date().toISOString().split("T")[0];
+const today = new Date();
 
-// Prevent selecting previous dates
-$("#from_date,#to_date").attr("min", today);
+const year = today.getFullYear();
+const month = String(today.getMonth() + 1).padStart(2, "0");
+
+const minDate = `${year}-${month}-01`;
+
+$("#from_date,#to_date").attr("min", minDate);
 
 $("#from_date, #to_date").on("change", function () {
     let from_date = $("#from_date").val();

@@ -250,23 +250,33 @@ async function getBranchName(company_id, excludeBranch = "") {
       cache: false,
     });
 
-    $("#branch_name_one, #branch_name_three")
-      .empty()
-      .append('<option value="">Select Branch Name</option>');
+    if (excludeBranch === "") {
+      // No excludeBranch → append only to branch_name_one
+      $("#branch_name_one")
+        .empty()
+        .append('<option value="">Select Branch Name</option>');
 
-    $.each(response, function (index, item) {
-      // Search dropdown - show all branches
-      $("#branch_name_one").append(
-        `<option value="${item.id}">${item.branch_name}</option>`,
-      );
-
-      // Assignment dropdown - exclude current branch
-      if (item.branch_name !== excludeBranch) {
-        $("#branch_name_three").append(
-          `<option value="${item.id}">${item.branch_name}</option>`,
+      $.each(response, function (index, item) {
+        $("#branch_name_one").append(
+          `<option value="${item.id}">${item.branch_name}</option>`
         );
-      }
-    });
+      });
+
+    } else {
+      // excludeBranch has value → append only to branch_name_three
+      $("#branch_name_three")
+        .empty()
+        .append('<option value="">Select Branch Name</option>');
+
+      $.each(response, function (index, item) {
+        if (item.branch_name !== excludeBranch) {
+          $("#branch_name_three").append(
+            `<option value="${item.id}">${item.branch_name}</option>`
+          );
+        }
+      });
+    }
+
   } catch (error) {
     swalError("Error", error.statusText || error);
   }
