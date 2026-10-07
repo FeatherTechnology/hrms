@@ -57,66 +57,90 @@ $(document).ready(function () {
     );
   });
 
-  $("#from_date, #to_date").on("change", async function () {
-    let reqType = $("#req_type").val();
+   $("#from_date, #to_date").on("change", async function () {
 
-    if (!$("#from_date").val() || !$("#to_date").val()) {
+  let reqType = $("#req_type").val();
+
+  if (!$("#from_date").val() || !$("#to_date").val()) {
+    return;
+  }
+
+  const response = await getbalancerequest();
+
+  if (!response) {
+    return;
+  }
+
+  // Selected From and To time
+  let fromValue = $("#from_date").val();
+  let toValue = $("#to_date").val();
+
+  let fromTime = fromValue.includes("T")
+    ? fromValue.split("T")[1]
+    : "";
+
+  let toTime = toValue.includes("T")
+    ? toValue.split("T")[1]
+    : "";
+
+  // Shift time
+  let shiftStartTime = response.start_time.substring(0, 5);
+  let shiftEndTime = response.end_time.substring(0, 5);
+
+  let formattedStart = formatTime(response.start_time);
+  let formattedEnd = formatTime(response.end_time);
+
+  // =========================
+  // OT Validation
+  // =========================
+  if (reqType == "4") {
+
+    let isBeforeShift = toTime <= shiftStartTime;
+    let isAfterShift = fromTime >= shiftEndTime;
+
+    if (!(isBeforeShift || isAfterShift)) {
+
+      swalError(
+        "Warning",
+        `OT can only be applied before the shift starts (${formattedStart}) or after the shift ends (${formattedEnd}).`
+      );
+
+      $("#from_date, #to_date").val("");
+
       return;
     }
-    const response = await getbalancerequest();
+  }
 
-    if (!response) {
+  // =========================
+  // Permission Validation
+  // =========================
+  if (reqType == "2") {
+
+    let isWithinShift =
+      fromTime >= shiftStartTime &&
+      toTime <= shiftEndTime;
+
+    if (!isWithinShift) {
+
+      swalError(
+        "Warning",
+        `Permission can only be applied within the shift timings (${formattedStart} to ${formattedEnd}).`
+      );
+
+      $("#from_date, #to_date").val("");
+
       return;
     }
+  }
 
-    let fromDate = new Date($("#from_date").val());
-
-    let toDate = new Date($("#to_date").val());
-
-    let shiftDate = $("#from_date").val().split("T")[0];
-
-    let shiftStartDateTime = new Date(
-      shiftDate + "T" + response.start_time
-    );
-
-    let shiftEndDateTime = new Date(
-      shiftDate + "T" + response.end_time
-    );
-
-    let formattedStart = formatTime(shiftStart);
-    let formattedEnd = formatTime(shiftEnd);
-
-    // OT Validation
-    if (reqType == "4") {
-      let isBeforeShift = toDate <= shiftStartDateTime;
-      let isAfterShift = fromDate >= shiftEndDateTime;
-
-      if (!(isBeforeShift || isAfterShift)) {
-        swalError(
-          "Warning",
-          `OT can only be applied before the shift starts (${formattedStart}) or after the shift ends (${formattedEnd}).`,
-        );
-
-        $("#from_date, #to_date").val("");
-      }
-    }
-
-    // Permission Validation
-    if (reqType == "2") {
-      let isWithinShift =
-        fromDate >= shiftStartDateTime && toDate <= shiftEndDateTime;
-
-      if (!isWithinShift) {
-        swalError(
-          "Warning",
-          `Permission can only be applied within the shift timings (${formattedStart} to ${formattedEnd}).`,
-        );
-
-        $("#from_date, #to_date").val("");
-      }
-    }
-    calculateDateDiff("#from_date", "#to_date", "#total_min", "#total_days");
-  });
+  // Calculate difference
+  calculateDateDiff(
+    "#from_date",
+    "#to_date",
+    "#total_min",
+    "#total_days"
+  );
+});
 
   // edit regularization
   $(document).on("click", ".edit_reg", function () {
@@ -155,7 +179,7 @@ $(document).ready(function () {
   });
 
   // request type change
-  $("#req_type").change(function () {
+  $("#req_type").change(function () {n
     let cmpy_id = $("#cmpy_id").val();
     let value = $(this).val();
     $("#total_days").empty();
@@ -414,7 +438,6 @@ $(document).ready(function () {
   $(document).on("click", ".sts_remarks", function (e) {
     e.preventDefault();
     let remarks = $(this).data("remarks") || "";
-    console.log("remarks", remarks);
     $("#sts_remarks").val(remarks);
   });
 });
@@ -800,6 +823,7 @@ async function getbalancerequest() {
           "Warning",
           `You have Later Entry on that day. Please take the permission from "${requiredFromDisplay}" to "${requiredToDisplay}".`
         );
+        $("#from_date,#to_date,#total_days,#balance_req").val('');
       }
     }
 
@@ -821,8 +845,9 @@ async function getbalancerequest() {
       $("#from_date, #to_date").val("");
       $("#balance_req").val(0);
 
-      return;
+      return response; 
     }
+    return response;
 
   } catch (error) {
 
@@ -855,7 +880,6 @@ function calculateDateDiff(
   totalMinSelector,
   totalDaysSelector,
 ) {
-  console.log("kkk");
   let fromVal = $(fromSelector).val();
   let toVal = $(toSelector).val();
   // empty check
@@ -955,8 +979,6 @@ function calculateDateDiff(
     let start = new Date(`1970-01-01T${shiftStart}`);
     let end = new Date(`1970-01-01T${shiftEnd}`);
 
-    console.log("hhh", start);
-    console.log("ddd", end);
     // Handle overnight shifts (e.g. 10 PM to 6 AM)
     if (end <= start) {
       end.setDate(end.getDate() + 1);
@@ -971,7 +993,6 @@ function calculateDateDiff(
     $(totalMinSelector).val(halfDayMinutes);
 
     let hours = halfDayMinutes / 60;
-    console.log("hrs", hours);
 
     $(totalDaysSelector).html(`
     <div style="display:flex; gap:15px;">
