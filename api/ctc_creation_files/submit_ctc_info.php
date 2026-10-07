@@ -33,33 +33,6 @@ if ($effective_from != '') {
 
 $result = 0;
 
-// /* Check Duplicate Salary Component */
-// $stmt = $pdo->prepare("SELECT id
-//     FROM ctc_creation
-//     WHERE REPLACE(TRIM(salary_component), ' ', '') = REPLACE(TRIM(?), ' ', '')
-//     AND salary_component = ?
-//     AND component_classification = ?
-//     AND component_category = ?
-//     AND pay_frequency = ?
-//     AND status = 0
-//     AND company_id = ?
-// ");
-
-// $stmt->execute([
-//     $salary_component,
-//     $salary_component,
-//     $component_classification,
-//     $component_category,
-//     $pay_frequency,
-//     $company_id
-// ]);
-
-// if ($stmt->rowCount() > 0) {
-
-//     $result = 3; // Already Exists
-
-// } else {
-
     if (!empty($ctc_id)) {
 
         /* Update CTC Component */
