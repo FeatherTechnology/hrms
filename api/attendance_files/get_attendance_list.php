@@ -456,15 +456,11 @@ foreach ($result as $row) {
         $staff_type[$row['staff_type']] ?? '',
         !empty($row['updated_time'])  ? date('d-m-Y h:i A', strtotime($row['updated_time']))  : (!empty($row['entry_time']) ? date('d-m-Y h:i A', strtotime($row['entry_time'])) : ''),
         $row['updated_by'],
-       !empty($row['updated_exit_time']) &&
-      $row['updated_exit_time'] !== '0000-00-00 00:00:00'
-        ? date('d-m-Y h:i A', strtotime($row['updated_exit_time']))
-        : (
-            !empty($row['exit_time']) &&
-            $row['exit_time'] !== '0000-00-00 00:00:00'
-                ? date('d-m-Y h:i A', strtotime($row['exit_time']))
-                : ''
-        ),
+
+       !empty($row['updated_exit_time']) && $row['updated_exit_time'] !== '0000-00-00 00:00:00'  ? date('d-m-Y h:i A',
+        strtotime($row['updated_exit_time'])): ( !empty($row['exit_time']) &&  $row['exit_time'] !== '0000-00-00 00:00:00'  ? date('d-m-Y h:i A', 
+        strtotime($row['exit_time']))  : '' ),
+
         $row['updated_exit_by'],
         $row['reason'],
         $chartBtn, // Attendance Chart

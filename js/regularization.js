@@ -34,7 +34,7 @@ $(document).ready(function () {
       ".add_reg,.regularization_list,.approval_div,.leveType,.bal_req,.ot_req,.Lev_per",
     ).hide();
 
-    getuserdetails("");
+    getuserdetails();
   });
 
   // back button hide and show
@@ -161,7 +161,7 @@ $(document).ready(function () {
       $(".add_reg,.regularization_list").hide();
 
       $("#hidden_id").val(id);
-      getedituserdetails(id, staff_id);
+      getedituserdetails(id);
       // } else {
       //   swalError("Error", "This request has already Approved.");
       // }
@@ -174,12 +174,12 @@ $(document).ready(function () {
 
       $("#hidden_id").val(id);
 
-      getedituserdetails(id, staff_id);
+      getedituserdetails(id);
     }
   });
 
   // request type change
-  $("#req_type").change(function () {n
+  $("#req_type").change(function () {
     let cmpy_id = $("#cmpy_id").val();
     let value = $(this).val();
     $("#total_days").empty();
@@ -528,16 +528,16 @@ function getregularizationlist(type) {
 }
 
 // to get the user deatils
-function getuserdetails(userid) {
+function getuserdetails() {
   let status = 0;
   let id = "";
   $.post(
     "api/regularization_files/get_user_details.php",
-    { id, userid, status },
+    { id, status },
     function (response) {
       $("#staff_id").val(response.staff_id);
       $("#staff_type").val(response.staff_type);
-      $("#stf_prf_id").val(response.id);
+      $("#stf_prf_id").val(response.stf_prf_id);
       $("#staff_name").val(response.staff_name);
       $("#cmpy_id").val(response.cmpy_id);
       $("#cmpy_name").val(response.company_name);
@@ -558,12 +558,12 @@ function getuserdetails(userid) {
 }
 
 // to get the user details using edit
-function getedituserdetails(id, userid) {
+function getedituserdetails(id) {
   let status = 1;
 
   $.post(
     "api/regularization_files/get_user_details.php",
-    { id, userid, status },
+    { id, status },
     function (response) {
       $("#to_date").attr("readonly", true);
       $("#req_type").prop("disabled", true);
@@ -586,7 +586,7 @@ function getedituserdetails(id, userid) {
 
       $("#staff_id").val(response.staff_id);
       $("#staff_type").val(response.staff_type);
-      $("#stf_prf_id").val(response.id);
+      $("#stf_prf_id").val(response.stf_prf_id);
       $("#staff_name").val(response.staff_name);
       $("#cmpy_id").val(response.cmpy_id);
       $("#cmpy_name").val(response.company_name);

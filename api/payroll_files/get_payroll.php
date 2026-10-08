@@ -114,12 +114,11 @@ $getStaff = $pdo->query("
     WHERE staff_profile_id = sc.id
     AND (
         effective_from <= '$month_end'
-        OR effective_from IS NULL
-        OR effective_from = ''
+        OR effective_from IS NULL 
         )
         ORDER BY 
             CASE 
-                WHEN effective_from = '' OR effective_from IS NULL THEN 0
+                WHEN effective_from IS NULL THEN 0
                 ELSE 1
             END,
             effective_from DESC,
