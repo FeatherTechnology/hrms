@@ -518,7 +518,17 @@ while ($staff = $getStaff->fetch()) {
         GROUP BY ctc_id, staff_profile_id
     ) latest 
         ON latest.last_id = sci.id
-    WHERE  sci.effective_from >= $month_end  $stff_ctc_con  
+    WHERE  sci.effective_from <= '$month_end' AND (
+          (
+              cc.status = 0
+              AND cc.effective_from <= '$month_start'
+          )
+          OR
+          (
+              cc.status = 1
+              AND cc.effective_from > '$month_start'
+          )
+      )  $stff_ctc_con  
 ");
 
     while ($salary = $getSalary->fetch()) {

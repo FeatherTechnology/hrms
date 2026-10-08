@@ -1067,7 +1067,8 @@ function getMenuSubMenuList(userId) {
               if (
                 submenu.sub_menu.toLowerCase() === "staff" ||
                 submenu.sub_menu.toLowerCase() === "staff exit management" ||
-                submenu.sub_menu.toLowerCase() === "promotion and transfer" 
+                submenu.sub_menu.toLowerCase() === "promotion and transfer" ||
+                submenu.sub_menu.toLowerCase() === "feedback engagement" 
 
               ) {
                 mappingBasedText = `<span style="color: #f26b35;">(User Based)</span>`;
