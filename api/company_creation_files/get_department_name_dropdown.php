@@ -97,8 +97,10 @@ if ($screen == 'feedback_screen' || $screen == 'performance_analysis') {
                 FROM department_creation dc
                 JOIN company_department_mapping cdm
                     ON dc.id = cdm.department_id
+                JOIN branch_creation bc
+                    ON bc.company_id = cdm.company_id
                 WHERE dc.department_status = ?
-                  AND FIND_IN_SET(cdm.branch_id, ?) > 0
+                  AND FIND_IN_SET(bc.id, ?) > 0
                   AND cdm.company_id = ?
                 ORDER BY dc.department_name ASC
             ");

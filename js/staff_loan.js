@@ -227,7 +227,8 @@ $("#due_start_date, #due_period").on("change input", function () {
 
         let date = new Date(startDate + "-01");
 
-        date.setMonth(date.getMonth() + duePeriod);
+        // Starting month is counted as month 1
+        date.setMonth(date.getMonth() + duePeriod - 1);
 
         $("#due_end_date").val(
             date.toLocaleDateString("en-US", {
