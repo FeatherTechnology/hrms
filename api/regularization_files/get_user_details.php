@@ -4,23 +4,14 @@ require "../../ajaxconfig.php";
 session_start();
 
 $userid = $_SESSION['user_id'] ?? '';
-
-if (isset($_POST['user_id']) && $_POST['user_id'] != '') {
-    $user_id  = $_POST['user_id'];
-    $stf_con = "sc.id = :user_id";
-} else {
-    $user_id = $userid;
-    $stf_con = "u.id = :user_id";
-}
-
-// $user_id =  isset($_POST['user_id']) ? $_POST['user_id'] : $userid;
 $status = $_POST['status'];
+
 $id = $_POST['id'];
 if ($status == '0') {
 
     $query = "
             SELECT 
-                sc.id,
+                sc.id stf_prf_id,
                 sc.staff_id,
                 sc.staff_name,
                 sc.staff_type,
@@ -62,15 +53,15 @@ if ($status == '0') {
             LEFT JOIN users u 
                 ON u.staff_name_id = sc.id
 
-            WHERE $stf_con
+            WHERE u.id = :user_id
             ";
             $stmt = $pdo->prepare($query);
 
-$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->bindParam(':user_id', $userid, PDO::PARAM_INT);
 }else{
     $query = "
             SELECT 
-                sc.id,
+                sc.id as stf_prf_id,
                 sc.staff_id,
                 sc.staff_name,
                 cc.company_name,

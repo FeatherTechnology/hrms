@@ -254,48 +254,77 @@ function getAttendanceList(company_id, branch_id, date) {
   });
 }
 
-// to get the staff deatails
 function getStaffDetails(staff_id, att_id, date) {
+
   $.post(
     "api/attendance_files/get_staff_details.php",
     { staff_id, att_id },
     function (response) {
-      let staffType = { 1: "Employer", 2: "Employee" };
+
+      let staffType = {
+        1: "Employer",
+        2: "Employee"
+      };
+
       $("#staff_id").val(response.staff_id);
       $("#stf_prf_id").val(response.stf_id);
       $("#staff_name").val(response.staff_name);
+
       $("#cmpy_id").val(response.cmpy_id);
       $("#company_name").val(response.company_name);
+
       $("#branch_id").val(response.brch_id);
       $("#brch_name").val(response.branch_name);
+
       $("#dep_id").val(response.dep_id);
       $("#department").val(response.department_name);
+
       $("#des_id").val(response.des_id);
       $("#designation").val(response.designation);
+
       $("#team_id").val(response.team_id);
       $("#team").val(response.team_name);
+
       $("#staff_type_id").val(response.staff_type);
       $("#staff_type").val(staffType[response.staff_type] || "");
+
       $("#att_id").val(response.att_id);
+
       $("#deduction_amount").val(
-        response.deduction_amount ? response.deduction_amount : "",
+        response.deduction_amount ? response.deduction_amount : ""
       );
-      $("#reason").val(response.reason ? response.reason : "");
+
+      $("#reason").val(
+        response.reason ? response.reason : ""
+      );
+
+      // Entry Date
       if (response.entry_time) {
         $("#entry_date").val(response.entry_time.slice(0, 10));
       } else {
         $("#entry_date").val(date);
       }
+
+      // Entry Time
       $("#entry_time").val(
-        response.entry_time ? response.entry_time.slice(11) : "",
+        response.entry_time
+          ? response.entry_time.slice(11, 16)
+          : ""
       );
+
+      // Exit Time
       $("#exit_time").val(
-        response.exit_time ? response.exit_time.slice(11) : "",
+        response.exit_time
+          ? response.exit_time.slice(11, 16)
+          : ""
       );
+
     },
-    "json",
+    "json"
   );
 }
+
+
 
 // submit modified attendance
 function submitAttendance(collData, cmy, brnh, date) {
