@@ -20,6 +20,14 @@
                             </select>
                         </div>
                     </div>
+                     <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                        <div class="form-group">
+                            <label for="branch_search">Branch Name</label><span class="text-danger">*</span>
+                            <select class="form-control" id="branch_search" name="branch_search" tabindex="1">
+                                <option value="">Select Branch Name</option>
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                         <div class="form-group">
@@ -51,7 +59,7 @@
                         </div>
                     </div>
 
-                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                    <div class="col-12 d-flex justify-content-end">
                         <button type="button" class="btn btn-primary" id="view_staff" style="margin-top:20px;">Search</button>
                     </div>
                 </div>

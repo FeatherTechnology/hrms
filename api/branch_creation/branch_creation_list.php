@@ -1,6 +1,11 @@
-
 <?php
 require '../../ajaxconfig.php';
+session_start();
+
+$user_id = $_SESSION['user_id'] ?? 0;
+$user_query = $pdo->prepare("SELECT user_type, director_company, company_id FROM users WHERE id = ?");
+$user_query->execute([$user_id]);
+$user = $user_query->fetch(PDO::FETCH_ASSOC);
 
 $column = array(
     'bc.id',
@@ -14,45 +19,70 @@ $column = array(
     'bc.email_id',
     'bc.id'
 );
-$query = "SELECT bc.id, bc.branch_code, cc.company_name, bc.branch_name, bc.place, st.state_name, dt.district_name, bc.mobile_number, bc.email_id  
-FROM branch_creation bc 
-LEFT JOIN States st ON bc.state = st.id 
-LEFT JOIN districts dt ON bc.district = dt.id 
-LEFT JOIN company_creation cc ON bc.company_id = cc.id 
-WHERE 1 ";
 
-if (isset($_POST['search'])) {
-    if ($_POST['search'] != "") {
-        $search = $_POST['search'];
-        $query .= " AND (bc.branch_code LIKE '" . $search . "%'
-        OR cc.company_name LIKE '%" . $search . "%'
-        OR bc.branch_name LIKE '%" . $search . "%'
-        OR bc.place LIKE '%" . $search . "%'
-        OR st.state_name LIKE '%" . $search . "%'
-        OR dt.district_name LIKE '%" . $search . "%'
-        OR bc.mobile_number LIKE '%" . $search . "%'
-        OR bc.email_id LIKE '%" . $search . "%')";
-    }
-}
+$query = "SELECT bc.id,bc.branch_code,cc.company_name,bc.branch_name,bc.place,st.state_name,dt.district_name,bc.mobile_number,bc.email_id
+FROM branch_creation bc
+LEFT JOIN States st ON bc.state = st.id
+LEFT JOIN districts dt ON bc.district = dt.id
+LEFT JOIN company_creation cc ON bc.company_id = cc.id
+WHERE 1";
+$params = [];
 
-if (isset($_POST['order'])) {
-    $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
+if ($user) {
+    if ((int)$user['user_type'] === 1) {
+        $company_ids = array_filter(array_map('intval', explode(',', trim($user['director_company'] ?? ''))), fn($id) => $id > 0);
+       
+            $placeholders = implode(',', array_fill(0, count($company_ids), '?'));
+            $query .= " AND bc.company_id IN ($placeholders)";
+            $params = array_values($company_ids);
+    } elseif ((int)$user['user_type'] === 2) {
+        $company_id = (int)($user['company_id'] ?? 0);
+            $query .= " AND bc.company_id = ?";
+            $params[] = $company_id;
+    } 
 } else {
-    $query .= ' ';
+    $query .= " AND 1 = 0";
 }
 
-$query1 = '';
-if (isset($_POST['length']) && $_POST['length'] != -1) {
-    $query1 = ' LIMIT ' . intval($_POST['start']) . ', ' . intval($_POST['length']);
+$search = trim($_POST['search']['value'] ?? $_POST['search'] ?? '');
+if ($search !== '') {
+    $query .= " AND (bc.branch_code LIKE ? OR cc.company_name LIKE ? OR bc.branch_name LIKE ? OR bc.place LIKE ? OR st.state_name LIKE ? OR dt.district_name LIKE ? OR bc.mobile_number LIKE ? OR bc.email_id LIKE ?)";
+    $search_params = [
+        $search . '%',
+        '%' . $search . '%',
+        '%' . $search . '%',
+        '%' . $search . '%',
+        '%' . $search . '%',
+        '%' . $search . '%',
+        '%' . $search . '%',
+        '%' . $search . '%'
+    ];
+    $params = array_merge($params, $search_params);
 }
 
 $statement = $pdo->prepare($query);
-
-$statement->execute();
-
+$statement->execute($params);
 $number_filter_row = $statement->rowCount();
 
+if (isset($_POST['order'][0]['column'])) {
+    $order_column = (int)$_POST['order'][0]['column'];
+    $order_dir = strtolower($_POST['order'][0]['dir'] ?? 'asc');
+    $order_dir = $order_dir === 'desc' ? 'DESC' : 'ASC';
+    if (isset($column[$order_column])) {
+        $query .= " ORDER BY " . $column[$order_column] . " " . $order_dir;
+    }
+}
+
+$query1 = '';
+if (isset($_POST['length']) && (int)$_POST['length'] !== -1) {
+    $start = max(0, (int)($_POST['start'] ?? 0));
+    $length = max(0, (int)$_POST['length']);
+    $query1 = " LIMIT $start, $length";
+}
+
 $statement = $pdo->prepare($query . $query1);
+$statement->execute($params);
+$result = $statement->fetchAll(PDO::FETCH_ASSOC);
 
 $statement->execute();
 

@@ -797,7 +797,7 @@ $(document).ready(function () {
     let team = $("#team").val();
     let designation = $("#designation").val();
     let off_type = $("#off_type").val();
-   
+
     // let branch_admin = $("#branch_admin").val();
     // let branch = $("#branch").val();
     let assigned_branches = $('#assigned_branches').val();
@@ -861,7 +861,7 @@ $(document).ready(function () {
     let esiAvailableValue = parseInt(esi_available, 10) || 0;
 
 
-    if (esiWageLimitValue > 0 &&  totalCtcValue > esiWageLimitValue && esiAvailableValue === 1 ) {
+    if (esiWageLimitValue > 0 && totalCtcValue > esiWageLimitValue && esiAvailableValue === 1) {
       swalError("Warning", "CTC exceeds ESI limit of ₹" + esiWageLimitValue + ". Please select ESI Applicable as No.");
       return false;
     }
@@ -1078,23 +1078,40 @@ $(document).ready(function () {
     let company_id = $("#company_search").val();
     let branch_id = $("#branch_search").val();
     let department_id = $("#department_search").val();
-    if (!company_id || !branch_id || !department_id) {
-      swalError("Warning", "Please Select All Fields!");
+    // Company is compulsory
+    if (!company_id) {
+      swalError("Warning", "Please Select Company!");
+      return;
+    }
+
+    // Either Branch OR Department is compulsory
+    if (!branch_id && !department_id) {
+      swalError("Warning", "Please Select Branch or Department!");
       return;
     }
     getStaffTable(company_id, branch_id, department_id);
   });
   // Radio Change
   $("#view_staff").on("click", function () {
+
     let company_id = $("#company_search").val();
     let branch_id = $("#branch_search").val();
     let department_id = $("#department_search").val();
 
-    if (!company_id || !branch_id || !department_id) {
-      swalError("Warning", "Please Select All Fields!");
+    // Company is compulsory
+    if (!company_id) {
+      swalError("Warning", "Please Select Company!");
       return;
     }
+
+    // Either Branch OR Department is compulsory
+    if (!branch_id && !department_id) {
+      swalError("Warning", "Please Select Branch or Department!");
+      return;
+    }
+
     $(".radio-card").show();
+
     getStaffTable(company_id, branch_id, department_id);
   });
 
@@ -1108,6 +1125,12 @@ $(document).ready(function () {
   $("#clear_staff").click(function () {
     event.preventDefault();
     clearStaffProfileForm();
+  });
+
+  $(document).on('click', '.staff_status', function () {
+    const staff_id = $(this).val();
+    swalConfirm("Are you sure?", "Do you want to move this staff member to Staff Exit?",
+      updateStaffStatus, staff_id);
   });
 
   // DOcument Ready End
@@ -2018,6 +2041,7 @@ async function editStaffProfile(id) {
     $("#shift").val(data.shift);
     $("#ot_payment").val(data.ot_payment);
     $("#ot_per_day").val(data.ot_per_day);
+    $("#staff_sts").val(data.status);
 
     let selectedLevel = parseInt(
       $("#designation option:selected").data("level"),
@@ -2061,10 +2085,10 @@ async function editStaffProfile(id) {
       $("#ctc_amount_" + row.ctc_id).val(moneyFormatIndia(amount));
 
       $("#ctc_percentage_" + row.ctc_id).val(
-    row.ctc_percentage !== null && row.ctc_percentage !== ""
-        ? parseFloat(row.ctc_percentage).toFixed(2) + " %"
-        : ""
-);
+        row.ctc_percentage !== null && row.ctc_percentage !== ""
+          ? parseFloat(row.ctc_percentage).toFixed(2) + " %"
+          : ""
+      );
 
       totalAmt += parseFloat(amount || 0);
       totalPer += parseFloat(row.ctc_percentage || 0);
@@ -2098,9 +2122,10 @@ function enableEditMode() {
   assignedBranchChoices.enable();
   // $("#branch_admin").prop("disabled", true);
   // $("#branch").prop("disabled", true);
-  // $("#pf_available").prop("disabled", true);
-  // $("#esi_available").prop("disabled", true);
-  // $("#pt_available").prop("disabled", true);
+  $("#pf_available").prop("disabled", true);
+  $("#esi_available").prop("disabled", true);
+  $("#pt_available").prop("disabled", true);
+  $("#joining_date").prop("disabled", true);
 
   /* CTC Card Fields Readonly */
   $("#total_ctc").prop("readonly", true);
@@ -2111,7 +2136,12 @@ function enableEditMode() {
   /* CTC Table Fields Readonly */
   $(".ctc_amount").prop("readonly", true);
   $(".ctc_percentage").prop("readonly", true);
-
+  let staff_sts = $("#staff_sts").val()
+  if (staff_sts >= 2) {
+    $("#notice_period").prop("readonly", true);
+  }else{
+    $("#notice_period").prop("readonly", false);
+  }
   let status = $('input[name="staff_status"]:checked').val(); // 1 = Inactive, 2 = Active
   if (status == "2") {
     $(".personal_info_disble").attr("disabled", true);
@@ -2212,9 +2242,11 @@ function resetStaffData() {
   assignedBranchChoices.clearInput();
   // $("#branch_admin").prop("disabled", false);
   // $("#branch").prop("disabled", false);
-  // $("#pf_available").prop("disabled", false);
-  // $("#esi_available").prop("disabled", false);
-  // $("#pt_available").prop("disabled", false);
+  $("#pf_available").prop("disabled", false);
+  $("#esi_available").prop("disabled", false);
+  $("#pt_available").prop("disabled", false);
+  $("#joining_date").prop("disabled", false);
+  $("#notice_period").prop("readonly", false);
 
   /* Joining Info */
   $("#joining_date").val("");
@@ -2247,4 +2279,26 @@ function resetStaffData() {
   $(".branch_div").hide();
   $(".ot_per_day_div").hide();
   $(".assigned_branches_div").hide();
+}
+
+function updateStaffStatus(staff_id) {
+  $.ajax({
+    url: "api/staff_creation/update_staff_status.php",
+    type: "POST",
+    dataType: "json",
+    data: { staff_id: staff_id ,status:2},
+    success: function (response) {
+      if (response.status == 1) {
+        swalSuccessOk('Success', response.message, function () {
+          $('#staff_create').DataTable().ajax.reload(null, false);
+        });
+
+      } else {
+        swalError("Error", response.message);
+      }
+    },
+    error: function () {
+      swalError("Error", "Unable to update staff status.");
+    }
+  });
 }

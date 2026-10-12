@@ -227,13 +227,13 @@ function getBranchLimit() {
     success: function (response) {
       let branchLimit = parseInt(response.branch_limit);
 
-      // Set Branch Limit in Header
-      $("#pageHeaderName").html(
-        ` - Branch Creation 
-        <span style="padding-left:1050px;">
-          Branch Limit: ${branchLimit}
-        </span>`,
-      );
+      $("#pageHeaderName").parent().css("position", "relative");
+    $("#pageHeaderName").html(`
+      - Branch Creation
+      <span style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%); font-weight: normal;">
+        Branch Limit: ${branchLimit}
+      </span>
+    `);
 
       let table = $("#branch_create").DataTable();
 
@@ -279,6 +279,7 @@ async function getCompanyName() {
 }
 
 /* --- Get Branch Code --- */
+
 function getBranchCode() {
   var company_name = $("#company_name").val();
 
@@ -293,15 +294,17 @@ function getBranchCode() {
       if (response.branch_code) {
         $("#branch_code").val(response.branch_code);
       } else {
-        console.error(response);
+        console.error("Branch code not found:", response);
       }
     },
 
     error: function (xhr, status, error) {
-      console.error(status, error);
-    },
+      console.error("AJAX Error:", error);
+      console.error("PHP Response:", xhr.responseText);
+    }
   });
 }
+
 
 /* --- Get State List --- */
 function getStateList() {

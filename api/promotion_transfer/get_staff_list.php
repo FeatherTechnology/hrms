@@ -10,6 +10,7 @@ $company_id = isset($_POST['params']['company_id'])   ? $_POST['params']['compan
 $department_id = isset($_POST['params']['department_id']) ? $_POST['params']['department_id'] : '';
 $status = isset($_POST['params']['status']) ? $_POST['params']['status'] : '';   // 1 = Active, 2 = Inactive
 $staff_id = isset($_POST['params']['staff_id']) ? $_POST['params']['staff_id'] : '';
+$branch_id = isset($_POST['params']['branch_id']) ? $_POST['params']['branch_id'] : '';
 
 $available_arr = [ '1' => 'Yes', '2' => 'No'];
 $status_arr = [ '0'=>'Joining', '1' => 'Promotion', '2' => 'Transfer', '3' => 'Increment'];
@@ -98,6 +99,12 @@ if ($company_id != '') {
 if ($department_id != '') {
 
     $query .= " AND oc.department = '$department_id' ";
+}
+
+/* Branch Filter */
+if ($branch_id != '') {
+
+    $query .= " AND oc.branch_id = '$branch_id' ";
 }
 
 

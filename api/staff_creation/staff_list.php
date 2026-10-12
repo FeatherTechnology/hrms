@@ -10,7 +10,7 @@ $branch_id = isset($_POST['params']['branch_id']) ? $_POST['params']['branch_id'
 $department_id = isset($_POST['params']['department_id']) ? $_POST['params']['department_id'] : '';
 $status = isset($_POST['params']['status']) ? $_POST['params']['status'] : '';   // 1 = Active, 2 = Inactive
 
-if ( $company_id === '' ||  $branch_id === '' || $department_id === '') {
+if ($company_id === '' || ($branch_id === '' && $department_id === '')) {
     echo json_encode([
         "draw" => intval($_POST['draw']),
         "recordsTotal" => 0,
@@ -34,6 +34,7 @@ $column = array(
     'ti.team_name',
     'des.designation',
     'sc.mobile1',
+    'sc.id',
     'sc.id'
 );
 
@@ -51,6 +52,7 @@ $query = "SELECT
             ti.team_name,
             sc.mobile1,
             sc.relieve_date,
+            sc.status AS staff_status,
 
             CASE
                 WHEN NOT EXISTS (
@@ -104,46 +106,21 @@ $query = "SELECT
 
 
 /* Status Filter */
-/* Status Filter */
 if ($status != '') {
 
     if ($status == 1) {
 
         // ACTIVE: still working OR no relieve date
-        $query .= " AND sc.status = 1 
-                    AND (
-                        date(sc.relieve_date) >= '$today'
-                        OR sc.relieve_date IS NULL
-                        OR sc.relieve_date = ''
-                    )";
-
+        $query .= " AND sc.status IN (1,2,3)";
     } elseif ($status == 2) {
 
         // INACTIVE: already relieved
         $query .= " AND (
-                        sc.status = 2 
-                        OR (
-                            date(sc.relieve_date) < '$today'
-                            AND sc.relieve_date != ''
-                        )
+                        sc.status = 4
                     )";
     }
-}else{ 
-    $query .= "  
-        AND ( 
-            date(sc.relieve_date) >= '$today' 
-            OR sc.relieve_date IS NULL 
-            OR sc.relieve_date = ''
-
-            OR EXISTS (
-                SELECT 1
-                FROM document_info di
-                WHERE di.staff_profile_id = sc.id
-                  AND (
-                      di.return_date IS NULL
-                  )
-            )
-        )";
+} else {
+    $query .= "  AND sc.status IN(2,3)";
 }
 
 /* Company Filter */
@@ -225,26 +202,40 @@ foreach ($result as $row) {
     $sub_array[] = $row['team_name'];
     $sub_array[] = $row['designation'];
     $sub_array[] = $row['mobile1'];
-   
-    // $sub_array[] = $row['relieve_date'];
- if ($status == '') {
+    if ($status == '') {
+        if ($row['document_status'] == 'Completed' || $row['document_status'] == 'No Document') {
+            $document_status = "<span style='background-color: #d4edda; color: #155724; padding: 5px 10px; border-radius: 5px; font-weight: 500;'>" . $row['document_status'] . "</span>";
+        } else {
+            $document_status = "<span style='background-color: #FFFF00; color: #856404; padding: 5px 10px; border-radius: 5px; font-weight: 500;'>" . $row['document_status'] . "</span>";
+        }
 
-    if ($row['document_status'] == 'Completed' || $row['document_status'] == 'No Document') {
-        $document_status = "<span style='background-color: #d4edda; color: #155724; padding: 5px 10px; border-radius: 5px; font-weight: 500;'>
-                                " . $row['document_status'] . "
-                            </span>";
+        $sub_array[] = $document_status;
+        $sub_array[] = !empty($row['relieve_date']) ? date('d-m-Y', strtotime($row['relieve_date'])) : '';
+        $exit_message = '';
+
+        if (in_array((int)$row['staff_status'], [2, 3], true)) {
+            if (
+                in_array($row['document_status'], ['Completed', 'No Document'], true) &&
+                !empty($row['relieve_date']) &&
+                date('Y-m-d', strtotime($row['relieve_date'])) < $today
+            ) {
+                $exit_message = "<button type='button' class='btn btn-outline-secondary staff_exit_sts' value='" . $row['id'] . "' title='Move to Exit'><span class='icon-arrow_forward'></span></button>";
+            } else {
+                $exit_message = "Exit in Progress";
+            }
+        }
+
+        $sub_array[] = $exit_message;
     } else {
-        $document_status = "<span style='background-color: #FFFF00; color: #856404; padding: 5px 10px; border-radius: 5px; font-weight: 500;'>
-                                " . $row['document_status'] . "
-                            </span>";
+        $status_messages = [
+            '1' => "<button type='button' class='btn btn-outline-secondary staff_status' value='" . $row['id'] . "' title='Move to Staff Exit'><span class='icon-arrow_forward'></span></button>",
+            '2' => "Exit in Progress",
+            '3' => "Exit in Progress",
+            '4' => "Exited"
+        ];
+
+        $sub_array[] = $status_messages[$row['staff_status']] ?? '';
     }
-
-    $sub_array[] = $document_status;
-
-    $sub_array[] = !empty($row['relieve_date'])
-        ? date('d-m-Y', strtotime($row['relieve_date']))
-        : '';
-}
 
     $sub_array[] =
         "<span class='icon-border_color staffEditBtn'
