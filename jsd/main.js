@@ -872,3 +872,20 @@ function searchFunction(table_name) {
     doSearch();
   });
 }
+
+function swalSuccessOk(title, text, callback) {
+	Swal.fire({
+		icon: 'success',
+		title: title,
+		text: text,
+		showConfirmButton: true,
+		confirmButtonText: 'OK',
+		confirmButtonColor: "var(--primary-color)",
+		allowOutsideClick: false,
+		allowEscapeKey: false
+	}).then((result) => {
+		if (result.isConfirmed && typeof callback === "function") {
+			callback(); // ✅ run only after OK
+		}
+	});
+}

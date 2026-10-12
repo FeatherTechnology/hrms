@@ -64,6 +64,7 @@
                                 <th>Mobile</th>
                                 <th>Document Status</th>
                                 <th>Relieve Date</th>
+                                <th>Staff Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -260,7 +261,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="last_wrk_day">Last Working Day</label><span class="text-danger">*</span>
-                                    <input type="date" class="form-control" id="last_wrk_day" name="last_wrk_day" tabindex="15">
+                                    <input type="date" class="form-control" id="last_wrk_day" name="last_wrk_day"  min="<?= date('Y-m-d') ?>" tabindex="15">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">

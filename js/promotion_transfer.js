@@ -51,54 +51,93 @@ $(document).ready(function () {
 
   // Company Change
   $("#company_search").on("change", function () {
-    let company_id = $("#company_search").val();
-    let dept_id = $("#department_search").val();
-    let status = $("#status_search").val();
+    let company_id = $(this).val();
     if (company_id) {
+      getBranchList(company_id, "#branch_search");
       getDepartmentList(company_id, "#department_search", "");
     } else {
-      $("#department_search").html(
-        '<option value="">Select Department</option>',
-      );
-      $("#staff_search").html('<option value="">Select Staff Name</option>');
+      $("#branch_search")
+        .empty()
+        .append('<option value="">Select Branch Name</option>');
+      $("#department_search")
+        .empty()
+        .append('<option value="">Select Department</option>');
+         $("#staff_search").html('<option value="">Select Staff Name</option>');
     }
+  });
+
+  // BRanch Change
+  $("#branch_search").on("change", function () {
+    let company_id = $("#company_search").val();
+    let branch_id = $("#branch_search").val();
+    let dept_id = $("#department_search").val();
+    let status = $("#status_search").val();
+    getStaffList(company_id,branch_id, dept_id, status);
   });
 
   // Department Change
   $("#department_search").on("change", function () {
     let company_id = $("#company_search").val();
+    let branch_id = $("#branch_search").val();
     let dept_id = $("#department_search").val();
     let status = $("#status_search").val();
-    getStaffList(company_id, dept_id, status);
+    getStaffList(company_id,branch_id, dept_id, status);
   });
 
   // Status Change
   $("#status_search").on("change", function () {
     let company_id = $("#company_search").val();
+    let branch_id = $("#branch_search").val();
     let dept_id = $("#department_search").val();
     let status = $("#status_search").val();
 
-    getStaffList(company_id, dept_id, status);
+    getStaffList(company_id,branch_id, dept_id, status);
   });
 
-  $("#view_staff").on("click", function () {
-    let company_id = $("#company_search").val();
-    let status = $("#status_search").val();
+ 
+$("#view_staff").on("click", function () {
+
+    let company_id    = $("#company_search").val();
+    let branch_id     = $("#branch_search").val();
     let department_id = $("#department_search").val();
-    let staff_id = $("#staff_search").val();
+    let status        = $("#status_search").val();
+    let staff_id      = $("#staff_search").val();
 
-    if (!company_id || !status || !department_id || !staff_id) {
-      swalError("Warning", "Please Select All Fields!");
-      return;
+    // Company is compulsory
+    if (!company_id) {
+        swalError("Warning", "Please Select Company!");
+        return;
     }
-    if (status == 1) {
-      $(".outer_status_card").show();
+
+    // Either Branch OR Department is compulsory
+    if (!branch_id && !department_id) {
+        swalError("Warning", "Please Select Branch or Department!");
+        return;
+    }
+
+    // Status is compulsory
+    if (!status) {
+        swalError("Warning", "Please Select Status!");
+        return;
+    }
+
+    // Staff is compulsory
+    if (!staff_id) {
+        swalError("Warning", "Please Select Staff Name!");
+        return;
+    }
+
+    // Show/Hide status card
+    if (status == "1") {
+        $(".outer_status_card").show();
     } else {
-      $(".outer_status_card").hide();
+        $(".outer_status_card").hide();
     }
 
-    getStaffTable(company_id, status, department_id, staff_id);
-  });
+    // Load staff table
+    getStaffTable(company_id,status,department_id,staff_id,branch_id);
+});
+
 
   // $("#designation").on("change", async function () {
   //   let selectedLevel = parseInt(
@@ -155,6 +194,7 @@ $(document).ready(function () {
     let company_id = $("#company_search").val();
     let status = $("#status_search").val();
     let department_id = $("#department_search").val();
+    let branch_id = $("#branch_search").val();
     let id = $("#staff_search").val();
     // Selected Status
     let occ_status = $(".staff_status_btn.active").data("value");
@@ -304,7 +344,7 @@ $(document).ready(function () {
             if (result.result == "1") {
               swalSuccess("Success", "Submitted Successfully!");
 
-              getStaffTable(company_id, status, department_id, id);
+              getStaffTable(company_id, status, department_id, id,branch_id);
 
               $("#promotion_transfer_content").hide();
               $(".promotion_transfer_table_content").show();
@@ -346,12 +386,14 @@ $(function () {
   getCompanyName("#company_search");
 });
 
-function getStaffTable(company_id, status, department_id, staff_id) {
+function getStaffTable(company_id, status, department_id, staff_id,branch_id) {
+
   let params = {
     company_id: company_id,
     status: status,
     department_id: department_id,
     staff_id: staff_id,
+    branch_id:branch_id
   };
   serverSideTable(
     "#promotion_transfer_table",
@@ -412,9 +454,9 @@ async function getDepartmentList(company_id, selector, selected_dept = "") {
   }
 }
 
-async function getStaffList(company_id, dept_id, status) {
+async function getStaffList(company_id, branch_id,dept_id, status) {
   // Validation
-  if (company_id == "" || dept_id == "" || status == "") {
+  if (company_id == "" || (branch_id == "" && dept_id == "" )|| status == "") {
     $("#staff_search").html('<option value="">Select Staff Name</option>');
     return false;
   }
@@ -425,6 +467,7 @@ async function getStaffList(company_id, dept_id, status) {
       dataType: "json",
       data: {
         company_id: company_id,
+        branch_id : branch_id,
         dept_id: dept_id,
         status: status,
       },

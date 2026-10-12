@@ -58,7 +58,7 @@
 
                     <input type="radio" name="staff_status" id="inactive" value="2">
 
-                    <label for="inactive">&nbsp;In-Active</label>
+                    <label for="inactive">&nbsp;Exit</label>
 
                 </div>
             </div>
@@ -76,6 +76,7 @@
                             <th>Team</th>
                             <th>Designation</th>
                             <th>Mobile</th>
+                            <th>Staff Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -91,6 +92,7 @@
             <form id="staff_creation" name="staff_creation" action="" method="post" enctype="multipart/form-data">
                 <input type="hidden" id="staff_profile_id">
                 <input type="hidden" id="esi_wage_limit">
+                <input type="hidden" id="staff_sts">
                 <div class="row gutters">
                     <div class="col-12">
                         <div class="card">

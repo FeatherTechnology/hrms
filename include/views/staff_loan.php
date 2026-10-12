@@ -47,7 +47,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                
+
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 user_div">
                                         <div class="form-group">
                                             <label for="company_name">Company Name</label><span class="text-danger">*</span>
@@ -95,6 +95,17 @@
                                             <input type="text" class="form-control" id="designation" name="designation" tabindex="7" readonly>
                                         </div>
                                     </div>
+                                    
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 user_div">
+                                        <div class="form-group">
+                                            <label for="type">Type</label><span class="text-danger">*</span>
+                                            <select class="form-control" id="type" name="type" tabindex="8">
+                                                <option value="">Select Type</option>
+                                                <option value="1">Staff Loan</option>
+                                                <option value="2">Salary Advance</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -107,14 +118,14 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="loan_amount">Loan Amount</label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control" id="loan_amount" name="loan_amount" tabindex="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" >
+                                            <input type="number" class="form-control" id="loan_amount" name="loan_amount" tabindex="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
-                                            <label for="int_rate">Intrest Rate</label>  <span class="text-danger">*</span> <span class="text-danger"> ( 0% - 5% )</span>
+                                            <label for="int_rate">Intrest Rate</label> <span class="text-danger">*</span> <span class="text-danger"> ( 0% - 5% )</span>
 
-                                            <input type="text"  class="form-control"  id="int_rate"  name="int_rate"  tabindex="9" oninput="if(parseFloat(this.value) > 5) this.value=''; this.value=this.value.replace(/[^0-9.]/g,'');">
+                                            <input type="text" class="form-control" id="int_rate" name="int_rate" tabindex="9" oninput="if(parseFloat(this.value) > 5) this.value=''; this.value=this.value.replace(/[^0-9.]/g,'');">
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -126,38 +137,61 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="total_intrest">Total Intrest</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control" id="total_intrest" name="total_intrest" tabindex="11"  readonly>
+                                            <input type="text" class="form-control" id="total_intrest" name="total_intrest" tabindex="11" readonly>
                                         </div>
-                                    </div> 
+                                    </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="due_amount">Due Amount</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control" id="due_amount" name="due_amount" tabindex="12"  readonly>
+                                            <input type="text" class="form-control" id="due_amount" name="due_amount" tabindex="12" readonly>
                                         </div>
-                                    </div> 
-                                    
+                                    </div>
+
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="due_start_date">Due Start Date</label><span class="text-danger">*</span>
-                                            <input type="month"  class="form-control" id="due_start_date"  name="due_start_date"  tabindex="13"  min="<?php echo date('Y-m'); ?>" >
+                                            <input type="month" class="form-control" id="due_start_date" name="due_start_date" tabindex="13" min="<?php echo date('Y-m'); ?>">
                                         </div>
-                                    </div> 
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12"> 
-                                            <div class="form-group"> 
-                                                <label for="due_end_date">Due End Date</label>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="due_end_date">Due End Date</label>
 
-                                                <input type="text"
-                                                    class="form-control"
-                                                    id="due_end_date"
-                                                    name="due_end_date" tabindex="14"
-                                                    readonly>
-                                            </div> 
-                                        </div>                                 
+                                            <input type="text"
+                                                class="form-control"
+                                                id="due_end_date"
+                                                name="due_end_date" tabindex="14"
+                                                readonly>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-12 mt-3 text-right">
+                        <div class="card salary_advance_card">
+                            <div class="card-header">
+                                <h5 class="card-title">Salary Advance</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="advance_amount">Advance Amount</label><span class="text-danger">*</span>
+                                            <input type="number" class="form-control" id="advance_amount" name="advance_amount" tabindex="7" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="deduction_month">Dedection Month</label>
+                                            <span class="text-danger">*</span>
+                                            <input type="month" class="form-control" id="deduction_month" name="deduction_month" tabindex="7" min="<?php echo date('Y-m'); ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-3 text-right submit_card">
                             <button name="submit_staff_loan" id="submit_staff_loan" class="btn btn-primary" tabindex="15"><span class="icon-check"></span>&nbsp;Submit</button>
                             <button type="reset" class="btn btn-outline-secondary" id="reset_btn" tabindex="16">Clear</button>
                         </div>

@@ -429,20 +429,28 @@ async function getTeamNameDropdown() {
 }
 
 /* --- Get Team Creation Delete --- */
+
 function getTeamDelete(id) {
   $.post(
     "api/team_creation_files/delete_team_creation.php",
-    { id },
+    { id: id },
     function (response) {
       if (response == "1") {
-        swalSuccess("Success", "Team Info Delete Successfully!");
+        swalSuccess("Success", "Team Info Deleted Successfully!");
         getTeamTable();
+
+      } else if (response == "2") {
+        swalError( "Warning", "This team is already assigned to staff");
       } else {
-        swalError("Warning", "Error occur While Delete Team Info.");
+        swalError("Warning","An error occurred while deleting team information.");
       }
     },
-    "json",
-  );
+    "json"
+  ).fail(function (xhr, status, error) {
+    console.error("Delete Team Error:", error);
+    console.error(xhr.responseText);
+    swalError("Error", "Unable to process the request.");
+  });
 }
 
 function getModalAttr() {

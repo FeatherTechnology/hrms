@@ -4,6 +4,7 @@ include '../../ajaxconfig.php';
 
 $company_id = $_POST['company_id'];
 $dept_id    = $_POST['dept_id'];
+$branch_id    = $_POST['branch_id'];
  if (isset($_POST['status'])) {
     $status = $_POST['status'];
  } else {
@@ -35,6 +36,10 @@ if ($status == '1') {
                         AND sc.relieve_date < CURDATE()
                     )
                 ) ";
+}
+
+if ($branch_id != '') {
+    $where .= " AND oi.branch_id = '".$branch_id."' ";
 }
 
 if ($dept_id != '') {

@@ -12,14 +12,24 @@ $(document).ready(function () {
 
   // Radio Change
   $("#view_staff").on("click", function () {
+
     let company_id = $("#company_search").val();
     let branch_id = $("#branch_search").val();
     let department_id = $("#department_search").val();
 
-    if (!company_id || !branch_id || !department_id) {
-      swalError("Warning", "Please Select Atleast One Fields!");
+    // Company is compulsory
+    if (!company_id) {
+      swalError("Warning", "Please Select Company!");
       return;
     }
+
+    // Either Branch OR Department is compulsory
+    if (!branch_id && !department_id) {
+      swalError("Warning", "Please Select Branch or Department!");
+      return;
+    }
+
+    $(".radio-card").show();
 
     getStaffTable(company_id, branch_id, department_id);
   });
@@ -72,6 +82,13 @@ $(document).ready(function () {
       console.error(error);
     }
   });
+
+  $(document).on('click', '.staff_exit_sts', function () {
+    const staff_id = $(this).val();
+    swalConfirm("Are you sure?", "Do you want to Exit this Staff?",
+      updateStaffStatus, staff_id);
+  });
+
   $("#submit_staff_exit").click(function (event) {
     event.preventDefault();
 
@@ -502,4 +519,26 @@ async function getDesignationList(company_id, selected_designation = "") {
   } catch (error) {
     console.error("Error loading Designation list:", error);
   }
+}
+
+function updateStaffStatus(staff_id) {
+  $.ajax({
+    url: "api/staff_creation/update_staff_status.php",
+    type: "POST",
+    dataType: "json",
+    data: { staff_id: staff_id, status: 4},
+    success: function (response) {
+      if (response.status == 1) {
+        swalSuccessOk('Success', response.message, function () {
+          $('#staff_exit').DataTable().ajax.reload(null, false);
+        });
+
+      } else {
+        swalError("Error", response.message);
+      }
+    },
+    error: function () {
+      swalError("Error", "Unable to update staff status.");
+    }
+  });
 }

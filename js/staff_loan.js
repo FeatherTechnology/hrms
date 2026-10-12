@@ -3,7 +3,9 @@ $(document).ready(function () {
   $(".add_staff_loan").click(function () {
     getCompanyName("#company_name");
     $(".add_staff_loan,.staff_loan_table_content").hide();
+    $(".submit_card").hide();
     $("#staff_loan_content,.back_to_list").show();
+    $(".loan_calculation_card, .salary_advance_card").hide();
     $(".user_info_card,.loan_calculation_card").find("input, select").val("");
   });
 
@@ -240,6 +242,25 @@ $("#due_start_date, #due_period").on("change input", function () {
         $("#due_end_date").val("");
     }
 });
+
+$("#type").on("change", function () {
+    let type = $(this).val();
+   $(".submit_card").show();
+    if (type == "1") {
+        // Staff Loan
+        $(".loan_calculation_card").show();
+        $(".salary_advance_card").hide();
+        
+    } else if (type == "2") {
+        // Salary Advance
+        $(".loan_calculation_card").hide();
+        $(".salary_advance_card").show();
+    } else {
+        // No type selected
+        $(".loan_calculation_card, .salary_advance_card").hide();
+    }
+});
+
 });
 // document end
 

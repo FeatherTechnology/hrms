@@ -370,6 +370,17 @@ $(document).ready(function () {
   });
 });
 
+$("#reset_btn").on("click", function (e) {
+    e.preventDefault();
+      $("input").val("");
+
+    $("select").each(function () {
+      $(this).val("");
+    });
+    departmentInstance.removeActiveItems();
+    designationInstance.removeActiveItems();
+});
+
 /* --- On Load --- */
 $(function () {
   getCompanyTable();
@@ -425,12 +436,16 @@ async function getCompanyLimit() {
 
     let companyLimit = parseInt(response.company_limit);
 
+  $("#pageHeaderName").parent().css("position", "relative");
+
+    // 1. Inject the subtitle text on the left
+    // 2. Position the Company Limit badge on the far right
     $("#pageHeaderName").html(`
-            - Company Creation
-            <span style="padding-left:1100px;">
-                Company Limit: ${companyLimit}
-            </span>
-        `);
+      - Company Creation
+      <span style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%); font-weight: normal;">
+        Company Limit: ${companyLimit}
+      </span>
+    `);
 
     if ($.fn.DataTable.isDataTable("#company_creation_table")) {
       let table = $("#company_creation_table").DataTable();

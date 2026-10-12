@@ -9,7 +9,7 @@ $last_wrk_day = $_POST['last_wrk_day'];
 $user_id = $_SESSION['user_id'];
 $staff_profile_id = $_POST['staff_profile_id'];
 
-$qry = $pdo->query("UPDATE `staff_creation` SET `notice_per_served`='$notice_per_served',`relieve_date`='$last_wrk_day',`exit_type`='$exit_type',`reason`='$reason',`status`= 2,`update_login_id`='$user_id',updated_on = now() WHERE `id`='$staff_profile_id'");
+$qry = $pdo->query("UPDATE `staff_creation` SET `notice_per_served`='$notice_per_served',`relieve_date`='$last_wrk_day',`exit_type`='$exit_type',`reason`='$reason',`status`= 3,`update_login_id`='$user_id',updated_on = now() WHERE `id`='$staff_profile_id'");
 
 
 $query = $pdo->query("UPDATE `users` SET `status`='1', `relieve_date`= '$last_wrk_day',`update_login_id`='$user_id',`updated_on`=now() WHERE staff_name_id = '$staff_profile_id' ");
