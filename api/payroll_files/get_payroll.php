@@ -167,10 +167,8 @@ while ($staff = $getStaff->fetch()) {
     // WEEKOFF
     $weekoffQry = $pdo->query("
         SELECT cw.week_off 
-        FROM company_weekoffs cw 
-        JOIN company_policies cp 
-            ON cp.id = cw.company_policies_id  
-        WHERE cp.company_id = '$company_id'
+        FROM company_weekoffs cw  
+        WHERE cw.company_id = '$company_id'
     ");
 
     $weekoff = $weekoffQry->fetch()['week_off'] ?? 0;
