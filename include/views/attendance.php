@@ -72,7 +72,7 @@
             <div class="card-body">
                 <div class="row">
                     <!-- Fields -->
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-md-3 col-sm-6">
                         <div class="form-group">
                             <label for="cmpy_name">Company Name</label><span class="text-danger">*</span>
                             <select class="form-control" id="cmpy_name" name="cmpy_name" tabindex="1">
@@ -80,7 +80,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-md-3 col-sm-6">
                         <div class="form-group">
                             <label for="branch_name">Branch Name</label><span class="text-danger">*</span>
                             <select class="form-control" id="branch_name" name="branch_name" tabindex="2">
@@ -88,7 +88,15 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                        <div class="form-group">
+                            <label for="dep_id">Department</label><span class="text-danger">*</span>
+                            <select class="form-control" id="dep_id" name="dep_id" tabindex="1">
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
                         <div class="form-group">
                             <label for="date">Date</label><span class="text-danger">*</span>
                             <input type="date" class="form-control" id="date" name="date" max="<?= date('Y-m-d') ?>" value="<?= date('Y-m-d') ?>" tabindex="3">
@@ -212,6 +220,18 @@
                             <input type="text" class="form-control" id="staff_type" name="staff_type" placeholder="Staff Type" tabindex="13" readonly>
                         </div>
                     </div>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="form-group">
+                            <label for="shift_start">Staff Type</label>
+                            <input type="text" class="form-control" id="shift_start" name="shift_start" placeholder="Staff Start Time" tabindex="13" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="form-group">
+                            <label for="shift_end">Staff Type</label>
+                            <input type="text" class="form-control" id="shift_end" name="shift_end" placeholder="Staff End Time" tabindex="13" readonly>
+                        </div>
+                    </div>
 
                 </div>
                 <br><br><br>
@@ -221,7 +241,7 @@
                         <h5 class="card-title">Attendance Details</h5>
 
                     </div>
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-xl-6 col-md-12 col-sm-12">
                         <div class="row">
                             <div class="col-md-4 col-sm-4">
                                 <div class="form-group">
@@ -243,13 +263,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-xl-2 col-sm-12">
                         <div class="form-group">
                             <label for="deduction_amount">Deduction Amount</label>
                             <input type="number" class="form-control" id="deduction_amount" name="deduction_amount" placeholder="Deduction Amount" tabindex="16">
                         </div>
                     </div>
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-xl-4 col-sm-12">
                         <div class="form-group">
                             <label for="reason">Reason</label><span class="text-danger">*</span>
                             <textarea type="textarea" class="form-control" id="reason" name="reason" placeholder="Enter Reason" tabindex="17"></textarea>

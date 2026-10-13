@@ -345,96 +345,97 @@ try {
         */
         if ($exit_time !== null) {
             // EARLY EXIT
-            if ($exit_time < $shift_end) {
-                $working_end = max(
-                    $working_start,
-                    $exit_time
-                );
-                // WORKING HOURS
-                if (  $currentStart = $working_start ) {
-                    if ($currentStart < $working_end) {
-                        if (empty($blockedTimes)) {
+            // if ($exit_time < $shift_end) {
+            //     $working_end = max(
+            //         $working_start,
+            //         $exit_time
+            //     );
+            //     // WORKING HOURS
+            //     if (  $currentStart = $working_start ) {
+            //         if ($currentStart < $working_end) {
+            //             if (empty($blockedTimes)) {
 
-                            $response[] = [
-                                'staff_name' => $row['staff_name'],
-                                'type'       => 'Working Hours',
-                                'color'      => '#4CAF50',
-                                'start'      => date(
-                                    'Y-m-d H:i:s',
-                                    $currentStart
-                                ),
-                                'end'        => date(
-                                    'Y-m-d H:i:s',
-                                    $working_end
-                                )
-                            ];
+            //                 $response[] = [
+            //                     'staff_name' => $row['staff_name'],
+            //                     'type'       => 'Working Hours',
+            //                     'color'      => '#4CAF50',
+            //                     'start'      => date(
+            //                         'Y-m-d H:i:s',
+            //                         $currentStart
+            //                     ),
+            //                     'end'        => date(
+            //                         'Y-m-d H:i:s',
+            //                         $working_end
+            //                     )
+            //                 ];
 
-                        } else {
-                            foreach ($blockedTimes as $block) {
-                                if (
-                                    $block['end'] <= $shift_start ||
-                                    $block['start'] >= $working_end
-                                ) {
-                                    continue;
-                                }
+            //             } else {
+            //                 foreach ($blockedTimes as $block) {
+            //                     if (
+            //                         $block['end'] <= $shift_start ||
+            //                         $block['start'] >= $working_end
+            //                     ) {
+            //                         continue;
+            //                     }
 
-                                $blockStart = max($block['start'],$shift_start);
-                                $blockEnd = min( $block['end'], $working_end );
+            //                     $blockStart = max($block['start'],$shift_start);
+            //                     $blockEnd = min( $block['end'], $working_end );
 
-                                if ($currentStart < $blockStart) {
-                                    $response[] = [
-                                        'staff_name' =>  $row['staff_name'],
-                                        'type' =>  'Working Hours',
-                                        'color' =>'#4CAF50',
-                                        'start' => date(
-                                            'Y-m-d H:i:s',
-                                            $currentStart
-                                        ),
+            //                     if ($currentStart < $blockStart) {
+            //                         $response[] = [
+            //                             'staff_name' =>  $row['staff_name'],
+            //                             'type' =>  'Working Hours',
+            //                             'color' =>'#4CAF50',
+            //                             'start' => date(
+            //                                 'Y-m-d H:i:s',
+            //                                 $currentStart
+            //                             ),
 
-                                        'end' => date(
-                                            'Y-m-d H:i:s',
-                                            $blockStart
-                                        )
-                                    ];
-                                }
-                                if ($currentStart < $blockEnd) {
-                                    $currentStart = $blockEnd;
-                                }
-                            }
-                            if ($currentStart < $working_end) {
-                                $response[] = [
-                                    'staff_name' =>  $row['staff_name'],
-                                    'type' =>  'Working Hours',
-                                    'color' =>  '#4CAF50',
-                                    'start' => date(
-                                        'Y-m-d H:i:s',
-                                        $currentStart
-                                    ),
-                                    'end' => date(
-                                        'Y-m-d H:i:s',
-                                        $working_end
-                                    )
-                                ];
-                            }
-                        }
-                    }
-                }
-                // EARLY EXIT RED BAR
-                $response[] = [
-                    'staff_name' => $row['staff_name'],
-                    'type'       => 'Early Exit',
-                    'color'      => '#f44336',
-                    'start'      => date(
-                        'Y-m-d H:i:s',
-                        $exit_time
-                    ),
-                    'end'        => date(
-                        'Y-m-d H:i:s',
-                        $shift_end
-                    )
-                ];
+            //                             'end' => date(
+            //                                 'Y-m-d H:i:s',
+            //                                 $blockStart
+            //                             )
+            //                         ];
+            //                     }
+            //                     if ($currentStart < $blockEnd) {
+            //                         $currentStart = $blockEnd;
+            //                     }
+            //                 }
+            //                 if ($currentStart < $working_end) {
+            //                     $response[] = [
+            //                         'staff_name' =>  $row['staff_name'],
+            //                         'type' =>  'Working Hours',
+            //                         'color' =>  '#4CAF50',
+            //                         'start' => date(
+            //                             'Y-m-d H:i:s',
+            //                             $currentStart
+            //                         ),
+            //                         'end' => date(
+            //                             'Y-m-d H:i:s',
+            //                             $working_end
+            //                         )
+            //                     ];
+            //                 }
+            //             }
+            //         }
+            //     }
+            //     // EARLY EXIT RED BAR
+            //     $response[] = [
+            //         'staff_name' => $row['staff_name'],
+            //         'type'       => 'Early Exit',
+            //         'color'      => '#f44336',
+            //         'start'      => date(
+            //             'Y-m-d H:i:s',
+            //             $exit_time
+            //         ),
+            //         'end'        => date(
+            //             'Y-m-d H:i:s',
+            //             $shift_end
+            //         )
+            //     ];
 
-            } elseif ($exit_time > $shift_end) {
+            // } elseif ($exit_time > $shift_end) {
+            if ($exit_time > $shift_end) {
                 // NORMAL WORKING HOURS UNTIL SHIFT END
               
                 $working_end = $shift_end;

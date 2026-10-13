@@ -28,6 +28,9 @@ $total_amount = $_POST['total_ctc_amount'];
 
 $staff_id = $_POST['staff_id'];
 $staff_type = $_POST['staff_type'];
+$esi_available     = $_POST['esi_available'];
+$pt_available     = $_POST['pt_available'];
+$pf_available     = $_POST['pf_available'];
 
 /* ===============================
    GET LAST OCCUPATION INFO
@@ -124,8 +127,12 @@ $pdo->query("
     off_type         = '$off_type_old',
 
     assigned_branches     = '$assigned_branches_old',
+    pf_available          ='$pf_available',
+    pt_available          = '$pt_available',
+    esi_available         ='$esi_available',
 
     total_ctc        = '$total_ctc_old',
+    total_earnings   = '$total_amount',
     annual_ctc       = '$annual_ctc_old',
 
     shift            = '$shift_old',

@@ -10,6 +10,7 @@ $userid = $_SESSION['user_id'] ?? "";
 /* ---------- Input ---------- */
 $company_id = $_POST['company_id'] ?? '';
 $branch_id  = $_POST['branch_id'] ?? '';
+$dep_id  = $_POST['dep_id'] ?? '';
 $att_date   = !empty($_POST['date']) ? date('Y-m-d', strtotime($_POST['date'])) : '';
 
 $staff_type = [1 => 'Employer', 2 => 'Employee'];
@@ -87,8 +88,7 @@ $baseQuery = "
     LEFT JOIN team_name_creation tc 
         ON tc.id = oi.team
 
-    WHERE oi.branch_id = :branch_id
-     AND (
+  WHERE (
     sc.status = 1
     OR (
         sc.status = 2
@@ -96,12 +96,29 @@ $baseQuery = "
     )
 )
 ";
+/* ---------- BRANCH / DEPARTMENT FILTER ---------- */
+
+$params = [
+    ':att_date' => $att_date
+];
+
+if ($branch_id != '') {
+
+    $baseQuery .= " AND oi.branch_id = :branch_id ";
+    $params[':branch_id'] = $branch_id;
+}
+
+if ($dep_id != '') {
+
+    $baseQuery .= " AND oi.department = :dep_id ";
+    $params[':dep_id'] = $dep_id;
+}
 
 /* ---------- Search ---------- */
-$params = [
-    ':branch_id' => $branch_id,
-    ':att_date'  => $att_date
-];
+// $params = [
+//     ':branch_id' => $branch_id,
+//     ':att_date'  => $att_date
+// ];
 
 
 if ($user_type == 2) {

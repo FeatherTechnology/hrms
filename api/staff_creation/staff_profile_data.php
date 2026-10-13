@@ -23,7 +23,10 @@ $qry = $pdo->query("
         oi.shift,
         oi.ot_payment, 
         oi.ot_per_day,
-        oi.assigned_branches
+        oi.assigned_branches,
+        oi.pf_available,
+        oi.esi_available,
+        oi.pt_available
 
     FROM staff_creation sc
 

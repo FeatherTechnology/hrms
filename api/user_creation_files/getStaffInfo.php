@@ -7,8 +7,10 @@ $response = array();
 
 try {
 
-    $stmt = $pdo->prepare("SELECT oi.staff_id, bc.branch_name, dc.department_name, tnc.team_name, ds.designation
+    $stmt = $pdo->prepare("SELECT oi.staff_id, bc.branch_name, dc.department_name, tnc.team_name, ds.designation, sc.joining_date,sc.id as staff_profile_id ,sc.relieve_date,sc.staff_id,sc.staff_name,cc.company_name
         FROM occupation_info oi
+        LEFT JOIN company_creation cc ON cc.id = oi.company_id
+        LEFT JOIN  staff_creation sc ON sc.id = oi.staff_profile_id
         LEFT JOIN branch_creation bc ON oi.branch_id = bc.id 
         LEFT JOIN department_creation dc ON oi.department = dc.id 
         LEFT JOIN team_name_creation tnc ON oi.team = tnc.id 

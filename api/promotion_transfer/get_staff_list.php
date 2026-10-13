@@ -30,6 +30,7 @@ $column = array(
     'sc.esi_available',
     'sc.pt_available',
     'oc.total_ctc',
+    'u.user_name',
     'oc.effective_from',
 );
 
@@ -40,9 +41,9 @@ $query = "SELECT
             sc.staff_name,
             sc.joining_date,
             sc.relieve_date,
-            sc.pf_available,
-            sc.esi_available,
-            sc.pt_available,
+            oc.pf_available,
+            oc.esi_available,
+            oc.pt_available,
 
             cc.company_name,
             bc.branch_name,
@@ -53,9 +54,12 @@ $query = "SELECT
             sc.mobile1,
 
             oc.total_ctc,
+            oc.total_earnings,
             oc.occ_status,
             oc.created_on,
-            oc.effective_from
+            oc.effective_from,
+
+            u.user_name
 
           FROM staff_creation sc
 
@@ -64,6 +68,8 @@ $query = "SELECT
 
           LEFT JOIN occupation_info oc 
                  ON oc.staff_profile_id = sc.id
+
+          LEFT JOIN users u ON u.id = oc.insert_login_id
 
           LEFT JOIN branch_creation bc 
                  ON oc.branch_id = bc.id
@@ -122,6 +128,7 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
         OR d.department_name LIKE '%$search%'
         OR ti.team_name LIKE '%$search%'
         OR des.designation LIKE '%$search%'
+        OR u.user_name LIKE '%$search%'
     )";
 }
 
@@ -167,12 +174,7 @@ $sno = $_POST['start'] + 1;
 foreach ($result as $row) {
 
     $sub_array = array();
-    $sub_array[] = $sno++;
-    $sub_array[] = $row['staff_id'];
-    $sub_array[] = $row['staff_name'];
-    $sub_array[] = (!empty($row['joining_date']) && $row['joining_date'] != '0000-00-00')  ? date('d-m-Y', strtotime($row['joining_date']))  : '';
-    $sub_array[] = (!empty($row['relieve_date']) && $row['relieve_date'] != '0000-00-00')  ? date('d-m-Y', strtotime($row['relieve_date']))  : '';
-    $sub_array[] = $row['company_name'];
+    $sub_array[] = $sno++; 
     $sub_array[] = $row['branch_name'];
     $sub_array[] = $row['department_name'];
     $sub_array[] = $row['team_name'];
@@ -180,8 +182,9 @@ foreach ($result as $row) {
     $sub_array[] = isset($available_arr[$row['pf_available']]) ? $available_arr[$row['pf_available']]  : '';
     $sub_array[] = isset($available_arr[$row['esi_available']])  ? $available_arr[$row['esi_available']] : '';
     $sub_array[] = isset($available_arr[$row['pt_available']])  ? $available_arr[$row['pt_available']]    : '';
-    $sub_array[] = moneyFormatIndia($row['total_ctc']);
+    $sub_array[] = moneyFormatIndia($row['total_earnings']);
     $sub_array[] = (!empty($row['effective_from']) && $row['effective_from'] != 'null')  ? date('d-m-Y', strtotime($row['effective_from']))  : '';
+    $sub_array[] = $row['user_name'];
     // Occupation Status
     $sub_array[] = isset($status_arr[$row['occ_status']])  ? $status_arr[$row['occ_status']]  : '';
     $data[] = $sub_array;
