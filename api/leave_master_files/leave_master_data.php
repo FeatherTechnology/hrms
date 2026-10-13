@@ -1,12 +1,4 @@
 <?php
-
-/** Fetch Company Policy Details **
- * Purpose:
- * - Retrieves company policy information based on the provided company ID.
- * - Fetches maximum permission count and configured week-offs.
- * - Returns company policy details in JSON format for edit/view screens.
- */
-
 require '../../ajaxconfig.php';
 
 $id = $_POST['id'];
@@ -14,14 +6,10 @@ $id = $_POST['id'];
 $result = [];
 
 $stmt = $pdo->prepare("SELECT
-        cp.max_permission,
-        cp.permission_type,
         cw.week_off,
         cw.week_day
-    FROM company_policies cp
-    LEFT JOIN company_weekoffs cw
-        ON cp.id = cw.company_policies_id
-    WHERE cp.company_id = ?
+    FROM company_weekoffs cw
+    WHERE cw.company_id = ?
 ");
 
 $stmt->execute([$id]);

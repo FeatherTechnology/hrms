@@ -11,6 +11,7 @@ $(document).ready(function () {
 
     getLeaveCriteriaTable();
     getShiftTable();
+    getPermissionTable("outer","");
 
     let id = $(this).val();
 
@@ -25,6 +26,51 @@ $(document).ready(function () {
     }
     $("#leave_master_settings").show();
   });
+
+  $(document).on("click", ".permissionInfoActionBtn", function () {
+
+    // Get values from the clicked button
+    let permissionId = $(this).attr("value");
+    let permissionType = $(this).data("permission_type");
+    let maxPermission = $(this).data("max_permission");
+    let effectiveDate = $(this).data("effective_date");
+
+    // Set values in the inputs
+    $("#permission_id").val(permissionId);
+    $("#permission_type").val(permissionType).trigger("change");
+    $("#max_permission").val(maxPermission);
+
+    // Convert YYYY-MM-DD to YYYY-MM for input type="month"
+    $("#effective_date").val(
+        effectiveDate ? effectiveDate.substring(0, 7) : ""
+    );
+});
+
+  $(document).on("click", ".permissionInfoDeleteBtn", function () {
+    var id = $(this).attr("value");
+    swalConfirm(
+      "Delete",
+      "Do you want to Delete the Permission Policy ?",
+      DeletePermissionPolicy,
+      id,
+    );
+    return;
+  });
+
+
+  $(".add_department_permission").on("click", function () {
+    let company_name = $("#company_name").val();
+    $("#permission_type,#max_permission,#effective_date,#permission_id").val("");
+    getPermissionTable('','');
+    getDepartmentList(company_name);
+  });
+
+
+  $("#dep_name").on("change", function () {
+    let dep_name = $(this).val();
+     getPermissionTable('inner',dep_name);
+  });
+
 
   $("#start_time, #end_time").on("change", function () {
     calculateShiftTime();
@@ -78,6 +124,65 @@ $(document).ready(function () {
 
               // Refresh the leave info table
               getLeaveInfoTable();
+            },
+          );
+        },
+      );
+    }
+  });
+
+  $("#dep_permission_submit").click(function (event) {
+    event.preventDefault();
+    // Validation
+    let company_name = $("#company_name").val();
+    let dep_name = $("#dep_name").val();
+    let permission_type = $("#permission_type").val();
+    let max_permission = $("#max_permission").val(); 
+    let effective_date = $("#effective_date").val(); 
+    let permission_id = $("#permission_id").val(); 
+
+    var data = ["company_name", "dep_name","permission_type","max_permission","effective_date"];
+
+    var isValid = true;
+    data.forEach(function (entry) {
+      var fieldIsValid = validateField($("#" + entry).val(), entry);
+      if (!fieldIsValid) {
+        isValid = false;
+      }
+    });
+
+    if (isValid) {
+      swalConfirm(
+        "Are you sure?",
+        "Do you want to submit this Permission Policy..?",
+        function () {
+          $.post(
+            "api/leave_master_files/submit_permission_policy.php",
+            {
+              company_name,
+              dep_name,
+              permission_type,
+              max_permission,
+              effective_date ,
+              permission_id
+            },
+            function (response) {
+              if (response === "1") {
+                swalSuccess("Success", "Permission Policy Updated Successfully!");
+               
+              } else if (response === "2") {
+                
+                 swalSuccess("Success", "Permission Policy Added Successfully!");
+              }else if(response === "3"){
+                 swalError("Error","This department already has a policy for the selected month.");
+
+              }
+               else {
+                swalError("Error", "Error Occurred!");
+              }
+              $("#permission_type,#max_permission,#effective_date,#permission_id").val('');
+
+              getPermissionTable('inner',dep_name);
             },
           );
         },
@@ -303,6 +408,27 @@ function getCompanyName() {
     },
   });
 }
+function getDepartmentList(cmpy_id) {
+  $.post(
+     "api/staff_creation/company_mapped_department.php",
+    { company_id:cmpy_id },
+    function (response) {
+      $("#dep_name").empty();
+      $("#dep_name").append("<option value=''>Select Department Name</option>");
+
+      $.each(response, function (index, val) {
+        $("#dep_name").append(
+          "<option value='" +
+            val["id"] +
+            "'>" +
+            val["department_name"] +
+            "</option>",
+        );
+      });
+    },
+    "json",
+  );
+}
 
 /* --- Get Leave Creation Outer List Table --- */
 function getLeaveCriteriaTable() {
@@ -343,6 +469,22 @@ function getLeaveInfoTable() {
 }
 
 /* --- Delete Leave Creation --- */
+function DeletePermissionPolicy(id) {
+  var dep_name=$('#dep_name').val();
+  $.post(
+    "api/leave_master_files/delete_permission_policy.php",
+    { id },
+    function (response) {
+      if (response == "1") {
+        swalSuccess("Success", "Leave Type Deleted Successfully!");
+        getPermissionTable('inner',dep_name);
+      } else {
+        swalError("Warning", "Error occur While Delete Leave Type.");
+      }
+    },
+    "json",
+  );
+}
 function getLeaveInfoDelete(id) {
   $.post(
     "api/leave_master_files/delete_leave_criteria.php",
@@ -423,6 +565,42 @@ function getShiftTable() {
     ).fail(reject);
   });
 }
+
+/* --- Get Shift Creation Outer List Table --- */
+function getPermissionTable(screen,dep_name) {
+  return new Promise((resolve, reject) => {
+    let company_id = $("#company_name").val();
+    $.post(
+      "api/leave_master_files/getPermissionList.php",
+      { company_id , screen ,dep_name},
+      function (response) {
+        var columnMapping = [
+          "sno",
+          "department_name",
+          "permission_type",
+          "max_permission",
+          "effective_date",
+          "action"
+        ];
+        if(screen=='outer'){
+        appendDataToTable("#permission_info_table", response, columnMapping);
+        setdtable("#permission_info_table", "Permission Info",[[0, "asc"]]);
+        resolve();
+
+        }else{
+        appendDataToTable("#cmpy_permission_table", response, columnMapping);
+        setdtable("#cmpy_permission_table", "Permission Info",[[0, "asc"]]);
+        resolve();
+
+        }
+
+
+      },
+      "json",
+    ).fail(reject);
+  });
+}
+
 
 /* --- Get Shift Creation Inner List Table --- */
 function getShiftInfoTable() {
@@ -519,9 +697,6 @@ function getLeaveMaster(id) {
     "api/leave_master_files/leave_master_data.php",
     { id },
     function (response) {
-      $("#max_permission").val(response[0]?.max_permission || "");
-      $("#permission_type").val(response[0]?.permission_type || "");
-
       $("#week_off_table_body").empty();
 
       const weekDays = [

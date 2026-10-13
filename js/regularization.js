@@ -71,17 +71,25 @@ $(document).ready(function () {
     return;
   }
 
-  // Selected From and To time
+  // Selected From and To values
   let fromValue = $("#from_date").val();
   let toValue = $("#to_date").val();
 
+  console.log("fromValue:", fromValue);
+  console.log("toValue:", toValue);
+
+  // Get time whether separator is T or space
   let fromTime = fromValue.includes("T")
-    ? fromValue.split("T")[1]
-    : "";
+    ? fromValue.split("T")[1].substring(0, 5)
+    : fromValue.includes(" ")
+      ? fromValue.split(" ")[1].substring(0, 5)
+      : "";
 
   let toTime = toValue.includes("T")
-    ? toValue.split("T")[1]
-    : "";
+    ? toValue.split("T")[1].substring(0, 5)
+    : toValue.includes(" ")
+      ? toValue.split(" ")[1].substring(0, 5)
+      : "";
 
   // Shift time
   let shiftStartTime = response.start_time.substring(0, 5);
@@ -89,6 +97,11 @@ $(document).ready(function () {
 
   let formattedStart = formatTime(response.start_time);
   let formattedEnd = formatTime(response.end_time);
+
+  console.log("fromTime:", fromTime);
+  console.log("shiftStartTime:", shiftStartTime);
+  console.log("toTime:", toTime);
+  console.log("shiftEndTime:", shiftEndTime);
 
   // =========================
   // OT Validation

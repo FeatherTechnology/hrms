@@ -27,7 +27,7 @@
 
                 <div id="leave_master_settings" style="display: none;">
                     <!--- Leave Master Info --->
-                    <div class="card">
+                    <!-- <div class="card">
                         <div class="card-header">
                             <div class="card-title">Permission Policy</div>
                         </div>
@@ -51,7 +51,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <!--- Week Off Info --->
                     <div class="card">
                         <div class="card-header">
@@ -122,6 +122,34 @@
                                                     <th>End Time</th>
                                                     <th>Shift Time</th>
                                                     <th>Grace Time</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <!--- Permission Policy Start --->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Permission Policy <span class="text-danger">*</span>
+                                <button type="button" class="btn btn-primary add_department_permission" data-toggle="modal" data-target="#add_permission_policy_modal"  style="padding: 5px 35px; float: right;" tabindex='5'><span class="icon-add"></span></button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" style="overflow-x: auto;">
+                                    <div class=" form-group">
+                                        <table id="permission_info_table" class="table custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th width="20">S.NO</th>
+                                                    <th>Department Name</th>
+                                                    <th>Permission Type</th>
+                                                    <th>Max Permission | Max Min (Per Month)</th>
+                                                    <th>Effective Month</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -288,3 +316,86 @@
 </div>
 
 <!----------------------------------------------------------------- Shift info Modal End ----------------------------------------------------------------------------->
+
+<!------------------------------------------------------------------ Permission Info Modal start  ----------------------------------------------------------------------->
+
+<div class="modal fade" id="add_permission_policy_modal" tabindex="1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg " role="document">
+        <div class="modal-content" style="background-color: white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Permission Policy</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getPermissionTable('outer','');" tabindex="1">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="permission_info_form">
+                        <div class="row">
+                            <input type="hidden" name="permission_id" id='permission_id'>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="dep_name">Department Name</label><span class="text-danger">*</span>
+                                     <select class="form-control" id="dep_name" name="dep_name" tabindex="3">
+                                             <option value="">Select Department Name</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="permission_type">Permission Type</label><span class="text-danger">*</span>
+                                        <select class="form-control" id="permission_type" name="permission_type" tabindex="3">
+                                             <option value="">Select Permission Type</option>
+                                            <option value="1">Count</option>
+                                            <option value="2">Minute</option>
+                                        </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="max_permission">Max Per | Max Min (Per Month)</label>
+                                    <input type="number" class="form-control" id="max_permission" name="max_permission" placeholder="Enter Max Permission" tabindex="4">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="effective_date">Effective From</label><span class="text-danger">*</span>
+                                            <input type="month" class="form-control" id="effective_date" name="effective_date"  tabindex="6" min="<?php echo date('Y-m'); ?>">
+                                        </div>
+                                    </div>
+
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="" style="visibility:hidden"></label><br>
+                                    <button name="dep_permission_submit" id="dep_permission_submit" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    <div class="col-12 overflow-x-cls">
+                        <table id="cmpy_permission_table" class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th width="20">S.NO</th>
+                                    <th>Department Name</th>
+                                    <th>Permission Type</th>
+                                    <th>Max Permission | Max Min (Per Month)</th>
+                                    <th>Effective Month</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody> </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getPermissionTable('outer','')">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!----------------------------------------------------------------- Permission info Modal End ----------------------------------------------------------------------------->

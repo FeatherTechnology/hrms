@@ -63,6 +63,12 @@
 
             <label for="inactive_list">&nbsp;In-Active</label>
 
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            <input type="radio" name="outer_list" id="exit_list" value="exit">
+
+            <label for="exit_list">&nbsp;Exit</label>
+
         </div>
     </div>
 

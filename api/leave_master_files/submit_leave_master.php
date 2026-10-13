@@ -4,62 +4,42 @@ require '../../ajaxconfig.php';
 
 @session_start();
 
-$company_name   = $_POST['company_name'];
-$permission_type   = $_POST['permission_type'];
-$max_permission = $_POST['max_permission'];
-$week_off       = $_POST['week_off'];
+$company_name = $_POST['company_name'];
+$week_off     = $_POST['week_off'];
 
-$user_id        = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'];
 
 $result = 0;
 
-/*--- CHECK COMPANY ALREADY EXISTS ---- */
-$checkQry = $pdo->query("SELECT id FROM company_policies WHERE company_id = '$company_name'");
+try {
 
-$checkCount = $checkQry->rowCount();
+    /*--- DELETE OLD WEEKOFFS ----*/
+    $qry = $pdo->query("  DELETE FROM company_weekoffs  WHERE company_id = '$company_name'");
 
-if ($checkCount > 0) {
+    if (!$qry) {
+        echo json_encode(0);
+        exit;
+    }
 
-    /*--- UPDATE company_policies --- */
-    $row = $checkQry->fetch();
-
-    $company_policies_id = $row['id'];
-
-    $qry = $pdo->query("UPDATE company_policies SET permission_type ='$permission_type', max_permission = '$max_permission', update_login_id = '$user_id', updated_date = NOW() 
-    WHERE company_id = '$company_name'");
-
-    /*--- DELETE OLD WEEKOFFS ---- */
-    $pdo->query("DELETE FROM company_weekoffs WHERE company_policies_id = '$company_policies_id'");
-
-    /*--- INSERT NEW WEEKOFFS --- */
+    $qry = true;
     foreach ($week_off as $day => $week) {
-
         if ($week != '') {
-            $pdo->query("INSERT INTO company_weekoffs (company_policies_id, week_day, week_off) VALUES ('$company_policies_id', '$day', '$week')");
+            $qry = $pdo->query(" INSERT INTO company_weekoffs  ( company_id,  week_day,  week_off )
+                VALUES ( '$company_name',  '$day', '$week') ");
+            if (!$qry) {
+                break;
+            }
         }
     }
 
     if ($qry) {
         $result = 1;
     }
-} else {
 
-    /*--- INSERT company_policies ---- */
-    $qry = $pdo->query("INSERT INTO company_policies (company_id,permission_type, max_permission, insert_login_id, created_date) VALUES ('$company_name','$permission_type', '$max_permission', '$user_id', NOW())");
+} catch (PDOException $e) {
 
-    $company_policies_id = $pdo->lastInsertId();
-
-    /*--- INSERT WEEKOFFS ---- */
-    foreach ($week_off as $day => $week) {
-
-        if ($week != '') {
-            $pdo->query("INSERT INTO company_weekoffs (company_policies_id, week_day, week_off) VALUES ('$company_policies_id', '$day', '$week')");
-        }
-    }
-
-    if ($qry) {
-        $result = 2;
-    }
+    $result = 0;
 }
 
 echo json_encode($result);
+?>
