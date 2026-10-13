@@ -20,9 +20,17 @@ $shift_end = $_POST['shift_end'];
 $leave_period = $_POST['leave_period'];
 $balance_req = $_POST['balance_req'];
 $current_month_ot_count = $_POST['current_month_ot_count'];
+$cur_month_lop_count = $_POST['cur_month_lop_count'];
 $total_min = $_POST['total_min'];
+$leave_days = $_POST['leave_days'];
 $staff_type = $_POST['staff_type'];
 $permission_type = $_POST['permission_type'];
+if ($req_type == '4') {
+    $ot_payment = $_POST['ot_payment'];
+} else {
+    $ot_payment = '';
+}
+
 
 $req_date = !empty($_POST['req_date'])
     ? date('Y-m-d', strtotime($_POST['req_date']))
@@ -48,7 +56,22 @@ if (!empty($_POST['approval_type'])) {
 } else {
     $approval_type = 0;
 }
+if (!empty($_FILES['upload']['name'])) {
+    $path = "../../uploads/leave/document/";
+    $pic = $_FILES['upload']['name'];
+    $pic_temp = $_FILES['upload']['tmp_name'];
+    $picfolder = $path . $pic;
+    $fileExtension = pathinfo($picfolder, PATHINFO_EXTENSION); //get the file extention
+    $pic = uniqid() . '.' . $fileExtension;
+    while (file_exists($path . $pic)) {
+        //this loop will continue until it generates a unique file name
+        $pic = uniqid() . '.' . $fileExtension;
+    }
 
+    move_uploaded_file($pic_temp, $path . $pic);
+} else {
+    $pic = $_POST['doc_upload'];
+}
 try {
     if ($req_type != 4 && $req_type != 2) {
         $check_sql = "SELECT id FROM regularization
@@ -85,6 +108,8 @@ try {
     if ($hidden_id > 0) {
 
         $sql = "UPDATE regularization SET 
+           from_date = '$from_date',
+           to_date = '$to_date',
             remarks = '$remarks',
             status = '$approval_type',
             updated_login_id = '$user_id',
@@ -98,14 +123,14 @@ try {
 
         $sql = "INSERT INTO regularization (
             staff_profile_id, company_id, branch_id, dep_id, des_id, team_id,
-            req_type, permission_type, shift_start ,shift_end ,leave_type, ave_balance, leave_period, balance_req, current_month_ot_count, req_date,
-            from_date, to_date, total_min,
-            purpose, status, insert_login_id, created_date
+            req_type, permission_type, shift_start ,shift_end ,leave_type, ave_balance, leave_period, balance_req, current_month_ot_count,ot_payment, req_date,
+            from_date, to_date, total_min,leave_days,cur_month_lop_count,
+            purpose,upload, status, insert_login_id, created_date
         ) VALUES (
             '$stf_prf_id', '$cmpy_id', '$branch_id', '$dep_id', '$des_id', '$team_id',
-            '$req_type','$permission_type','$shift_start','$shift_end', '$leave_type','$ave_balance', '$leave_period','$balance_req', '$current_month_ot_count', '$req_date',
-            '$from_date', '$to_date', '$total_min',
-            '$purpose', '$approval_type', '$user_id', NOW()
+            '$req_type','$permission_type','$shift_start','$shift_end', '$leave_type','$ave_balance', '$leave_period','$balance_req', '$current_month_ot_count','$ot_payment','$req_date',
+            '$from_date', '$to_date', '$total_min','$leave_days','$cur_month_lop_count',
+            '$purpose','$pic','$approval_type', '$user_id', NOW()
         )";
 
         $qry = $pdo->query($sql);

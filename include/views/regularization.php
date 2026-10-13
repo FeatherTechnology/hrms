@@ -1,8 +1,72 @@
 <div class="row gutters">
+        <script type="text/javascript" src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
+    <link href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        /* This creates the dark vertical border next to the names */
+        .vis-panel.vis-left {
+            border-right: 2px solid #000000 !important;
+        }
+
+        /* This creates the dark horizontal border above the times */
+        .vis-panel.vis-bottom {
+            border-top: 2px solid #000000 !important;
+        }
+
+        /* Style the inner grid lines like an Excel sheet */
+        .vis-time-axis .vis-grid.vis-minor {
+            border-left: 1px solid #e5e5e5;
+        }
+
+        /* Remove vertical grid lines from the timeline background */
+        .vis-time-axis .vis-grid.vis-minor,
+        .vis-time-axis .vis-grid.vis-major {
+            border-left: none !important;
+            border-right: none !important;
+        }
+
+        /* Ensure horizontal lines between groups remain visible */
+        .vis-itemset .vis-background .vis-group {
+            border-bottom: 1px solid #e5e5e5;
+            /* You can adjust the color/thickness */
+        }
+
+        /* Add space above and below the time labels */
+        .vis-time-axis .vis-text {
+            padding-top: 20px !important;
+        }
+
+        /* Center the staff names vertically and horizontally */
+        .vis-labelset .vis-label {
+            display: flex !important;
+            align-items: center !important;
+            /* Centers vertically */
+            justify-content: center !important;
+            /* Centers horizontally */
+        }
+
+        /* Remove default padding so the text doesn't look slightly off-center */
+        .vis-labelset .vis-label .vis-inner {
+            padding: 10px !important;
+            text-align: center !important;
+        }
+
+        /* Decrease chart width and center it horizontally */
+        #timeline_chart {
+            width: 80% !important;
+            /* Adjust this number (e.g., 70%, 900px) */
+            margin: 0 auto !important;
+            /* This is the magic rule that centers it */
+        }
+
+        .attendance-chart-modal {
+            width: 75%;
+            max-width: 1500px;
+        }
+    </style>
     <div class="col-12">
         <div class="regularization_list">
             <div class="toggle-container col-12" style="display: flex;justify-content:right;align-items:center">
-                <button class="btn btn-primary add_reg"><span class="icon-add"></span> Add Regularization</button>
+                <button class="btn btn-primary add_reg"><span class="icon-add"></span> Apply</button>
             </div> <br> <br>
             <div class="radio-container" style="margin-top:20px;">
                 <div class="selector">
@@ -122,14 +186,22 @@
 
 
             <div class="card req_div">
-                <div class="card-header">
-                    <h5 class="card-title">Request Details</h5>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Request Details</h5>
+                    <button type="button"
+                        class="btn btn-sm btn-info attendance_chart"
+                        id="approval_attendance_chart"
+                        style="display: none;">
+                        Attendance Chart
+                    </button>
                 </div>
+
                 <div class="card-body">
                     <form id="request_form">
                         <div class="row">
                             <input type="hidden" name="leave_type_id" id="leave_type_id" value="" />
                             <input type="hidden" name="total_min" id="total_min" value="" />
+
 
                             <!-- Fields -->
                             <div class="col-md-4 col-sm-6">
@@ -140,10 +212,20 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 ot_req" style="display: none;">
+                                <div class="form-group">
+                                    <label for="ot_payment">OT Payment</label><span class="text-danger">*</span>
+                                    <select class="form-control" id="ot_payment" name="ot_payment" tabindex="8" disabled>
+                                        <option value="">Select OT Payment</option>
+                                        <option value="1">CTC Based</option>
+                                        <option value="2">Fixed Amount</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-md-4 col-sm-6 shift_time" style="display: none;">
                                 <div class="form-group">
                                     <label for="shift_start">Shift Start</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="shift_start" name="shift_start"   readonly>
+                                    <input type="text" class="form-control" id="shift_start" name="shift_start" readonly>
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-6 shift_time" style="display: none;">
@@ -160,7 +242,7 @@
                                     </select>
                                 </div>
                             </div>
-                             <div class="col-md-4 col-sm-6 bal_req" style="display: none;">
+                            <div class="col-md-4 col-sm-6 bal_req" style="display: none;">
                                 <div class="form-group">
                                     <label for="ave_balance">Available Balance </label><span class="text-danger">*</span>
                                     <input type="text" class="form-control" id="ave_balance" name="ave_balance" placeholder="Available Balance" tabindex="10" readonly>
@@ -189,10 +271,22 @@
                                     <input type="datetime-local" class="form-control" id="to_date" name="to_date" placeholder="Enter To Date" tabindex="13">
                                 </div>
                             </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 leave_day_div" style="display: none;">
+                                <div class="form-group">
+                                    <label for="leave_days">Days</label>
+                                    <input type="text" class="form-control" id="leave_days" name="leave_days" readonly>
+                                </div>
+                            </div>
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
                                     <label for="total_days">Total Days/Hrs</label><span class="text-danger">*</span>
                                     <div id="total_days" class="form-control" style="height: 35px;background-color: #d3d2d2;"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 leave_count_div" style="display: none;">
+                                <div class="form-group">
+                                    <label for="cur_month_lop_count">Current Month LOP Count</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="cur_month_lop_count" name="cur_month_lop_count" tabindex="10" readonly>
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-6 ot_req" style="display: none;">
@@ -218,6 +312,14 @@
                                 <div class="form-group">
                                     <label for="purpose">Purpose</label><span class="text-danger">*</span>
                                     <textarea type="textarea" class="form-control" id="purpose" name="purpose" placeholder="Enter Purpose" tabindex="15"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 doc_upload_div" style="display: none;">
+                                <div class="form-group">
+                                    <label for="upload">Upload</label>
+                                    <input type="file" class="form-control" id="upload" name="upload" tabindex="1">
+                                    <input type="hidden" id="doc_upload">
+                                    <div id="uploaded_document_link" class="mt-2"></div>
                                 </div>
                             </div>
                         </div>
@@ -264,12 +366,12 @@
         </div>
     </div>
 </div>
-            <!-- Modal for Personal Info   -->
+<!-- Modal for Personal Info   -->
 <div class="modal fade" id="remarksModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document" style="height: 90vh;width:300vh;">
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
-				<!-- <h5 id="remarksTitle"> Remarks Status</h5> -->
+                <!-- <h5 id="remarksTitle"> Remarks Status</h5> -->
 
                 <button type="button" class="close" data-dismiss="modal">
                     <span>&times;</span>
@@ -277,16 +379,16 @@
             </div>
             <div class="modal-body">
                 <div class="container-fluid row" id="remarksDiv" style="display: flex;justify-content:center;align-items:center">
-        				<div class="col-12">
-							<div class="form-group">
-								<h5><b>Remarks</b></h5> 
-							</div>
-    					</div>
-        				<div class="col-12">
-							<div class="form-group" style="display: flex;justify-content:center;align-items:center">
-								<textarea class="form-control" name="sts_remarks" id="sts_remarks" placeholder="Remarks" readonly></textarea>
-							</div>
-    					</div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <h5><b>Remarks</b></h5>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group" style="display: flex;justify-content:center;align-items:center">
+                            <textarea class="form-control" name="sts_remarks" id="sts_remarks" placeholder="Remarks" readonly></textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -294,6 +396,86 @@
                     Close
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="attendanceChartModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered attendance-chart-modal">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Attendance Chart</h5>
+
+                <button type="button"
+                    class="close"
+                    onclick="$('#attendanceChartModal').modal('hide');">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div id="custom_chart_legend" style="display: flex; justify-content: center; gap: 25px; margin-top: 20px; flex-wrap: wrap; font-size: 14px; 
+                font-weight: 500; margin-bottom: 30px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #4CAF50; border-radius: 3px;"></div>
+                        <span>Working Hours</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #2196F3; border-radius: 3px;"></div>
+                        <span>OT Hours</span>
+                    </div>
+
+                    <!-- Advance Attendance -->
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #c4f3bf; border-radius: 3px;"></div>
+                        <span>Advance Attendance / Late Exit</span>
+                    </div>
+
+                    <!-- Later Entry -->
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #f75d52; border-radius: 3px;"></div>
+                        <span>Later Entry</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #FF9800; border-radius: 3px;"></div>
+                        <span>Permission Hours</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #9C27B0; border-radius: 3px;"></div>
+                        <span>Grace Time</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #02756a; border-radius: 3px;"></div>
+                        <span>Paid Leave</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #9E9E9E; border-radius: 3px;"></div>
+                        <span>Week Off</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 20px; background-color: #ff0000; border-radius: 3px;"></div>
+                        <span>LOP</span>
+                    </div>
+                </div>
+                <div id="timeline_chart"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                    class="btn btn-secondary"
+                    onclick="$('#attendanceChartModal').modal('hide');">
+                    Close
+                </button>
+            </div>
+
         </div>
     </div>
 </div>

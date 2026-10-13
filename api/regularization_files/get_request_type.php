@@ -16,21 +16,21 @@ if (!empty($user_id)) {
     if (!empty($user['allowed_request_type'])) {
 
         $requestTypes = [
+            4 => 'OT',
             1 => 'Leave',
-            2 => 'Permission',
             3 => 'Week Off',
-            4 => 'OT'
+            2 => 'Permission',
+
+            
         ];
 
-        $ids = explode(',', $user['allowed_request_type']);
+         $ids = array_map('trim', explode(',', $user['allowed_request_type']));
 
-        foreach ($ids as $id) {
-            $id = trim($id);
-
-            if (isset($requestTypes[$id])) {
+        foreach ($requestTypes as $id => $name) {
+            if (in_array((string)$id, $ids, true)) {
                 $result[] = [
-                    'id' => $id,
-                    'request_type' => $requestTypes[$id]
+                    'id' => (string)$id,
+                    'request_type' => $name
                 ];
             }
         }

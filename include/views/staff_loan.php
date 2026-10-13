@@ -117,7 +117,7 @@
                                 <div class="row">
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
-                                            <label for="loan_amount">Loan Amount</label><span class="text-danger">*</span>
+                                            <label for="loan_amount"id="amount_label">Loan Amount</label><span class="text-danger">*</span>
                                             <input type="number" class="form-control" id="loan_amount" name="loan_amount" tabindex="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                         </div>
                                     </div>
@@ -168,23 +168,30 @@
                             </div>
                         </div>
 
-                        <div class="card salary_advance_card">
+                        <div class="card deduction_card" style="display: none;">
                             <div class="card-header">
-                                <h5 class="card-title">Salary Advance</h5>
+                                <h5 class="card-title">Deduction</h5>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
-                                            <label for="advance_amount">Advance Amount</label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control" id="advance_amount" name="advance_amount" tabindex="7" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                            <label for="deduction_month">Month</label>
+                                            <span class="text-danger">*</span>
+                                            <input type="month" class="form-control" id="deduction_month" name="deduction_month" tabindex="7" min="<?php echo date('Y-m'); ?>"
+                                              >
                                         </div>
                                     </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
-                                            <label for="deduction_month">Dedection Month</label>
-                                            <span class="text-danger">*</span>
-                                            <input type="month" class="form-control" id="deduction_month" name="deduction_month" tabindex="7" min="<?php echo date('Y-m'); ?>">
+                                            <label for="deduction_amount">Amount</label><span class="text-danger">*</span>
+                                            <input type="number" class="form-control" id="deduction_amount" name="deduction_amount" tabindex="7" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                        </div>
+                                    </div>
+                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="bal_amount">Balance Amount</label><span class="text-danger">*</span>
+                                            <input type="number" class="form-control" id="bal_amount" name="bal_amount" tabindex="7" readonly oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                         </div>
                                     </div>
                                 </div>

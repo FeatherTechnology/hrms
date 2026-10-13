@@ -10,6 +10,7 @@ $from_Date    = $_POST['from_date'] ?? '';
 $to_date      = $_POST['to_date'] ?? '';
 $leave_period = $_POST['leave_period'] ?? '';
 $leave_type   = $_POST['leave_type'] ?? '';
+$dep_id   = $_POST['dep_id'] ?? '';
 
 $query = "";
 
@@ -35,7 +36,7 @@ if ($req_type == '1') {
                 AND reg.leave_type = 0
                 AND YEAR(reg.from_date) = YEAR(CURDATE())
                 AND reg.status IN (0,1)
-            ) AS lop_count
+            ) AS cur_month_lop_count
 
         FROM occupation_info oi
 
@@ -269,37 +270,39 @@ else if ($req_type == '2') {
     $query .= "
 
     FROM company_policies cp
-
-    LEFT JOIN regularization reg
-        ON reg.company_id = cp.company_id
-        AND reg.req_type = :req_type
-        AND reg.staff_profile_id = :staff_id
-
-        AND YEAR(reg.from_date) = YEAR(CURDATE())
-        AND MONTH(reg.from_date) = MONTH(CURDATE())
-
-        AND reg.status IN (0,1)
-
-        AND reg.permission_type = cp.permission_type
-
-    LEFT JOIN occupation_info oi
-        ON oi.id = (
-            SELECT MAX(id)
-            FROM occupation_info
-            WHERE staff_profile_id = :permission_staff_id
-        )
-
-    INNER JOIN shift_creation sc
-        ON sc.id = oi.shift
-
-    WHERE cp.company_id = :cmpy_id
-
-    GROUP BY
-        cp.permission_type,
-        cp.max_permission,
-        sc.start_time,
-        sc.end_time,
-        sc.grace_time";
+INNER JOIN (
+    SELECT company_id, department_id, MAX(effective_date) AS effective_date
+    FROM company_policies
+    WHERE effective_date <= CURDATE()
+    GROUP BY company_id, department_id
+) latest_policy
+    ON latest_policy.company_id = cp.company_id
+    AND latest_policy.department_id = cp.department_id
+    AND latest_policy.effective_date = cp.effective_date
+LEFT JOIN regularization reg
+    ON reg.company_id = cp.company_id
+    AND reg.req_type = :req_type
+    AND reg.staff_profile_id = :staff_id
+    AND YEAR(reg.from_date) = YEAR(CURDATE())
+    AND MONTH(reg.from_date) = MONTH(CURDATE())
+    AND reg.status IN (0, 1)
+    AND reg.permission_type = cp.permission_type
+LEFT JOIN occupation_info oi
+    ON oi.id = (
+        SELECT MAX(id)
+        FROM occupation_info
+        WHERE staff_profile_id = :permission_staff_id
+    )
+INNER JOIN shift_creation sc ON sc.id = oi.shift
+WHERE cp.company_id = :cmpy_id
+    AND cp.department_id = :dep_id
+GROUP BY
+    cp.id,
+    cp.permission_type,
+    cp.max_permission,
+    sc.start_time,
+    sc.end_time,
+    sc.grace_time";
 }
 
 
@@ -361,11 +364,8 @@ else if ($req_type == '3') {
     $query .= "
     FROM company_weekoffs cw
 
-    LEFT JOIN company_policies cp 
-        ON cp.id = cw.company_policies_id
-
     LEFT JOIN regularization reg
-        ON reg.company_id = cp.company_id
+        ON reg.company_id = cw.company_id
         AND reg.req_type = :req_type
         AND reg.staff_profile_id = :staff_id
         AND MONTH(reg.from_date) = MONTH(CURDATE())
@@ -382,7 +382,7 @@ else if ($req_type == '3') {
     INNER JOIN shift_creation sc
         ON sc.id = oi.shift
 
-    WHERE cp.company_id = :cmpy_id";
+    WHERE cw.company_id = :cmpy_id";
 }
 
 
@@ -447,6 +447,7 @@ if ($req_type == '1') {
 
     $stmt->bindParam(':req_type', $req_type, PDO::PARAM_INT);
     $stmt->bindParam(':cmpy_id', $cmpy_id, PDO::PARAM_INT);
+     $stmt->bindParam(':dep_id', $dep_id);
     $stmt->bindParam(':staff_id', $staff_id);
 
     /*
