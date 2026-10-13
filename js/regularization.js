@@ -13,7 +13,7 @@ $(document).ready(function () {
   $(".add_reg").click(function () {
     getRequestType();
     $(
-      "#req_type,#leave_type,#balance_req,#from_date,#to_date,#purpose,#hidden_id,#leave_type_id,#leave_period,#ave_balance,#shift_start,#shift_end",
+      "#req_type,#leave_type,#balance_req,#from_date,#to_date,#purpose,#hidden_id,#leave_type_id,#leave_period,#ave_balance,#shift_start,#shift_end,#leave_days,#upload,#doc_upload,#cur_month_lop_count",
     ).val("");
 
     $(".req_div input, .req_div select,.req_div textarea").css(
@@ -31,7 +31,7 @@ $(document).ready(function () {
     $("#back_btn,#balance_req,.staff_info_div").show();
 
     $(
-      ".add_reg,.regularization_list,.approval_div,.leveType,.bal_req,.ot_req,.Lev_per",
+      ".add_reg,.regularization_list,.approval_div,.leveType,.bal_req,.ot_req,.Lev_per.leave_day_div,.doc_upload_div.leave_count_div",
     ).hide();
 
     getuserdetails();
@@ -57,26 +57,25 @@ $(document).ready(function () {
     );
   });
 
-   $("#from_date, #to_date").on("change", async function () {
+  $("#from_date, #to_date").on("change", async function () {
 
-  let reqType = $("#req_type").val();
+    let reqType = $("#req_type").val();
 
-  if (!$("#from_date").val() || !$("#to_date").val()) {
-    return;
-  }
+    if (!$("#from_date").val() || !$("#to_date").val()) {
+      return;
+    }
 
-  const response = await getbalancerequest();
+    const response = await getbalancerequest();
 
-  if (!response) {
-    return;
-  }
+    if (!response) {
+      return;
+    }
 
-  // Selected From and To values
-  let fromValue = $("#from_date").val();
-  let toValue = $("#to_date").val();
+    // Selected From and To time
+    let fromValue = $("#from_date").val();
+    let toValue = $("#to_date").val();
 
-  console.log("fromValue:", fromValue);
-  console.log("toValue:", toValue);
+
 
   // Get time whether separator is T or space
   let fromTime = fromValue.includes("T")
@@ -91,69 +90,64 @@ $(document).ready(function () {
       ? toValue.split(" ")[1].substring(0, 5)
       : "";
 
-  // Shift time
-  let shiftStartTime = response.start_time.substring(0, 5);
-  let shiftEndTime = response.end_time.substring(0, 5);
+    // Shift time
+    let shiftStartTime = response.start_time.substring(0, 5);
+    let shiftEndTime = response.end_time.substring(0, 5);
 
-  let formattedStart = formatTime(response.start_time);
-  let formattedEnd = formatTime(response.end_time);
+    let formattedStart = formatTime(response.start_time);
+    let formattedEnd = formatTime(response.end_time);
 
-  console.log("fromTime:", fromTime);
-  console.log("shiftStartTime:", shiftStartTime);
-  console.log("toTime:", toTime);
-  console.log("shiftEndTime:", shiftEndTime);
+    // =========================
+    // OT Validation
+    // =========================
+    if (reqType == "4") {
 
-  // =========================
-  // OT Validation
-  // =========================
-  if (reqType == "4") {
+      let isBeforeShift = toTime <= shiftStartTime;
+      let isAfterShift = fromTime >= shiftEndTime;
 
-    let isBeforeShift = toTime <= shiftStartTime;
-    let isAfterShift = fromTime >= shiftEndTime;
+      if (!(isBeforeShift || isAfterShift)) {
 
-    if (!(isBeforeShift || isAfterShift)) {
+        swalError(
+          "Warning",
+          `OT can only be applied before the shift starts (${formattedStart}) or after the shift ends (${formattedEnd}).`
+        );
 
-      swalError(
-        "Warning",
-        `OT can only be applied before the shift starts (${formattedStart}) or after the shift ends (${formattedEnd}).`
-      );
+        $("#from_date, #to_date").val("");
 
-      $("#from_date, #to_date").val("");
-
-      return;
+        return;
+      }
     }
-  }
 
-  // =========================
-  // Permission Validation
-  // =========================
-  if (reqType == "2") {
+    // =========================
+    // Permission Validation
+    // =========================
+    if (reqType == "2") {
+      let isWithinShift =
+        fromTime >= shiftStartTime &&
+        toTime <= shiftEndTime;
 
-    let isWithinShift =
-      fromTime >= shiftStartTime &&
-      toTime <= shiftEndTime;
+      if (!isWithinShift) {
 
-    if (!isWithinShift) {
+        swalError(
+          "Warning",
+          `Permission can only be applied within the shift timings (${formattedStart} to ${formattedEnd}).`
+        );
 
-      swalError(
-        "Warning",
-        `Permission can only be applied within the shift timings (${formattedStart} to ${formattedEnd}).`
-      );
+        $("#from_date, #to_date").val("");
 
-      $("#from_date, #to_date").val("");
-
-      return;
+        return;
+      }
     }
-  }
 
-  // Calculate difference
-  calculateDateDiff(
-    "#from_date",
-    "#to_date",
-    "#total_min",
-    "#total_days"
-  );
-});
+    // Calculate difference
+    calculateDateDiff(
+      "#from_date",
+      "#to_date",
+      "#total_min",
+      "#total_days"
+    );
+    getLeaveDays()
+  });
 
   // edit regularization
   $(document).on("click", ".edit_reg", function () {
@@ -203,6 +197,8 @@ $(document).ready(function () {
       $(".leveType").show();
       $(".Lev_per").show();
       $(".bal_req").show();
+      $(".leave_day_div").show();
+      $(".doc_upload_div").show();
       $(".ot_req").hide();
       $(".shift_time").hide();
       $("#from_date,#to_date").attr("type", "date");
@@ -213,12 +209,18 @@ $(document).ready(function () {
       $(".shift_time").show();
       $(".leveType").hide();
       $(".ot_req").hide();
+      $(".leave_day_div").hide();
+      $(".leave_count_div").hide();
+      $(".doc_upload_div").hide();
       $("#from_date,#to_date").attr("type", "datetime-local");
       getbalancerequest();
     } else if (value == "3") {
       $(".Lev_per").show();
       $(".bal_req").show();
       $(".leveType").hide();
+      $(".leave_day_div").show();
+      $(".doc_upload_div").hide();
+      $(".leave_count_div").hide();
       $(".ot_req").hide();
       $(".shift_time").hide();
       $("#from_date,#to_date").attr("type", "date");
@@ -229,6 +231,9 @@ $(document).ready(function () {
       $(".leveType").hide();
       $(".ot_req").show();
       $(".shift_time").show();
+      $(".doc_upload_div").hide();
+      $(".leave_day_div").hide();
+      $(".leave_count_div").hide();
       $(
         "#leave_type,#leave_type_id,#balance_req,#leave_period,#ave_balance,#shift_start,#shift_end",
       ).val("");
@@ -312,20 +317,24 @@ $(document).ready(function () {
       team_id: $("#team_id").val(),
       req_type: $("#req_type").val(),
       leave_type: $("#leave_type").val(),
-      ave_balance: $("#ave_balance").val(),
+      ave_balance: $("#req_type").val() == "2" ? availableBalance : $("#ave_balance").val(),
+      balance_req: $("#req_type").val() == "2" ? remainingBalance : $("#balance_req").val(),
       shift_end: $("#shift_end").val(),
       shift_start: $("#shift_start").val(),
       leave_period: $("#leave_period").val(),
-      balance_req: $("#balance_req").val(),
       current_month_ot_count: $("#current_month_ot_count").val(),
+      cur_month_lop_count: $("#cur_month_lop_count").val(),
       req_date: $("#req_date").val(),
       from_date: $("#from_date").val(),
       to_date: $("#to_date").val(),
+      leave_days: $("#leave_days").val(),
+      ot_payment: $("#ot_payment").val(),
       total_min: $("#total_min").val(),
       purpose: $("#purpose").val(),
       approval_type: $("#approval_type").val(),
       permission_type: $("#permission_type").val(),
       remarks: $("#remarks").val(),
+      doc_upload: $("#doc_upload").val(),
       hidden_id: $("#hidden_id").val(),
     };
     let isValid = true;
@@ -342,6 +351,7 @@ $(document).ready(function () {
       validationResults.push(
         validateField($("#leave_type").val(), "leave_type"),
         validateField($("#leave_period").val(), "leave_period"),
+        validateField($("#leave_days").val(), "leave_days"),
       );
     }
     if (collData["req_type"] == 2) {
@@ -355,6 +365,7 @@ $(document).ready(function () {
         validateField($("#leave_period").val(), "leave_period"),
         validateField($("#ave_balance").val(), "ave_balance"),
         validateField($("#balance_req").val(), "balance_req"),
+        validateField($("#leave_days").val(), "leave_days"),
       );
     }
 
@@ -406,10 +417,25 @@ $(document).ready(function () {
         "Are you sure?",
         "Do you want to submit this Regularization?",
         function () {
-          $.post(
-            "api/regularization_files/submit_regularization.php",
-            collData,
-            function (response) {
+          let formData = new FormData();
+
+          $.each(collData, function (key, value) {
+            formData.append(key, value ?? "");
+          });
+
+          let uploadFile = $("#upload")[0].files[0];
+
+          if (uploadFile) {
+            formData.append("upload", uploadFile);
+          }
+          $.ajax({
+            url: "api/regularization_files/submit_regularization.php",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: "json",
+            success: function (response) {
               if (response.result == "1") {
                 swalSuccess("Success", "Regularization Updated Successfully.");
                 $("#back_btn").trigger("click");
@@ -421,15 +447,15 @@ $(document).ready(function () {
               } else if (response.result == "4") {
                 swalError("Error", "Failed to Insert Regularization");
               } else if (response.result == "5") {
-                swalError(
-                  "Error",
-                  "Already regularization request exists for this date",
-                );
+                swalError("Error", "Already regularization request exists for this date");
               }
-              // $("#pending").prop("checked", true).trigger("click");
             },
-            "json",
-          );
+            error: function (xhr, status, error) {
+              console.error(xhr.responseText);
+              console.error(error);
+              swalError("Error", "Failed to submit Regularization.");
+            }
+          });
         },
       );
     }
@@ -442,8 +468,10 @@ $(document).ready(function () {
     $("#to_date,#total_days,#from_date,#balance_req").val("");
     if (leave_type == 0) {
       $(".bal_req").hide();
+      $(".leave_count_div").show();
     } else {
       $(".bal_req").show();
+      $(".leave_count_div").hide();
     }
     await getbalancerequest();
   });
@@ -452,6 +480,29 @@ $(document).ready(function () {
     e.preventDefault();
     let remarks = $(this).data("remarks") || "";
     $("#sts_remarks").val(remarks);
+  });
+
+  $(document).on("click", ".attendance_chart", function () {
+    $("#attendanceChartModal")
+      .data("company_id", $(this).data("company_id"))
+      .data("shift_id", $(this).data("shift_id"))
+      .data("staff_id", $(this).data("staff_id"))
+      .data("att_date", $(this).data("date"))
+      .modal("show");
+  });
+  $("#attendanceChartModal").on("shown.bs.modal", function () {
+    let modal = $(this);
+
+    loadChart(
+      modal.data("company_id"),
+      modal.data("shift_id"),
+      modal.data("staff_id"),
+      modal.data("att_date"),
+    );
+  });
+
+  $("#attendanceChartModal").on("hidden.bs.modal", function () {
+    $("#timeline_chart").empty();
   });
 });
 // document end
@@ -486,7 +537,8 @@ async function getRequestType() {
     });
   });
 }
-
+let availableBalance = 0;
+let remainingBalance = 0;
 // to get the regularization list
 function getregularizationlist(type) {
   if ($.fn.DataTable.isDataTable("#regularization_table")) {
@@ -562,6 +614,7 @@ function getuserdetails() {
       $("#designation").val(response.designation);
       $("#team_id").val(response.team_id);
       $("#team").val(response.team_name);
+      $("#ot_payment").val(response.ot_payment);
       $("#req_date").val(
         new Date().toLocaleDateString("en-GB").replace(/\//g, "-"),
       );
@@ -578,22 +631,37 @@ function getedituserdetails(id) {
     "api/regularization_files/get_user_details.php",
     { id, status },
     function (response) {
-      $("#to_date").attr("readonly", true);
       $("#req_type").prop("disabled", true);
       $("#leave_type").prop("disabled", true);
       $("#leave_period").prop("disabled", true);
-      $("#from_date").attr("readonly", true);
       $("#purpose").attr("readonly", true);
       $("#approval_type,#remarks").val("");
-      if ($("#req_type option").length <= 1) {
-        $("#req_type").append(`
-    <option value="1">Leave</option>
-    <option value="2">Permission</option>
-    <option value="3">Week Off</option>
-    <option value="4">OT</option>
-  `);
+      if (response.req_type == "2" || response.req_type == "4") {
+        $("#from_date, #to_date").prop("readonly", false);
+      } else {
+        $("#from_date, #to_date").prop("readonly", true);
       }
-
+      if ($("#req_type option").length <= 1) {
+        $("#req_type").html(`
+    <option value="4">OT</option>
+    <option value="1">Leave</option>
+    <option value="3">Week Off</option>
+    <option value="2">Permission</option>
+`);
+      }
+      // Show Attendance Chart only for Permission (2) and OT (4)
+      if (response.req_type == "2" || response.req_type == "4") {
+        $("#approval_attendance_chart")
+          .show()
+          .attr("data-company", response.company_name || "")
+          .attr("data-company_id", response.cmpy_id || "")
+          .attr("data-shift", response.shift || "")
+          .attr("data-staff_id", response.staff_id || "")
+          .attr("data-staff_name", response.staff_name || "")
+          .attr("data-date", response.att_date || response.from_date || "");
+      } else {
+        $("#approval_attendance_chart").hide();
+      }
       // select response request type
       $("#req_type").val(response.req_type);
 
@@ -611,63 +679,115 @@ function getedituserdetails(id) {
       $("#designation").val(response.designation);
       $("#team_id").val(response.team_id);
       $("#team").val(response.team_name);
-      $("#ave_balance").val(response.ave_balance);
       $("#shift_start").val(response.shift_start);
       $("#shift_end").val(response.shift_end);
+      $("#leave_days").val(response.leave_days);
+      $("#ot_payment").val(response.ot_payment);
       $("#req_date").val(
         response.req_date.split(" ")[0].split("-").reverse().join("-"),
       );
       $("#leave_type_id").val(response.leave_type);
       $("#purpose").val(response.purpose);
       if (response.from_date.endsWith("00:00:00")) {
-          $("#from_date")
-              .attr("type", "date")
-              .val(response.from_date.substring(0, 10));
+        $("#from_date")
+          .attr("type", "date")
+          .val(response.from_date.substring(0, 10));
       } else {
-          $("#from_date")
-              .attr("type", "datetime-local")
-              .val(response.from_date.replace(" ", "T").slice(0, 16));
+        $("#from_date")
+          .attr("type", "datetime-local")
+          .val(response.from_date.replace(" ", "T").slice(0, 16));
       }
 
       if (response.to_date.endsWith("00:00:00")) {
-          $("#to_date")
-              .attr("type", "date")
-              .val(response.to_date.substring(0, 10));
+        $("#to_date")
+          .attr("type", "date")
+          .val(response.to_date.substring(0, 10));
       } else {
-          $("#to_date")
-              .attr("type", "datetime-local")
-              .val(response.to_date.replace(" ", "T").slice(0, 16));
+        $("#to_date")
+          .attr("type", "datetime-local")
+          .val(response.to_date.replace(" ", "T").slice(0, 16));
       }
 
       $("#approval_type").val(response.status || 0);
       $("#remarks").val(response.remarks);
+        if (response.req_type != "2") {
+        availableBalance = Number(response.ave_balance) || 0;
+        remainingBalance = Number(response.balance_req) || 0;
 
+        $("#ave_balance").val(availableBalance);
+        $("#balance_req").val(remainingBalance);
+      } else {
+        const permissionType = response.permission_type;
+
+        availableBalance = parseFloat(response.ave_balance) || 0;
+        remainingBalance = parseFloat(response.balance_req) || 0;
+
+        $("#permission_type").val(permissionType);
+
+        $("#ave_balance").val(
+          formatPermissionBalance(response.ave_balance, permissionType)
+        );
+
+        $("#balance_req").val(
+          formatPermissionBalance(response.balance_req, permissionType)
+        );
+      }
       if (response.req_type == 1) {
         $(".leveType").show();
+        $(".leave_day_div").show();
+        $(".doc_upload_div").show();
+
         getcmpyleavelist(response.cmpy_id);
       } else {
         $(".leveType").hide();
+        $(".leave_day_div").hide();
+        $(".doc_upload_div").hide();
       }
       if (response.req_type == 1 || response.req_type == 3) {
         $(".Lev_per").show();
+        $(".leave_day_div").show();
         $("#leave_period").val(response.leave_period);
       } else {
         $(".Lev_per").hide();
+        $(".leave_day_div").hide();
+        $(".doc_upload_div").hide();
         $("#leave_period").val("");
+        $("#leave_days").val("");
+        $("#upload").val("");
+        $("#doc_upload").val("");
       }
 
-      if (response.req_type != "4") {
+      if (response.req_type != 4) {
         $(".bal_req").show();
-        $("#balance_req").val(response.balance_req);
       } else {
         $(".bal_req").hide();
       }
 
-      if (response.req_type == "4") {
+      if (response.req_type == 4) {
         $(".ot_req").show();
         $("#current_month_ot_count").val(response.current_month_ot_count || 0);
       } else {
         $(".ot_req").hide();
+      }
+
+      $("#upload").val("");
+      $("#doc_upload").val(response.upload || "");
+
+      if (response.upload) {
+        let fileName = response.upload.split("/").pop();
+
+        $("#uploaded_document_link").html(
+          `<a href="uploads/leave/document/${encodeURIComponent(fileName)}"
+            target="_blank"
+            rel="noopener noreferrer">
+            <i class="fa fa-file"></i> View Uploaded Document
+        </a>`
+        );
+
+        $("#upload").prop("disabled", true);
+      } else {
+        $("#uploaded_document_link").empty();
+        $("#upload").prop("disabled", true);
       }
 
       let totalMin = parseInt(response.total_min, 10);
@@ -690,8 +810,10 @@ function getedituserdetails(id) {
       }
       if (response.req_type == "1" && response.leave_type == "0") {
         $(".bal_req").hide();
+        $(".leave_count_div").show();
+        $("#cur_month_lop_count").val(response.cur_month_lop_count || 0);
       } else {
-        $(".bal_req").show();
+        $(".leave_count_div").hide();
       }
     },
     "json",
@@ -725,12 +847,12 @@ function getcmpyleavelist(cmpy_id) {
 
         $("#leave_type").append(
           "<option value='" +
-            val["id"] +
-            "' " +
-            selected +
-            ">" +
-            val["leave_type"] +
-            "</option>",
+          val["id"] +
+          "' " +
+          selected +
+          ">" +
+          val["leave_type"] +
+          "</option>",
         );
       });
     },
@@ -748,6 +870,7 @@ async function getbalancerequest() {
       "api/regularization_files/get_balance_request.php",
       {
         req_type: $("#req_type").val(),
+        dep_id: $("#dep_id").val(),
         cmpy_id: $("#cmpy_id").val(),
         staff_id: $("#stf_prf_id").val(),
         from_date: $("#from_date").val(),
@@ -759,10 +882,34 @@ async function getbalancerequest() {
       "json",
     );
 
-    $("#balance_req").val(response.balance);
-    $("#ave_balance").val(response.ave_balance);
-    $("#permission_type").val(response.permission_type);
+
+    const reqType = $("#req_type").val();
+
+    if (reqType != "2") {
+      availableBalance = Number(response.ave_balance) || 0;
+      remainingBalance = Number(response.balance) || 0;
+
+      $("#ave_balance").val(availableBalance);
+      $("#balance_req").val(remainingBalance);
+    } else {
+      const permissionType = response.permission_type;
+
+      availableBalance = parseFloat(response.ave_balance) || 0;
+      remainingBalance = parseFloat(response.balance) || 0;
+
+      $("#permission_type").val(permissionType);
+
+      $("#ave_balance").val(
+        formatPermissionBalance(response.ave_balance, permissionType)
+      );
+
+      $("#balance_req").val(
+        formatPermissionBalance(response.balance, permissionType)
+      );
+    }
+
     $("#current_month_ot_count").val(response.current_month_ot_count);
+    $("#cur_month_lop_count").val(response.cur_month_lop_count);
 
     const startTime = formatTime(response.start_time);
     const endTime = formatTime(response.end_time);
@@ -858,7 +1005,7 @@ async function getbalancerequest() {
       $("#from_date, #to_date").val("");
       $("#balance_req").val(0);
 
-      return response; 
+      return response;
     }
     return response;
 
@@ -1257,4 +1404,200 @@ function userTypeIdentification() {
       }
     }
   );
+}
+
+function getLeaveDays() {
+  let fromDate = $("#from_date").val();
+  let toDate = $("#to_date").val();
+
+  $("#leave_days").val("");
+
+  if (!fromDate || !toDate) {
+    return;
+  }
+
+  let startDate = new Date(fromDate);
+  let endDate = new Date(toDate);
+
+  if (endDate < startDate) {
+    $("#leave_days").val("");
+    return;
+  }
+
+  let days = [];
+
+  while (startDate <= endDate) {
+    days.push(
+      startDate.toLocaleDateString("en-US", {
+        weekday: "long",
+      }),
+    );
+
+    startDate.setDate(startDate.getDate() + 1);
+  }
+
+  $("#leave_days").val(days.join(", "));
+}
+
+
+
+function loadChart(company_id, shift_id, staff_id, date) {
+  $.post(
+    "api/attendance_ot_monitor_chart_files/get_staff_info.php",
+    { company_id, shift_id, staff_id, date, type: 'attendance' },
+    function (response) {
+      drawChart(response, date);
+    },
+    "json",
+  );
+}
+
+google.charts.load("current", {
+  packages: ["timeline"],
+});
+
+// ========================================= CONVERT DATETIME =========================================
+
+function convertDateTime(datetime) {
+  let parts = datetime.split(/[- :]/);
+
+  return new Date(
+    parts[0], // year
+    parts[1] - 1, // month
+    parts[2], // day
+    parts[3], // hour
+    parts[4], // minute
+    parts[5], // second
+  );
+}
+
+// ========================================= DRAW CHART =========================================
+function drawChart(chartData, selectedDate) {
+  // ========================================= VALIDATE RESPONSE =========================================
+
+  let container = document.getElementById("timeline_chart");
+  container.innerHTML = ""; // Clear existing chart on reload
+
+  if (!Array.isArray(chartData) || chartData.length === 0) {
+    container.innerHTML = `
+        <div style="height:150px; display:flex; align-items:center; justify-content:center; color:red; font-size:18px; font-weight:bold;">
+            No Attendance Data Found
+        </div>`;
+    return;
+  }
+
+  // ========================================= CREATE GROUPS (STAFF NAMES / Y-AXIS) =========================================
+
+  let uniqueStaff = [...new Set(chartData.map((item) => item.staff_name))];
+
+  let groups = new vis.DataSet();
+  uniqueStaff.forEach((name) => {
+    groups.add({ id: name, content: `<b>${name}</b>` });
+  });
+
+  // =========================================  CREATE ITEMS (COLORED BLOCKS WITH TOOLTIP) =========================================
+
+  let items = new vis.DataSet();
+
+  chartData.forEach(function (row, index) {
+    if (!row.start || !row.end || !row.staff_name) return;
+
+    let startDate = convertDateTime(row.start);
+    let endDate = convertDateTime(row.end);
+
+    if (startDate >= endDate) return;
+
+    // Create the HTML tooltip for the hover effect
+    let hoverDetails = `
+        <div style="padding: 5px;">
+            <strong>${row.type}</strong><br>
+            Start: ${startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}<br>
+            End: ${endDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </div>
+    `;
+
+    items.add({
+      id: index,
+      group: row.staff_name,
+      content: "", // This keeps the bar blank
+      title: hoverDetails, // This adds the hover tooltip
+      start: startDate,
+      end: endDate,
+      style: `background-color: ${row.color}; color: white; border: none; border-radius: 0px; font-size: 14px; height: 25px;`,
+    });
+  });
+
+  // ========================================= DYNAMIC DATE RANGE & OPTIONS =========================================
+
+  let dateParts = selectedDate.split("-");
+  let year = parseInt(dateParts[0]);
+  let month = parseInt(dateParts[1]) - 1;
+  let day = parseInt(dateParts[2]);
+
+  let minDate = new Date(year, month, day, 5, 0, 0); // 5:00 AM
+  let maxDate = new Date(year, month, day, 23, 59, 59); // 11:59 PM
+
+  let options = {
+    orientation: "bottom",
+    min: minDate,
+    max: maxDate,
+    start: minDate,
+    end: maxDate,
+    moveable: false,
+    zoomable: false,
+    stack: false,
+    margin: {
+      item: { horizontal: 0, vertical: 40 },
+      axis: 20,
+    },
+
+    // 1. CHANGE STEP BACK TO 1 HOUR
+    timeAxis: {
+      scale: "hour",
+      step: 1,
+    },
+
+    // 2. USE A CUSTOM FUNCTION TO ONLY SHOW ODD HOURS
+    format: {
+      minorLabels: function (date, scale, step) {
+        // Safely get the current hour being drawn
+        let d = new Date(date);
+        let hours = d.getHours();
+
+        // Check if the hour is an ODD number (5, 7, 9, 11, etc.)
+        if (hours % 2 !== 0) {
+          let ampm = hours >= 12 ? "PM" : "AM";
+          let displayH = hours % 12;
+
+          if (displayH === 0) displayH = 12;
+
+          // Returns exactly what you asked for: "5.00 AM", "7.00 AM", etc.
+          return displayH + ".00 " + ampm;
+        }
+
+        // If it is an EVEN hour (6, 8, 10), return nothing so it stays blank
+        return "";
+      },
+    },
+  };
+
+  // ========================================= DRAW CHART =========================================
+
+  let timeline = new vis.Timeline(container, items, groups, options);
+}
+
+
+function formatPermissionBalance(value, permissionType) {
+  const balance = Math.max(0, parseFloat(value) || 0);
+
+  if (Number(permissionType) === 1) {
+    return balance;
+  }
+
+  const totalMinutes = Math.floor(balance);
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${days} D ${hours} H ${minutes} M`;
 }

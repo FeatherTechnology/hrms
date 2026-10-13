@@ -24,7 +24,8 @@ if ($status == '0') {
                 descr.id as des_id,
                 descr.designation,
                 tnc.id as team_id,
-                tnc.team_name
+                tnc.team_name,
+                oc.ot_payment
 
             FROM staff_creation sc
 

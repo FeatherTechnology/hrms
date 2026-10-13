@@ -3,10 +3,11 @@ $(document).ready(function () {
   $(".add_staff_loan").click(function () {
     getCompanyName("#company_name");
     $(".add_staff_loan,.staff_loan_table_content").hide();
-    $(".submit_card").hide();
     $("#staff_loan_content,.back_to_list").show();
-    $(".loan_calculation_card, .salary_advance_card").hide();
+    $(".deduction_card").hide();
     $(".user_info_card,.loan_calculation_card").find("input, select").val("");
+    $("#loan_amount,#int_rate,#due_period,#due_start_date").prop("readonly", false)
+    $("#company_name,#staff_name,#type").prop("disabled", false);
   });
 
   $(".back_to_list").click(function () {
@@ -17,25 +18,20 @@ $(document).ready(function () {
 
   $(document).on("click", ".staffLoanActionBtn", function () {
     let dueStartDate = $(this).attr("data-id");
-    // Current month and year
-    let currentDate = new Date();
 
-    let currentMonth = currentDate.getMonth() + 1;
-    let currentYear = currentDate.getFullYear();
+    $(".add_staff_loan,.staff_loan_table_content").hide();
+    $("#staff_loan_content,.back_to_list").show();
+    getStaffLoanDetails($(this).attr("value"));
 
-    // Date format: dd-mm-yyyy
-    let dateParts = dueStartDate.split("-");
+  });
 
-    let dueMonth = parseInt(dateParts[1]);
-    let dueYear = parseInt(dateParts[2]);
+  $("#deduction_amount").on("input change", function () {
+    var deduction_amount = Number($(this).val());
+    var bal_amount = Number($("#bal_amount").val());
 
-    if (dueMonth >= currentMonth && dueYear >= currentYear) {
-      $(".add_staff_loan,.staff_loan_table_content").hide();
-      $("#staff_loan_content,.back_to_list").show();
-      getStaffLoanDetails($(this).attr("value"));
-    } else {
-      // Date mismatched
-      swalError("Warning", "Loan due started. Edit not allowed...");
+    if ($(this).val() !== "" && deduction_amount > bal_amount) {
+      swalError("Validation", "Deduction amount cannot exceed the balance.");
+      $(this).val("");
     }
   });
 
@@ -63,6 +59,7 @@ $(document).ready(function () {
 
   $("#submit_staff_loan").click(function (event) {
     event.preventDefault();
+
     var company_name = $("#company_name").val();
     var staff_loan_id = $("#staff_loan_id").val();
     var staff_profile_id = $("#staff_name").val();
@@ -72,78 +69,113 @@ $(document).ready(function () {
     var total_intrest = $("#total_intrest").val();
     var due_amount = $("#due_amount").val();
     var due_start_date = $("#due_start_date").val();
-    var due_end_date = $("#due_end_date").val();
+    var deduction_month = $("#deduction_month").val();
+    var deduction_amount = $("#deduction_amount").val();
+    var bal_amount = $("#bal_amount").val();
+    var type = $("#type").val();
+    var due_end_date = "";
 
     if (due_start_date) {
       due_start_date += "-01";
     }
 
-var due_end_date = "";
-
-if ($("#due_end_date").val()) {
-    due_end_date = new Date(
-        $("#due_end_date").val() + " 1"
-    );
-
-    due_end_date =
-        due_end_date.getFullYear() +
-        "-" +
-        String(due_end_date.getMonth() + 1).padStart(2, "0") +
-        "-01";
-}
-
-    var data = [
-      "company_name",
-      "staff_name",
-      "loan_amount",
-      "int_rate",
-      "due_period",
-      "due_start_date",
-    ];
-    var isValid = true;
-    data.forEach(function (entry) {
-      var fieldIsValid = validateField($("#" + entry).val(), entry);
-      if (!fieldIsValid) {
-        isValid = false;
-      }
-    });
-
-    if (isValid) {
-      swalConfirm(
-        "Are you sure?",
-        "Do you want to submit Staff Loan?",
-        function () {
-          $.post(
-            "api/staff_loan_&_advance/submit_staff_loan.php",
-            {
-              company_name,
-              staff_profile_id,
-              loan_amount,
-              int_rate,
-              due_period,
-              total_intrest,
-              due_amount,
-              due_start_date,
-              due_end_date,
-              staff_loan_id,
-            },
-            function (response) {
-              if (response == "1") {
-                swalSuccess("Success", "Staff Loan Updated Successfully!");
-              } else if (response == "2") {
-                swalSuccess("Success", "Staff Loan Added Successfully!");
-              } else {
-                swalError("Error", "Error Occurred!");
-              }
-              $(".add_staff_loan,.staff_loan_table_content").show();
-              $("#staff_loan_content,.back_to_list").hide();
-              getStaffLoanList();
-            },
-            "json",
-          );
-        },
-      );
+    if ($("#due_end_date").val()) {
+      var endDate = new Date($("#due_end_date").val() + " 1");
+      due_end_date =
+        endDate.getFullYear() + "-" +
+        String(endDate.getMonth() + 1).padStart(2, "0") + "-01";
     }
+
+    if (staff_loan_id !== "") {
+      if (!deduction_month) {
+        swalError("Validation", "Please select the deduction month.");
+        return;
+      }
+
+      if (
+        deduction_amount === "" ||
+        isNaN(deduction_amount) ||
+        Number(deduction_amount) < 0
+      ) {
+        swalError("Validation", "Please enter a valid deduction amount.");
+        return;
+      }
+    } else {
+      var fields = [
+        "company_name",
+        "staff_name",
+        "loan_amount",
+        "int_rate",
+        "due_period",
+        "due_start_date",
+        "type"
+      ];
+
+      var isValid = true;
+
+      fields.forEach(function (field) {
+        if (!validateField($("#" + field).val(), field)) {
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        return;
+      }
+    }
+
+    swalConfirm(
+      "Are you sure?",
+      staff_loan_id !== ""
+        ? "Do you want to submit this deduction?"
+        : type == "1"
+          ? "Do you want to submit Staff Loan?"
+          : "Do you want to submit Salary Advance?",
+      function () {
+        $.post(
+          "api/staff_loan_&_advance/submit_staff_loan.php",
+          {
+            company_name: company_name,
+            staff_profile_id: staff_profile_id,
+            loan_amount: loan_amount,
+            int_rate: int_rate,
+            due_period: due_period,
+            total_intrest: total_intrest,
+            due_amount: due_amount,
+            due_start_date: due_start_date,
+            due_end_date: due_end_date,
+            staff_loan_id: staff_loan_id,
+            type: type,
+            deduction_month: deduction_month,
+            deduction_amount: deduction_amount,
+            bal_amount: bal_amount
+          },
+          function (response) {
+            if (response == "1") {
+              swalSuccess(
+                "Success",
+                staff_loan_id !== ""
+                  ? "Deduction Added Successfully!"
+                  : "Staff Loan Updated Successfully!"
+              );
+            } else if (response == "2") {
+              swalSuccess("Success", "Staff Loan Added Successfully!");
+            } else if (response == "3") {
+              swalError("Validation", "Deduction already exists for this month.");
+              return;
+            } else {
+              swalError("Error", "Error Occurred!");
+              return;
+            }
+
+            $(".add_staff_loan,.staff_loan_table_content").show();
+            $("#staff_loan_content,.back_to_list").hide();
+            getStaffLoanList();
+          },
+          "json"
+        );
+      }
+    );
   });
 
   $("#company_name").on("change", function () {
@@ -220,47 +252,39 @@ if ($("#due_end_date").val()) {
     }
   });
 
-$("#due_start_date, #due_period").on("change input", function () {
+  $("#due_start_date, #due_period").on("change input", function () {
 
     let startDate = $("#due_start_date").val();
     let duePeriod = parseInt($("#due_period").val());
 
     if (startDate && duePeriod > 0) {
 
-        let date = new Date(startDate + "-01");
+      let date = new Date(startDate + "-01");
 
-        // Starting month is counted as month 1
-        date.setMonth(date.getMonth() + duePeriod - 1);
+      // Starting month is counted as month 1
+      date.setMonth(date.getMonth() + duePeriod - 1);
 
-        $("#due_end_date").val(
-            date.toLocaleDateString("en-US", {
-                month: "long",
-                year: "numeric"
-            })
-        );
+      $("#due_end_date").val(
+        date.toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric"
+        })
+      );
 
     } else {
-        $("#due_end_date").val("");
+      $("#due_end_date").val("");
     }
-});
+  });
 
-$("#type").on("change", function () {
+  $("#type").on("change", function () {
     let type = $(this).val();
-   $(".submit_card").show();
+
     if (type == "1") {
-        // Staff Loan
-        $(".loan_calculation_card").show();
-        $(".salary_advance_card").hide();
-        
+      $("#amount_label").text("Loan Amount");
     } else if (type == "2") {
-        // Salary Advance
-        $(".loan_calculation_card").hide();
-        $(".salary_advance_card").show();
-    } else {
-        // No type selected
-        $(".loan_calculation_card, .salary_advance_card").hide();
+      $("#amount_label").text("Advance Amount");
     }
-});
+  });
 
 });
 // document end
@@ -403,60 +427,76 @@ function getStaffLoanDetails(id) {
   $.post(
     "api/staff_loan_&_advance/getStaffDetails.php",
     { id: id },
-
     function (response) {
-      if (response && response.length > 0) {
-        let data = response[0];
+      if (response && response.id) {
+        let data = response;
 
-        // Staff Loan ID
         $("#staff_loan_id").val(data.id);
-        // Show Edit Form
+
         $(".add_staff_loan,.staff_loan_table_content").hide();
-        $("#staff_loan_content,.back_to_list").show();
-        // Load company dropdown
+        $("#staff_loan_content,.back_to_list,.deduction_card").show();
+
         getCompanyName("#company_name")
           .then(function () {
-            // Set company
-            $("#company_name").val(String(data.company_id));
-            // Load staff dropdown
+            $("#company_name")
+              .val(String(data.company_id))
+              .prop("disabled", true);
+
             return getStaffName(data.company_id);
           })
           .then(function () {
-            // Set staff
-            $("#staff_name").val(String(data.staff_id));
-            // Load staff information
+            $("#staff_name")
+              .val(String(data.staff_id))
+              .prop("disabled", true);
+
             getStaffInfo();
           });
-        // Loan Details
-        $("#loan_amount").val(data.loan_amount);
-        $("#int_rate").val(data.intrest_rate);
-        $("#due_period").val(data.due_period);
-        $("#total_intrest").val(data.total_intrest);
-        $("#due_amount").val(data.due_amount);
 
-        // Dates
+        $("#type").val(data.type).trigger("change").prop("disabled", true);
 
-        // Due Start Date - type="month"
-        if (data.due_start_date) {
-          $("#due_start_date").val(data.due_start_date.substring(0, 7));
-        }
+        $("#loan_amount").val(data.loan_amount).prop("readonly", true);
+        $("#int_rate").val(data.intrest_rate).prop("readonly", true);
+        $("#due_period").val(data.due_period).prop("readonly", true);
+        $("#total_intrest").val(data.total_intrest).prop("readonly", true);
+        $("#due_amount").val(data.due_amount).prop("readonly", true);
 
-        // Due End Date - display as Month Year
+        $("#deduction_amount").val(data.due_amount);
+        $("#bal_amount").val(data.balance_amount);
+
+        $("#due_start_date")
+          .val(data.due_start_date ? data.due_start_date.substring(0, 7) : "")
+          .prop("readonly", true);
+
         if (data.due_end_date) {
           let endDate = new Date(data.due_end_date);
 
           $("#due_end_date").val(
             endDate.toLocaleDateString("en-US", {
               month: "long",
-              year: "numeric",
-            }),
-          );
+              year: "numeric"
+            })
+          ).prop("readonly", true);
+        } else {
+          $("#due_end_date").val("").prop("readonly", true);
         }
+        let currentMonth = new Date().toISOString().slice(0, 7);
+        let dueStartMonth = data.due_start_date
+          ? data.due_start_date.substring(0, 7)
+          : currentMonth;
+
+        let deductionMonth =
+          dueStartMonth > currentMonth ? dueStartMonth : currentMonth;
+
+        $("#deduction_month")
+          .val(deductionMonth)
+          .attr("min", currentMonth)
+          .attr("max", currentMonth);
+
       } else {
         swalError("Warning", "Staff Loan Details Not Found");
       }
     },
-    "json",
+    "json"
   );
 }
 

@@ -47,7 +47,7 @@ if ($user) {
                     ON cc.id = sl.company_id
                 LEFT JOIN `staff_creation` sc
                     ON sc.id = sl.staff_id
-                WHERE sl.company_id IN ($placeholders) AND sl.due_end_date >= CURDATE()
+                WHERE sl.company_id IN ($placeholders)
                 ORDER BY sl.id DESC
             ");
 
