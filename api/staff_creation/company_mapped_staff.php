@@ -19,7 +19,7 @@ if ($company_id != '') {
 
 if ($status == '1') {
 
-    $where .= " AND sc.status = '1'
+    $where .= " AND sc.status != '4'
                 AND (
                     sc.relieve_date IS NULL
                     OR sc.relieve_date = ''
@@ -29,7 +29,7 @@ if ($status == '1') {
 } elseif ($status == '2') {
 
     $where .= " AND (
-                    sc.status = '2'
+                    sc.status = '4'
                     OR (
                         sc.relieve_date IS NOT NULL
                         AND sc.relieve_date != ''

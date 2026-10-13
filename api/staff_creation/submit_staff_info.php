@@ -91,6 +91,7 @@ if ($check->rowCount() == 0) {
         off_type='$off_type',
         assigned_branches='$assigned_branches',
         total_ctc='$total_ctc',
+        total_earnings = '$total_amount',
         annual_ctc='$annual_ctc',
         shift='$shift',
         ot_payment='$ot_payment',

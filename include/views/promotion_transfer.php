@@ -20,7 +20,7 @@
                             </select>
                         </div>
                     </div>
-                     <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                         <div class="form-group">
                             <label for="branch_search">Branch Name</label><span class="text-danger">*</span>
                             <select class="form-control" id="branch_search" name="branch_search" tabindex="1">
@@ -82,19 +82,55 @@
                     <button type="button" class="btn btn-primary staff_status_btn promo_status" data-value="1" style="margin-right: 20px;"> Promotion </button>&nbsp;&nbsp;
                     <button type="button" class="btn btn-primary staff_status_btn trans_status" data-value="2" style="margin-right: 20px;"> Transfer </button> &nbsp;&nbsp;
                     <button type="button" class="btn btn-primary staff_status_btn inc_status" data-value="3" style="margin-right: 20px;"> Increment </button>
+                    <button type="button" class="btn btn-primary ctc_chart" data-toggle="modal" data-target="#show_ctc_chart" tabindex='5'>CTC Chart</button>
                 </div>
             </div>
+            <!-- <div class="col-md-12 text-center"> -->
+                
+               <div class="card-body outer_status_card " style="display: none; margin-left: 15px;">
+
+                <div class="row ">
+
+                    <div class="col-xl-4 col-lg-4 col-md-2  col-12">
+                        <div class="form-group">
+                            <label for="company_id">Company Name</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" id="company_id" name="company_id" placeholder="Company Name" tabindex="13" readonly>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-2  col-12">
+                        <div class="form-group">
+                            <label for="staff_id">Staff ID</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" id="staff_id" name="staff_id" placeholder="Staff ID" tabindex="13" readonly>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-2  col-12">
+                        <div class="form-group">
+                            <label for="staff_name">Staff Name</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" id="staff_name" name="staff_name" placeholder="Staff Name" tabindex="13" readonly>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-2  col-12">
+                        <div class="form-group">
+                            <label for="joining_date">Joining Date</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" id="joining_date" name="joining_date" placeholder="Joining Date" tabindex="13" readonly>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-2  col-12">
+                        <div class="form-group">
+                            <label for="relieve_date">Relieve Date</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" id="relieve_date" name="relieve_date" placeholder="Relieve Date" tabindex="13" readonly>
+                        </div>
+                    </div>
+                    
+                </div>
+                </div>
+            <!-- </div> -->
             <div class="card-body">
                 <div class="col-12 overflow-x-cls">
                     <table id="promotion_transfer_table" class="table custom-table">
                         <thead>
                             <tr>
                                 <th>S.NO</th>
-                                <th>Staff ID</th>
-                                <th>Staff Name</th>
-                                <th>Joining Date</th>
-                                <th>Relieve Date</th>
-                                <th>Company</th>
                                 <th>Branch</th>
                                 <th>Department</th>
                                 <th>Team</th>
@@ -105,6 +141,7 @@
                                 <th>PT Applicable</th>
                                 <th>Total CTC</th>
                                 <th>Effective From</th>
+                                <th>Approval Authority</th>
                                 <th>Process</th>
                             </tr>
                         </thead>
@@ -182,7 +219,7 @@
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="effective_date">Effective From</label><span class="text-danger">*</span>
-                                            <input type="month" class="form-control" id="effective_date" name="effective_date"  tabindex="6" min="<?php echo date('Y-m', strtotime('+1 month')); ?>">
+                                            <input type="month" class="form-control" id="effective_date" name="effective_date" tabindex="6" min="<?php echo date('Y-m', strtotime('+1 month')); ?>">
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -248,6 +285,45 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="card mt-3">
+                                <div class="card-header">
+                                    <h5 class="card-title">Statutory Compliance Info</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="pf_available">PF Available</label><span class="text-danger">*</span>
+                                                <select class="form-control" id="pf_available" name="pf_available" tabindex="35">
+                                                    <option value="">Select PF Availability</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="2">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="esi_available">ESI Available</label><span class="text-danger">*</span>
+                                                <select class="form-control" id="esi_available" name="esi_ available" tabindex="36">
+                                                    <option value="">Select ESI Availability</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="2">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="pt_available">PT Available</label><span class="text-danger">*</span>
+                                                <select class="form-control" id="pt_available" name="pt_available" tabindex="37">
+                                                    <option value="">Select PT Availability</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="2">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                     </div>
                 </div>
 
@@ -336,6 +412,37 @@
                 </div>
 
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="show_ctc_chart" tabindex="1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg " role="document">
+        <div class="modal-content" style="background-color: white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">CTC Chart</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"  tabindex="1">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12 overflow-x-cls">
+                        <table id="increment_history_table"
+                            class="table table-bordered table-striped">
+                            <thead>
+                                <tr id="increment_history_header">
+                                    <th>Effective From</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1">Close</button>
+            </div>
         </div>
     </div>
 </div>

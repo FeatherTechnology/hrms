@@ -133,6 +133,7 @@ $("#view_staff").on("click", function () {
     } else {
         $(".outer_status_card").hide();
     }
+    getStaffInfo();
 
     // Load staff table
     getStaffTable(company_id,status,department_id,staff_id,branch_id);
@@ -225,6 +226,9 @@ $("#view_staff").on("click", function () {
     else if (occ_status == 3) {
       occStatusText = "Increment";
       data.push("total_ctc");
+      data.push("pt_available");
+      data.push("esi_available");
+      data.push("pf_available");
     }
 
     //    GET CTC DETAILS
@@ -289,6 +293,9 @@ $("#view_staff").on("click", function () {
     let department = $("#department").val();
     let team = $("#team").val();
     let designation = $("#designation").val();
+    let pt_available = $("#pt_available").val();
+    let esi_available = $("#esi_available").val();
+    let pf_available = $("#pf_available").val();
     let off_type = $("#off_type").val();
     // let reporting_person = $("#reporting_person").val();
     // let reporting_person_type = $("#reporting_person")
@@ -315,6 +322,9 @@ $("#view_staff").on("click", function () {
         // reporting_person_type: reporting_person_type,
         // branch_admin: branch_admin,
         // branch: branch,
+        pt_available:pt_available,
+        esi_available:esi_available,
+        pf_available:pf_available,
         total_ctc: total_ctc,
         annual_ctc: annual_ctc,
         staff_id: staff_id,
@@ -371,6 +381,12 @@ $("#view_staff").on("click", function () {
     $(".staff_status_btn").removeClass("active");
 
     $(this).addClass("active");
+  });
+  $(".ctc_chart").click(function () {
+
+    let staff_id = $(this).attr("data-staff-id");
+    getIncrementHistory(staff_id);
+    
   });
 
   $("#total_ctc").on("input", function () {
@@ -526,6 +542,10 @@ async function editStaffProfile() {
     $("#branch_name").val(data.branch_id);
     $("#department").val(data.department);
     $("#team").val(data.team);
+
+    $("#pf_available").val(data.pf_available);
+    $("#esi_available").val(data.esi_available);
+    $("#pt_available").val(data.pt_available);
 
     // let selectedLevel = parseInt(
     //   $("#designation option:selected").data("level"),
@@ -882,6 +902,9 @@ function disableAllSections() {
   $("#branch_name").prop("disabled", true);
   $("#department").prop("disabled", true);
   $("#team").prop("disabled", true);
+  $("#pf_available").prop("disabled", true);
+  $("#esi_available").prop("disabled", true);
+  $("#pt_available").prop("disabled", true);
   // $("#reporting_person").prop("disabled", true);
   // $("#branch_admin").prop("disabled", true);
   // $("#branch").prop("disabled", true);
@@ -928,6 +951,9 @@ function enableIncrementSection() {
   // $('#esi_available').prop('disabled', false);
   // $('#pt_available').prop('disabled', false);
   $("#total_ctc").prop("disabled", false);
+  $("#pf_available").prop("disabled", false);
+  $("#esi_available").prop("disabled", false);
+  $("#pt_available").prop("disabled", false);
 
   // Enable CTC Table
   $("#ctc_info_table").find("input, select").prop("disabled", false);
@@ -938,3 +964,115 @@ function setCTCTableReadonly(isReadonly) {
   $("#ctc_info_table tbody .ctc_amount").prop("readonly", isReadonly);
   $("#ctc_info_table tbody .ctc_percentage").prop("readonly", true);
 }
+
+function getStaffInfo() {
+  let id = $("#staff_search").val();
+
+  $.post(
+    "api/user_creation_files/getStaffInfo.php",
+    { id: id },
+
+    function (response) {
+      if (response.length > 0) {
+        $("#company_id").val(response[0].company_name);
+        $("#staff_id").val(response[0].staff_id);
+        $("#staff_name").val(response[0].staff_name);
+        $("#joining_date").val(response[0].joining_date.split("-").reverse().join("-"));
+       $("#relieve_date").val(
+    response[0].relieve_date
+        ? response[0].relieve_date.split("-").reverse().join("-")
+        : ""
+);
+        $(".ctc_chart").attr("data-staff-id", response[0].staff_profile_id);
+      } else {
+        $("#company_id,#staff_id,#staff_name,#joining_date,#relieve_date").val('');
+
+        swalError("Warning", "No Staff Info Found");
+      }
+    },
+    "json",
+  );
+}
+
+function getIncrementHistory(staff_profile_id) {
+    $.ajax({
+        url: "api/promotion_transfer/ctc_chart.php",
+        type: "POST",
+        dataType: "json",
+        data: {
+            staff_profile_id: staff_profile_id
+        },
+
+        success: function (response) {
+
+            if (!response.success) {
+                $("#increment_history_header").html(
+                    "<th>Effective From</th><th>Total CTC</th>"
+                );
+
+                $("#increment_history_table tbody").html(
+                    '<tr><td colspan="100%">No increment history found</td></tr>'
+                );
+                return;
+            }
+
+            // Destroy existing DataTable if initialized
+            if ($.fn.DataTable.isDataTable("#increment_history_table")) {
+                $("#increment_history_table").DataTable().destroy();
+            }
+
+            // Build table header
+            let header = "<th>Effective From</th>";
+
+            // Total CTC comes first
+            header += "<th>Total CTC</th>";
+
+            // Add dynamic salary component headers
+            response.columns.forEach(function (column) {
+                header += "<th>" + column.title + "</th>";
+            });
+
+            $("#increment_history_header").html(header);
+
+            // Build table rows
+            let rows = "";
+
+            response.data.forEach(function (record) {
+                rows += "<tr>";
+
+                // Format effective date as DD-MM-YYYY
+                let date = record.effective_from || "";
+
+                if (date) {
+                    let parts = date.split("-");
+
+                    if (parts.length === 3) {
+                        date = parts[2] + "-" + parts[1] + "-" + parts[0];
+                    }
+                }
+
+                // Effective From
+                rows += "<td>" + date + "</td>";
+
+                // Total CTC
+                rows += "<td>" + (record.total_ctc ?? 0) + "</td>";
+
+                // Salary component amounts
+                response.columns.forEach(function (column) {
+                    let amount = record[column.data] ?? 0;
+                    rows += "<td>" + amount + "</td>";
+                });
+
+                rows += "</tr>";
+            });
+
+            $("#increment_history_table tbody").html(rows);
+        },
+
+        error: function (xhr) {
+            console.error(xhr.responseText);
+            swalError("Error", "Unable to load increment history");
+        }
+    });
+}
+

@@ -3,18 +3,28 @@ $(document).ready(function () {
   $("#cmpy_name").change(function () {
     let cmpy_id = $(this).val();
     getBranchList(cmpy_id);
+    getDepartmentList(cmpy_id);
   });
 
   // toget the attendance list
   $("#submit_search").click(function () {
     let company_id = $("#cmpy_name").val();
     let branch_id = $("#branch_name").val();
+    let dep_id = $("#dep_id").val();
     let date = $("#date").val();
-    if (company_id == "" || branch_id == "" || date == "") {
-      swalError("Warning", "Please Filled The Manditaory Feild");
-    } else {
-      getAttendanceList(company_id, branch_id, date);
+
+        // Company is compulsory
+    if (!company_id) {
+      swalError("Warning", "Please Select Company!");
+      return;
     }
+
+    // Either Branch OR Department is compulsory
+    if (!branch_id && !dep_id) {
+      swalError("Warning", "Please Select Branch or Department!");
+      return;
+    }
+      getAttendanceList(company_id, branch_id, dep_id,date);
   });
 
   // go to list page
@@ -23,8 +33,9 @@ $(document).ready(function () {
     $(".search_details").show();
     let company_id = $("#cmpy_name").val();
     let branch_id = $("#branch_name").val();
+    let dep_id = $("#dep_id").val();
     let date = $("#date").val();
-    getAttendanceList(company_id, branch_id, date);
+    getAttendanceList(company_id, branch_id,dep_id, date);
     // getCompanyList();
   });
 
@@ -62,6 +73,7 @@ $(document).ready(function () {
     };
     let cmy = $("#cmpy_name").val();
     let brnh = $("#branch_name").val();
+    let dep_id = $("#dep_id").val();
     let date = $("#date").val();
 
     let isValid = true;
@@ -88,7 +100,7 @@ $(document).ready(function () {
         "Are you sure?",
         "Do you want to submit this Attendance ?",
         function () {
-          submitAttendance(collData, cmy, brnh, date);
+          submitAttendance(collData, cmy, brnh,dep_id, date);
         },
       );
     }
@@ -206,7 +218,7 @@ function getBranchList(cmpy_id) {
 }
 
 // to get the attendance list
-function getAttendanceList(company_id, branch_id, date) {
+function getAttendanceList(company_id, branch_id, dep_id,date) {
   $("#attendance_table").DataTable().destroy();
   getUserAccess(function (downloadAccess) {
     let buttons = [];
@@ -238,6 +250,7 @@ function getAttendanceList(company_id, branch_id, date) {
         data: function (data) {
           data.company_id = company_id;
           data.branch_id = branch_id;
+          data.id = dep_id;
           data.date = date;
         },
       },
@@ -288,6 +301,10 @@ function getStaffDetails(staff_id, att_id, date) {
       $("#staff_type_id").val(response.staff_type);
       $("#staff_type").val(staffType[response.staff_type] || "");
 
+      $("#shift_start").val(new Date("1970-01-01T" + response.start_time).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }));
+
+      $("#shift_end").val(new Date("1970-01-01T" + response.end_time).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }));
+
       $("#att_id").val(response.att_id);
 
       $("#deduction_amount").val(
@@ -327,7 +344,7 @@ function getStaffDetails(staff_id, att_id, date) {
 
 
 // submit modified attendance
-function submitAttendance(collData, cmy, brnh, date) {
+function submitAttendance(collData, cmy, brnh,dep_id, date) {
   $.post(
     "api/attendance_files/submit_attendance.php",
     collData,
@@ -336,14 +353,14 @@ function submitAttendance(collData, cmy, brnh, date) {
         swalSuccess("Success", "Attendance Added Successfully.");
         $(".attendance_details").hide();
         $(".search_details").show();
-        getAttendanceList(cmy, brnh, date);
+        getAttendanceList(cmy, brnh,dep_id, date);
       } else if (response.result == "2") {
         swalError("Error", "Failed to Add Attendance");
       } else if (response.result == "3") {
         swalSuccess("Success", "Attendance Updated Successfully.");
         $(".attendance_details").hide();
         $(".search_details").show();
-        getAttendanceList(cmy, brnh, date);
+        getAttendanceList(cmy, brnh, dep_id,date);
       } else if (response.result == "4") {
         swalError("Error", "Failed to Update Attendance");
       }
@@ -496,4 +513,27 @@ function drawChart(chartData, selectedDate) {
   // ========================================= DRAW CHART =========================================
 
   let timeline = new vis.Timeline(container, items, groups, options);
+}
+
+async function getDepartmentList(company_id) {
+  try {
+    const response = await $.ajax({
+      url: "api/staff_creation/company_mapped_department.php",
+      type: "POST",
+      dataType: "json",
+      data: {
+        company_id: company_id,
+      },
+    });
+
+    let deptOption = '<option value="">Select Department</option>';
+
+    $.each(response, function (index, val) {
+      deptOption += `<option value="${val.id}">${val.department_name}</option>`;
+    });
+
+    $('#dep_id').empty().append(deptOption);
+  } catch (error) {
+    console.error(error);
+  }
 }

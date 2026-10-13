@@ -39,11 +39,15 @@ $query = "SELECT
     COALESCE(a.updated_time, a.entry_time) AS entry_time,
     COALESCE(a.updated_exit_time, a.exit_time) AS exit_time,
     a.deduction_amount,
-    a.reason
+    a.reason,
+    sftc.start_time,
+    sftc.end_time
     
 FROM staff_creation sc
 
 LEFT JOIN occupation_info oi ON oi.id = ( SELECT MAX(id)  FROM occupation_info  WHERE staff_profile_id = sc.id AND effective_from <= NOW() )
+
+LEFT JOIN shift_creation sftc  ON sftc.id = oi.shift
 
 LEFT JOIN company_creation cc  ON cc.id = oi.company_id
 
