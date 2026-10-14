@@ -2,14 +2,32 @@ $(document).ready(function () {
   getCompanyName();
 
   $("#company_name").on("change", function () {
-    let company_id = $(this).val();
-    getShiftName(company_id);
+      let company_id = $(this).val();
+
+      getShiftName(company_id, '', '');
+      getBranchName(company_id);
+      getDepartmentName(company_id);
+
+      // Call staff only when company has a value
+      if (company_id) {
+          fetchStaffName();
+      }
+  });
+
+  $("#branch_name_one").on("change", function () {
+      fetchStaffName();
+  });
+
+  $("#department_name_one").on("change", function () {
+      fetchStaffName();
   });
 
   $("#shift_name").on("change", function () {
     let company_id = $("#company_name").val();
+    let branch_id = $("#branch_name_one").val();
+    let department_id = $("#department_name_one").val();
     let shift_id = $(this).val();
-    getStaffName(company_id, shift_id);
+    getStaffName(company_id, shift_id, branch_id, department_id);
   });
 
   $("#search_attendance_ot_monitor").on("click", function () {
@@ -23,7 +41,7 @@ $(document).ready(function () {
       staff_id === "" ||
       date === ""
     ) {
-      swalError("Warning", "Please select all fields.");
+      swalError("Warning", "Please select  Mandatory fields.");
       return;
     }
     loadChart(company_id, shift_id, staff_id, date);
@@ -87,11 +105,11 @@ function getShiftName(company_id) {
 }
 
 /* --- Get Staff Name --- */
-function getStaffName(company_id, shift_id) {
+function getStaffName(company_id, shift_id, branch_id, department_id) {
   $.ajax({
     url: "api/attendance_ot_monitor_chart_files/get_staff_name.php",
     type: "POST",
-    data: { company_id, shift_id },
+    data: { company_id, shift_id, branch_id, department_id },
     dataType: "json",
     cache: false,
     success: function (response) {
@@ -102,20 +120,23 @@ function getStaffName(company_id, shift_id) {
       // Default option
       dropdown.append('<option value="">Select Staff Name</option>');
 
-      // All option
-      dropdown.append('<option value="all">All</option>');
+      // Add options only if response contains staff records
+      if (Array.isArray(response) && response.length > 0) {
 
-      $.each(response, function (index, item) {
-        dropdown.append(`
-                    <option value="${item.id}">
-                        ${item.staff_name}
-                    </option>
-                `);
-      });
+        // All option
+        dropdown.append('<option value="all">All</option>');
+
+        $.each(response, function (index, item) {
+          dropdown.append(`
+            <option value="${item.id}">
+              ${item.staff_name}
+            </option>
+          `);
+        });
+      }
     },
     error: function (error) {
       console.error(error);
-
       swalError("Error", "Unable to Fetch Staff Name");
     },
   });
@@ -265,4 +286,72 @@ function drawChart(chartData, selectedDate) {
   // ========================================= DRAW CHART =========================================
 
   let timeline = new vis.Timeline(container, items, groups, options);
+}
+
+/* --- Get Branch Name --- */
+async function getBranchName(company_id) {
+    try {
+        const response = await $.ajax({
+            url: "api/location_creation_files/getBranchName.php",
+            type: "POST",
+            data: { company_id: company_id },
+            dataType: "json",
+            cache: false,
+        });
+
+        $("#branch_name_one")
+            .empty()
+            .append('<option value="">Select Branch Name</option>');
+
+        $.each(response, function (index, item) {
+            $("#branch_name_one").append(
+                `<option value="${item.id}">${item.branch_name}</option>`
+            );
+        });
+
+    } catch (error) {
+        swalError("Error", error.statusText || error);
+    }
+}
+
+
+/* --- Get Department Name --- */
+async function getDepartmentName(company_name) {
+  return new Promise((resolve, reject) => {
+    $.post(
+      "api/team_creation_files/getDepartmentName.php",
+      { company_name: company_name },
+
+      function (response) {
+        let dropdown = $("#department_name_one");
+        dropdown.empty();
+        dropdown.append('<option value="">Select Department Name</option>');
+        $.each(response, function (index, item) {
+          dropdown.append(
+            `<option value="${item.id}">${item.department_name}</option>`,
+          );
+        });
+
+        resolve();
+      },
+
+      "json",
+    ).fail(function (xhr, status, error) {
+      reject(error);
+    });
+  });
+}
+
+function fetchStaffName() {
+    let company_id = $("#company_name").val();
+    let branch_id = $("#branch_name_one").val() || '';
+    let department_id = $("#department_name_one").val() || '';
+    let shift_id = $("#shift_name").val() || '';
+
+    // Company is required
+    if (!company_id || !shift_id) {
+        return;
+    }
+
+    getStaffName(company_id, shift_id, branch_id, department_id);
 }

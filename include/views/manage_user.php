@@ -261,7 +261,7 @@
                                 <div class="col-sm-4 col-md-4 col-lg-4">
                                     <div class="form-group">
                                         <label for="staff_company_name">Compay Name</label><span class="text-danger">*</span>
-                                        <input type="text" class="form-control" id="staff_company_name" name="staff_company_name" tabindex="11" placeholder="Enter Company Name" readonly>
+                                        <input type="text" class="form-control" id="staff_company_name" name="staff_company_name" tabindex="14" placeholder="Enter Company Name" readonly>
                                     </div>
                                 </div>
                                 <div class="col-sm-4 col-md-4 col-lg-4">
@@ -269,7 +269,7 @@
                                         <label for="mapping_branch">Mapping Branch</label><span class="text-danger">*</span>
                                         <input type="hidden" id="multi_branch_name2">
                                         <!-- <input type="text" class="form-control" id="mapping_branch" name="mapping_branch" tabindex="12" placeholder="Enter  Mapping branch"> -->
-                                        <select class="form-control" id="mapping_branch" name="mapping_branch[]" tabindex="13" multiple></select>
+                                        <select class="form-control" id="mapping_branch" name="mapping_branch[]" tabindex="15" multiple></select>
                                     </div>
                                 </div>
                                 <div class="col-sm-4 col-md-4 col-lg-4">
@@ -277,7 +277,7 @@
                                         <label for="mapping_department">Mapping Department</label><span class="text-danger">*</span>
                                         <input type="hidden" id="multi_department_name2">
                                         <!-- <input type="text" class="form-control" id="mapping_department" name="mapping_department" tabindex="13" placeholder="Enter Mapping Department"> -->
-                                        <select class="form-control" id="mapping_department" name="mapping_department[]" tabindex="13" multiple></select>
+                                        <select class="form-control" id="mapping_department" name="mapping_department[]" tabindex="16" multiple></select>
                                     </div>
                                 </div>
                             </div>
@@ -295,7 +295,7 @@
                                 <div class="col-sm-4 col-md-4 col-lg-4">
                                     <div class="form-group">
                                         <label for="download_access">Download Access</label><span class="text-danger">*</span>
-                                        <select class="form-control" id="download_access" name="download_access" tabindex="18">
+                                        <select class="form-control" id="download_access" name="download_access" tabindex="17">
                                             <option value="">Select Download Access</option>
                                             <option value="1">YES</option>
                                             <option value="2">NO</option>
@@ -315,7 +315,7 @@
                                 <div class="col-sm-4 col-md-4 col-lg-4" id="feedback_access_type_div" style="display: none;">
                                     <div class="form-group">
                                         <label for="feedback_access_type">Feedback Access Type</label><span class="text-danger">*</span>
-                                        <select class="form-control" id="feedback_access_type" name="feedback_access_type" tabindex="18">
+                                        <select class="form-control" id="feedback_access_type" name="feedback_access_type" tabindex="19">
                                             <option value="">Select Feedback Access Type</option>
                                             <option value="1">Over All</option>
                                             <option value="2">Individual</option>
@@ -325,7 +325,7 @@
                                 <div class="col-sm-4 col-md-4 col-lg-4">
                                     <div class="form-group">
                                         <label for="report_access">Report Access</label><span class="text-danger">*</span>
-                                        <select class="form-control" id="report_access" name="report_access" tabindex="18">
+                                        <select class="form-control" id="report_access" name="report_access" tabindex="20">
                                             <option value="">Select Report Access</option>
                                             <option value="1">Over All</option>
                                             <option value="2">Individual</option>
@@ -335,7 +335,7 @@
                                 <div class="col-sm-4 col-md-4 col-lg-4">
                                     <div class="form-group">
                                         <label for="home_access">Home Access</label><span class="text-danger">*</span>
-                                        <select class="form-control" id="home_access" name="home_access" tabindex="18">
+                                        <select class="form-control" id="home_access" name="home_access" tabindex="21">
                                             <option value="">Select Home Access</option>
                                             <option value="1">YES</option>
                                             <option value="2">NO</option>
@@ -359,8 +359,8 @@
                     <!--- ---------------------- Screen Mapping END  ----------------------------- -->
 
                     <div class="col-12 mt-3 text-right">
-                        <button name="submit_user_creation" id="submit_user_creation" class="btn btn-primary" tabindex="51"><span class="icon-check"></span>&nbsp;Submit</button>
-                        <button type="reset" class="btn btn-outline-secondary" id="reset_btn" tabindex="52">Clear</button>
+                        <button name="submit_user_creation" id="submit_user_creation" class="btn btn-primary" ><span class="icon-check"></span>&nbsp;Submit</button>
+                        <button type="reset" class="btn btn-outline-secondary" id="reset_btn">Clear</button>
                     </div>
 
                 </div>

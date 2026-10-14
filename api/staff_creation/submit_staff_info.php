@@ -91,12 +91,15 @@ if ($check->rowCount() == 0) {
         off_type='$off_type',
         assigned_branches='$assigned_branches',
         total_ctc='$total_ctc',
+        pf_available ='$pf_available',
+        esi_available ='$esi_available',
+        pt_available ='$pt_available',
         total_earnings = '$total_amount',
         annual_ctc='$annual_ctc',
         shift='$shift',
         ot_payment='$ot_payment',
         ot_per_day='$ot_per_day',
-        effective_from = Now(),
+        effective_from =  '$joining_date',
         insert_login_id='$user_id',
         created_on = NOW()
     ");
@@ -148,7 +151,7 @@ if ($checkCTC->rowCount() == 0) {
             ctc_percentage='$ctc_percentage',
             total_ctc='$total_ctc',
             total_amount='$total_amount', 
-            effective_from = Now(),
+            effective_from =  '$joining_date',
             insert_login_id='$user_id',
             created_date=NOW()
         ");

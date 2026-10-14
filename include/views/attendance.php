@@ -323,8 +323,8 @@
 
                     <!-- Later Entry -->
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #f75d52; border-radius: 3px;"></div>
-                        <span>Later Entry / Early Exit</span>
+                        <div style="width: 20px; height: 20px; background-color: #ff7034; border-radius: 3px;"></div>
+                        <span>Later Entry </span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
