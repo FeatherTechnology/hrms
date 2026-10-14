@@ -656,9 +656,9 @@ function getedituserdetails(id) {
           .attr("data-company", response.company_name || "")
           .attr("data-company_id", response.cmpy_id || "")
           .attr("data-shift", response.shift || "")
-          .attr("data-staff_id", response.staff_id || "")
+          .attr("data-staff_id", response.stf_prf_id || "")
           .attr("data-staff_name", response.staff_name || "")
-          .attr("data-date", response.att_date || response.from_date || "");
+          .attr("data-date", (response.att_date || response.from_date || "").split(/[ T]/)[0]);
       } else {
         $("#approval_attendance_chart").hide();
       }
@@ -983,7 +983,9 @@ async function getbalancerequest() {
           "Warning",
           `You have Later Entry on that day. Please take the permission from "${requiredFromDisplay}" to "${requiredToDisplay}".`
         );
+
         $("#from_date,#to_date,#total_days,#balance_req").val('');
+        return null;
       }
     }
 
@@ -1002,10 +1004,9 @@ async function getbalancerequest() {
         "You have exceeded the available permission balance."
       );
 
-      $("#from_date, #to_date").val("");
-      $("#balance_req").val(0);
+      $("#from_date, #to_date,#total_days,#balance_req").val("");
 
-      return response;
+      return null;
     }
     return response;
 

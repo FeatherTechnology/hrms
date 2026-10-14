@@ -88,13 +88,13 @@ $baseQuery = "
     LEFT JOIN team_name_creation tc 
         ON tc.id = oi.team
 
-  WHERE (
-    sc.status = 1
-    OR (
-        sc.status = 2
-        AND DATE(sc.relieve_date) >= :att_date
-    )
-)
+WHERE sc.status != 4
+  AND (
+      sc.relieve_date IS NULL
+      OR sc.relieve_date =''
+      OR DATE(sc.relieve_date) >= :att_date
+  )
+
 ";
 /* ---------- BRANCH / DEPARTMENT FILTER ---------- */
 

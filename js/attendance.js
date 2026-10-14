@@ -20,10 +20,10 @@ $(document).ready(function () {
     }
 
     // Either Branch OR Department is compulsory
-    if (!branch_id && !dep_id) {
-      swalError("Warning", "Please Select Branch or Department!");
-      return;
-    }
+    // if (!branch_id && !dep_id) {
+    //   swalError("Warning", "Please Select Branch or Department!");
+    //   return;
+    // }
       getAttendanceList(company_id, branch_id, dep_id,date);
   });
 

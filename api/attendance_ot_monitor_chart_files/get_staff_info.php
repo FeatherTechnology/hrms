@@ -312,7 +312,7 @@ try {
             $response[] = [
                 'staff_name' => $row['staff_name'],
                 'type'       => 'Late Entry',
-                'color'      => '#f75d52',
+                'color'      => '#ff7034',
                 'start'      => date(
                     'Y-m-d H:i:s',
                     $lateStart

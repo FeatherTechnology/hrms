@@ -68,7 +68,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                 <div class="form-group">
                                     <label for="company_name">Company Name</label><span class="text-danger">*</span>
                                     <select class="form-control" id="company_name" name="company_name" tabindex="1">
@@ -76,7 +76,23 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                            <div class="form-group">
+                                <label for="branch_name_one">Branch Name</label> 
+                                <select class="form-control" id="branch_name_one" name="branch_name_one" tabindex="2">
+                                    <option value="">Select Branch Name</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                            <div class="form-group">
+                                <label for="department_name_one">Department Name</label> 
+                                <select class="form-control" id="department_name_one" name="department_name_one" tabindex="3">
+                                    <option value="">Select Department Name</option>
+                                </select>
+                            </div>
+                        </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                 <div class="form-group">
                                     <label for="shift_name">Shift Name</label><span class="text-danger">*</span>
                                     <select class="form-control" id="shift_name" name="shift_name" tabindex="2">
@@ -84,7 +100,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                 <div class="form-group">
                                     <label for="staff_name">Staff Name</label><span class="text-danger">*</span>
                                     <select class="form-control" id="staff_name" name="staff_name" tabindex="3">
@@ -92,7 +108,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                 <div class="form-group">
                                     <label for="date"> Date </label><span class="text-danger">*</span>
                                     <input type="date" class="form-control" id="date" name="date" tabindex="4">
@@ -121,8 +137,8 @@
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #f75d52; border-radius: 3px;"></div>
-                        <span>Later Entry / Early Exit</span>
+                        <div style="width: 20px; height: 20px; background-color: #ff7034; border-radius: 3px;"></div>
+                        <span>Later Entry</span>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
