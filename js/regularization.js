@@ -310,7 +310,7 @@ $(document).ready(function () {
   });
 
   // submit regularization
-  $("#submit_regularization").click(function () {
+$("#submit_regularization").click(function (event) {
     event.preventDefault();
     let collData = {
       stf_prf_id: $("#stf_prf_id").val(),
@@ -363,109 +363,171 @@ $(document).ready(function () {
     if (collData["req_type"] == 2) {
       validationResults.push(
         validateField($("#ave_balance").val(), "ave_balance"),
-        validateField($("#balance_req").val(), "balance_req"),
+        validateField($("#balance_req").val(), "balance_req")
       );
     }
+
     if (collData["req_type"] == 3) {
-      validationResults.push(
-        validateField($("#leave_period").val(), "leave_period"),
-        validateField($("#ave_balance").val(), "ave_balance"),
-        validateField($("#balance_req").val(), "balance_req"),
-        validateField($("#leave_days").val(), "leave_days"),
-      );
+        validationResults.push(
+            validateField($("#leave_period").val(), "leave_period"),
+            validateField($("#ave_balance").val(), "ave_balance"),
+            validateField($("#balance_req").val(), "balance_req"),
+            validateField($("#leave_days").val(), "leave_days")
+        );
     }
 
     if (!validationResults.every((result) => result)) {
-      isValid = false;
+        isValid = false;
     }
 
     if ($(".approval_div").is(":visible")) {
-      let approvalValid = true;
+        let approvalValid = true;
 
-      if ($("#approval_type").val() == "0") {
-        $("#approval_type").css("border", "1px solid red");
-        approvalValid = false;
-      } else {
-        $("#approval_type").css("border", "1px solid #cecece");
-      }
+        if ($("#approval_type").val() == "0") {
+            $("#approval_type").css("border", "1px solid red");
+            approvalValid = false;
+        } else {
+            $("#approval_type").css("border", "1px solid #cecece");
+        }
 
-      if ($("#remarks").val().trim() == "") {
-        $("#remarks").css("border", "1px solid red");
-        approvalValid = false;
-      } else {
-        $("#remarks").css("border", "1px solid #cecece");
-      }
+        if ($("#remarks").val().trim() == "") {
+            $("#remarks").css("border", "1px solid red");
+            approvalValid = false;
+        } else {
+            $("#remarks").css("border", "1px solid #cecece");
+        }
 
-      if (!approvalValid) {
-        swalError("Warning", "Please fill out all mandatory fields.");
-        isValid = false;
-        return false;
-      }
+        if (!approvalValid) {
+            swalError("Warning", "Please fill out all mandatory fields.");
+            return false;
+        }
     }
 
-    const req_type = parseInt($("#req_type").val(), 10);
-    const balance_req = parseFloat($("#balance_req").val()) || 0;
+    const req_type = parseInt(collData["req_type"], 10);
+    const balance_req = parseFloat(collData["balance_req"]) || 0;
 
-    // Check balance only for req_type 1,2,3
     if ([1, 2, 3].includes(req_type) && balance_req < 0) {
-      let excessDays = Math.abs(balance_req);
+        let excessDays = Math.abs(balance_req);
 
-      swalError(
-        "Error",
-        `You don't have enough balance. You have applied ${excessDays} more day(s) than your available balance.`,
-      );
+        swalError(
+            "Error",
+            `You don't have enough balance. You have applied ${excessDays} more day(s) than your available balance.`
+        );
 
-      return false;
+        return false;
     }
 
-    if (isValid) {
-      swalConfirm(
-        "Are you sure?",
-        "Do you want to submit this Regularization?",
-        function () {
-          let formData = new FormData();
+    if (!isValid) {
+        return false;
+    }
 
-          $.each(collData, function (key, value) {
-            formData.append(key, value ?? "");
-          });
-
-          let uploadFile = $("#upload")[0].files[0];
-
-          if (uploadFile) {
-            formData.append("upload", uploadFile);
-          }
-          $.ajax({
-            url: "api/regularization_files/submit_regularization.php",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: "json",
-            success: function (response) {
-              if (response.result == "1") {
-                swalSuccess("Success", "Regularization Updated Successfully.");
-                $("#back_btn").trigger("click");
-              } else if (response.result == "2") {
-                swalError("Error", "Failed to Update Regularization");
-              } else if (response.result == "3") {
-                swalSuccess("Success", "Regularization Inserted Successfully.");
-                $("#back_btn").trigger("click");
-              } else if (response.result == "4") {
-                swalError("Error", "Failed to Insert Regularization");
-              } else if (response.result == "5") {
-                swalError("Error", "Already regularization request exists for this date");
-              }
-            },
-            error: function (xhr, status, error) {
-              console.error(xhr.responseText);
-              console.error(error);
-              swalError("Error", "Failed to submit Regularization.");
-            }
-          });
+    $.ajax({
+        url: "api/regularization_files/check_regularization_conflict.php",
+        type: "POST",
+        dataType: "json",
+        data: {
+            stf_prf_id: collData.stf_prf_id,
+            req_type: collData.req_type,
+            from_date: collData.from_date,
+            to_date: collData.to_date,
+            leave_period: collData.leave_period,
+            shift_start: collData.shift_start,
+            shift_end: collData.shift_end,
+            hidden_id: collData.hidden_id,
+            total_min: collData.total_min
         },
-      );
-    }
-  }); //submit END.
+        success: function (response) {
+            if (response.result == "5") {
+                swalError("Warning", response.message);
+                return;
+            }
+
+            if (response.result != "1") {
+                swalError(
+                    "Error",
+                    response.message || "Unable to validate the request."
+                );
+                return;
+            }
+
+            swalConfirm(
+                "Are you sure?",
+                "Do you want to submit this Regularization?",
+                function () {
+                    let formData = new FormData();
+
+                    $.each(collData, function (key, value) {
+                        formData.append(key, value ?? "");
+                    });
+
+                    let uploadFile = $("#upload")[0].files[0];
+
+                    if (uploadFile) {
+                        formData.append("upload", uploadFile);
+                    }
+
+                    $.ajax({
+                        url: "api/regularization_files/submit_regularization.php",
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.result == "1") {
+                                swalSuccess(
+                                    "Success",
+                                    "Regularization Updated Successfully."
+                                );
+                                $("#back_btn").trigger("click");
+                            } else if (response.result == "2") {
+                                swalError(
+                                    "Error",
+                                    "Failed to Update Regularization"
+                                );
+                            } else if (response.result == "3") {
+                                swalSuccess(
+                                    "Success",
+                                    "Regularization Inserted Successfully."
+                                );
+                                $("#back_btn").trigger("click");
+                            } else if (response.result == "4") {
+                                swalError(
+                                    "Error",
+                                    "Failed to Insert Regularization"
+                                );
+                            } else if (response.result == "5") {
+                                swalError(
+                                    "Warning",
+                                    "Already regularization request exists for this date"
+                                );
+                            } else {
+                                swalError(
+                                    "Error",
+                                    response.message || "Failed to submit Regularization."
+                                );
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(xhr.responseText);
+                            swalError(
+                                "Error",
+                                "Failed to submit Regularization."
+                            );
+                        }
+                    });
+                }
+            );
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+            swalError(
+                "Error",
+                "Failed to check existing regularization."
+            );
+        }
+    });
+});
 
   setDateValidation("#from_date", "#to_date");
 
