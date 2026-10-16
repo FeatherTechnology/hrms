@@ -18,7 +18,8 @@ $deptQry = $pdo->query("
 
     SELECT 
         oi.department, 
-        oi.company_id
+        oi.company_id,
+        oi.branch_id
 
     FROM users u
 
@@ -35,20 +36,25 @@ $deptData = $deptQry->fetch(PDO::FETCH_ASSOC);
 
 $department = $deptData['department'];
 $company_id = $deptData['company_id'];
+$branch_id = $deptData['branch_id'];
 
 // GET FEEDBACK LIST
 $qry = $pdo->query("
-    SELECT DISTINCT 
-        fc.id, 
-        fc.feedback_title
+    SELECT fc.id, fc.feedback_title
     FROM feedback_titles fc
-    JOIN feedback_department_mapping fdm 
-        ON fdm.feedback_titles_id = fc.id
-    WHERE fdm.department_id = '$department'
-        AND fc.company_id = '$company_id'
-        AND fc.feedback_status = 0
-        AND NOW() BETWEEN fc.start_date_time 
-        AND fc.end_date_time
+    WHERE fc.company_id = '$company_id'
+      AND fc.feedback_status = 0
+      AND NOW() BETWEEN fc.start_date_time AND fc.end_date_time
+
+      AND (
+            NOT EXISTS (SELECT 1 FROM feedback_department_mapping d WHERE d.feedback_titles_id = fc.id)
+            OR EXISTS  (SELECT 1 FROM feedback_department_mapping d WHERE d.feedback_titles_id = fc.id AND d.department_id = '$department')
+      )
+
+      AND (
+            NOT EXISTS (SELECT 1 FROM feedback_branch_mapping b WHERE b.feedback_titles_id = fc.id)
+            OR EXISTS  (SELECT 1 FROM feedback_branch_mapping b WHERE b.feedback_titles_id = fc.id AND b.branch_id = '$branch_id')
+      )
 ");
 
 // CHECK DATA AVAILABLE

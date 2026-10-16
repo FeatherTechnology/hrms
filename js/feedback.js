@@ -62,7 +62,6 @@ $(document).ready(function () {
               } else {
                 swalError("Error", "Error in table");
               }
-              getKycTable();
             },
           });
         },
@@ -100,41 +99,38 @@ $(document).ready(function () {
         // QUESTIONS
         response.questions.forEach(function (row) {
           html += `
-
-                    <div class="border rounded p-3 mb-3" style="background-color: white;">
-
+                    <div class="border rounded p-3 mb-3 question-row" style="background-color: white;" data-question-id="${row.id}">
                         <div class="row align-items-center">
 
                             <div class="col-md-1" style="display:flex;justify-content:center;align-items: center;">
                                 <b>${row.sno}</b>
                             </div>
 
-                            <div class="col-md-5" style="display:flex;justify-content:center;align-items: center;">
+                            <div class="col-md-4" style="display:flex;justify-content:center;align-items: center;">
                                 ${row.feedback_questions}
                             </div>
 
-                            <div class="col-md-6" style="display:flex;justify-content:center;align-items: center;">
+                            <div class="col-md-4" style="display:flex;justify-content:center;align-items: center;">
+                              <textarea class="form-control feedback_answer" rows="3" placeholder="Enter your answer" style="resize:none;"></textarea>
+                            </div>
 
-                              <textarea class="form-control feedback_answer" data-question-id="${row.id}" rows="3"  placeholder="Enter your answer" style="resize:none;"></textarea>
-
+                            <div class="col-md-3" style="display:flex;flex-direction:column;justify-content:center;">
+                                <label class="form-label mb-1" style="font-size: 12px; color: #6c757d;">Attachment</label>
+                                <input type="file" class="form-control form-control-sm feedback_attachment">
                             </div>
 
                         </div>
-
                     </div>
-
                 `;
         });
         // SUBMIT BUTTON
         html += `
                 <div class="text-end" style="display: flex;justify-content: right;">
-
                     <button 
                         class="btn btn-primary submitFeedbackBtn"
                         value="${feedback_configuration_id}">
                         Submit
                     </button>
-
                 </div>
             `;
         $(".feedbackQuestionDiv").html(html);
@@ -145,62 +141,65 @@ $(document).ready(function () {
 
   $(document).on("click", ".submitFeedbackBtn", function () {
     let feedback_configuration_id = $(this).val();
+    let formData = new FormData();
+    formData.append("feedback_configuration_id", feedback_configuration_id);
 
-    let answerArr = [];
     let isValid = true;
-    // VALIDATE ALL ANSWE
 
-    $(".feedback_answer").each(function () {
-      let question_id = $(this).attr("data-question-id");
-      let answer = $(this).val().trim();
+    $(".question-row").each(function (index) {
+        let question_id = $(this).attr("data-question-id");
+        let answer = $(this).find(".feedback_answer").val().trim();
+        let fileInput = $(this).find(".feedback_attachment")[0].files[0];
 
-      if (answer == "") {
-        isValid = false;
-        $(this).addClass("is-invalid"); // Bootstrap red border
-      } else {
-        $(this).removeClass("is-invalid");
-      }
+        if (answer == "") {
+            isValid = false;
+            $(this).find(".feedback_answer").addClass("is-invalid");
+        } else {
+            $(this).find(".feedback_answer").removeClass("is-invalid");
+        }
 
-      answerArr.push({
-        question_id: question_id,
-        answer: answer,
-      });
+        // Append text answers and files to FormData
+        formData.append(`answerArr[${index}][question_id]`, question_id);
+        formData.append(`answerArr[${index}][answer]`, answer);
+        
+        if (fileInput) {
+            formData.append(`answerArr[${index}][attachment]`, fileInput);
+        }
     });
-    // SHOW ALERT IF ANY ANSWER IS EMP
 
     if (!isValid) {
-      swalError("Validation", "Please answer all questions before submitting.");
-      return false;
+        swalError("Validation", "Please answer all questions before submitting.");
+        return false;
     }
 
-    // INSE
     swalConfirm(
-      "Are you sure?",
-      "Do you want to submit this Feedback ?",
-      function () {
-        $.post(
-          "api/feedback/submit_sch_feedback.php",
-          {
-            feedback_configuration_id: feedback_configuration_id,
-            answerArr: answerArr,
-          },
-          function (response) {
-            if (response == 1) {
-              swalSuccess("Success", "Feedback Answer Submitted Successfully.");
+        "Are you sure?",
+        "Do you want to submit this Feedback ?",
+        function () {
+            $.ajax({
+                url: "api/feedback/submit_sch_feedback.php",
+                type: "POST",
+                data: formData,
+                processData: false, // Required for FormData
+                contentType: false, // Required for FormData
+                success: function (response) {
+                    if (response == 1) {
+                        swalSuccess("Success", "Feedback Answer Submitted Successfully.");
 
-              $('input[name="feedback_type"][value="1"]')
-                .prop("checked", true)
-                .trigger("click");
+                        $('input[name="feedback_type"][value="1"]')
+                            .prop("checked", true)
+                            .trigger("click");
 
-              $(".feedbackQuestionDiv").html("");
-            } else {
-              alert("Failed");
-            }
-          },
-        );
-      },
+                        $(".feedbackQuestionDiv").html("");
+                    } else {
+                        alert("Failed");
+                    }
+                }
+            });
+        },
     );
-  });
+});
+//Document End
 });
 
 $(function () {
@@ -223,10 +222,10 @@ function getfeedbackname() {
       $.each(response, function (index, val) {
         $("#feedback_name").append(
           "<option value='" +
-            val["id"] +
-            "'>" +
-            val["feedback_name"] +
-            "</option>",
+          val["id"] +
+          "'>" +
+          val["feedback_name"] +
+          "</option>",
         );
       });
     },

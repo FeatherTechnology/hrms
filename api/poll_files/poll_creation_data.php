@@ -18,6 +18,7 @@ $result = [];
 $stmt = $pdo->prepare("SELECT
         pt.*,
         GROUP_CONCAT(DISTINCT pdm.department_id) AS department_ids,
+        GROUP_CONCAT(DISTINCT pbm.branch_id) AS branch_ids,
         GROUP_CONCAT(
             DISTINCT pom.poll_options
             SEPARATOR '||'
@@ -25,6 +26,8 @@ $stmt = $pdo->prepare("SELECT
     FROM poll_titles pt
     LEFT JOIN poll_department_mapping pdm
         ON pt.id = pdm.poll_titles_id
+    LEFT JOIN poll_branch_mapping pbm
+        ON pt.id = pbm.poll_titles_id
     LEFT JOIN poll_options_mapping pom
         ON pt.id = pom.poll_titles_id
     WHERE pt.id = ?
@@ -39,6 +42,9 @@ if ($stmt->rowCount() > 0) {
 
     $result['department_ids'] = !empty($result['department_ids'])
         ? explode(',', $result['department_ids'])
+        : [];
+    $result['branch_ids'] = !empty($result['branch_ids'])
+        ? explode(',', $result['branch_ids'])
         : [];
 
     $result['poll_options'] = !empty($result['poll_options'])

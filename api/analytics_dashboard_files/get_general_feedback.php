@@ -22,7 +22,8 @@ if (!empty($user) && !empty($user['feedback_access_type'])) {
             sgf.commants,
             u.user_name AS visible_to,
             us.user_name AS submitted_by,
-            u.feedback_access_type
+            u.feedback_access_type,
+            sgf.attachment
         FROM staff_general_feedback sgf
         LEFT JOIN general_feedback gf ON gf.id = sgf.general_feedback_id
         LEFT JOIN users u ON u.id = sgf.user_id

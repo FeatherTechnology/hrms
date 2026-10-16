@@ -1,16 +1,36 @@
 <?php
-// to delete the regularization request
-
 require "../../ajaxconfig.php";
 
-$id = $_POST['id'];
+$id = $_POST['id'] ?? '';
 
-$query = "DELETE FROM regularization WHERE id = :id";
+try {
+    $query = "SELECT req_type, upload FROM regularization WHERE id = :id";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':id', $id);
+    $stmt->execute();
 
-$stmt = $pdo->prepare($query);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$stmt->bindParam(':id', $id);
+    if (!$row) {
+        echo 0;
+        exit;
+    }
 
-echo $stmt->execute() ? 1 : 0;
+    if ($row['req_type'] == 1 && !empty($row['upload'])) {
+        $filePath = "../../uploads/leave/document/" . basename($row['upload']);
 
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+    }
+
+    $query = "DELETE FROM regularization WHERE id = :id";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':id', $id);
+
+    echo $stmt->execute() ? 1 : 0;
+
+} catch (PDOException $e) {
+    echo 0;
+}
 ?>

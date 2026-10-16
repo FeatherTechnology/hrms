@@ -8,11 +8,18 @@ try {
     $pdo->beginTransaction();
 
     $feedback_config_company_name      = $_POST['feedback_config_company_name'];
-    $feedback_config_department_name   = isset($_POST['feedback_config_department_name']) ? $_POST['feedback_config_department_name'] : [];
-    $feedback_config_department_name2  = isset($_POST['feedback_config_department_name2']) ? explode(',', $_POST['feedback_config_department_name2']) : [];
+    $feedback_config_branch_name = $_POST['feedback_config_branch_name'] ?? [];
+    $feedback_config_branch_name2 = $_POST['feedback_config_branch_name2'] ?? [];
+    $feedback_config_branch_name = is_array($feedback_config_branch_name) ? $feedback_config_branch_name : explode(',', $feedback_config_branch_name);
+    $feedback_config_branch_name2 = is_array($feedback_config_branch_name2) ? $feedback_config_branch_name2 : explode(',', $feedback_config_branch_name2);
+    $feedback_config_department_name = $_POST['feedback_config_department_name'] ?? [];
+    $feedback_config_department_name2 = $_POST['feedback_config_department_name2'] ?? [];
+    $feedback_config_department_name = is_array($feedback_config_department_name) ? $feedback_config_department_name : explode(',', $feedback_config_department_name);
+    $feedback_config_department_name2 = is_array($feedback_config_department_name2) ? $feedback_config_department_name2 : explode(',', $feedback_config_department_name2);
+
     $feedback_config_start_date        = $_POST['feedback_config_start_date'];
     $feedback_config_end_date          = $_POST['feedback_config_end_date'];
-    $feedback_title                    = trim($_POST['feedback_title']); 
+    $feedback_title                    = trim($_POST['feedback_title']);
     $feedback_questions                = isset($_POST['feedback_questions']) ? $_POST['feedback_questions'] : [];
 
     $user_id                           = $_SESSION['user_id'];
@@ -69,6 +76,32 @@ try {
                 $department_new_id
             ]);
         }
+        /*--- Branch Update ---*/
+        $feedback_config_branch_name = array_map('intval', $feedback_config_branch_name);
+        $feedback_config_branch_name2 = array_map('intval', $feedback_config_branch_name2);
+
+        $branch_to_delete = array_diff($feedback_config_branch_name2, $feedback_config_branch_name);
+        $branch_to_insert = array_diff($feedback_config_branch_name, $feedback_config_branch_name2);
+
+        foreach ($branch_to_delete as $branch_del_id) {
+
+            $stmt = $pdo->prepare("DELETE FROM feedback_branch_mapping WHERE feedback_titles_id = ? AND branch_id = ?");
+
+            $stmt->execute([
+                $feedback_titles_id,
+                $branch_del_id
+            ]);
+        }
+
+        foreach ($branch_to_insert as $branch_new_id) {
+
+            $stmt = $pdo->prepare("INSERT INTO feedback_branch_mapping (feedback_titles_id, branch_id) VALUES (?, ?)");
+
+            $stmt->execute([
+                $feedback_titles_id,
+                $branch_new_id
+            ]);
+        }
 
         /*---- Delete Old Questions ----*/
         $stmt = $pdo->prepare("DELETE FROM feedback_questions_mapping WHERE feedback_titles_id = ?");
@@ -115,6 +148,21 @@ try {
                 $stmt->execute([
                     $feedback_titles_id,
                     $department_id
+                ]);
+            }
+        }
+
+        foreach ($feedback_config_branch_name as $branch_id) {
+
+            $branch_id = (int)$branch_id;
+
+            if ($branch_id > 0) {
+
+                $stmt = $pdo->prepare("INSERT INTO feedback_branch_mapping (feedback_titles_id, branch_id) VALUES (?, ?)");
+
+                $stmt->execute([
+                    $feedback_titles_id,
+                    $branch_id
                 ]);
             }
         }

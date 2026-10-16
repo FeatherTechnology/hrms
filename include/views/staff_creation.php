@@ -369,45 +369,45 @@
                                 </div>
                             </div>
                             <div class="card mt-3">
-                            <div class="card-header">
-                                <h5 class="card-title">Bank Info</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <!-- Fields -->
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <div class="form-group">
-                                            <label for="acc_holder_name">Account Holder Name</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control" id="acc_holder_name" name="acc_holder_name" placeholder="Enter Account Holder Name" tabindex="26">
+                                <div class="card-header">
+                                    <h5 class="card-title">Bank Info</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <!-- Fields -->
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="acc_holder_name">Account Holder Name</label><span class="text-danger">*</span>
+                                                <input type="text" class="form-control" id="acc_holder_name" name="acc_holder_name" placeholder="Enter Account Holder Name" tabindex="26">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <div class="form-group">
-                                            <label for="bank_name"> Bank Name</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control" id="bank_name" name="bank_name" placeholder="Enter Bank Name" tabindex="27">
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="bank_name"> Bank Name</label><span class="text-danger">*</span>
+                                                <input type="text" class="form-control" id="bank_name" name="bank_name" placeholder="Enter Bank Name" tabindex="27">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <div class="form-group">
-                                            <label for="acc_number"> Account Number </label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control" id="acc_number" name="acc_number" placeholder="Enter Account Number" tabindex="28">
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="acc_number"> Account Number </label><span class="text-danger">*</span>
+                                                <input type="number" class="form-control" id="acc_number" name="acc_number" placeholder="Enter Account Number" tabindex="28">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <div class="form-group">
-                                            <label for="ifsc_code"> IFSC Code</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control" id="ifsc_code" name="ifsc_code" placeholder="Enter IFSC Code" tabindex="29">
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="ifsc_code"> IFSC Code</label><span class="text-danger">*</span>
+                                                <input type="text" class="form-control" id="ifsc_code" name="ifsc_code" placeholder="Enter IFSC Code" tabindex="29">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <div class="form-group">
-                                            <label for="bank_branch">Branch</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control" id="bank_branch" name="bank_branch" placeholder="Enter Branch" tabindex="30">
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="form-group">
+                                                <label for="bank_branch">Branch</label><span class="text-danger">*</span>
+                                                <input type="text" class="form-control" id="bank_branch" name="bank_branch" placeholder="Enter Branch" tabindex="30">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                             <div class="card">
                                 <div class="card-header">
                                     <div class="card-title">Documents Info
@@ -943,7 +943,8 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="year_of_passing">Year of Passing</label><span class="text-danger">*</span>
-                                    <input type="number" class="form-control" name="year_of_passing" id="year_of_passing" tabindex="1" placeholder="Enter Year of Passing" onchange="if(this.value.length != 4) { alert('Enter a valid 4-digit year'); this.value=''; }">
+                                    <input type="text" class="form-control" name="year_of_passing" id="year_of_passing" tabindex="1" placeholder="Enter Year of Passing"
+                                        maxlength="4" inputmode="numeric" autocomplete="off">
                                 </div>
                             </div>
 

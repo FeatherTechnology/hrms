@@ -5,8 +5,15 @@ require '../../ajaxconfig.php';
 
 $rating_titles_id = $_POST['rating_titles_id'];
 $rating_company_name = $_POST['rating_company_name'];
-$rating_department_name   = isset($_POST['rating_department_name']) ? $_POST['rating_department_name'] : [];
-$rating_department_name2  = isset($_POST['rating_department_name2']) ? explode(',', $_POST['rating_department_name2']) : [];
+
+    $rating_branch_name = $_POST['rating_branch_name'] ?? [];
+$rating_branch_name2 = $_POST['rating_branch_name2'] ?? [];
+$rating_branch_name = is_array($rating_branch_name) ? $rating_branch_name : explode(',', $rating_branch_name);
+$rating_branch_name2 = is_array($rating_branch_name2) ? $rating_branch_name2 : explode(',', $rating_branch_name2);
+$rating_department_name = $_POST['rating_department_name'] ?? [];
+$rating_department_name2 = $_POST['rating_department_name2'] ?? [];
+$rating_department_name = is_array($rating_department_name) ? $rating_department_name : explode(',', $rating_department_name);
+$rating_department_name2 = is_array($rating_department_name2) ? $rating_department_name2 : explode(',', $rating_department_name2);
 $rating_start_date = $_POST['rating_start_date'];
 $rating_end_date = $_POST['rating_end_date'];
 $rating_title = $_POST['rating_title'];
@@ -22,6 +29,7 @@ if ($rating_titles_id != '') {
 
     // Calculate deleted and newly added IDs
     $rating_department_name = array_map('intval', $rating_department_name);
+    $rating_department_name2 = array_map('intval', $rating_department_name2);
 
     $rating_to_delete = array_diff($rating_department_name2, $rating_department_name);
     $rating_to_insert = array_diff($rating_department_name, $rating_department_name2);
@@ -29,11 +37,29 @@ if ($rating_titles_id != '') {
     // Delete unselected departments
     foreach ($rating_to_delete as $department_del_id) {
         $pdo->query("DELETE FROM rating_department_mapping WHERE rating_titles_id = $rating_titles_id AND department_id	 = $department_del_id");
+      
     }
 
     // Insert new departments
     foreach ($rating_to_insert as $department_new_id) {
-        $pdo->query("INSERT INTO rating_department_mapping (rating_titles_id, department_id	) VALUES ($rating_titles_id, $department_new_id)");
+        $pdo->query("INSERT INTO rating_department_mapping (rating_titles_id, department_id) VALUES ($rating_titles_id, $department_new_id)");
+    }
+
+     // Calculate deleted and newly added Branch IDs
+    $rating_branch_name = array_map('intval', $rating_branch_name);
+    $rating_branch_name2 = array_map('intval', $rating_branch_name2);
+
+    $branch_to_delete = array_diff($rating_branch_name2, $rating_branch_name);
+    $branch_to_insert = array_diff($rating_branch_name, $rating_branch_name2);
+
+    // Delete unselected departments
+    foreach ($branch_to_delete as $branch_del_id) {
+        $pdo->query("DELETE FROM rating_branch_mapping WHERE rating_titles_id = $rating_titles_id AND department_id	 = $branch_del_id");
+    }
+
+    // Insert new departments
+    foreach ($branch_to_insert as $branch_new_id) {
+        $pdo->query("INSERT INTO rating_branch_mapping (rating_titles_id, branch_id) VALUES ($rating_titles_id, $branch_new_id)");
     }
 
     if ($pdo) {
@@ -49,8 +75,17 @@ if ($rating_titles_id != '') {
     foreach ($rating_department_name as $department_id) {
         $department_id     = (int)trim($department_id);
         if ($department_id > 0) {
-            $departmentQry = "INSERT INTO rating_department_mapping (rating_titles_id, department_id	) VALUES ($rating_titles_id, $department_id	)";
+            $departmentQry = "INSERT INTO rating_department_mapping (rating_titles_id, department_id) VALUES ($rating_titles_id, $department_id)";
             $pdo->query($departmentQry) or die("Error inserting department map: " . $pdo->errorInfo());
+        }
+    }
+
+    // Insert into Bnanch mapping table
+    foreach ($rating_branch_name as $branch_id) {
+        $branch_id     = (int)trim($branch_id);
+        if ($branch_id > 0) {
+            $branchQry = "INSERT INTO rating_branch_mapping (rating_titles_id, branch_id) VALUES ($rating_titles_id, $branch_id)";
+            $pdo->query($branchQry) or die("Error inserting branch map: " . $pdo->errorInfo());
         }
     }
 

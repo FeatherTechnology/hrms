@@ -111,6 +111,7 @@ function getGeneralFeedback() {
             <td>${row.commants ?? "-"}</td>
             <td>${row.submitted_by ?? "-"}</td>
             <td>${row.visible_to ?? "-"}</td>
+             <td>${getAttachmentHtml(row.attachment)}</td>
           </tr>
         `;
       });
@@ -151,6 +152,14 @@ function getDashboardList(type, tableId) {
                         </td>
                     `;
         }
+        // FEEDBACK ATTACHMENT VIEW BUTTON
+        else if (type == "feedback") {
+          extraColumn = `
+            <td>
+              <button class="btn btn-sm btn-info viewFeedbackAttachments" value="${row.id}"> View
+              </button>
+            </td>`;
+        }
         html += `
                     <tr>
                         <td>${row.sno}</td>
@@ -180,6 +189,9 @@ function getDashboardList(type, tableId) {
           );
         }
       }
+      if (type == "feedback" && $(tableId + " thead th.feedback-attachment").length == 0) {
+        $(tableId + " thead tr").append(`<th class="feedback-attachment">Attachments</th>`);
+      }
     },
   });
 }
@@ -202,3 +214,108 @@ function getActiveCount(type, element) {
     },
   });
 }
+
+
+function getAttachmentHtml(attachment) {
+    if (!attachment || !attachment.trim()) {
+        return "-";
+    }
+
+    const fileName = attachment.split(/[\\/]/).pop();
+    const extension = fileName.split(".").pop().toLowerCase();
+    const fileUrl = "/hrms/uploads/general_feedback/" +
+        attachment.split(/[\\/]/).map(encodeURIComponent).join("/");
+
+    const safeUrl = $('<a>').attr('href', fileUrl).prop('href');
+    const safeName = $('<span>').text(fileName).html();
+
+    if (["jpg", "jpeg", "png", "gif", "webp", "bmp"].includes(extension)) {
+        return `
+            <a href="${safeUrl}" target="_blank" rel="noopener">
+                ${safeName}
+            </a>`;
+    }
+
+    if (["mp3", "wav", "ogg", "m4a", "aac"].includes(extension)) {
+        return `
+            <div>
+                <div>${safeName}</div>
+                <audio controls preload="none" style="width:220px;max-width:100%;">
+                    <source src="${safeUrl}">
+                    Your browser does not support audio.
+                </audio>
+            </div>`;
+    }
+
+    if (["mp4", "webm", "ogv", "mov", "m4v"].includes(extension)) {
+        return `
+            <div>
+                <div>${safeName}</div>
+                <video controls preload="metadata"
+                       style="width:220px;max-width:100%;max-height:150px;">
+                    <source src="${safeUrl}">
+                    Your browser does not support video.
+                </video>
+            </div>`;
+    }
+
+    if (extension === "pdf") {
+        return `
+            <a href="${safeUrl}" target="_blank" rel="noopener">
+                ${safeName}
+            </a>`;
+    }
+
+    return `
+        <a href="${safeUrl}" target="_blank" rel="noopener" download="${safeName}">
+            ${safeName}
+        </a>`;
+}
+
+// Click event for View Attachments button
+$(document).on("click", ".viewFeedbackAttachments", function () {
+    let feedback_titles_id = $(this).val();
+
+    $.post(
+        "api/analytics_dashboard_files/get_feedback_attachments_matrix.php",
+        { feedback_titles_id: feedback_titles_id },
+        function (response) {
+            let theadHtml = `<th>S.No</th><th>Staff Name</th>`;
+            let tbodyHtml = "";
+
+            // Build dynamic question columns
+            response.questions.forEach(function (q, idx) {
+                theadHtml += `<th>Q${idx + 1}: ${q.feedback_questions}</th>`;
+            });
+
+            // Build staff attachment rows
+            if (response.data.length > 0) {
+                response.data.forEach(function (staffRow, index) {
+                    tbodyHtml += `<tr>`;
+                    tbodyHtml += `<td>${index + 1}</td>`;
+                    tbodyHtml += `<td><b>${staffRow.staff_name}</b></td>`;
+
+                    response.questions.forEach(function (q) {
+                        let file = staffRow.attachments[q.id];
+                        if (file && file.trim() !== "") {
+                            let fileUrl = "/hrms/uploads/schedule_feedback/" + encodeURIComponent(file);
+                            let fileName = file.split(/[\\/]/).pop();
+                            tbodyHtml += `<td><a href="${fileUrl}" target="_blank" rel="noopener">${fileName}</a></td>`;
+                        } else {
+                            tbodyHtml += `<td>-</td>`;
+                        }
+                    });
+
+                    tbodyHtml += `</tr>`;
+                });
+            } else {
+                tbodyHtml += `<tr><td colspan="${response.questions.length + 2}" class="text-center">No attachments found.</td></tr>`;
+            }
+
+            $("#attachmentTableHead").html(theadHtml);
+            $("#attachmentTableBody").html(tbodyHtml);
+            $("#attachmentModal").modal("show");
+        },
+        "json"
+    );
+});

@@ -25,6 +25,20 @@ try {
 
         $deduction_month .= '-01';
 
+        $check = $pdo->prepare("
+            SELECT id
+            FROM staff_deduction
+            WHERE staff_loan_id = ?
+              AND deduction_month = ?
+            LIMIT 1
+        ");
+        $check->execute([$staff_loan_id, $deduction_month]);
+
+        if ($check->fetch()) {
+            echo json_encode(3);
+            exit;
+        }
+
         $stmt = $pdo->prepare("
             INSERT INTO staff_deduction (
                 staff_loan_id,

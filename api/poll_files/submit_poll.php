@@ -8,8 +8,14 @@ try {
     $pdo->beginTransaction();
 
     $poll_company_name      = $_POST['poll_company_name'];
-    $poll_department_name   = isset($_POST['poll_department_name']) ? $_POST['poll_department_name'] : [];
-    $poll_department_name2  = isset($_POST['poll_department_name2']) ? explode(',', $_POST['poll_department_name2']) : [];
+    $poll_branch_name = $_POST['poll_branch_name'] ?? [];
+    $poll_branch_name2 = $_POST['poll_branch_name2'] ?? [];
+    $poll_branch_name = is_array($poll_branch_name) ? $poll_branch_name : explode(',', $poll_branch_name);
+    $poll_branch_name2 = is_array($poll_branch_name2) ? $poll_branch_name2 : explode(',', $poll_branch_name2);
+    $poll_department_name = $_POST['poll_department_name'] ?? [];
+    $poll_department_name2 = $_POST['poll_department_name2'] ?? [];
+    $poll_department_name = is_array($poll_department_name) ? $poll_department_name : explode(',', $poll_department_name);
+    $poll_department_name2 = is_array($poll_department_name2) ? $poll_department_name2 : explode(',', $poll_department_name2);
     $poll_start_date        = $_POST['poll_start_date'];
     $poll_end_date          = $_POST['poll_end_date'];
     $poll_title             = trim($_POST['poll_title']);
@@ -66,6 +72,26 @@ try {
 
             $stmt->execute([$poll_titles_id, $department_new_id]);
         }
+         /*--- Branch Update ---*/
+        $poll_branch_name = array_map('intval', $poll_branch_name);
+        $poll_branch_name2 = array_map('intval', $poll_branch_name2);
+
+        $branch_to_delete = array_diff($poll_branch_name2, $poll_branch_name);
+        $branch_to_insert = array_diff($poll_branch_name, $poll_branch_name2);
+
+        foreach ($branch_to_delete as $branch_del_id) {
+
+            $stmt = $pdo->prepare("DELETE FROM poll_branch_mapping WHERE poll_titles_id = ? AND branch_id = ?");
+
+            $stmt->execute([$poll_titles_id, $branch_del_id]);
+        }
+
+        foreach ($branch_to_insert as $branch_new_id) {
+
+            $stmt = $pdo->prepare("INSERT INTO poll_branch_mapping (poll_titles_id, branch_id) VALUES (?, ?)");
+
+            $stmt->execute([$poll_titles_id, $branch_new_id]);
+        }
 
         /*--- Delete Old Options ---*/
         $stmt = $pdo->prepare("DELETE FROM poll_options_mapping WHERE poll_titles_id = ?");
@@ -115,6 +141,18 @@ try {
                 $stmt = $pdo->prepare("INSERT INTO poll_department_mapping (poll_titles_id, department_id) VALUES (?, ?)");
 
                 $stmt->execute([$poll_titles_id, $department_id]);
+            }
+        }
+
+        foreach ($poll_branch_name as $branch_id) {
+
+            $branch_id = (int)$branch_id;
+
+            if ($branch_id > 0) {
+
+                $stmt = $pdo->prepare("INSERT INTO poll_branch_mapping (poll_titles_id, branch_id) VALUES (?, ?)");
+
+                $stmt->execute([$poll_titles_id, $branch_id]);
             }
         }
 

@@ -23,7 +23,8 @@ $i = 0;
 /* Get Employee Department and Company */
 $deptStmt = $pdo->prepare("SELECT
         oi.department,
-        oi.company_id
+        oi.company_id,
+        oi.branch_id
     FROM users u
     LEFT JOIN occupation_info oi
         ON oi.id = (
@@ -40,24 +41,31 @@ $deptData = $deptStmt->fetch(PDO::FETCH_ASSOC);
 
 $department = $deptData['department'] ?? '';
 $company_id = $deptData['company_id'] ?? '';
+$branch_id = $deptData['branch_id'] ?? '';
 
 /* Get Active Ratings */
-$stmt = $pdo->prepare("SELECT DISTINCT
-        rt.id,
-        rt.rating_title
+$stmt = $pdo->prepare("
+    SELECT rt.id, rt.rating_title
     FROM rating_titles rt
-    INNER JOIN rating_department_mapping rdm
-        ON rdm.rating_titles_id = rt.id
-    WHERE rdm.department_id = ?
-    AND rt.company_id = ?
-    AND rt.rating_status = ?
-    AND NOW() BETWEEN rt.start_date_time AND rt.end_date_time
-");
+    WHERE rt.company_id = :company_id
+      AND rt.rating_status = :rating_status
+      AND NOW() BETWEEN rt.start_date_time AND rt.end_date_time
 
+      AND (
+            NOT EXISTS (SELECT 1 FROM rating_department_mapping d WHERE d.rating_titles_id = rt.id)
+            OR EXISTS  (SELECT 1 FROM rating_department_mapping d WHERE d.rating_titles_id = rt.id AND d.department_id = :department)
+      )
+
+      AND (
+            NOT EXISTS (SELECT 1 FROM rating_branch_mapping b WHERE b.rating_titles_id = rt.id)
+            OR EXISTS  (SELECT 1 FROM rating_branch_mapping b WHERE b.rating_titles_id = rt.id AND b.branch_id = :branch_id)
+      )
+");
 $stmt->execute([
-    $department,
-    $company_id,
-    0
+    ':company_id'    => $company_id,
+    ':rating_status' => 0,          // use the same value you were passing before
+    ':department'    => $department,
+    ':branch_id'     => $branch_id,
 ]);
 
 if ($stmt->rowCount() > 0) {
