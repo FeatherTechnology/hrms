@@ -1,12 +1,15 @@
+
 $(document).ready(function () {
-  // company name on change
+
+  // Company name on change
   $("#cmpy_name").change(function () {
     let cmpy_id = $(this).val();
     getBranchList(cmpy_id);
   });
 
-  // gendrate pay roll
+  // Generate payroll
   $("#gen_pay_roll").click(function () {
+
     let company_id = $("#cmpy_name").val();
     let branch_id = $("#branch_name").val();
     let month = $("#date").val();
@@ -18,96 +21,118 @@ $(document).ready(function () {
     }
   });
 
-  // document end
 });
 
 $(function () {
   getCompanyList();
 });
 
-// to get the company list
+
+// ==========================================================
+// GET COMPANY LIST
+// ==========================================================
+
 function getCompanyList() {
+
   $.post(
     "api/attendance_files/get_company_list.php",
     {},
     function (response) {
+
       $("#cmpy_name").empty();
-      $("#cmpy_name").append("<option value=''>Select Company Name</option>");
+
+      $("#cmpy_name").append(
+        "<option value=''>Select Company Name</option>"
+      );
 
       $.each(response, function (index, val) {
         $("#cmpy_name").append(
-          "<option value='" +
-            val["id"] +
-            "'>" +
-            val["company_name"] +
-            "</option>",
+          "<option value='" + val["id"] + "'>" +
+          val["company_name"] +
+          "</option>"
         );
       });
+
     },
-    "json",
+    "json"
   );
 }
 
-// to get the branch list
+
+// ==========================================================
+// GET BRANCH LIST
+// ==========================================================
+
 function getBranchList(cmpy_id) {
+
   $.post(
     "api/attendance_files/get_branch_list.php",
-    { cmpy_id },
+    { cmpy_id: cmpy_id },
+
     function (response) {
+
       $("#branch_name").empty();
-      $("#branch_name").append("<option value=''>Select Branch Name</option>");
+
+      $("#branch_name").append(
+        "<option value=''>Select Branch Name</option>"
+      );
 
       $.each(response, function (index, val) {
         $("#branch_name").append(
-          "<option value='" +
-            val["id"] +
-            "'>" +
-            val["branch_name"] +
-            "</option>",
+          "<option value='" + val["id"] + "'>" +
+          val["branch_name"] +
+          "</option>"
         );
       });
+
     },
-    "json",
+    "json"
   );
 }
 
-// to get the pay roll
+
+// ==========================================================
+// GET PAYROLL
+// ==========================================================
+
 function getPayRoll(company_id, branch_id, month) {
+
   $.post(
     "api/payroll_files/get_payroll.php",
     {
-      company_id,
-      branch_id,
-      month,
+      company_id: company_id,
+      branch_id: branch_id,
+      month: month
     },
+
     function (response) {
 
+      // ====================================================
       // CHECK PENDING REGULARIZATION
+      // ====================================================
+
       if (response.status == 0) {
 
         $(".payroll_list").hide();
 
-        swalError(
-          "Warning",
-          response.message
-        );
+        swalError("Warning", response.message);
 
         return false;
       }
 
-
       $(".payroll_list").show();
 
-      let components = response.components;
+      let components = response.components || [];
 
-      //////////////////////////////////////////////////////
+
+      // ====================================================
       // BUILD TABLE HEADER
-      //////////////////////////////////////////////////////
+      // ====================================================
 
       let table = `
         <table class="table table-bordered" id="payroll_table">
-          <thead>
 
+          <thead>
             <tr>
               <th rowspan="2">SNO</th>
               <th rowspan="2">Staff ID</th>
@@ -116,53 +141,73 @@ function getPayRoll(company_id, branch_id, month) {
               <th rowspan="2">Department</th>
               <th rowspan="2">Designation</th>
               <th rowspan="2">Team</th>
-              <th rowspan="2">CTC</th>
+              <th rowspan="2">Total CTC</th>
+              <th rowspan="2">One Day Salary</th>
+              <th rowspan="2">Working Days</th>
+              <th rowspan="2">LOP Days</th>
+              <th rowspan="2">LOP Amount</th>
+              <th rowspan="2">Earned For Month</th>
 
-              <th colspan="${components.length +2}">Gross Salary</th>
+              <th colspan="${components.length}">
+                Salary Components
+              </th>
 
-              <th rowspan="2">Gross Total</th>
+              <th rowspan="2">Extra Working Days</th>
+              <th rowspan="2">Extra Working Amount</th>
+              <th rowspan="2">OT Amount</th>
 
-              <th colspan="8">Total Deductions</th>
+              <th rowspan="2">Employer PF</th>
+              <th rowspan="2">Employer ESI</th>
+              <th rowspan="2">Gross Salary</th>
 
-              <th rowspan="2">Deduction</th>
+              <th colspan="7">Deductions</th>
+
               <th rowspan="2">Net Salary</th>
+              <th rowspan="2">Loan Due</th>
+              <th rowspan="2">Salary Advance</th>
+              <th rowspan="2">Attendance Deduction</th>
+              <th rowspan="2">Total Deduction</th>
+              <th rowspan="2">Take Home</th>
             </tr>
 
             <tr>
       `;
 
 
+      // ====================================================
+      // SALARY COMPONENT HEADERS
+      // ====================================================
+
       components.forEach(function (component) {
-        console.log(component.name);
         table += `<th>${component.name}</th>`;
       });
 
 
+      // ====================================================
+      // DEDUCTION HEADERS
+      // ====================================================
+
       table += `
-          <th>OT Amount</th>
-          <th>Extra Working Days</th>
-
-          <th>PF</th>
-          <th>Admin Charge</th>
-          <th>Pension</th>
-          <th>ESI</th>
-          <th>PT</th>
-          <th>Attendance Deduction</th>
-          <th>Loan Due</th>
-          <th>Salary Advance</th>
-
-          </tr>
-
+              <th>PF</th>
+              <th>Admin Charge</th>
+              <th>Pension</th>
+              <th>ESI</th>
+              <th>PT</th>
+              <th>Employer PF Contribution</th>
+              <th>Employer ESI Contribution</th>
+            </tr>
           </thead>
 
           <tbody></tbody>
-
         </table>
       `;
 
-
       $("#payroll_table_div").html(table);
 
+
+      // ====================================================
+      // BASE COLUMN MAPPING
+      // ====================================================
 
       let columnMapping = [
         "sno",
@@ -173,42 +218,79 @@ function getPayRoll(company_id, branch_id, month) {
         "designation",
         "team",
         "total_ctc",
+        "one_day_salary",
+        "working_days",
+        "lop_days",
+        "lop_amount",
+        "earned_for_month"
       ];
 
 
-      $.each(response.data, function (index, val) {
+      // ====================================================
+      // ADD SALARY COMPONENT VALUES
+      // ====================================================
+
+      $.each(response.data || [], function (index, val) {
 
         components.forEach(function (component) {
 
           val[`comp_${component.id}`] =
-            val.components?.[component.id] || 0;
+            val.components &&
+            val.components[component.id] !== undefined
+              ? val.components[component.id]
+              : 0;
 
         });
 
       });
 
 
-     components.forEach(function (component) {
-      columnMapping.push(`comp_${component.id}`);
-    });
+      // ====================================================
+      // SALARY COMPONENT COLUMN MAPPING
+      // ====================================================
 
+      components.forEach(function (component) {
+        columnMapping.push(`comp_${component.id}`);
+      });
+
+
+      // ====================================================
+      // REMAINING COLUMN MAPPING
+      // MUST MATCH THE HEADER ORDER
+      // ====================================================
 
       columnMapping.push(
-        "ot_amount",
+
+        // Earnings
         "extra_working",
+        "extra_working_amount",
+        "ot_amount",
+        "employer_pf_earning",
+        "employer_esi_earning",
         "gross_total",
+
+        // Deductions section: 7 columns
         "pf",
         "admin_charge",
         "pension",
         "esi",
         "pt",
-        "attendance_deduction",
+        "employer_pf_deduction",
+        "employer_esi_deduction",
+
+        // After deductions section
+        "net_salary",
         "loan_due",
         "salary_advance",
+        "attendance_deduction",
         "deduction_total",
-        "net_salary",
+        "take_home"
       );
 
+
+      // ====================================================
+      // APPEND DATA
+      // ====================================================
 
       appendDataToTable(
         "#payroll_table",
@@ -217,10 +299,16 @@ function getPayRoll(company_id, branch_id, month) {
       );
 
 
-      setdtable("#payroll_table", "Payroll Report");
+      // ====================================================
+      // DATATABLE
+      // ====================================================
 
+      setdtable(
+        "#payroll_table",
+        "Payroll Report"
+      );
 
     },
-    "json",
+    "json"
   );
 }
