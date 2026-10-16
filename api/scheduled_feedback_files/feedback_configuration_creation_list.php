@@ -26,10 +26,17 @@ $stmt = $pdo->prepare("SELECT
             DISTINCT dc.department_name
             ORDER BY dc.department_name
             SEPARATOR ', '
-        ) AS department_name
+        ) AS department_name,
+        GROUP_CONCAT(
+            DISTINCT bc.branch_name
+            ORDER BY bc.branch_name
+            SEPARATOR ', '
+        ) AS branch_name
     FROM feedback_titles ft
     LEFT JOIN feedback_department_mapping fdm ON ft.id = fdm.feedback_titles_id
     LEFT JOIN department_creation dc ON dc.id = fdm.department_id
+    LEFT JOIN feedback_branch_mapping fbm ON ft.id = fbm.feedback_titles_id
+    LEFT JOIN branch_creation bc ON bc.id = fbm.branch_id
     LEFT JOIN staff_sch_feedback ssf ON ssf.feedback_titles_id = ft.id
     WHERE ft.company_id = ?
     AND ft.feedback_status != ?

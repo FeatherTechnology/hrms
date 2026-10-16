@@ -369,7 +369,6 @@ $(document).ready(function () {
       );
     }
   });
-
   $(document).on("click", ".familyActionBtn", function () {
     var id = $(this).attr("value"); // Get value attribute
     $.post(
@@ -388,6 +387,18 @@ $(document).ready(function () {
       "json",
     );
   });
+
+// digits only, maximum 4 (also handles paste, so 23444 becomes 2344 while typing)
+$('#year_of_passing').on('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 4);
+});
+
+// when leaving the field: if it is not exactly 4 digits, empty it
+$('#year_of_passing').on('blur', function () {
+    if (!/^\d{4}$/.test(this.value)) {
+        this.value = '';
+    }
+});
 
   $(document).on("click", ".familyDeleteBtn", function () {
     var id = $(this).attr("value");
@@ -2139,7 +2150,7 @@ function enableEditMode() {
   let staff_sts = $("#staff_sts").val()
   if (staff_sts >= 2) {
     $("#notice_period").prop("readonly", true);
-  }else{
+  } else {
     $("#notice_period").prop("readonly", false);
   }
   let status = $('input[name="staff_status"]:checked').val(); // 1 = Inactive, 2 = Active
@@ -2286,7 +2297,7 @@ function updateStaffStatus(staff_id) {
     url: "api/staff_creation/update_staff_status.php",
     type: "POST",
     dataType: "json",
-    data: { staff_id: staff_id ,status:2},
+    data: { staff_id: staff_id, status: 2 },
     success: function (response) {
       if (response.status == 1) {
         swalSuccessOk('Success', response.message, function () {

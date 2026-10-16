@@ -78,17 +78,13 @@ $(document).ready(function () {
 
 
   // Get time whether separator is T or space
-  let fromTime = fromValue.includes("T")
-    ? fromValue.split("T")[1].substring(0, 5)
-    : fromValue.includes(" ")
-      ? fromValue.split(" ")[1].substring(0, 5)
-      : "";
+   let fromTime = fromValue.includes("T")
+        ? fromValue.split("T")[1].substring(0, 5)
+        : "";
 
-  let toTime = toValue.includes("T")
-    ? toValue.split("T")[1].substring(0, 5)
-    : toValue.includes(" ")
-      ? toValue.split(" ")[1].substring(0, 5)
-      : "";
+    let toTime = toValue.includes("T")
+        ? toValue.split("T")[1].substring(0, 5)
+        : "";
 
     // Shift time
     let shiftStartTime = response.start_time.substring(0, 5);
@@ -96,6 +92,17 @@ $(document).ready(function () {
 
     let formattedStart = formatTime(response.start_time);
     let formattedEnd = formatTime(response.end_time);
+     let fromMinutes = Number(fromTime.split(":")[0]) * 60 +
+                      Number(fromTime.split(":")[1]);
+
+    let toMinutes = Number(toTime.split(":")[0]) * 60 +
+                    Number(toTime.split(":")[1]);
+
+    let shiftStartMinutes = Number(shiftStartTime.split(":")[0]) * 60 +
+                            Number(shiftStartTime.split(":")[1]);
+
+    let shiftEndMinutes = Number(shiftEndTime.split(":")[0]) * 60 +
+                          Number(shiftEndTime.split(":")[1]);
 
     // =========================
     // OT Validation
@@ -122,21 +129,20 @@ $(document).ready(function () {
     // Permission Validation
     // =========================
     if (reqType == "2") {
-      let isWithinShift =
-        fromTime >= shiftStartTime &&
-        toTime <= shiftEndTime;
-
-      if (!isWithinShift) {
-
+      
+    if (
+        fromMinutes < shiftStartMinutes ||
+        toMinutes > shiftEndMinutes ||
+        toMinutes <= fromMinutes
+    ) {
         swalError(
-          "Warning",
-          `Permission can only be applied within the shift timings (${formattedStart} to ${formattedEnd}).`
+            "Warning",
+            `Permission can only be applied within the shift timings (${formattedStart} to ${formattedEnd}).`
         );
 
         $("#from_date, #to_date").val("");
-
         return;
-      }
+    }
     }
 
     // Calculate difference

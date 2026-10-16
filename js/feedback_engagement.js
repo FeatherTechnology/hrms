@@ -18,6 +18,26 @@ initializeDepartmentChoices("#feedback_config_department_name");
 initializeDepartmentChoices("#rating_department_name");
 initializeDepartmentChoices("#poll_department_name");
 
+/* --- Branch Multi Select --- */
+const branchInstances = {};
+
+/* --- Initialize Department Choices --- */
+function initializeBranchChoices(selector) {
+  branchInstances[selector] = new Choices(selector, {
+    removeItemButton: true,
+    placeholder: true,
+    placeholderValue: "Select Branch Name",
+    itemSelectText: "",
+    allowHTML: false,
+    searchEnabled: false,
+  });
+}
+
+/* --- Initialize all dropdowns --- */
+initializeBranchChoices("#feedback_config_branch_name");
+initializeBranchChoices("#rating_branch_name");
+initializeBranchChoices("#poll_branch_name");
+
 $(document).ready(function () {
   getCompanyName();
 
@@ -107,6 +127,13 @@ $(document).ready(function () {
     let company_id = $("#feedback_config_company_name").val();
 
     $("#feedback_config_department_name2").val("");
+    $("#feedback_config_branch_name2").val("");
+
+    getBranchNameDropdown({
+      company_id: company_id,
+      dropdownSelector: "#feedback_config_branch_name",
+      hiddenInputSelector: "#feedback_config_branch_name2",
+    });
 
     getDepartmentNameDropdown({
       company_id: company_id,
@@ -128,7 +155,13 @@ $(document).ready(function () {
     let company_id = $("#rating_company_name").val();
 
     $("#rating_department_name2").val("");
+    $("#rating_branch_name2").val("");
 
+    getBranchNameDropdown({
+      company_id: company_id,
+      dropdownSelector: "#rating_branch_name",
+      hiddenInputSelector: "#rating_branch_name2",
+    });
     getDepartmentNameDropdown({
       company_id: company_id,
       dropdownSelector: "#rating_department_name",
@@ -143,6 +176,13 @@ $(document).ready(function () {
     let company_id = $("#poll_company_name").val();
 
     $("#poll_department_name2").val("");
+    $("#poll_branch_name2").val("");
+
+    getBranchNameDropdown({
+      company_id: company_id,
+      dropdownSelector: "#poll_branch_name",
+      hiddenInputSelector: "#poll_branch_name2",
+    });
 
     getDepartmentNameDropdown({
       company_id: company_id,
@@ -224,7 +264,7 @@ $(document).ready(function () {
     let company_id = $("#general_company_name").val();
     let feedback_name = $("#feedback_name").val();
 
-    var data = ["general_company_name","feedback_name"];
+    var data = ["general_company_name", "feedback_name"];
 
     var isValid = true;
     data.forEach(function (entry) {
@@ -278,7 +318,7 @@ $(document).ready(function () {
       { id: id },
       function (response) {
         $("#general_feedback_id").val(id);
-        $("#feedback_name").val(response[0].feedback_name); 
+        $("#feedback_name").val(response[0].feedback_name);
       },
       "json",
     );
@@ -409,6 +449,8 @@ $(document).ready(function () {
     let feedback_config_department_name2 = $(
       "#feedback_config_department_name2",
     ).val();
+    let feedback_config_branch_name2 = $("#feedback_config_branch_name2",).val();
+    let feedback_config_branch_name = $("#feedback_config_branch_name",).val();
     let feedback_config_start_date = $("#feedback_config_start_date").val();
     let feedback_config_end_date = $("#feedback_config_end_date").val();
     let feedback_title = $("#feedback_title").val();
@@ -445,10 +487,15 @@ $(document).ready(function () {
       }
     });
 
-    let feedbackDepartmentValid = validateMultiSelectField(
-      "feedback_config_department_name",
-      departmentInstances["#feedback_config_department_name"],
-    );
+    let departmentInstance = departmentInstances["#feedback_config_department_name"];
+    let branchInstance = branchInstances["#feedback_config_branch_name"];
+    let feedbackDepartmentValid = departmentInstance.getValue(true).length > 0;
+    let feedbackBranchValid = branchInstance.getValue(true).length > 0;
+    // Validate both fields together
+    if (!feedbackDepartmentValid && !feedbackBranchValid) {
+      swalError("Warning", "Please select at least one Branch or Department!");
+      return false;
+    }
 
     // Question Validation
     if (feedback_questions.length == 0) {
@@ -457,7 +504,7 @@ $(document).ready(function () {
       return false;
     }
 
-    if (isValid && feedbackDepartmentValid) {
+    if (isValid) {
       swalConfirm(
         "Are you sure?",
         "Do you want to submit this Feedback Configuration?",
@@ -466,6 +513,8 @@ $(document).ready(function () {
             "api/scheduled_feedback_files/submit_feedback_configuration.php",
             {
               feedback_config_company_name,
+              feedback_config_branch_name,
+              feedback_config_branch_name2,
               feedback_config_department_name,
               feedback_config_department_name2,
               feedback_config_start_date,
@@ -493,6 +542,7 @@ $(document).ready(function () {
               }
 
               $("#feedback_config_department_name2").val("");
+              $("#feedback_config_branch_name2").val("");
 
               // Reset Dynamic Rows
               getFeedbackConfigurationTable(feedback_config_company_name);
@@ -507,6 +557,11 @@ $(document).ready(function () {
                 company_id: feedback_config_company_name,
                 dropdownSelector: "#feedback_config_department_name",
                 hiddenInputSelector: "#feedback_config_department_name2",
+              });
+              getBranchNameDropdown({
+                company_id: feedback_config_company_name,
+                dropdownSelector: "#feedback_config_branch_name",
+                hiddenInputSelector: "#feedback_config_branch_name2",
               });
             },
           );
@@ -537,6 +592,12 @@ $(document).ready(function () {
         company_id: response.company_id,
         dropdownSelector: "#feedback_config_department_name",
         hiddenInputSelector: "#feedback_config_department_name2",
+      });
+      $("#feedback_config_branch_name2").val(response.branch_ids);
+      await getBranchNameDropdown({
+        company_id: response.company_id,
+        dropdownSelector: "#feedback_config_branch_name",
+        hiddenInputSelector: "#feedback_config_branch_name2",
       });
       $("#feedback_config_start_date").val(response.start_date_time);
       $("#feedback_config_end_date").val(response.end_date_time);
@@ -587,10 +648,12 @@ $(document).ready(function () {
     let rating_company_name = $("#rating_company_name").val();
     let rating_department_name = $("#rating_department_name").val();
     let rating_department_name2 = $("#rating_department_name2").val();
+    let rating_branch_name = $("#rating_branch_name").val();
+    let rating_branch_name2 = $("#rating_branch_name2").val();
     let rating_start_date = $("#rating_start_date").val();
     let rating_end_date = $("#rating_end_date").val();
     let rating_title = $("#rating_title").val();
-    let rating_description = $("#rating_description").val(); 
+    let rating_description = $("#rating_description").val();
     let scheduled_feedback_type = $("#scheduled_feedback_type").val();
 
     var data = [
@@ -610,12 +673,18 @@ $(document).ready(function () {
       }
     });
 
-    let ratingDepartmentValid = validateMultiSelectField(
-      "rating_department_name",
-      departmentInstances["#rating_department_name"],
-    );
 
-    if (isValid && ratingDepartmentValid) {
+    let departmentInstance = departmentInstances["#rating_department_name"];
+    let branchInstance = branchInstances["#rating_branch_name"];
+    let ratingDepartmentValid = departmentInstance.getValue(true).length > 0;
+    let ratingBranchValid = branchInstance.getValue(true).length > 0;
+    // Validate both fields together
+    if (!ratingDepartmentValid && !ratingBranchValid) {
+      swalError("Warning", "Please select at least one Branch or Department!");
+      return false;
+    }
+
+    if (isValid) {
       swalConfirm(
         "Are you sure?",
         "Do you want to submit this Rating?",
@@ -625,6 +694,8 @@ $(document).ready(function () {
             {
               rating_titles_id,
               rating_company_name,
+              rating_branch_name,
+              rating_branch_name2,
               rating_department_name,
               rating_department_name2,
               rating_start_date,
@@ -640,7 +711,8 @@ $(document).ready(function () {
               } else {
                 swalError("Error", "Error Occurred!");
               }
-
+              $("#rating_department_name2").val("");
+              $("#rating_branch_name2").val("");
               // IMPORTANT
               // Destroy old datatable before reload
               $("#rating_table").DataTable().destroy();
@@ -650,6 +722,11 @@ $(document).ready(function () {
                 company_id: rating_company_name,
                 dropdownSelector: "#rating_department_name",
                 hiddenInputSelector: "#rating_department_name2",
+              });
+              getBranchNameDropdown({
+                company_id: rating_company_name,
+                dropdownSelector: "#rating_branch_name",
+                hiddenInputSelector: "#rating_branch_name2",
               });
             },
           );
@@ -681,6 +758,12 @@ $(document).ready(function () {
         dropdownSelector: "#rating_department_name",
         hiddenInputSelector: "#rating_department_name2",
       });
+      $("#rating_branch_name2").val(response.branch_ids);
+      await getBranchNameDropdown({
+        company_id: response.company_id,
+        dropdownSelector: "#rating_branch_name",
+        hiddenInputSelector: "#rating_branch_name2",
+      });
       $("#rating_start_date").val(response.start_date_time);
       $("#rating_end_date").val(response.end_date_time);
       $("#rating_title").val(response.rating_title);
@@ -710,10 +793,12 @@ $(document).ready(function () {
     let poll_company_name = $("#poll_company_name").val();
     let poll_department_name = $("#poll_department_name").val();
     let poll_department_name2 = $("#poll_department_name2").val();
+    let poll_branch_name = $("#poll_branch_name").val();
+    let poll_branch_name2 = $("#poll_branch_name2").val();
     let poll_start_date = $("#poll_start_date").val();
     let poll_end_date = $("#poll_end_date").val();
     let poll_title = $("#poll_title").val();
-    let poll_description = $("#poll_description").val(); 
+    let poll_description = $("#poll_description").val();
     let scheduled_feedback_type = $("#scheduled_feedback_type").val();
     let poll_titles_id = $("#poll_titles_id").val();
 
@@ -734,7 +819,7 @@ $(document).ready(function () {
       "poll_start_date",
       "poll_end_date",
       "poll_title",
-      "poll_description", 
+      "poll_description",
       "scheduled_feedback_type",
     ];
 
@@ -748,10 +833,16 @@ $(document).ready(function () {
       }
     });
 
-    let pollDepartmentValid = validateMultiSelectField(
-      "poll_department_name",
-      departmentInstances["#poll_department_name"],
-    );
+
+    let departmentInstance = departmentInstances["#poll_department_name"];
+    let branchInstance = branchInstances["#poll_branch_name"];
+    let pollDepartmentValid = departmentInstance.getValue(true).length > 0;
+    let pollBranchValid = branchInstance.getValue(true).length > 0;
+    // Validate both fields together
+    if (!pollDepartmentValid && !pollBranchValid) {
+      swalError("Warning", "Please select at least one Branch or Department!");
+      return false;
+    }
 
     // Question Validation
     if (poll_options.length < 2) {
@@ -759,7 +850,7 @@ $(document).ready(function () {
       return false;
     }
 
-    if (isValid && pollDepartmentValid) {
+    if (isValid) {
       swalConfirm(
         "Are you sure?",
         "Do you want to submit this Poll?",
@@ -768,12 +859,14 @@ $(document).ready(function () {
             "api/poll_files/submit_poll.php",
             {
               poll_company_name,
+              poll_branch_name,
+              poll_branch_name2,
               poll_department_name,
               poll_department_name2,
               poll_start_date,
               poll_end_date,
               poll_title,
-              poll_description, 
+              poll_description,
               poll_titles_id,
 
               // Pass Array
@@ -790,6 +883,7 @@ $(document).ready(function () {
               }
 
               $("#poll_department_name2").val("");
+              $("#poll_branch_name2").val("");
 
               // Reset Dynamic Rows
               getPollTable(poll_company_name);
@@ -804,6 +898,11 @@ $(document).ready(function () {
                 company_id: poll_company_name,
                 dropdownSelector: "#poll_department_name",
                 hiddenInputSelector: "#poll_department_name2",
+              });
+              getBranchNameDropdown({
+                company_id: poll_company_name,
+                dropdownSelector: "#poll_branch_name",
+                hiddenInputSelector: "#poll_branch_name2",
               });
             },
           );
@@ -835,10 +934,16 @@ $(document).ready(function () {
         dropdownSelector: "#poll_department_name",
         hiddenInputSelector: "#poll_department_name2",
       });
+      $("#poll_branch_name2").val(response.branch_ids);
+      await getBranchNameDropdown({
+        company_id: response.company_id,
+        dropdownSelector: "#poll_branch_name",
+        hiddenInputSelector: "#poll_branch_name2",
+      });
       $("#poll_start_date").val(response.start_date_time);
       $("#poll_end_date").val(response.end_date_time);
       $("#poll_title").val(response.poll_title);
-      $("#poll_description").val(response.poll_description); 
+      $("#poll_description").val(response.poll_description);
 
       // Clear Old Rows
       $("#poll_question_body").empty();
@@ -940,7 +1045,44 @@ async function getDepartmentNameDropdown({
     console.error("Error loading department dropdown:", err);
   }
 }
+/* --- Get Department Name Dropdown --- */
+async function getBranchNameDropdown({
+  company_id,
+  dropdownSelector,
+  hiddenInputSelector,
+}) {
+  try {
+    const selectedValue = $(hiddenInputSelector).val();
 
+    const response = await $.ajax({
+      url: "api/staff_creation/company_mapped_branches.php",
+      type: "POST",
+      data: {
+        company_id,
+      },
+      dataType: "json",
+    });
+
+    const instance = branchInstances[dropdownSelector];
+    console.log(instance)
+
+    instance.clearStore();
+    instance.removeActiveItems();
+
+    const selectedIds = selectedValue ? selectedValue.split(",") : [];
+
+    const items = response.map((val) => ({
+      value: val.id,
+      label: val.branch_name,
+      selected: selectedIds.includes(val.id.toString()),
+      disabled: val.disabled && !selectedIds.includes(val.id.toString()),
+    }));
+
+    instance.setChoices(items, "value", "label", true);
+  } catch (err) {
+    console.error("Error loading branch dropdown:", err);
+  }
+}
 /* --- Get General Feedback Table --- */
 function getGeneralFeedbackTable(company_id) {
   $.post(
@@ -979,7 +1121,7 @@ function getgeneralFeedbackDelete(id) {
 
 /* --- Clear General Feedback Input Fields --- */
 function clearFields() {
-  $("#feedback_name").val(""); 
+  $("#feedback_name").val("");
   $("#general_feedback_id").val("");
 }
 
@@ -994,6 +1136,7 @@ function getFeedbackConfigurationTable(company_id) {
         "feedback_title",
         "start_date_time",
         "end_date_time",
+        "branch_name",
         "department_name",
         "action",
       ];
@@ -1041,6 +1184,9 @@ function clearFeedbackConfigurationFields() {
 
   instance.clearChoices();
   instance.removeActiveItems();
+  const instance1 = branchInstances["#feedback_config_branch_name"];
+    instance1.removeActiveItems();
+    instance1.clearChoices();
 
   $("#feedback_config_start_date").val("");
   $("#feedback_config_end_date").val("");
@@ -1077,6 +1223,7 @@ function getRatingTable(company_id) {
         "rating_title",
         "start_date_time",
         "end_date_time",
+        "branch_name",
         "department_name",
         "action",
       ];
@@ -1114,6 +1261,10 @@ function clearRatingFields() {
 
   instance.clearChoices();
   instance.removeActiveItems();
+  const instance1 = branchInstances["#rating_branch_name"];
+
+  instance1.clearChoices();
+  instance1.removeActiveItems();
 
   $("#rating_start_date").val("");
   $("#rating_end_date").val("");
@@ -1142,7 +1293,8 @@ function getPollTable(company_id) {
         "poll_title",
         "start_date_time",
         "end_date_time",
-        "department_name", 
+        "branch_name",
+        "department_name",
         "action",
       ];
       appendDataToTable("#poll_table", response, columnMapping);
@@ -1179,11 +1331,15 @@ function clearPollFields() {
 
   instance.clearChoices();
   instance.removeActiveItems();
+  const instance1 = branchInstances["#poll_branch_name"];
+    instance1.removeActiveItems();
+    instance1.clearChoices();
+
 
   $("#poll_start_date").val("");
   $("#poll_end_date").val("");
   $("#poll_title").val("");
-  $("#poll_description").val(""); 
+  $("#poll_description").val("");
   $("#poll_titles_id").val("");
 
   // Reset validation borders

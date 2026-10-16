@@ -26,23 +26,25 @@ if ($req_type == '1') {
         $query = "SELECT
             sc.start_time,
             sc.end_time,
-
             (
-                SELECT COUNT(reg.id)
+                SELECT COALESCE(SUM(
+                    CASE
+                        WHEN reg.leave_period IN ('1', '2') THEN 0.5
+                        WHEN reg.leave_period = '3' THEN 1
+                        ELSE 0
+                    END
+                ), 0)
                 FROM regularization reg
                 WHERE reg.staff_profile_id = :staff_id
                 AND reg.company_id = :cmpy_id
                 AND reg.req_type = 1
                 AND reg.leave_type = 0
                 AND YEAR(reg.from_date) = YEAR(CURDATE())
-                AND reg.status IN (0,1)
+                AND reg.status IN (0, 1)
             ) AS cur_month_lop_count
-
         FROM occupation_info oi
-
         INNER JOIN shift_creation sc
             ON sc.id = oi.shift
-
         WHERE oi.id = (
             SELECT MAX(id)
             FROM occupation_info

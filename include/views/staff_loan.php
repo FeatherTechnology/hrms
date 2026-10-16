@@ -2,7 +2,7 @@
 
     <div class="col-12">
         <div class="col-12 text-right">
-            <button class="btn btn-primary add_staff_loan"><span class="icon-add"></span> Add Staff Loan</button>
+            <button class="btn btn-primary add_staff_loan"><span class="icon-add"></span> Add </button>
             <button class="btn btn-primary back_to_list" tabindex="8" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
         </div></br>
         <!----------------------------- CARD START TEAM CREATION TABLE ------------------------------>

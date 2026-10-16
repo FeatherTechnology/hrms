@@ -23,7 +23,8 @@ $i = 0;
 /* Get Employee Department and Company */
 $deptStmt = $pdo->prepare("SELECT
         oi.department,
-        oi.company_id
+        oi.company_id,
+        oi.branch_id
     FROM users u
     LEFT JOIN occupation_info oi
         ON oi.id = (
@@ -33,31 +34,37 @@ $deptStmt = $pdo->prepare("SELECT
         )
     WHERE u.id = ?
 ");
-
 $deptStmt->execute([$user_id]);
 
 $deptData = $deptStmt->fetch(PDO::FETCH_ASSOC);
 
 $department = $deptData['department'] ?? '';
 $company_id = $deptData['company_id'] ?? '';
+$branch_id = $deptData['branch_id'] ?? '';
 
 /* Get Active Polls */
-$stmt = $pdo->prepare("SELECT DISTINCT
-        pt.id,
-        pt.poll_title
+$stmt = $pdo->prepare("
+    SELECT pt.id, pt.poll_title
     FROM poll_titles pt
-    INNER JOIN poll_department_mapping pdm
-        ON pdm.poll_titles_id = pt.id
-    WHERE pdm.department_id = ?
-    AND pt.company_id = ?
-    AND pt.poll_status = ?
-    AND NOW() BETWEEN pt.start_date_time AND pt.end_date_time
-");
+    WHERE pt.company_id = :company_id
+      AND pt.poll_status = :poll_status
+      AND NOW() BETWEEN pt.start_date_time AND pt.end_date_time
 
+      AND (
+            NOT EXISTS (SELECT 1 FROM poll_department_mapping d WHERE d.poll_titles_id = pt.id)
+            OR EXISTS  (SELECT 1 FROM poll_department_mapping d WHERE d.poll_titles_id = pt.id AND d.department_id = :department)
+      )
+
+      AND (
+            NOT EXISTS (SELECT 1 FROM poll_branch_mapping b WHERE b.poll_titles_id = pt.id)
+            OR EXISTS  (SELECT 1 FROM poll_branch_mapping b WHERE b.poll_titles_id = pt.id AND b.branch_id = :branch_id)
+      )
+");
 $stmt->execute([
-    $department,
-    $company_id,
-    0
+    ':company_id' => $company_id,
+    ':poll_status' => 0,
+    ':department' => $department,
+    ':branch_id'  => $branch_id,
 ]);
 
 if ($stmt->rowCount() > 0) {

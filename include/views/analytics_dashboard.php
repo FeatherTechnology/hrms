@@ -123,6 +123,7 @@
                                 <th>Comments</th>
                                 <th>Submitted By</th>
                                 <th>Visible To</th>
+                                <th>Attachments</th>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -224,7 +225,50 @@
 
 </div>
 
+<div class="modal fade"
+    id="attachmentModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="hierarchyModalTitle"
+    aria-hidden="true">
 
+    <div class="modal-dialog hierarchy-modal-dialog" role="document">
+        <div class="modal-content" style="background-color: white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hierarchyModalTitle">
+                    Staff Feedback Attachments
+                </h5>
+                <button type="button"
+                    class="close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12" style="overflow-x: auto;">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr id="attachmentTableHead"></tr>
+                                </thead>
+                                <tbody id="attachmentTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- in this css we used the card body, main css also have the style for card . so we use the style here seperately -->
 <style>
@@ -517,4 +561,9 @@
             left: 150%;
         }
     }
+    #attachmentModal .modal-dialog {
+    width: 95%;
+    max-width: 1400px;   /* change to any size you want */
+    margin: 30px auto;
+}
 </style>

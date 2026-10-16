@@ -16,10 +16,13 @@ $result = [];
 
 $stmt = $pdo->prepare("SELECT
         rt.*,
-        GROUP_CONCAT(DISTINCT rdm.department_id) AS department_ids
+        GROUP_CONCAT(DISTINCT rdm.department_id) AS department_ids,
+        GROUP_CONCAT(DISTINCT rbm.branch_id) AS branch_ids
     FROM rating_titles rt
     LEFT JOIN rating_department_mapping rdm
         ON rt.id = rdm.rating_titles_id
+    LEFT JOIN rating_branch_mapping rbm
+        ON rt.id = rbm.rating_titles_id
     WHERE rt.id = ?
     GROUP BY rt.id
 ");
@@ -32,6 +35,9 @@ if ($stmt->rowCount() > 0) {
 
     $result['department_ids'] = !empty($result['department_ids'])
         ? explode(',', $result['department_ids'])
+        : [];
+    $result['branch_ids'] = !empty($result['branch_ids'])
+        ? explode(',', $result['branch_ids'])
         : [];
 }
 

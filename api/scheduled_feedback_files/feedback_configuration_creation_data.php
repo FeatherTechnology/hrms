@@ -22,6 +22,7 @@ $stmt = $pdo->prepare("SELECT
         ft.feedback_title,
         ft.feedback_status,
         GROUP_CONCAT(DISTINCT fdm.department_id) AS department_ids,
+        GROUP_CONCAT(DISTINCT fbm.branch_id) AS branch_ids,
         GROUP_CONCAT(
             DISTINCT fqm.feedback_questions
             SEPARATOR '||'
@@ -29,6 +30,8 @@ $stmt = $pdo->prepare("SELECT
     FROM feedback_titles ft
     LEFT JOIN feedback_department_mapping fdm
         ON ft.id = fdm.feedback_titles_id
+    LEFT JOIN feedback_branch_mapping fbm
+        ON ft.id = fbm.feedback_titles_id
     LEFT JOIN feedback_questions_mapping fqm
         ON ft.id = fqm.feedback_titles_id
     WHERE ft.id = ?
@@ -43,6 +46,9 @@ if ($stmt->rowCount() > 0) {
 
     $result['department_ids'] = !empty($result['department_ids'])
         ? explode(',', $result['department_ids'])
+        : [];
+    $result['branch_ids'] = !empty($result['branch_ids'])
+        ? explode(',', $result['branch_ids'])
         : [];
 
     $result['feedback_questions'] = !empty($result['feedback_questions'])
