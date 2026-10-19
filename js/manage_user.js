@@ -82,6 +82,12 @@ $(document).ready(function () {
         $(".regularization-request-container").show();
       }
     }
+     $("#staff_name").val("");
+    $("#staff_id").val("");
+    $("#branch").val("");
+    $("#department").val("");
+    $("#team").val("");
+    $("#designation").val("");
   });
 
   $(document).on("change", ".submenu-checkbox", function () {

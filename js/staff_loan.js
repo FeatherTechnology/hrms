@@ -7,7 +7,7 @@ $(document).ready(function () {
     $(".deduction_card").hide();
     $(".user_info_card,.loan_calculation_card").find("input, select").val("");
     $("#loan_amount,#int_rate,#due_period,#due_start_date").prop("readonly", false)
-    $("#company_name,#staff_name,#type").prop("disabled", false);
+    $("#company_name,#branch_name,#staff_name,#type").prop("disabled", false);
   });
 
   $(".back_to_list").click(function () {
@@ -61,6 +61,7 @@ $(document).ready(function () {
     event.preventDefault();
 
     var company_name = $("#company_name").val();
+    var branch_name = $("#branch_name").val();
     var staff_loan_id = $("#staff_loan_id").val();
     var staff_profile_id = $("#staff_name").val();
     var loan_amount = $("#loan_amount").val();
@@ -103,6 +104,7 @@ $(document).ready(function () {
     } else {
       var fields = [
         "company_name",
+        "branch_name",
         "staff_name",
         "loan_amount",
         "int_rate",
@@ -136,6 +138,7 @@ $(document).ready(function () {
           "api/staff_loan_&_advance/submit_staff_loan.php",
           {
             company_name: company_name,
+            branch_name: branch_name,
             staff_profile_id: staff_profile_id,
             loan_amount: loan_amount,
             int_rate: int_rate,
@@ -180,7 +183,15 @@ $(document).ready(function () {
 
   $("#company_name").on("change", function () {
     var cmpy_id = $(this).val();
-    getStaffName(cmpy_id);
+    getBranchList(cmpy_id)
+
+  });
+
+  $("#branch_name").on("change", function () {
+    var company_id = $('#company_name').val();
+    var branch_id = $(this).val();
+    getStaffName(company_id, branch_id)
+
   });
 
   $("#staff_name").on("change", function () {
@@ -323,12 +334,12 @@ async function getCompanyName(selector) {
 }
 
 /* --- Get Staff Name --- */
-async function getStaffName(company_id) {
+async function getStaffName(company_id, branch_id) {
   try {
     const response = await $.ajax({
-      url: "api/user_creation_files/getStaffName.php",
+      url: "api/attendance_ot_monitor_chart_files/get_staff_name.php",
       type: "POST",
-      data: { company_id },
+      data: { company_id, branch_id },
       dataType: "json",
       cache: false,
     });
@@ -364,13 +375,11 @@ function getStaffInfo() {
     function (response) {
       if (response.length > 0) {
         $("#staff_id").val(response[0].staff_id);
-        $("#branch").val(response[0].branch_name);
         $("#department").val(response[0].department_name);
         $("#team").val(response[0].team_name);
         $("#designation").val(response[0].designation);
       } else {
         $("#staff_id").val("");
-        $("#branch").val("");
         $("#department").val("");
         $("#team").val("");
         $("#designation").val("");
@@ -423,81 +432,76 @@ function calculateDueAmount() {
   }
 }
 
-function getStaffLoanDetails(id) {
-  $.post(
-    "api/staff_loan_&_advance/getStaffDetails.php",
-    { id: id },
-    function (response) {
-      if (response && response.id) {
-        let data = response;
+async function getStaffLoanDetails(id) {
+  try {
+    const response = await $.ajax({
+      url: "api/staff_loan_&_advance/getStaffDetails.php",
+      data: { id: id },
+      type: "POST",
+      dataType: "json"
+    });
 
-        $("#staff_loan_id").val(data.id);
-
-        $(".add_staff_loan,.staff_loan_table_content").hide();
-        $("#staff_loan_content,.back_to_list,.deduction_card").show();
-
-        getCompanyName("#company_name")
-          .then(function () {
-            $("#company_name")
-              .val(String(data.company_id))
-              .prop("disabled", true);
-
-            return getStaffName(data.company_id);
-          })
-          .then(function () {
-            $("#staff_name")
-              .val(String(data.staff_id))
-              .prop("disabled", true);
-
-            getStaffInfo();
-          });
-
-        $("#type").val(data.type).trigger("change").prop("disabled", true);
-
-        $("#loan_amount").val(data.loan_amount).prop("readonly", true);
-        $("#int_rate").val(data.intrest_rate).prop("readonly", true);
-        $("#due_period").val(data.due_period).prop("readonly", true);
-        $("#total_intrest").val(data.total_intrest).prop("readonly", true);
-        $("#due_amount").val(data.due_amount).prop("readonly", true);
-
-        $("#deduction_amount").val(data.due_amount);
-        $("#bal_amount").val(data.balance_amount);
-
-        $("#due_start_date")
-          .val(data.due_start_date ? data.due_start_date.substring(0, 7) : "")
-          .prop("readonly", true);
-
-        if (data.due_end_date) {
-          let endDate = new Date(data.due_end_date);
-
-          $("#due_end_date").val(
-            endDate.toLocaleDateString("en-US", {
-              month: "long",
-              year: "numeric"
-            })
-          ).prop("readonly", true);
-        } else {
-          $("#due_end_date").val("").prop("readonly", true);
-        }
-        let currentMonth = new Date().toISOString().slice(0, 7);
-        let dueStartMonth = data.due_start_date
-          ? data.due_start_date.substring(0, 7)
-          : currentMonth;
-
-        let deductionMonth =
-          dueStartMonth > currentMonth ? dueStartMonth : currentMonth;
-
-        $("#deduction_month")
-          .val(deductionMonth)
-          .attr("min", currentMonth)
-          .attr("max", currentMonth);
-
-      } else {
-        swalError("Warning", "Staff Loan Details Not Found");
+    if (response && response.id) {
+      let data = response;
+      $("#staff_loan_id").val(data.id);
+      $(".add_staff_loan,.staff_loan_table_content").hide();
+      $("#staff_loan_content,.back_to_list,.deduction_card").show();
+      
+      // 1. Load companies, then set the value and disable
+      await getCompanyName("#company_name");
+      $("#company_name").val(String(data.company_id)).prop("disabled", true);
+      
+      // 2. Load branches using company_id, then set the value and disable
+      await getBranchList(data.company_id);
+      $("#branch_name").val(String(data.branch_id)).prop("disabled", true);
+      
+      // 3. Load staff names, then set the value and call info
+      if (typeof getStaffName === 'function') {
+        await getStaffName(data.company_id, data.branch_id);
+        $("#staff_name").val(String(data.staff_id)).prop("disabled", true);
+        getStaffInfo();
       }
-    },
-    "json"
-  );
+
+      $("#type").val(data.type).trigger("change").prop("disabled", true);
+      $("#loan_amount").val(data.loan_amount).prop("readonly", true);
+      $("#int_rate").val(data.intrest_rate).prop("readonly", true);
+      $("#due_period").val(data.due_period).prop("readonly", true);
+      $("#total_intrest").val(data.total_intrest).prop("readonly", true);
+      $("#due_amount").val(data.due_amount).prop("readonly", true);
+      $("#deduction_amount").val(data.due_amount);
+      $("#bal_amount").val(data.balance_amount);
+      $("#due_start_date")
+        .val(data.due_start_date ? data.due_start_date.substring(0, 7) : "")
+        .prop("readonly", true);
+        
+      if (data.due_end_date) {
+        let endDate = new Date(data.due_end_date);
+        $("#due_end_date").val(
+          endDate.toLocaleDateString("en-US", {
+            month: "long",
+            year: "numeric"
+          })
+        ).prop("readonly", true);
+      } else {
+        $("#due_end_date").val("").prop("readonly", true);
+      }
+      
+      let currentMonth = new Date().toISOString().slice(0, 7);
+      let dueStartMonth = data.due_start_date
+        ? data.due_start_date.substring(0, 7)
+        : currentMonth;
+      let deductionMonth =
+        dueStartMonth > currentMonth ? dueStartMonth : currentMonth;
+      $("#deduction_month")
+        .val(deductionMonth)
+        .attr("min", currentMonth)
+        .attr("max", currentMonth);
+    } else {
+      swalError("Warning", "Staff Loan Details Not Found");
+    }
+  } catch (error) {
+    console.error("Error fetching staff loan details:", error);
+  }
 }
 
 function deleteStaffLoan(id) {
@@ -522,4 +526,29 @@ function deleteStaffLoan(id) {
       );
     },
   );
+}
+
+async function getBranchList(company_id) {
+  try {
+    const response = await $.ajax({
+      url: "api/attendance_files/get_branch_list.php",
+      data: { cmpy_id: company_id },
+      type: "POST",
+      dataType: "json",
+    });
+
+    let appendBranchOption = '<option value="">Select Branch Name</option>';
+
+    $.each(response, function (index, val) {
+      appendBranchOption += `
+                <option value="${val.id}">
+                    ${val.branch_name}
+                </option>
+            `;
+    });
+
+    $('#branch_name').empty().append(appendBranchOption);
+  } catch (error) {
+    console.error("Error loading branch list:", error);
+  }
 }

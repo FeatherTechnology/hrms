@@ -140,7 +140,7 @@ try {
 
         AND rp.company_id = ?
 
-        AND sc.status = 1
+        AND sc.status IN (1,2,3)
 
 
         ORDER BY sc.staff_name ASC
@@ -197,7 +197,7 @@ try {
 
             AND sc.company_id = ?
 
-            AND sc.status = 1
+            AND sc.status IN (1,2,3)
 
             LIMIT 1
 
@@ -308,7 +308,7 @@ try {
 
     WHERE sc.company_id = ?
 
-    AND sc.status = 1
+    AND sc.status IN (1,2,3)
 
     AND oi.designation > ?
 

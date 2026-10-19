@@ -16,7 +16,7 @@ $qry = $pdo->query("UPDATE `staff_creation` SET `notice_per_served`='$notice_per
 
 
 
-if ($qry && $query) {
+if ($qry) {
     $result = 1; //update
 } else {
     $result = 0; //update

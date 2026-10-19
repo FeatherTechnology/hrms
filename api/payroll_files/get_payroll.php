@@ -8,6 +8,7 @@ include '../../ajaxconfig.php';
 
 $company_id = $_POST['company_id'];
 $branch_id  = $_POST['branch_id'];
+$dept_id  = $_POST['dept_id'];
 $month      = $_POST['month'];
 
 $stff_con = '';
@@ -35,12 +36,13 @@ $result = array();
 $pt_history_mode = !empty($_POST['pt_history']) && $_POST['pt_history'] == 1;
 
 if (!function_exists('getHistoricalPtEarnings')) {
-    function getHistoricalPtEarnings($company_id, $branch_id, $history_month, $staff_profile_id)
+    function getHistoricalPtEarnings($company_id, $branch_id,$dept_id, $history_month, $staff_profile_id)
     {
         $savedPost = $_POST;
 
         $_POST['company_id'] = $company_id;
         $_POST['branch_id']  = $branch_id;
+        $_POST['dept_id']  = $dept_id;
         $_POST['month']      = $history_month;
         $_POST['pt_history'] = 1;
         $_POST['stf_prf_id'] = $staff_profile_id;
@@ -96,6 +98,7 @@ $pendingRegQry = $pdo->query("
     FROM regularization
     WHERE company_id = '$company_id'
     AND branch_id = '$branch_id'
+    AND dep_id = '$dept_id'
     AND status = 0
     AND (
         DATE(from_date) <= '$month_end'
@@ -221,6 +224,7 @@ $getStaff = $pdo->query("
     WHERE
         o.company_id = '$company_id'
         AND o.branch_id = '$branch_id'
+        AND o.department = '$dept_id'
 
         AND (
             sc.relieve_date IS NULL
@@ -1136,6 +1140,7 @@ while ($staff = $getStaff->fetch()) {
                 $pt_half_year_earnings += getHistoricalPtEarnings(
                     $company_id,
                     $branch_id,
+                    $dept_id,
                     $history_month,
                     $staff_profile_id
                 );

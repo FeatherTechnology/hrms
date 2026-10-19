@@ -70,9 +70,9 @@ $query = "SELECT
                           di.return_date IS NULL 
                       )
                 )
-                THEN 'Completed'
+                THEN 'Returned'
 
-                ELSE 'Pending'
+                ELSE 'Received'
             END AS document_status
 
           FROM staff_creation sc
@@ -174,7 +174,6 @@ if ($_POST['length'] != -1) {
     $query1 = " LIMIT " . $_POST['start'] . "," . $_POST['length'];
 }
 
-// echo $query;die;
 /* Execute */
 $statement = $pdo->prepare($query);
 $statement->execute();
@@ -203,7 +202,7 @@ foreach ($result as $row) {
     $sub_array[] = $row['designation'];
     $sub_array[] = $row['mobile1'];
     if ($status == '') {
-        if ($row['document_status'] == 'Completed' || $row['document_status'] == 'No Document') {
+        if ($row['document_status'] == 'Returned' || $row['document_status'] == 'No Document') {
             $document_status = "<span style='background-color: #d4edda; color: #155724; padding: 5px 10px; border-radius: 5px; font-weight: 500;'>" . $row['document_status'] . "</span>";
         } else {
             $document_status = "<span style='background-color: #FFFF00; color: #856404; padding: 5px 10px; border-radius: 5px; font-weight: 500;'>" . $row['document_status'] . "</span>";
@@ -212,10 +211,9 @@ foreach ($result as $row) {
         $sub_array[] = $document_status;
         $sub_array[] = !empty($row['relieve_date']) ? date('d-m-Y', strtotime($row['relieve_date'])) : '';
         $exit_message = '';
-
         if (in_array((int)$row['staff_status'], [2, 3], true)) {
             if (
-                in_array($row['document_status'], ['Completed', 'No Document'], true) &&
+                in_array($row['document_status'], ['Returned', 'No Document'], true) &&
                 !empty($row['relieve_date']) &&
                 date('Y-m-d', strtotime($row['relieve_date'])) < $today
             ) {

@@ -7,7 +7,7 @@
             <div class="card-body">
                 <div class="row">
                     <!-- Fields -->
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-md-3 col-sm-6">
                         <div class="form-group">
                             <label for="cmpy_name">Company Name</label><span class="text-danger">*</span>
                             <select class="form-control" id="cmpy_name" name="cmpy_name" tabindex="1">
@@ -16,7 +16,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-md-3 col-sm-6">
                         <div class="form-group">
                             <label for="branch_name">Branch Name</label><span class="text-danger">*</span>
                             <select class="form-control" id="branch_name" name="branch_name" tabindex="2">
@@ -25,8 +25,16 @@
                             </select>
                         </div>
                     </div>
+                     <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                            <div class="form-group">
+                                <label for="department_name">Department Name</label><span class="text-danger">*</span>
+                                <select class="form-control" id="department_name" name="department_name" tabindex="3">
+                                    <option value="">Select Department Name</option>
+                                </select>
+                            </div>
+                    </div>
 
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-md-3 col-sm-6">
                         <div class="form-group">
                             <label for="date">Month & Year</label> <span class="text-danger">*</span>
                             <input type="month" class="form-control" id="date" name="date" tabindex="3"  max="<?php echo date('Y-m'); ?>">
