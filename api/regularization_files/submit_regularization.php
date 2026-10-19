@@ -73,37 +73,6 @@ if (!empty($_FILES['upload']['name'])) {
     $pic = $_POST['doc_upload'];
 }
 try {
-    if ($req_type != 4 && $req_type != 2 && $req_type != 1) {
-        $check_sql = "SELECT id FROM regularization
-            WHERE staff_profile_id = '$stf_prf_id' AND status IN (0,1) AND req_type != 4";
-
-        if ($req_type != 4) {
-            $check_sql .= "
-        AND (
-            DATE('$from_date') BETWEEN DATE(from_date) AND DATE(to_date)
-            OR
-            DATE('$to_date') BETWEEN DATE(from_date) AND DATE(to_date)
-            OR
-            DATE(from_date) BETWEEN DATE('$from_date') AND DATE('$to_date')
-            OR
-            DATE(to_date) BETWEEN DATE('$from_date') AND DATE('$to_date')
-        )
-        ";
-        }
-        // Ignore current row while updating
-        if ($hidden_id > 0) {
-            $check_sql .= " AND id != '$hidden_id'";
-        }
-        $check_qry = $pdo->query($check_sql);
-
-        if ($check_qry->rowCount() > 0) {
-            echo json_encode([
-                'result' => '5',
-                'message' => 'Already regularization request exists for this date'
-            ]);
-            exit;
-        }
-    }
 
     if ($hidden_id > 0) {
 

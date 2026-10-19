@@ -56,6 +56,14 @@
                                             </select>
                                         </div>
                                     </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <div class="form-group">
+                                            <label for="branch_name">Branch Name</label><span class="text-danger">*</span>
+                                            <select class="form-control" id="branch_name" name="branch_name" tabindex="39">
+                                                <option value="">Select Branch Name</option>
+                                            </select>
+                                        </div>
+                                    </div>
 
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 user_div">
                                         <div class="form-group">
@@ -69,12 +77,6 @@
                                         <div class="form-group">
                                             <label for="staff_id">Staff ID</label>
                                             <input type="text" class="form-control" id="staff_id" name="staff_id" tabindex="3" readonly>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-4 col-lg-4 user_div">
-                                        <div class="form-group">
-                                            <label for="branch">Branch</label>
-                                            <input type="text" class="form-control" id="branch" name="branch" tabindex="4" readonly>
                                         </div>
                                     </div>
                                     <div class="col-sm-4 col-md-4 col-lg-4 user_div">
@@ -95,7 +97,7 @@
                                             <input type="text" class="form-control" id="designation" name="designation" tabindex="7" readonly>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 user_div">
                                         <div class="form-group">
                                             <label for="type">Type</label><span class="text-danger">*</span>
@@ -117,7 +119,7 @@
                                 <div class="row">
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
-                                            <label for="loan_amount"id="amount_label">Loan Amount</label><span class="text-danger">*</span>
+                                            <label for="loan_amount" id="amount_label">Loan Amount</label><span class="text-danger">*</span>
                                             <input type="number" class="form-control" id="loan_amount" name="loan_amount" tabindex="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                         </div>
                                     </div>
@@ -178,17 +180,16 @@
                                         <div class="form-group">
                                             <label for="deduction_month">Month</label>
                                             <span class="text-danger">*</span>
-                                            <input type="month" class="form-control" id="deduction_month" name="deduction_month" tabindex="7" min="<?php echo date('Y-m'); ?>"
-                                              >
+                                            <input type="month" class="form-control" id="deduction_month" name="deduction_month" tabindex="7" min="<?php echo date('Y-m'); ?>">
                                         </div>
                                     </div>
-                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="deduction_amount">Amount</label><span class="text-danger">*</span>
                                             <input type="number" class="form-control" id="deduction_amount" name="deduction_amount" tabindex="7" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                         </div>
                                     </div>
-                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="bal_amount">Balance Amount</label><span class="text-danger">*</span>
                                             <input type="number" class="form-control" id="bal_amount" name="bal_amount" tabindex="7" readonly oninput="this.value = this.value.replace(/[^0-9]/g, '')">

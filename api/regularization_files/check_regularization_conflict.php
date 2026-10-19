@@ -1,6 +1,6 @@
-
 <?php
 require_once '../../ajaxconfig.php';
+
 try {
     $staff_profile_id = (int)($_POST['stf_prf_id'] ?? 0);
     $req_type = (int)($_POST['req_type'] ?? 0);
@@ -23,10 +23,13 @@ try {
         ]);
         exit;
     }
-    if (in_array($req_type, [3, 4], true)) {
+
+    // OT does not require leave/permission/week-off conflict validation.
+    if ($req_type === 4) {
         echo json_encode(['result' => '1']);
         exit;
     }
+
     $newStart = new DateTime($from_date);
     $newEnd = new DateTime($to_date);
 
@@ -38,10 +41,22 @@ try {
         exit;
     }
 
-    if ($req_type === 1 && !in_array($leave_period, [1, 2, 3], true)) {
+    // Leave and Week Off require a valid half-day/full-day selection.
+    if (
+        in_array($req_type, [1, 3], true) &&
+        !in_array($leave_period, [1, 2, 3], true)
+    ) {
         echo json_encode([
             'result' => '2',
-            'message' => 'Please select a valid leave period.'
+            'message' => 'Please select a valid leave/week-off period.'
+        ]);
+        exit;
+    }
+
+    if (!$shift_start || !$shift_end) {
+        echo json_encode([
+            'result' => '2',
+            'message' => 'Shift start and end times are required.'
         ]);
         exit;
     }
@@ -65,7 +80,7 @@ try {
 
     $midMinutes = (int)(($shiftStartMinutes + $shiftEndMinutes) / 2);
 
-    $getLeavePeriod = function ($period) use (
+    $getPeriod = function ($period) use (
         $shiftStartMinutes,
         $shiftEndMinutes,
         $midMinutes
@@ -89,11 +104,11 @@ try {
         SELECT id, req_type, from_date, to_date, leave_period
         FROM regularization
         WHERE staff_profile_id = :staff_profile_id
-          AND req_type IN (1, 2)
+          AND req_type IN (1, 2, 3)
           AND id != :hidden_id
           AND from_date <= :to_date
           AND to_date >= :from_date
-          AND status IN (1,0)
+          AND status IN (1, 0)
     ");
 
     $stmt->execute([
@@ -125,9 +140,52 @@ try {
         while ($checkDate <= $lastDate) {
             $date = $checkDate->format('Y-m-d');
 
-            // Existing permission versus new leave.
-            if ($existingType === 2 && $req_type === 1) {
-                [$leaveStart, $leaveEnd] = $getLeavePeriod($leave_period);
+            $existingIsLeaveOrWeekOff = in_array(
+                $existingType,
+                [1, 3],
+                true
+            );
+
+            $newIsLeaveOrWeekOff = in_array(
+                $req_type,
+                [1, 3],
+                true
+            );
+
+            // Existing Leave/Week Off versus new Leave/Week Off.
+            if (
+                $existingIsLeaveOrWeekOff &&
+                $newIsLeaveOrWeekOff
+            ) {
+                $existingDateStart = $existingStart->format('Y-m-d');
+                $existingDateEnd = $existingEnd->format('Y-m-d');
+
+                if (
+                    $date >= $existingDateStart &&
+                    $date <= $existingDateEnd
+                ) {
+                    $message = 'A request already exists for this date. Please cancel the existing request before applying again.';
+
+                    if ($existingType === 1) {
+                        $message = 'Leave is already applied for this date. Please cancel the existing leave before applying leave or week off.';
+                    } elseif ($existingType === 3) {
+                        $message = 'Week off is already applied for this date. Please cancel the existing week off before applying leave or week off.';
+                    }
+
+                    echo json_encode([
+                        'result' => '5',
+                        'message' => $message
+                    ]);
+                    exit;
+                }
+            }
+
+            // Existing Permission versus new Leave/Week Off.
+            if (
+                $existingType === 2 &&
+                $newIsLeaveOrWeekOff
+            ) {
+                [$periodStart, $periodEnd] = $getPeriod($leave_period);
 
                 $permissionStart = $date === $existingStart->format('Y-m-d')
                     ? $timeToMinutes($existing['from_date'])
@@ -140,20 +198,25 @@ try {
                 if ($overlaps(
                     $permissionStart,
                     $permissionEnd,
-                    $leaveStart,
-                    $leaveEnd
+                    $periodStart,
+                    $periodEnd
                 )) {
+                    $requestName = $req_type === 1 ? 'leave' : 'week off';
+
                     echo json_encode([
                         'result' => '5',
-                        'message' => 'Permission is already present for this leave period. Please cancel the existing permission before applying leave.'
+                        'message' => 'Permission is already present during this ' . $requestName . ' period. Please cancel the existing permission before applying ' . $requestName . '.'
                     ]);
                     exit;
                 }
             }
 
-            // Existing leave versus new permission.
-            if ($existingType === 1 && $req_type === 2) {
-                [$leaveStart, $leaveEnd] = $getLeavePeriod(
+            // Existing Leave/Week Off versus new Permission.
+            if (
+                $existingIsLeaveOrWeekOff &&
+                $req_type === 2
+            ) {
+                [$periodStart, $periodEnd] = $getPeriod(
                     (int)$existing['leave_period']
                 );
 
@@ -168,23 +231,17 @@ try {
                 if ($overlaps(
                     $permissionStart,
                     $permissionEnd,
-                    $leaveStart,
-                    $leaveEnd
+                    $periodStart,
+                    $periodEnd
                 )) {
+                    $requestName = $existingType === 1 ? 'leave' : 'week off';
+
                     echo json_encode([
                         'result' => '5',
-                        'message' => 'Leave is already present for this permission period. Please cancel the existing leave before applying permission.'
+                        'message' => ucfirst($requestName) . ' is already applied during this permission period. Please cancel the existing ' . $requestName . ' before applying permission.'
                     ]);
                     exit;
                 }
-            }
-            // Existing leave versus new leave on the same date.
-            if ($existingType === 1 && $req_type === 1) {
-                echo json_encode([
-                    'result' => '5',
-                    'message' => 'Leave is already applied for this date. Please cancel the existing leave before applying another leave.'
-                ]);
-                exit;
             }
 
             $checkDate->modify('+1 day');
@@ -192,6 +249,7 @@ try {
     }
 
     echo json_encode(['result' => '1']);
+
 } catch (Throwable $e) {
     error_log($e->getMessage());
 

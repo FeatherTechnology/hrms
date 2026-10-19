@@ -90,8 +90,13 @@ $baseQuery = "
 
 WHERE sc.status != 4
   AND (
+      sc.joining_date IS NULL
+      OR sc.joining_date = ''
+      OR DATE(sc.joining_date) <= :att_date
+  )
+  AND (
       sc.relieve_date IS NULL
-      OR sc.relieve_date =''
+      OR sc.relieve_date = ''
       OR DATE(sc.relieve_date) >= :att_date
   )
 

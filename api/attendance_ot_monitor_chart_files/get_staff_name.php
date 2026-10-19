@@ -20,12 +20,17 @@ try {
                       AND effective_from <= NOW()
                 )
             WHERE oi.company_id = :company_id
-              AND oi.shift = :shift_id";
+            ";
 
     $params = [
-        ':company_id' => $company_id,
-        ':shift_id'   => $shift_id
+        ':company_id' => $company_id
     ];
+
+    // Add shiift condition only when branch has a value
+    if ($shift_id !== '') {
+        $sql .= " AND oi.shift_id = :shift_id";
+        $params[':shift_id'] = $shift_id;
+    }
 
     // Add branch condition only when branch has a value
     if ($branch_id !== '') {

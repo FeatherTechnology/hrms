@@ -3,6 +3,7 @@ require '../../ajaxconfig.php';
 @session_start();
 
 $company_name = $_POST['company_name'] ?? '';
+$branch_name = $_POST['branch_name'] ?? '';
 $staff_profile_id = $_POST['staff_profile_id'] ?? '';
 $loan_amount = $_POST['loan_amount'] ?? 0;
 $int_rate = $_POST['int_rate'] ?? 0;
@@ -67,6 +68,7 @@ try {
         $stmt = $pdo->prepare("
             INSERT INTO staff_loan (
                 company_id,
+                branch_id,
                 staff_id,
                 type,
                 loan_amount,
@@ -78,11 +80,12 @@ try {
                 due_end_date,
                 insert_login_id,
                 created_date
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
         if ($stmt->execute([
             $company_name,
+            $branch_name,
             $staff_profile_id,
             $type,
             $loan_amount,

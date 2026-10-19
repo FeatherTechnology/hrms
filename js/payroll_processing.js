@@ -5,6 +5,7 @@ $(document).ready(function () {
   $("#cmpy_name").change(function () {
     let cmpy_id = $(this).val();
     getBranchList(cmpy_id);
+    getDepartmentName(cmpy_id);
   });
 
   // Generate payroll
@@ -12,12 +13,13 @@ $(document).ready(function () {
 
     let company_id = $("#cmpy_name").val();
     let branch_id = $("#branch_name").val();
+    let dept_id = $("#department_name").val();
     let month = $("#date").val();
 
-    if (company_id == "" || branch_id == "" || month == "") {
-      swalError("Error", "Please Filled The Manditaory Feild");
+    if (company_id == "" || branch_id == "" || month == "" || dept_id =="") {
+      swalError("Warning", "Please Filled The Manditaory Feild");
     } else {
-      getPayRoll(company_id, branch_id, month);
+      getPayRoll(company_id, branch_id,dept_id, month);
     }
   });
 
@@ -90,18 +92,45 @@ function getBranchList(cmpy_id) {
   );
 }
 
+/* --- Get Department Name --- */
+async function getDepartmentName(company_name) {
+  return new Promise((resolve, reject) => {
+    $.post(
+      "api/team_creation_files/getDepartmentName.php",
+      { company_name: company_name },
+
+      function (response) {
+        let dropdown = $("#department_name");
+        dropdown.empty();
+        dropdown.append('<option value="">Select Department Name</option>');
+        $.each(response, function (index, item) {
+          dropdown.append(
+            `<option value="${item.id}">${item.department_name}</option>`,
+          );
+        });
+
+        resolve();
+      },
+
+      "json",
+    ).fail(function (xhr, status, error) {
+      reject(error);
+    });
+  });
+}
 
 // ==========================================================
 // GET PAYROLL
 // ==========================================================
 
-function getPayRoll(company_id, branch_id, month) {
+function getPayRoll(company_id, branch_id,dept_id, month) {
 
   $.post(
     "api/payroll_files/get_payroll.php",
     {
       company_id: company_id,
       branch_id: branch_id,
+      dept_id: dept_id,
       month: month
     },
 
