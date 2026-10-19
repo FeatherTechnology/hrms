@@ -7,6 +7,7 @@ $(document).ready(function () {
 
         let company_id = $("#cmpy_id").val();
         let branch_id = $("#branch_id").val();
+        let dept_id = $("#dept_id").val();
         let stf_prf_id = $("#stf_prf_id").val();
         let month = $("#date").val();
 
@@ -15,7 +16,7 @@ $(document).ready(function () {
             return;
         }
 
-        getPayslip(company_id, branch_id, stf_prf_id, month);
+        getPayslip(company_id, branch_id, dept_id,stf_prf_id, month);
     });
 
     // Download payslip as PDF
@@ -109,6 +110,7 @@ function getstaffdetails() {
             $("#stf_prf_id").val(response.stf_id || "");
             $("#cmpy_id").val(response.cmpy_id || "");
             $("#branch_id").val(response.brch_id || "");
+            $("#dept_id").val(response.dep_id || "");
 
         },
 
@@ -162,7 +164,7 @@ function escapeHtml(value) {
 
 
 // Get payslip using the existing payroll AJAX page.
-function getPayslip(company_id, branch_id, stf_prf_id, month) {
+function getPayslip(company_id, branch_id, dept_id,stf_prf_id, month) {
 
     $.ajax({
         url: "api/payroll_files/get_payroll.php",
@@ -173,6 +175,7 @@ function getPayslip(company_id, branch_id, stf_prf_id, month) {
         data: {
             company_id: company_id,
             branch_id: branch_id,
+            dept_id: dept_id,
             stf_prf_id: stf_prf_id,
             month: month
         },

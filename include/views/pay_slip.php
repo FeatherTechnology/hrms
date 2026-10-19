@@ -102,6 +102,7 @@
 
                     <input type="hidden" id="cmpy_id" name="cmpy_id">
                     <input type="hidden" id="branch_id" name="branch_id">
+                    <input type="hidden" id="dept_id" name="dept_id">
                     <input type="hidden" id="stf_prf_id" name="stf_prf_id">
 
                     <div class="col-md-4 col-sm-6">
