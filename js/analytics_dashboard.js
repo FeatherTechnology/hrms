@@ -223,7 +223,7 @@ function getAttachmentHtml(attachment) {
 
     const fileName = attachment.split(/[\\/]/).pop();
     const extension = fileName.split(".").pop().toLowerCase();
-    const fileUrl = "/hrms/uploads/general_feedback/" +
+    const fileUrl = "uploads/general_feedback/" +
         attachment.split(/[\\/]/).map(encodeURIComponent).join("/");
 
     const safeUrl = $('<a>').attr('href', fileUrl).prop('href');
@@ -298,7 +298,7 @@ $(document).on("click", ".viewFeedbackAttachments", function () {
                     response.questions.forEach(function (q) {
                         let file = staffRow.attachments[q.id];
                         if (file && file.trim() !== "") {
-                            let fileUrl = "/hrms/uploads/schedule_feedback/" + encodeURIComponent(file);
+                            let fileUrl = "uploads/schedule_feedback/" + encodeURIComponent(file);
                             let fileName = file.split(/[\\/]/).pop();
                             tbodyHtml += `<td><a href="${fileUrl}" target="_blank" rel="noopener">${fileName}</a></td>`;
                         } else {
