@@ -28,7 +28,7 @@ try {
 
     // Add shiift condition only when branch has a value
     if ($shift_id !== '') {
-        $sql .= " AND oi.shift_id = :shift_id";
+        $sql .= " AND oi.shift = :shift_id";
         $params[':shift_id'] = $shift_id;
     }
 
