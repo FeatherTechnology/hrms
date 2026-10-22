@@ -721,55 +721,166 @@ while ($staff = $getStaff->fetch()) {
         . " mins";
 
 
+    // // ======================================================
+    // // STAFF LOAN / ADVANCE DEDUCTION
+    // // ======================================================
+
+    // $loan_due = 0;
+
+    // $loanQry = $pdo->query("
+    //     SELECT
+    //         COALESCE(SUM(due_amount), 0) AS loan_due
+
+    //     FROM staff_loan
+
+    //     WHERE staff_id = '$staff_profile_id'
+
+    //     AND DATE(due_start_date) <= '$month_end'
+    //     AND DATE(due_end_date) >= '$month_start'
+    // ");
+
+    // $loanData = $loanQry->fetch();
+
+    // if ($loanData) {
+    //     $loan_due = (float)$loanData['loan_due'];
+    // }
+
+
+    // // ======================================================
+    // // SALARY ADVANCE
+    // // ======================================================
+
+    // $salary_advance = 0;
+
+    // $advanceQry = $pdo->query("
+    //     SELECT
+    //         COALESCE(SUM(advance_amount), 0) AS salary_advance
+
+    //     FROM staff_salary_adavance
+
+    //     WHERE company_id = '$company_id'
+    //     AND staff_id = '$staff_profile_id'
+
+    //     AND DATE(dedection_month) >= '$month_start'
+    //     AND DATE(dedection_month) <= '$month_end'
+    // ");
+
+    // $advanceData = $advanceQry->fetch();
+
+    // if ($advanceData) {
+    //     $salary_advance = (float)$advanceData['salary_advance'];
+    // }
+
+    
     // ======================================================
-    // STAFF LOAN / ADVANCE DEDUCTION
+    // STAFF LOAN / SALARY ADVANCE DEDUCTION
+    // staff_loan.type = 1 : Staff Loan
+    // staff_loan.type = 2 : Salary Advance
     // ======================================================
 
     $loan_due = 0;
-
-    $loanQry = $pdo->query("
-        SELECT
-            COALESCE(SUM(due_amount), 0) AS loan_due
-
-        FROM staff_loan
-
-        WHERE staff_id = '$staff_profile_id'
-
-        AND DATE(due_start_date) <= '$month_end'
-        AND DATE(due_end_date) >= '$month_start'
-    ");
-
-    $loanData = $loanQry->fetch();
-
-    if ($loanData) {
-        $loan_due = (float)$loanData['loan_due'];
-    }
-
-
-    // ======================================================
-    // SALARY ADVANCE
-    // ======================================================
-
     $salary_advance = 0;
 
-    $advanceQry = $pdo->query("
+    // First day of the selected payroll month
+    $deduction_month = date('Y-m-01', strtotime($month_start));
+
+    $loanQry = $pdo->prepare("
         SELECT
-            COALESCE(SUM(advance_amount), 0) AS salary_advance
+            sl.id,
+            sl.type,
+            sl.loan_amount,
+            sl.total_intrest,
+            sl.due_amount,
+            sl.due_start_date,
+            sl.due_end_date,
 
-        FROM staff_salary_adavance
+            COALESCE(
+                (
+                    SELECT SUM(sd.deduction_amount)
+                    FROM staff_deduction sd
+                    WHERE sd.staff_loan_id = sl.id
+                      AND sd.staff_id = sl.staff_id
+                      AND sd.deduction_month < ?
+                ),
+                0
+            ) AS previous_deductions,
 
-        WHERE company_id = '$company_id'
-        AND staff_id = '$staff_profile_id'
+            (
+                SELECT sd.deduction_amount
+                FROM staff_deduction sd
+                WHERE sd.staff_loan_id = sl.id
+                  AND sd.staff_id = sl.staff_id
+                  AND sd.deduction_month = ?
+                ORDER BY sd.id DESC
+                LIMIT 1
+            ) AS current_deduction
 
-        AND DATE(dedection_month) >= '$month_start'
-        AND DATE(dedection_month) <= '$month_end'
+        FROM staff_loan sl
+
+        WHERE sl.company_id = ?
+          AND sl.staff_id = ?
+          AND DATE(sl.due_start_date) <= ?
+          AND DATE(sl.due_end_date) >= ?
     ");
 
-    $advanceData = $advanceQry->fetch();
+    $loanQry->execute([
+        $deduction_month,
+        $deduction_month,
+        $company_id,
+        $staff_profile_id,
+        $month_end,
+        $month_start
+    ]);
 
-    if ($advanceData) {
-        $salary_advance = (float)$advanceData['salary_advance'];
+    while ($loan = $loanQry->fetch(PDO::FETCH_ASSOC)) {
+
+        $type = (int)$loan['type'];
+
+        $loan_amount = (float)$loan['loan_amount'];
+        $total_interest = (float)$loan['total_intrest'];
+        $due_amount = (float)$loan['due_amount'];
+
+        $previous_deductions =
+            (float)$loan['previous_deductions'];
+
+        // Total recoverable amount for this loan/advance
+        $maximum_recoverable = $loan_amount + $total_interest;
+
+        // Remaining amount before this month's deduction
+        $remaining_balance = max(
+            0,
+            $maximum_recoverable - $previous_deductions
+        );
+
+        // Prefer the deduction record for the selected month.
+        // If no record exists, use the configured due amount.
+        if ($loan['current_deduction'] !== null) {
+            $deduction_amount =
+                (float)$loan['current_deduction'];
+        } else {
+            $deduction_amount = $due_amount;
+        }
+
+        // Prevent deductions exceeding the remaining balance
+        $deduction_amount = min(
+            max(0, $deduction_amount),
+            $remaining_balance
+        );
+
+        if ($type === 1) {
+
+            // Staff Loan
+            $loan_due += $deduction_amount;
+
+        } elseif ($type === 2) {
+
+            // Salary Advance
+            $salary_advance += $deduction_amount;
+        }
     }
+
+    $loan_due = round($loan_due, 2);
+    $salary_advance = round($salary_advance, 2);
 
 
     // ======================================================

@@ -41,7 +41,7 @@
                         </div>
                     </div>
                     <div class="col-md-12 col-sm-6" style="display: flex;justify-content:right; align-items:center">
-                        <button name="gen_pay_roll" id="gen_pay_roll" class="btn btn-primary" tabindex="4"></span>&nbsp;Gendrate Pay Roll</button>
+                        <button name="gen_pay_roll" id="gen_pay_roll" class="btn btn-primary" tabindex="4"></span>&nbsp;View Pay Roll</button>
                     </div>
 
 

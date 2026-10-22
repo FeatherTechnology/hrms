@@ -219,7 +219,7 @@ async function editStaffProfile(id) {
     $("#designation").val(data.designation);
     $("#off_type").val(data.off_type);
     $("#relieve_date").val(data.relieve_date);
-    $("#branch_admin").val(moneyFormatIndia(data.branch_admin));
+    // $("#branch_admin").val(moneyFormatIndia(data.branch_admin));
 
     let selectedLevel = parseInt(
       $("#designation option:selected").data("level"),
@@ -232,9 +232,9 @@ async function editStaffProfile(id) {
     // await getReportingPerson(data.company_id, selectedLevel);
     // $('#reporting_person').val(data.reporting_person);
     await getDocumentInfoTable();
-    toggleBranchField();
+    // toggleBranchField();
     $("#staff_type").trigger("change");
-    $("#branch_admin").trigger("change");
+    // $("#branch_admin").trigger("change");
 
     $("#branch_name").prop("disabled", true);
     $("#company_name").prop("disabled", true);
@@ -243,7 +243,7 @@ async function editStaffProfile(id) {
     $("#designation").prop("disabled", true);
     $("#off_type").prop("disabled", true);
     // $('#reporting_person').prop('disabled', true);
-    $("#branch_admin").prop("disabled", true);
+    // $("#branch_admin").prop("disabled", true);
     $("#branch").prop("disabled", true);
 
     if (data.notice_per_served !== null && data.notice_per_served !== "") {
@@ -472,15 +472,15 @@ function toggleNoticeField() {
   }
 }
 
-function toggleBranchField() {
-  if ($("#branch_admin").val() == "1") {
-    // Yes
-    $(".branch_div").show();
-  } else {
-    $(".branch_div").hide();
-    $("#branch").val("");
-  }
-}
+// function toggleBranchField() {
+//   if ($("#branch_admin").val() == "1") {
+//     // Yes
+//     $(".branch_div").show();
+//   } else {
+//     $(".branch_div").hide();
+//     $("#branch").val("");
+//   }
+// }
 
 // function toggleReportingField() {
 //     if ($('#staff_type').val() != '1') {   // Yes

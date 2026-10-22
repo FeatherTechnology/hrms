@@ -182,7 +182,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                    <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="form-group">
                                             <label for="branch_admin">Branch Admin</label><span class="text-danger">*</span>
                                             <select class="form-control" id="branch_admin" name="branch_admin" tabindex="11">
@@ -191,15 +191,15 @@
                                                 <option value="2">No</option>
                                             </select>
                                         </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 branch_div" style="display: none;">
+                                    </div> -->
+                                    <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 branch_div" style="display: none;">
                                         <div class="form-group">
                                             <label for="branch">Branch</label><span class="text-danger">*</span>
                                             <select class="form-control" id="branch" name="branch" tabindex="12">
                                                 <option value="">Select Branch</option>
                                             </select>
                                         </div>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
