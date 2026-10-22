@@ -43,6 +43,10 @@ $(document).ready(function () {
     if (typeof mapping_department !== "undefined" && mapping_department) {
       mapping_department.removeActiveItems(); mapping_department.clearChoices();
     }
+    if (typeof companyMultiple !== "undefined" && companyMultiple) {
+      companyMultiple.removeActiveItems(); companyMultiple.clearChoices();
+    }
+    $("#director_name").val('');
 
     if (usertype == 1) {
       $(".director_div").show();

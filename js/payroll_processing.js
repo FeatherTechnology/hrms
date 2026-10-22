@@ -318,23 +318,44 @@ function getPayRoll(company_id, branch_id,dept_id, month) {
 
 
       // ====================================================
+      // CHECK EMPTY RESPONSE DATA
+      // ====================================================
+
+      let payrollData = response.data || [];
+
+      if (payrollData.length === 0) {
+
+          // Keep the table header and show an empty message
+          $("#payroll_table tbody").html(`
+              <tr>
+                  <td colspan="${columnMapping.length}"
+                      class="text-center">
+                      No payroll records found
+                  </td>
+              </tr>
+          `);
+
+          // Do not initialize DataTables for an empty dataset
+          return;
+      }
+
+      // ====================================================
       // APPEND DATA
       // ====================================================
 
       appendDataToTable(
-        "#payroll_table",
-        response.data,
-        columnMapping
+          "#payroll_table",
+          payrollData,
+          columnMapping
       );
-
 
       // ====================================================
       // DATATABLE
       // ====================================================
 
       setdtable(
-        "#payroll_table",
-        "Payroll Report"
+          "#payroll_table",
+          "Payroll Report"
       );
 
     },

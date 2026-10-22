@@ -25,6 +25,7 @@ try {
                 sci.ctc_id,
                 sci.ctc_amount,
                 sci.total_amount,
+                sci.total_ctc,
                 cc.salary_component
             FROM staff_ctc_info sci
             LEFT JOIN ctc_creation cc
@@ -54,6 +55,7 @@ try {
         if (!isset($history[$effectiveDate])) {
             $history[$effectiveDate] = [
                 'effective_from' => $effectiveDate,
+                'ctc_amount' => $row['total_ctc'] ?? 0,
                 'total_ctc' => $row['total_amount'] ?? 0
             ];
         }

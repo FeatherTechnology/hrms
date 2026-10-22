@@ -82,7 +82,7 @@
                     <button type="button" class="btn btn-primary staff_status_btn promo_status" data-value="1" style="margin-right: 20px;"> Promotion </button>&nbsp;&nbsp;
                     <button type="button" class="btn btn-primary staff_status_btn trans_status" data-value="2" style="margin-right: 20px;"> Transfer </button> &nbsp;&nbsp;
                     <button type="button" class="btn btn-primary staff_status_btn inc_status" data-value="3" style="margin-right: 20px;"> Increment </button>
-                    <button type="button" class="btn btn-primary ctc_chart" data-toggle="modal" data-target="#show_ctc_chart" tabindex='5'>CTC Chart</button>
+                    <button type="button" class="btn btn-primary ctc_chart" data-toggle="modal" data-target="#show_ctc_chart" tabindex='5'>Increment Chart</button>
                 </div>
             </div>
             <!-- <div class="col-md-12 text-center"> -->
@@ -105,14 +105,14 @@
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-2  col-12">
                         <div class="form-group">
-                            <label for="staff_name">Staff Name</label><span class="text-danger">*</span>
-                            <input type="text" class="form-control" id="staff_name" name="staff_name" placeholder="Staff Name" tabindex="13" readonly>
+                            <label for="staff_name_id">Staff Name</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" id="staff_name_id" name="staff_name_id" placeholder="Staff Name" tabindex="13" readonly>
                         </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-2  col-12">
                         <div class="form-group">
-                            <label for="joining_date">Joining Date</label><span class="text-danger">*</span>
-                            <input type="text" class="form-control" id="joining_date" name="joining_date" placeholder="Joining Date" tabindex="13" readonly>
+                            <label for="stf_joining_date">Joining Date</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" id="stf_joining_date" name="stf_joining_date" placeholder="Joining Date" tabindex="13" readonly>
                         </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-2  col-12">
@@ -420,7 +420,7 @@
     <div class="modal-dialog modal-lg " role="document">
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">CTC Chart</h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">Increment Chart</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"  tabindex="1">
                     <span aria-hidden="true">&times;</span>
                 </button>

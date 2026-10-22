@@ -976,8 +976,8 @@ function getStaffInfo() {
       if (response.length > 0) {
         $("#company_id").val(response[0].company_name);
         $("#staff_id").val(response[0].staff_id);
-        $("#staff_name").val(response[0].staff_name);
-        $("#joining_date").val(response[0].joining_date.split("-").reverse().join("-"));
+        $("#staff_name_id").val(response[0].staff_name);
+        $("#stf_joining_date").val(response[0].joining_date.split("-").reverse().join("-"));
        $("#relieve_date").val(
     response[0].relieve_date
         ? response[0].relieve_date.split("-").reverse().join("-")
@@ -985,7 +985,7 @@ function getStaffInfo() {
 );
         $(".ctc_chart").attr("data-staff-id", response[0].staff_profile_id);
       } else {
-        $("#company_id,#staff_id,#staff_name,#joining_date,#relieve_date").val('');
+        $("#company_id,#staff_id,#staff_name_id,#stf_joining_date,#relieve_date").val('');
 
         swalError("Warning", "No Staff Info Found");
       }
@@ -1025,6 +1025,7 @@ function getIncrementHistory(staff_profile_id) {
             let header = "<th>Effective From</th>";
 
             // Total CTC comes first
+            header += "<th>CTC Amount</th>";
             header += "<th>Total CTC</th>";
 
             // Add dynamic salary component headers
@@ -1053,6 +1054,9 @@ function getIncrementHistory(staff_profile_id) {
 
                 // Effective From
                 rows += "<td>" + date + "</td>";
+
+                // CTC Amount
+                rows += "<td>" + (record.ctc_amount ?? 0) + "</td>";
 
                 // Total CTC
                 rows += "<td>" + (record.total_ctc ?? 0) + "</td>";
