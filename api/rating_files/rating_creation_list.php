@@ -47,54 +47,59 @@ $stmt->execute([$company_id, 2]);
 
 if ($stmt->rowCount() > 0) {
 
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+   while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
-        // Store Original Date Time
-        $row['start_date_time_original'] = $row['start_date_time'];
-        $row['end_date_time_original']   = $row['end_date_time'];
+    // Store Original Date Time
+    $row['start_date_time_original'] = $row['start_date_time'];
+    $row['end_date_time_original'] = $row['end_date_time'];
 
-        // Current Date Time
-        $current_datetime = date("Y-m-d H:i:s");
+    // Current Date and Month
+    $current_datetime = date("Y-m-d H:i:s");
+    $current_month = date("Y-m");
 
-        // Expired Only When End Date Is Passed
-        $is_expired = ($current_datetime > $row['end_date_time_original']);
+    $start_month = !empty($row['start_date_time']) ? date("Y-m", strtotime($row['start_date_time'])): '';
 
-        if ($is_expired) {
+    $end_month = !empty($row['end_date_time']) ? date("Y-m", strtotime($row['end_date_time'])): '';
+    // Check Expired
+    $is_expired = (!empty($row['end_date_time_original']) && $current_datetime > $row['end_date_time_original']);
 
-            $row['rating_status'] = 'Time Expired';
-        } else {
-
-            $row['rating_status'] = ($row['rating_status'] == 0) ? 'Active' : 'In Active';
-        }
-
-        // Format Date Time
-        $row['start_date_time'] = !empty($row['start_date_time'])
-            ? date("d-m-Y g:i A", strtotime($row['start_date_time']))
-            : '';
-
-        $row['end_date_time'] = !empty($row['end_date_time'])
-            ? date("d-m-Y g:i A", strtotime($row['end_date_time']))
-            : '';
-
-        // Action Button
-        if ($row['rating_status'] == 'Time Expired') {
-
-            $row['action'] = "<span class='text-muted'>Expired</span>";
-        } elseif ($row['answer_count'] > 0) {
-
-            $row['action'] = "<span class='text-muted'>Answered</span>";
-        } else {
-
-            $row['action'] = "
-                <span class='icon-border_color ratingActionBtn' value='" . $row['id'] . "'></span>
-                &nbsp;&nbsp;&nbsp;
-                <span class='icon-delete ratingDeleteBtn' value='" . $row['id'] . "'></span>
-            ";
-        }
-
-        $rating_list_arr[$i] = $row;
-        $i++;
+    // Hide expired ratings if neither date belongs to the current month
+    if ( $is_expired && $start_month != $current_month && $end_month != $current_month ) {
+        continue;
     }
+
+    // Set Rating Status
+    if ($is_expired) {
+        $row['rating_status'] = 'Time Expired';
+    } else {
+        $row['rating_status'] = ($row['rating_status'] == 0) ? 'Active' : 'In Active';
+    }
+
+    // Format Date Time
+    $row['start_date_time'] = !empty($row['start_date_time'])
+        ? date("d-m-Y g:i A", strtotime($row['start_date_time']))
+        : '';
+
+    $row['end_date_time'] = !empty($row['end_date_time'])
+        ? date("d-m-Y g:i A", strtotime($row['end_date_time']))
+        : '';
+
+    // Action Button
+    if ($row['rating_status'] == 'Time Expired') {
+        $row['action'] = "<span class='text-muted'>Expired</span>";
+    } elseif ($row['answer_count'] > 0) {
+        $row['action'] = "<span class='text-muted'>Active</span>";
+    } else {
+        $row['action'] = "
+            <span class='icon-border_color ratingActionBtn' value='" . $row['id'] . "'></span>
+            &nbsp;&nbsp;&nbsp;
+            <span class='icon-delete ratingDeleteBtn' value='" . $row['id'] . "'></span>
+        ";
+    }
+
+    $rating_list_arr[$i] = $row;
+    $i++;
+}
 }
 
 $pdo = null; // Close Connection

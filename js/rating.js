@@ -26,30 +26,19 @@ $(document).ready(function () {
   });
 
   /* --- On Change For Rating Button Text --- */
-  $(document).on("change", "input[name='ratingOption']", function () {
-    let ratingText = $(this).data("rating");
+$(document).on("change", "input[name='ratingOption']", function () {
+    let rating = parseInt($(this).val(), 10);
 
-    $("#ratings").val(ratingText);
+    $("#ratings").val(rating);
 
     $("#ratings_badge")
-      .removeClass(
-        "rating-poor rating-below rating-average rating-above rating-excellent",
-      )
-      .text(ratingText);
-
-    /* --- Apply Color --- */
-    if (ratingText == "Poor") {
-      $("#ratings_badge").addClass("rating-poor");
-    } else if (ratingText == "Below Average") {
-      $("#ratings_badge").addClass("rating-below");
-    } else if (ratingText == "Average") {
-      $("#ratings_badge").addClass("rating-average");
-    } else if (ratingText == "Above Average") {
-      $("#ratings_badge").addClass("rating-above");
-    } else if (ratingText == "Excellent") {
-      $("#ratings_badge").addClass("rating-excellent");
-    }
-  });
+        .removeClass(
+            "rating-1 rating-2 rating-3 rating-4 rating-5 " +
+            "rating-6 rating-7 rating-8 rating-9 rating-10"
+        )
+        .addClass("rating-" + rating)
+        .text(rating);
+});
 
   /* --- Submit ratings answer --- */
   $("#submit_rating_question").click(function (event) {
@@ -128,13 +117,20 @@ function getRatingsTable() {
 }
 
 /* --- Ratings Input Clear Fields --- */
+
 function clearFields() {
-  $("#ratings_badge")
-    .text("Please select a rating")
-    .removeClass(
-      "rating-poor rating-below rating-average rating-above rating-excellent",
-    );
-  $("input[name='ratingOption']").prop("checked", false);
-  $("#reason").val("");
-  $("#rating_titles_id").val("");
+    // 1. Reset text and remove ONLY the numeric rating classes (leaves 'rating-badge' intact)
+    $("#ratings_badge")
+        .text("Please select a rating")
+        .removeClass(function (index, className) {
+            return (className.match(/(^|\s)rating-\d+/g) || []).join(" ");
+        });
+
+    // 2. Clear any inline styles
+    $("#ratings_badge").removeAttr("style");
+
+    // 3. Reset all selected stars & inputs
+    $("input[name='ratingOption']").prop("checked", false);
+    $("#reason").val("");
+    $("#rating_titles_id").val("");
 }

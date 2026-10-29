@@ -48,8 +48,8 @@
                         </div>
                         <div class="col-md-4 col-sm-6">
                             <div class="form-group">
-                                <label for="attachment">Attachment</label>
-                                <input type="file" class="form-control" name="attachment" id="attachment" onchange="compressImage(this, 200)" tabindex="3">
+                                <label for="attachment">Attachments</label>
+                                <input type="file" class="form-control" name="attachment[]" id="attachment" multiple tabindex="3">
                             </div>
                         </div>
                         <div class="col-12" style="text-align:right">
@@ -74,7 +74,7 @@
                         <table id="scheduled_feedback_table" class="table custom-table">
                             <thead>
                                 <th>S.No</th>
-                                <th>Feedback Questions</th>
+                                <th>Feedback Criteria</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </thead>
@@ -90,7 +90,7 @@
 
                 <div class="card-header">
                     <div style="text-align: left;">
-                        <h5 class="card-title">Feedback Question</h5>
+                        <h5 class="card-title">Feedback Criteria</h5>
                     </div>
                     <div style="text-align: right;">
                         <button type="button" class="btn btn-primary" id="back_btn"><span class="icon-arrow-left"></span>&nbsp; Back </button>

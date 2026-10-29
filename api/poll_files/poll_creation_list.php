@@ -18,7 +18,7 @@ $company_id = $_POST['company_id'];
 $poll_list_arr = [];
 
 $i = 0;
-
+$selection_tye_arr =[1 =>'Single Selection',2 => 'Multiple Selection'];
 // Fetch Polls with Department Names and Answer Count
 $stmt = $pdo->prepare("SELECT
         pt.*,
@@ -52,19 +52,27 @@ if ($stmt->rowCount() > 0) {
 
         // Store Original Date Time
         $row['start_date_time_original'] = $row['start_date_time'];
-        $row['end_date_time_original']   = $row['end_date_time'];
+        $row['end_date_time_original'] = $row['end_date_time'];
 
-        // Current Date Time
+        // Current Date and Month
         $current_datetime = date("Y-m-d H:i:s");
+        $current_month = date("Y-m");
 
-        // Expired Only When End Date Is Passed
-        $is_expired = ($current_datetime > $row['end_date_time_original']);
+        $start_month = !empty($row['start_date_time']) ? date("Y-m", strtotime($row['start_date_time'])): '';
+        $end_month = !empty($row['end_date_time']) ? date("Y-m", strtotime($row['end_date_time'])): '';
 
+        // Check Expired
+        $is_expired = (!empty($row['end_date_time_original']) && $current_datetime > $row['end_date_time_original']);
+
+        // Hide expired polls if neither date belongs to the current month
+        if ( $is_expired && $start_month != $current_month && $end_month != $current_month) {
+            continue;
+        }
+
+        // Set Poll Status
         if ($is_expired) {
-
             $row['poll_status'] = 'Time Expired';
         } else {
-
             $row['poll_status'] = ($row['poll_status'] == 0) ? 'Active' : 'In Active';
         }
 
@@ -79,20 +87,17 @@ if ($stmt->rowCount() > 0) {
 
         // Action Button
         if ($row['poll_status'] == 'Time Expired') {
-
             $row['action'] = "<span class='text-muted'>Expired</span>";
         } elseif ($row['answer_count'] > 0) {
-
-            $row['action'] = "<span class='text-muted'>Answered</span>";
+            $row['action'] = "<span class='text-muted'>Active</span>";
         } else {
-
             $row['action'] = "
-                <span class='icon-border_color pollActionBtn' value='" . $row['id'] . "'></span>
-                &nbsp;&nbsp;&nbsp;
-                <span class='icon-delete pollDeleteBtn' value='" . $row['id'] . "'></span>
-            ";
+            <span class='icon-border_color pollActionBtn' value='" . $row['id'] . "'></span>
+            &nbsp;&nbsp;&nbsp;
+            <span class='icon-delete pollDeleteBtn' value='" . $row['id'] . "'></span>
+        ";
         }
-
+        $row['selection_type'] = $selection_tye_arr[$row['selection_type']];
         $poll_list_arr[$i] = $row;
         $i++;
     }

@@ -186,6 +186,57 @@
             box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
             color: white;
         }
+
+        /* Hide default browser checkbox */
+.poll-option-wrapper input[type="checkbox"] {
+    display: none;
+}
+
+/* Base style for checkbox square */
+.checkbox-square {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px; /* slightly rounded square */
+    margin-right: 15px;
+    position: relative;
+    transition: all 0.2s ease;
+    background-color: #fff;
+    flex-shrink: 0;
+}
+
+/* Checked state for container card */
+.poll-option-wrapper input[type="checkbox"]:checked + .poll-option-label {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Checked state for the square box */
+.poll-option-wrapper input[type="checkbox"]:checked + .poll-option-label .checkbox-square {
+    border-color: #3b82f6;
+    background-color: #3b82f6;
+}
+
+/* The checkmark icon inside the active checkbox */
+.poll-option-wrapper input[type="checkbox"]:checked + .poll-option-label .checkbox-square::after {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Text color change on check */
+.poll-option-wrapper input[type="checkbox"]:checked + .poll-option-label .opt-num,
+.poll-option-wrapper input[type="checkbox"]:checked + .poll-option-label .opt-text {
+    color: #1e3a8a;
+}
     </style>
 
     <!--- Back Button --->
@@ -205,6 +256,7 @@
                             <tr>
                                 <th width="50">S.No.</th>
                                 <th>Poll Question</th>
+                                <th>Selection Type</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -221,6 +273,7 @@
         <div id="poll_question_content" style="display: none; width: 100%;">
             <form id="poll_question_form" name="poll_question_form" method="post" enctype="multipart/form-data">
                 <input type="hidden" id="poll_titles_id">
+                <input type="hidden" id="selection_type">
                 <div class="ratings-ui-card">
                     <div class="row align-items-center mb-4">
                         <div class="col-12">

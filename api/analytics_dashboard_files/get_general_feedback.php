@@ -18,17 +18,21 @@ $user = $userQry->fetch(PDO::FETCH_ASSOC);
 if (!empty($user) && !empty($user['feedback_access_type'])) {
 
     $sql = "SELECT
+             sgf.id,
+             cc.company_name,
             gf.feedback_name,
             sgf.commants,
             u.user_name AS visible_to,
             us.user_name AS submitted_by,
             u.feedback_access_type,
-            sgf.attachment
+            sgf.attachment,
+             sgf.created_date
         FROM staff_general_feedback sgf
         LEFT JOIN general_feedback gf ON gf.id = sgf.general_feedback_id
+        LEFT JOIN company_creation cc ON gf.company_id = cc.id
         LEFT JOIN users u ON u.id = sgf.user_id
         LEFT JOIN users us ON us.id = sgf.insert_login_id
-        WHERE u.status = 0";
+        WHERE u.status = 0 and sgf.status =0";
 
     // If Feedback Access Type = Individual, show only the logged-in user's records
     if ($user['feedback_access_type'] == '2') {

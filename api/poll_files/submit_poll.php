@@ -20,6 +20,7 @@ try {
     $poll_end_date          = $_POST['poll_end_date'];
     $poll_title             = trim($_POST['poll_title']);
     $poll_description       = $_POST['poll_description']; 
+    $selection_type       = $_POST['selection_type']; 
     $poll_options           = isset($_POST['poll_options']) ? $_POST['poll_options'] : [];
 
     $user_id                = $_SESSION['user_id'];
@@ -37,6 +38,7 @@ try {
                 end_date_time           = ?,
                 poll_title              = ?,
                 poll_description        = ?, 
+                selection_type        = ?, 
                 update_login_id         = ?,
                 updated_date            = NOW()
             WHERE id = ?
@@ -48,6 +50,7 @@ try {
             $poll_end_date,
             $poll_title,
             $poll_description, 
+            $selection_type, 
             $user_id,
             $poll_titles_id
         ]);
@@ -110,13 +113,14 @@ try {
                 end_date_time,
                 poll_title,
                 poll_description,
+                selection_type,
                 poll_status,
                 insert_login_id,
                 created_date
             )
             VALUES
             (
-                ?, ?, ?, ?, ?, ?, ?, NOW()
+                ?, ?, ?, ?, ?, ?, ?, ?, NOW()
             )
         ");
 
@@ -126,6 +130,7 @@ try {
             $poll_end_date,
             $poll_title,
             $poll_description,
+            $selection_type,
             0,
             $user_id
         ]);
