@@ -16,9 +16,9 @@
                             <th>State</th>
                             <th>PF Applicable</th>
                             <th>PF Employee Contribution</th>
+                            <th>Employer PF</th>
+                            <th>Employer Pension</th>
                             <th>PF Employer Contribution</th>
-                            <th>Admin Charges</th>
-                            <th>Pension</th>
                             <th>ESI Applicable</th>
                             <th>ESI Employee Share</th>
                             <th>ESI Employer Share</th>
@@ -97,20 +97,26 @@
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
-                                        <label for="employer_contribution">Employer Contribution</label><span class="text-danger">(0% - 20%)</span>
-                                        <input type="number" class="form-control" id="employer_contribution" name="employer_contribution" placeholder="Enter Employer Contribution" tabindex="6">
+                                        <label for="employer_pf">Employer PF</label><span class="text-danger">(0% - 20%)</span>
+                                        <input type="number" class="form-control" id="employer_pf" name="employer_pf" placeholder="Enter Employer PF" tabindex="6">
                                     </div>
                                 </div>
-                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
+                                <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
                                         <label for="admin_charge">Admin Charge</label> <span class="text-danger">(0% - 20%)</span>
                                         <input type="number" class="form-control" id="admin_charge" name="admin_charge" placeholder="Enter Admin Charge" tabindex="7">
                                     </div>
-                                </div>
+                                </div> -->
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
                                     <div class="form-group">
-                                        <label for="pension">Pension</label> <span class="text-danger">(0% - 20%)</span>
+                                        <label for="pension">Employer Pension</label> <span class="text-danger">(0% - 20%)</span>
                                         <input type="number" class="form-control" id="pension" name="pension" placeholder="Enter Pension" tabindex="8">
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                    <div class="form-group">
+                                        <label for="employer_contribution">Employer Contribution</label>
+                                        <input type="text" class="form-control" id="employer_contribution" name="employer_contribution" placeholder="Enter Employer Contribution" tabindex="6" readonly>
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 pf_apply">
@@ -201,7 +207,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 professional_tax_apply">
+                                <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 professional_tax_apply">
                                     <div class="form-group">
                                         <label for="calculation_type">Calculation Type</label>
                                         <select class="form-control" id="calculation_type" name="calculation_type" tabindex="17">
@@ -222,7 +228,7 @@
                                         <label for="slab">Slab</label>
                                         <input type="number" class="form-control" id="slab" name="slab" placeholder="Enter Slab" tabindex="19">
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>

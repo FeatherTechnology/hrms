@@ -26,7 +26,8 @@ $qry = $pdo->query("
         oi.assigned_branches,
         oi.pf_available,
         oi.esi_available,
-        oi.pt_available
+        oi.pt_available,
+        oi.staff_pf_limit
 
     FROM staff_creation sc
 

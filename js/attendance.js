@@ -501,7 +501,7 @@ function drawChart(chartData, selectedDate) {
           if (displayH === 0) displayH = 12;
 
           // Returns exactly what you asked for: "5.00 AM", "7.00 AM", etc.
-          return displayH + ".00 " + ampm;
+          return displayH + " " + ampm;
         }
 
         // If it is an EVEN hour (6, 8, 10), return nothing so it stays blank

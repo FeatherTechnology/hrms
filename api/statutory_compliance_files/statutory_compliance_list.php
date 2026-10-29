@@ -9,7 +9,7 @@ $column = array(
     'sc.pf_applicable',
     'sc.employee_contribution',
     'sc.employer_contribution',
-    'sc.admin_charge',
+    'sc.employer_pf',
     'sc.pension',
     'sc.esi_applicable',
     'sc.employee_share',
@@ -19,7 +19,7 @@ $column = array(
 
 $applicable = [1 => 'Yes', 2 => 'No'];
 
-$query = "SELECT sc.id as statutory_compliance_id, cc.company_name, st.state_name, sc.pf_applicable, sc.esi_applicable,sc.employee_contribution,sc.employer_contribution,sc.admin_charge,sc.pension,sc.employee_share,sc.employer_share
+$query = "SELECT sc.id as statutory_compliance_id, cc.company_name, st.state_name, sc.pf_applicable, sc.esi_applicable,sc.employee_contribution,sc.employer_contribution,sc.employer_pf,sc.pension,sc.employee_share,sc.employer_share
 FROM statutory_compliance sc 
 LEFT JOIN company_creation cc ON sc.company_id = cc.id 
 LEFT JOIN States st ON sc.state = st.id 
@@ -83,9 +83,9 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['state_name']) ? $row['state_name'] : '';
     $sub_array[] = isset($applicable[$row['pf_applicable']]) ? $applicable[$row['pf_applicable']] : '';
     $sub_array[] = ($row['employee_contribution'] != '' && $row['employee_contribution'] != null) ? $row['employee_contribution'] . '%' : '';
-    $sub_array[] = ($row['employer_contribution'] != '' && $row['employer_contribution'] != null) ? $row['employer_contribution'] . '%' : '';
-    $sub_array[] = ($row['admin_charge'] != '' && $row['admin_charge'] != null)   ? $row['admin_charge'] . '%'  : '';
+    $sub_array[] = ($row['employer_pf'] != '' && $row['employer_pf'] != null)   ? $row['employer_pf'] . '%'  : '';
     $sub_array[] = ($row['pension'] != '' && $row['pension'] != null) ? $row['pension'] . '%'  : '';
+    $sub_array[] = ($row['employer_contribution'] != '' && $row['employer_contribution'] != null) ? $row['employer_contribution'] . '%' : '';
     $sub_array[] = $applicable[$row['esi_applicable']] ?? '';
     $sub_array[] = ($row['employee_share'] != '' && $row['employee_share'] != null) ? $row['employee_share'] . '%' : '';
     $sub_array[] = ($row['employer_share'] != '' && $row['employer_share'] != null) ? $row['employer_share'] . '%' : '';

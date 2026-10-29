@@ -481,6 +481,12 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12  stf_pf_limit">
+                                            <div class="form-group">
+                                                <label for="staff_pf_limit">Staff PF Limit</label><span class="text-danger">*</span>
+                                                <input type="number" class="form-control" id="staff_pf_limit" name="staff_pf_limit" placeholder="Staff PF Limit" tabindex="34">
+                                            </div>
+                                        </div>
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                             <div class="form-group">
                                                 <label for="esi_available">ESI Available</label><span class="text-danger">*</span>

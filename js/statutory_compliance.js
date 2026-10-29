@@ -52,11 +52,16 @@ $(document).ready(function () {
       $("#esi_wage_limit").val("");
     }
   });
+$('#employer_pf, #pension').on('input change', function () {
+    calculateEmployerContribution();
+});
 
   $("#pf_applicable").on("change", function () {
     var pf_applicable = $(this).val();
 
     if (pf_applicable === "2") {
+      $("#employer_contribution").val("");
+      $("#pf_wage_limit").val("");
       $(".pf_apply").find("input").val("");
       $(".pf_apply").find("input").prop("readonly", true);
       $(".pf_apply").find("select").val("").prop("disabled", true);
@@ -91,23 +96,23 @@ $(document).ready(function () {
     }
   });
 
-  $("#professional_tax_applicable").on("change", function () {
-    var professional_tax_applicable = $(this).val();
+  // $("#professional_tax_applicable").on("change", function () {
+  //   var professional_tax_applicable = $(this).val();
 
-    if (professional_tax_applicable === "2") {
-      $(".professional_tax_apply")
-        .find("select")
-        .val("")
-        .prop("disabled", true);
-      $("#percentage_div").hide().find("input").val("");
-      $("#slab_div").hide().find("input").val("");
+  //   if (professional_tax_applicable === "2") {
+  //     $(".professional_tax_apply")
+  //       .find("select")
+  //       .val("")
+  //       .prop("disabled", true);
+  //     $("#percentage_div").hide().find("input").val("");
+  //     $("#slab_div").hide().find("input").val("");
 
-      $("#profesional_tax_div input").css("border", "1px solid #cecece");
-      $("#profesional_tax_div select").css("border", "1px solid #cecece");
-    } else {
-      $(".professional_tax_apply").find("select").prop("disabled", false);
-    }
-  });
+  //     $("#profesional_tax_div input").css("border", "1px solid #cecece");
+  //     $("#profesional_tax_div select").css("border", "1px solid #cecece");
+  //   } else {
+  //     $(".professional_tax_apply").find("select").prop("disabled", false);
+  //   }
+  // });
 
   /* --- Submit Statutory Compliance Creation --- */
   $("#submit_statutory_compliance").click(function (event) {
@@ -118,8 +123,8 @@ $(document).ready(function () {
     let pf_applicable = $("#pf_applicable").val();
     let pf_number = $("#pf_number").val();
     let employee_contribution = $("#employee_contribution").val();
-    let employer_contribution = $("#employer_contribution").val();
-    let admin_charge = $("#admin_charge").val();
+    let employer_contribution = $("#employer_contribution").val().replace('%', '');
+    let employer_pf = $("#employer_pf").val();
     let pension = $("#pension").val();
     let apply_pf_wage_limit = $("#apply_pf_wage_limit").val();
     let pf_wage_limit = $("#pf_wage_limit").val();
@@ -129,9 +134,9 @@ $(document).ready(function () {
     let apply_esi_wage_limit = $("#apply_esi_wage_limit").val();
     let esi_wage_limit = $("#esi_wage_limit").val();
     let professional_tax_applicable = $("#professional_tax_applicable").val();
-    let calculation_type = $("#calculation_type").val();
-    let percentage = $("#percentage").val();
-    let slab = $("#slab").val();
+    // let calculation_type = $("#calculation_type").val();
+    // let percentage = $("#percentage").val();
+    // let slab = $("#slab").val();
     let statutory_compliance_id = $("#statutory_compliance_id").val();
     var data = ["company_name", "state", "pf_applicable", "esi_applicable"];
 
@@ -140,7 +145,7 @@ $(document).ready(function () {
         "pf_number",
         "employee_contribution",
         "employer_contribution",
-        "admin_charge",
+        "employer_pf",
         "pension",
         "apply_pf_wage_limit",
       );
@@ -157,19 +162,19 @@ $(document).ready(function () {
       }
     }
     // Professional Tax Validation
-    if (professional_tax_applicable == "1") {
-      data.push("calculation_type");
+    // if (professional_tax_applicable == "1") {
+    //   data.push("calculation_type");
 
-      // Percentage Method
-      if (calculation_type == "1") {
-        data.push("percentage");
-      }
+    //   // Percentage Method
+    //   if (calculation_type == "1") {
+    //     data.push("percentage");
+    //   }
 
-      // Slab Method
-      else if (calculation_type == "2") {
-        data.push("slab");
-      }
-    }
+    //   // Slab Method
+    //   else if (calculation_type == "2") {
+    //     data.push("slab");
+    //   }
+    // }
 
     var isValid = true;
     data.forEach(function (entry) {
@@ -193,7 +198,7 @@ $(document).ready(function () {
               pf_number,
               employee_contribution,
               employer_contribution,
-              admin_charge,
+              employer_pf,
               pension,
               apply_pf_wage_limit,
               pf_wage_limit,
@@ -203,9 +208,9 @@ $(document).ready(function () {
               apply_esi_wage_limit,
               esi_wage_limit,
               professional_tax_applicable,
-              calculation_type,
-              percentage,
-              slab,
+              // calculation_type,
+              // percentage,
+              // slab,
               statutory_compliance_id,
             },
             function (result) {
@@ -257,8 +262,8 @@ $(document).ready(function () {
       $("#pf_applicable").val(response[0].pf_applicable);
       $("#pf_number").val(response[0].pf_number);
       $("#employee_contribution").val(response[0].employee_contribution);
-      $("#employer_contribution").val(response[0].employer_contribution);
-      $("#admin_charge").val(response[0].admin_charge);
+      $("#employer_contribution").val((response[0].employer_contribution )+ '%');
+      $("#employer_pf").val(response[0].employer_pf);
       $("#pension").val(response[0].pension);
       $("#apply_pf_wage_limit").val(response[0].apply_pf_wage_limit);
       $("#pf_wage_limit").val(response[0].pf_wage_limit);
@@ -342,7 +347,7 @@ $(document).ready(function () {
   });
 
   $(
-    "#employee_contribution, #employer_contribution, #admin_charge, #pension, #employee_share,#employer_share,#percentage",
+    "#employee_contribution, #employer_pf, #employer_pf, #pension, #employee_share,#employer_share,#percentage",
   ).on("blur", function () {
     let value = parseFloat($(this).val());
 
@@ -463,4 +468,11 @@ function getStatutoryComplianceTable() {
     "api/statutory_compliance_files/statutory_compliance_list.php",
     "Statutory Compliance List",
   );
+}
+
+function calculateEmployerContribution() {
+    var employer_pf = parseFloat($('#employer_pf').val()) || 0;
+    var pension = parseFloat($('#pension').val()) || 0;
+
+    $('#employer_contribution').val(employer_pf + pension + '%');
 }

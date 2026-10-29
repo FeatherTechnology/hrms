@@ -16,7 +16,7 @@ $(document).ready(function () {
     let dept_id = $("#department_name").val();
     let month = $("#date").val();
 
-    if (company_id == "" || branch_id == "" || month == "" || dept_id =="") {
+    if ( company_id == "" ||  month == "" ) {
       swalError("Warning", "Please Filled The Manditaory Feild");
     } else {
       getPayRoll(company_id, branch_id,dept_id, month);
@@ -123,7 +123,7 @@ async function getDepartmentName(company_name) {
 // GET PAYROLL
 // ==========================================================
 
-function getPayRoll(company_id, branch_id,dept_id, month) {
+function getPayRoll(company_id, branch_id, dept_id, month) {
 
   $.post(
     "api/payroll_files/get_payroll.php",
@@ -163,40 +163,58 @@ function getPayRoll(company_id, branch_id,dept_id, month) {
 
           <thead>
             <tr>
+
               <th rowspan="2">SNO</th>
               <th rowspan="2">Staff ID</th>
               <th rowspan="2">Staff Name</th>
               <th rowspan="2">Company Name</th>
+              <th rowspan="2">Branch Name</th>
               <th rowspan="2">Department</th>
-              <th rowspan="2">Designation</th>
               <th rowspan="2">Team</th>
+              <th rowspan="2">Designation</th>
+
               <th rowspan="2">Total CTC</th>
-              <th rowspan="2">One Day Salary</th>
+              <th rowspan="2">Per Day Salary</th>
               <th rowspan="2">Working Days</th>
+
               <th rowspan="2">LOP Days</th>
               <th rowspan="2">LOP Amount</th>
-              <th rowspan="2">Earned For Month</th>
 
+              <th rowspan="2">Earned</th>
+
+              <!-- SALARY COMPONENTS -->
               <th colspan="${components.length}">
                 Salary Components
               </th>
 
+              <!-- NEW PAYROLL CALCULATIONS -->
+              <th rowspan="2">PF Percentage</th>
+              <th rowspan="2">Pay</th>
+              <th rowspan="2">Others</th>
+              <th rowspan="2">nonctcamount</th>
+
               <th rowspan="2">Extra Working Days</th>
               <th rowspan="2">Extra Working Amount</th>
+
               <th rowspan="2">OT Amount</th>
 
               <th rowspan="2">Employer PF</th>
               <th rowspan="2">Employer ESI</th>
+
               <th rowspan="2">Gross Salary</th>
 
-              <th colspan="7">Deductions</th>
+              <!-- DEDUCTIONS -->
+              <th colspan="5">Deductions</th>
 
+              <th rowspan="2">Total Deduction</th>
               <th rowspan="2">Net Salary</th>
+
               <th rowspan="2">Loan Due</th>
               <th rowspan="2">Salary Advance</th>
               <th rowspan="2">Attendance Deduction</th>
-              <th rowspan="2">Total Deduction</th>
+
               <th rowspan="2">Take Home</th>
+
             </tr>
 
             <tr>
@@ -208,7 +226,11 @@ function getPayRoll(company_id, branch_id,dept_id, month) {
       // ====================================================
 
       components.forEach(function (component) {
-        table += `<th>${component.name}</th>`;
+
+        table += `
+          <th>${component.name}</th>
+        `;
+
       });
 
 
@@ -218,18 +240,19 @@ function getPayRoll(company_id, branch_id,dept_id, month) {
 
       table += `
               <th>PF</th>
-              <th>Admin Charge</th>
-              <th>Pension</th>
               <th>ESI</th>
               <th>PT</th>
               <th>Employer PF Contribution</th>
               <th>Employer ESI Contribution</th>
             </tr>
+
           </thead>
 
           <tbody></tbody>
+
         </table>
       `;
+
 
       $("#payroll_table_div").html(table);
 
@@ -239,19 +262,25 @@ function getPayRoll(company_id, branch_id,dept_id, month) {
       // ====================================================
 
       let columnMapping = [
+
         "sno",
         "staff_id",
         "staff_name",
         "company_name",
+        "branch_name",
         "department",
-        "designation",
         "team",
+        "designation",
+
         "total_ctc",
         "one_day_salary",
         "working_days",
+
         "lop_days",
         "lop_amount",
+
         "earned_for_month"
+
       ];
 
 
@@ -279,40 +308,82 @@ function getPayRoll(company_id, branch_id,dept_id, month) {
       // ====================================================
 
       components.forEach(function (component) {
-        columnMapping.push(`comp_${component.id}`);
+
+        columnMapping.push(
+          `comp_${component.id}`
+        );
+
       });
 
 
       // ====================================================
       // REMAINING COLUMN MAPPING
-      // MUST MATCH THE HEADER ORDER
+      // MUST EXACTLY MATCH HEADER ORDER
       // ====================================================
 
       columnMapping.push(
 
-        // Earnings
-        "extra_working",
+        // ------------------------------------
+        // NEW PAYROLL CALCULATIONS
+        // ------------------------------------
+
+        "pf_percentage",
+        "monthly_earned",
+        "others",
+        "nonctcamount",
+
+        // ------------------------------------
+        // EXTRA WORKING
+        // ------------------------------------
+
+        "extra_working_days",
         "extra_working_amount",
+
+        // ------------------------------------
+        // OT
+        // ------------------------------------
+
         "ot_amount",
-        "employer_pf_earning",
-        "employer_esi_earning",
+
+        // ------------------------------------
+        // EMPLOYER CONTRIBUTIONS
+        // ------------------------------------
+
+        "employer_pf",
+        "employer_esi",
+
+        // ------------------------------------
+        // GROSS
+        // ------------------------------------
+
         "gross_total",
 
-        // Deductions section: 7 columns
+        // ------------------------------------
+        // DEDUCTIONS
+        // 7 columns
+        // ------------------------------------
+
         "pf",
-        "admin_charge",
-        "pension",
         "esi",
         "pt",
         "employer_pf_deduction",
         "employer_esi_deduction",
-
-        // After deductions section
+        // ------------------------------------
+        // TOTALS
+        // ------------------------------------
+        "deduction_total",
         "net_salary",
+
+        // ------------------------------------
+        // OTHER DEDUCTIONS
+        // ------------------------------------
         "loan_due",
         "salary_advance",
         "attendance_deduction",
-        "deduction_total",
+
+        // ------------------------------------
+        // TAKE HOME
+        // ------------------------------------
         "take_home"
       );
 
@@ -325,18 +396,16 @@ function getPayRoll(company_id, branch_id,dept_id, month) {
 
       if (payrollData.length === 0) {
 
-          // Keep the table header and show an empty message
-          $("#payroll_table tbody").html(`
-              <tr>
-                  <td colspan="${columnMapping.length}"
-                      class="text-center">
-                      No payroll records found
-                  </td>
-              </tr>
-          `);
+        $("#payroll_table tbody").html(`
+          <tr>
+            <td colspan="${columnMapping.length}"
+                class="text-center">
+              No payroll records found
+            </td>
+          </tr>
+        `);
 
-          // Do not initialize DataTables for an empty dataset
-          return;
+        return;
       }
 
       // ====================================================
@@ -344,9 +413,9 @@ function getPayRoll(company_id, branch_id,dept_id, month) {
       // ====================================================
 
       appendDataToTable(
-          "#payroll_table",
-          payrollData,
-          columnMapping
+        "#payroll_table",
+        payrollData,
+        columnMapping
       );
 
       // ====================================================
@@ -354,8 +423,8 @@ function getPayRoll(company_id, branch_id,dept_id, month) {
       // ====================================================
 
       setdtable(
-          "#payroll_table",
-          "Payroll Report"
+        "#payroll_table",
+        "Payroll Report"
       );
 
     },

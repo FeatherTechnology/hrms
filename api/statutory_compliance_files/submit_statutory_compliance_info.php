@@ -22,7 +22,7 @@ $pf_applicable                 = $_POST['pf_applicable'];
 $pf_number                     = $_POST['pf_number'];
 $employee_contribution         = $_POST['employee_contribution'];
 $employer_contribution         = $_POST['employer_contribution'];
-$admin_charge                  = $_POST['admin_charge'];
+$employer_pf                  = $_POST['employer_pf'];
 $pension                       = $_POST['pension'];
 $apply_pf_wage_limit           = $_POST['apply_pf_wage_limit'];
 $pf_wage_limit                 = $_POST['pf_wage_limit'];
@@ -32,9 +32,9 @@ $employer_share                = $_POST['employer_share'];
 $apply_esi_wage_limit          = $_POST['apply_esi_wage_limit'];
 $esi_wage_limit                = $_POST['esi_wage_limit'];
 $professional_tax_applicable   = $_POST['professional_tax_applicable'];
-$calculation_type              = $_POST['calculation_type'];
-$percentage                    = $_POST['percentage'];
-$slab                          = $_POST['slab'];
+// $calculation_type              = $_POST['calculation_type'];
+// $percentage                    = $_POST['percentage'];
+// $slab                          = $_POST['slab'];
 $statutory_compliance_id       = $_POST['statutory_compliance_id'];
 $user_id                       = $_SESSION['user_id'];
 
@@ -51,7 +51,7 @@ if (!empty($statutory_compliance_id)) {
             pf_number = ?,
             employee_contribution = ?,
             employer_contribution = ?,
-            admin_charge = ?,
+            employer_pf = ?,
             pension = ?,
             apply_pf_wage_limit = ?,
             pf_wage_limit = ?,
@@ -61,9 +61,6 @@ if (!empty($statutory_compliance_id)) {
             apply_esi_wage_limit = ?,
             esi_wage_limit = ?,
             professional_tax_applicable = ?,
-            calculation_type = ?,
-            percentage = ?,
-            slab = ?,
             update_login_id = ?,
             updated_date = NOW()
         WHERE id = ?
@@ -76,7 +73,7 @@ if (!empty($statutory_compliance_id)) {
         $pf_number,
         $employee_contribution,
         $employer_contribution,
-        $admin_charge,
+        $employer_pf,
         $pension,
         $apply_pf_wage_limit,
         $pf_wage_limit,
@@ -86,9 +83,6 @@ if (!empty($statutory_compliance_id)) {
         $apply_esi_wage_limit,
         $esi_wage_limit,
         $professional_tax_applicable,
-        $calculation_type,
-        $percentage,
-        $slab,
         $user_id,
         $statutory_compliance_id
     ]);
@@ -107,7 +101,7 @@ if (!empty($statutory_compliance_id)) {
             pf_number,
             employee_contribution,
             employer_contribution,
-            admin_charge,
+            employer_pf,
             pension,
             apply_pf_wage_limit,
             pf_wage_limit,
@@ -116,15 +110,12 @@ if (!empty($statutory_compliance_id)) {
             employer_share,
             apply_esi_wage_limit,
             esi_wage_limit,
-            professional_tax_applicable,
-            calculation_type,
-            percentage,
-            slab,
+            professional_tax_applicable, 
             insert_login_id
         )
         VALUES
         (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     ");
 
@@ -135,7 +126,7 @@ if (!empty($statutory_compliance_id)) {
         $pf_number,
         $employee_contribution,
         $employer_contribution,
-        $admin_charge,
+        $employer_pf,
         $pension,
         $apply_pf_wage_limit,
         $pf_wage_limit,
@@ -145,9 +136,6 @@ if (!empty($statutory_compliance_id)) {
         $apply_esi_wage_limit,
         $esi_wage_limit,
         $professional_tax_applicable,
-        $calculation_type,
-        $percentage,
-        $slab,
         $user_id
     ]);
 
