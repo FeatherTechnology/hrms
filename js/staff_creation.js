@@ -715,9 +715,6 @@ $('#year_of_passing').on('blur', function () {
       personalDetail.append("marital_status", marital_status);
       personalDetail.append("spouse_name", spouse_name);
       personalDetail.append("anniversary_date", anniversary_date);
-      personalDetail.append("pf_available", pf_available);
-      personalDetail.append("esi_available", esi_available);
-      personalDetail.append("pt_available", pt_available);
       personalDetail.append("pic", pic);
       personalDetail.append("per_pic", per_pic);
       personalDetail.append("email", email);
@@ -742,9 +739,6 @@ $('#year_of_passing').on('blur', function () {
             $("#submit_staff").attr("disabled", false);
           } else if (response.result == 1) {
             swalSuccess("Success", "Personal Info Added Successfully!");
-            $("#pf_available").val("");
-            $("#esi_ available").val("");
-            $("#pt_available").val("");
             $(".staff_content").show();
             $("#staff_profile_id").val(response.last_id);
             $("#per_pic").val(response.pic);
@@ -789,6 +783,7 @@ $('#year_of_passing').on('blur', function () {
     let relieve_date = $("#relieve_date").val();
     let notice_period = $("#notice_period").val();
     let pf_available = $("#pf_available").val();
+    let staff_pf_limit = $("#staff_pf_limit").val();
     let esi_available = $("#esi_available").val();
     let pt_available = $("#pt_available").val();
     let email = $("#mailid").val();
@@ -859,6 +854,9 @@ $('#year_of_passing').on('blur', function () {
     ];
     if (ot_payment == "2") {
       data.push("ot_per_day");
+    }
+    if (pf_available == "1") {
+      data.push("staff_pf_limit");
     }
     // if (branch_admin == "1") {
     //   data.push("branch");
@@ -965,6 +963,7 @@ $('#year_of_passing').on('blur', function () {
       staffDetail.append("relieve_date", relieve_date);
       staffDetail.append("notice_period", notice_period);
       staffDetail.append("pf_available", pf_available);
+      staffDetail.append("staff_pf_limit", staff_pf_limit);
       staffDetail.append("esi_available", esi_available);
       staffDetail.append("pt_available", pt_available);
       staffDetail.append("pic", pic);
@@ -1142,6 +1141,17 @@ $('#year_of_passing').on('blur', function () {
     const staff_id = $(this).val();
     swalConfirm("Are you sure?", "Do you want to move this staff member to Staff Exit?",
       updateStaffStatus, staff_id);
+  });
+
+  $(document).on('click', '#pf_available', function () {
+    var pf_available = $(this).val();
+    if(pf_available =='2'){
+      $(".stf_pf_limit").hide();
+      $("#staff_pf_limit").val('');
+    }else{
+      $(".stf_pf_limit").show();
+    }
+    
   });
 
   // DOcument Ready End
@@ -1505,8 +1515,10 @@ async function getCompanyPFDetails(company_name) {
 
     if (response[0].pf_applicable == 2) {
       $("#pf_available").val(response[0].pf_applicable).prop("disabled", true);
+      $(".stf_pf_limit").hide();
     } else {
       $("#pf_available").val(response[0].pf_applicable).prop("disabled", false);
+      $(".stf_pf_limit").show();
     }
 
     if (response[0].esi_applicable == 2) {
@@ -2045,6 +2057,7 @@ async function editStaffProfile(id) {
 
     // $("#branch_admin").val(moneyFormatIndia(data.branch_admin));
     $("#pf_available").val(data.pf_available);
+    $("#staff_pf_limit").val(data.staff_pf_limit);
     $("#esi_available").val(data.esi_available);
     $("#pt_available").val(data.pt_available);
     $("#total_ctc").val(parseFloat(data.total_ctc));
@@ -2134,6 +2147,7 @@ function enableEditMode() {
   // $("#branch_admin").prop("disabled", true);
   // $("#branch").prop("disabled", true);
   $("#pf_available").prop("disabled", true);
+  $("#staff_pf_limit").prop("disabled", true);
   $("#esi_available").prop("disabled", true);
   $("#pt_available").prop("disabled", true);
   $("#joining_date").prop("disabled", true);
@@ -2254,6 +2268,7 @@ function resetStaffData() {
   // $("#branch_admin").prop("disabled", false);
   // $("#branch").prop("disabled", false);
   $("#pf_available").prop("disabled", false);
+  $("#staff_pf_limit").prop("disabled", false);
   $("#esi_available").prop("disabled", false);
   $("#pt_available").prop("disabled", false);
   $("#joining_date").prop("disabled", false);

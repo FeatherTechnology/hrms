@@ -88,7 +88,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 edit_ctc_div">
                                 <div class="form-group">
                                     <label for="effective_from">Effective From</label><span class="text-danger">*</span>
-                                    <input type="month"  class="form-control" id="effective_from"  name="effective_from"  tabindex="9">
+                                    <input type="month"  class="form-control" id="effective_from"  name="effective_from"  tabindex="9" min="<?= date('Y-m') ?>">
                                 </div>
                             </div> 
                             <div class="col-md-3" style="display: flex; align-items: center;">

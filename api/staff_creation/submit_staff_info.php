@@ -36,6 +36,7 @@ $joining_date = $_POST['joining_date'];
 $relieve_date = $_POST['relieve_date'];
 $notice_period = $_POST['notice_period'];
 $pf_available = $_POST['pf_available'];
+$staff_pf_limit = $_POST['staff_pf_limit'];
 $esi_available = $_POST['esi_available'];
 $pt_available = $_POST['pt_available'];
 $email = $_POST['email'];
@@ -92,6 +93,7 @@ if ($check->rowCount() == 0) {
         assigned_branches='$assigned_branches',
         total_ctc='$total_ctc',
         pf_available ='$pf_available',
+        staff_pf_limit ='$staff_pf_limit',
         esi_available ='$esi_available',
         pt_available ='$pt_available',
         total_earnings = '$total_amount',

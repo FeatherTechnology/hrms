@@ -10,6 +10,20 @@ $company_id = $_POST['company_id'];
 $branch_id  = $_POST['branch_id'];
 $dept_id  = $_POST['dept_id'];
 $month      = $_POST['month'];
+$branch_con="";
+$dept_con ="";
+$reg_brn_con="";
+$reg_dep_con="";
+
+if (isset($_POST['branch_id']) && $_POST['branch_id'] !== '') {
+    $branch_con = " AND o.branch_id = '$branch_id'";
+    $reg_brn_con =" AND branch_id = '$branch_id'";
+}
+
+if (isset($_POST['dept_id']) && $_POST['dept_id'] !== '') {
+    $dept_con = " AND o.department = '$dept_id'";
+    $reg_dep_con = "AND dep_id = '$dept_id'";
+}
 
 $stff_con = '';
 $stff_ctc_con = '';
@@ -97,8 +111,8 @@ $pendingRegQry = $pdo->query("
     SELECT COUNT(*) AS pending_count
     FROM regularization
     WHERE company_id = '$company_id'
-    AND branch_id = '$branch_id'
-    AND dep_id = '$dept_id'
+    $reg_brn_con
+    $reg_dep_con 
     AND status = 0
     AND (
         DATE(from_date) <= '$month_end'
@@ -170,9 +184,6 @@ $getStaff = $pdo->query("
         sc.staff_id,
         sc.staff_name,
         sc.staff_type,
-        sc.pf_available,
-        sc.esi_available,
-        sc.pt_available,
 
         bc.branch_name,
         depcr.department_name AS department,
@@ -180,6 +191,10 @@ $getStaff = $pdo->query("
         tc.team_name AS team,
         cc.company_name,
 
+        o.pf_available,
+        o.staff_pf_limit,
+        o.esi_available,
+        o.pt_available,
         o.total_ctc,
         o.shift,
         o.ot_payment,
@@ -223,8 +238,8 @@ $getStaff = $pdo->query("
 
     WHERE
         o.company_id = '$company_id'
-        AND o.branch_id = '$branch_id'
-        AND o.department = '$dept_id'
+        $branch_con
+        $dept_con
 
         AND (
             sc.relieve_date IS NULL
@@ -245,6 +260,36 @@ $getStaff = $pdo->query("
         $stff_con
 ");
 
+// These values depend only on the selected company/month, so fetch once.
+$weekoffQry = $pdo->query("
+    SELECT cw.week_off
+    FROM company_weekoffs cw
+    WHERE cw.company_id = '$company_id'
+");
+$weekoff = $weekoffQry->fetch()['week_off'] ?? 0;
+
+$holidayQry = $pdo->query("
+    SELECT IFNULL(SUM(no_of_days), 0) AS total_holidays
+    FROM holiday_creation
+    WHERE company_id = '$company_id'
+      AND status = 0
+      AND (
+          from_date BETWEEN '$month_start' AND '$month_end'
+          OR to_date BETWEEN '$month_start' AND '$month_end'
+      )
+");
+$total_holidays = $holidayQry->fetch()['total_holidays'] ?? 0;
+
+// Statutory settings are company-level, so fetch once as well.
+$statQry = $pdo->query("
+    SELECT *
+    FROM statutory_compliance
+    WHERE company_id = '$company_id'
+    ORDER BY id DESC
+    LIMIT 1
+");
+$stat = $statQry->fetch() ?? [];
+
 $sno = 1;
 
 
@@ -260,44 +305,10 @@ while ($staff = $getStaff->fetch()) {
 
     $gross_total = 0;
 
-    // Earned Basic + DA used only for PF calculation
-    $pf_wages = 0;
-
     // PT eligible monthly earnings.
     // Salary earnings are included; Bonus and Gratuity are excluded.
     // OT and extra-working earnings are included.
     $pt_eligible_earnings = 0;
-
-
-    // ======================================================
-    // WEEK OFF
-    // ======================================================
-
-    $weekoffQry = $pdo->query("
-        SELECT cw.week_off
-        FROM company_weekoffs cw
-        WHERE cw.company_id = '$company_id'
-    ");
-
-    $weekoff = $weekoffQry->fetch()['week_off'] ?? 0;
-
-
-    // ======================================================
-    // HOLIDAYS
-    // ======================================================
-
-    $holidayQry = $pdo->query("
-        SELECT IFNULL(SUM(no_of_days),0) AS total_holidays
-        FROM holiday_creation
-        WHERE company_id = '$company_id'
-        AND status = 0
-        AND (
-            from_date BETWEEN '$month_start' AND '$month_end'
-            OR to_date BETWEEN '$month_start' AND '$month_end'
-        )
-    ");
-
-    $total_holidays = $holidayQry->fetch()['total_holidays'] ?? 0;
 
 
     // ======================================================
@@ -322,49 +333,31 @@ while ($staff = $getStaff->fetch()) {
     $one_day_salary = 0;
 
     if ($total_days > 0 && $working_days > 0) {
-        $one_day_salary = $total_ctc / $working_days;
+        $one_day_salary = $total_ctc / 30;
     }
 
 
     // ======================================================
-    // SHIFT DETAILS
+    // SHIFT DETAILS (single query)
     // ======================================================
 
     $shift_hours = 0;
 
     $shiftQry = $pdo->query("
-        SELECT shift_time
+        SELECT shift_time, start_time, end_time, grace_time
         FROM shift_creation
         WHERE id = '" . $staff['shift'] . "'
     ");
 
-    $shiftData = $shiftQry->fetch();
+    $shift = $shiftQry->fetch();
+    $shiftData = $shift;
 
     if ($shiftData) {
         preg_match('/(\d+)/', $shiftData['shift_time'], $m);
         $shift_hours = $m[1] ?? 0;
     }
 
-
-    // ======================================================
-    // GET SHIFT START / END / GRACE
-    // ======================================================
-
-    $shiftQry = $pdo->query("
-        SELECT
-            start_time,
-            end_time,
-            grace_time
-        FROM shift_creation
-        WHERE id = '" . $staff['shift'] . "'
-    ");
-
-    $shift = $shiftQry->fetch();
-
     $present_days = 0;
-
-    // Exit-time based LOP
-    $exit_lop_days = 0;
 
     // Attendance deduction
     $total_attendance_deduction = 0;
@@ -557,9 +550,6 @@ while ($staff = $getStaff->fetch()) {
             // ADD PRESENT DAYS
             $present_days += $present_for_day;
 
-            // ADD EXIT LOP
-            $exit_lop_days += $early_exit_lop;
-
             // ATTENDANCE DEDUCTION
             $total_attendance_deduction +=
                 floatval($att['deduction_amount']);
@@ -640,13 +630,8 @@ while ($staff = $getStaff->fetch()) {
     // LOP DAYS
     // ======================================================
 
-    $lop_days = 0;
-
-    if ($total_payable_days < $working_days) {
-        $lop_days =
-            $working_days - $total_payable_days;
-    }
-
+    $lop_days = $total_days - $present_days;
+    
 
     // ======================================================
     // LOP AMOUNT
@@ -674,6 +659,30 @@ while ($staff = $getStaff->fetch()) {
 
     $extra_working_amount =
         $extra_working_days * $one_day_salary;
+
+
+// PAY SLIP DISPLAY CALCULATIONS
+// ======================================================
+
+// PF PERCENTAGE
+$pf_percentage = 0;
+
+if ($total_ctc > 0) {
+    $pf_percentage =
+        ((float)$staff['staff_pf_limit'] / $total_ctc) * 100;
+}
+
+// MONTHLY EARNED
+// Uses the existing staff_pf_limit / total_ctc percentage
+$monthly_earned =
+    $earned_for_month * ($pf_percentage / 100);
+
+// OTHERS
+$others =
+    $earned_for_month - $monthly_earned;
+
+    $gross_total +=$monthly_earned;
+    $gross_total +=$others;
 
 
     // ======================================================
@@ -719,58 +728,6 @@ while ($staff = $getStaff->fetch()) {
         . " hrs "
         . ((int)$total_ot_minutes % 60)
         . " mins";
-
-
-    // // ======================================================
-    // // STAFF LOAN / ADVANCE DEDUCTION
-    // // ======================================================
-
-    // $loan_due = 0;
-
-    // $loanQry = $pdo->query("
-    //     SELECT
-    //         COALESCE(SUM(due_amount), 0) AS loan_due
-
-    //     FROM staff_loan
-
-    //     WHERE staff_id = '$staff_profile_id'
-
-    //     AND DATE(due_start_date) <= '$month_end'
-    //     AND DATE(due_end_date) >= '$month_start'
-    // ");
-
-    // $loanData = $loanQry->fetch();
-
-    // if ($loanData) {
-    //     $loan_due = (float)$loanData['loan_due'];
-    // }
-
-
-    // // ======================================================
-    // // SALARY ADVANCE
-    // // ======================================================
-
-    // $salary_advance = 0;
-
-    // $advanceQry = $pdo->query("
-    //     SELECT
-    //         COALESCE(SUM(advance_amount), 0) AS salary_advance
-
-    //     FROM staff_salary_adavance
-
-    //     WHERE company_id = '$company_id'
-    //     AND staff_id = '$staff_profile_id'
-
-    //     AND DATE(dedection_month) >= '$month_start'
-    //     AND DATE(dedection_month) <= '$month_end'
-    // ");
-
-    // $advanceData = $advanceQry->fetch();
-
-    // if ($advanceData) {
-    //     $salary_advance = (float)$advanceData['salary_advance'];
-    // }
-
     
     // ======================================================
     // STAFF LOAN / SALARY ADVANCE DEDUCTION
@@ -923,6 +880,8 @@ while ($staff = $getStaff->fetch()) {
     // SALARY COMPONENTS
     // ======================================================
 
+    $nonctcamount = 0;
+
     $getSalary = $pdo->query("
         SELECT
 
@@ -980,73 +939,18 @@ while ($staff = $getStaff->fetch()) {
     ");
 
 
-    while ($salary = $getSalary->fetch()) {
-
+    while ($salary = $getSalary->fetch(PDO::FETCH_ASSOC)) {
         $component_id = $salary['ctc_id'];
         $name = $salary['salary_component'];
+        $amount = (float)str_replace(',', '', $salary['ctc_amount']);
+        $component_category = (int)$salary['component_category'];
 
-        $amount = floatval(
-            str_replace(',', '', $salary['ctc_amount'])
-        );
+        // Key amounts by ctc_creation.id for the frontend DataTable.
+        $components[$component_id] = $amount;
 
-        $component_category = $salary['component_category'];
-        $pay_frequency = $salary['pay_frequency'];
-
-
-        /*
-        component_category:
-        1 = Salary
-        2 = Reimbursement
-
-        pay_frequency:
-        1 = Monthly
-        2 = Per Day
-        */
-
-
-        // ==================================================
-        // SALARY COMPONENT
-        // ==================================================
-
-        if ($component_category == 1) {
-
-            // Salary components use payable days.
-            // Extra working amount is added separately.
-
-            if ($working_days > 0) {
-                $amount =
-                    ($amount / $working_days) *
-                    $total_payable_days;
-            }
-        }
-
-
-        // ==================================================
-        // REIMBURSEMENT
-        // ==================================================
-
-        elseif ($component_category == 2) {
-
-            // Per-day reimbursement
-            if ($pay_frequency == 2) {
-                $amount = $amount * $total_payable_days;
-            }
-
-            // Monthly reimbursement
-            else {
-                $amount = $amount;
-            }
-        }
-
-
-        // ==================================================
-        // PT ELIGIBLE EARNINGS
-        // ==================================================
-
-        if ($component_category == 1) {
-
+        // PT eligible earnings: salary components except Bonus/Gratuity.
+        if ($component_category === 1) {
             $pt_component_name = strtolower(trim($name));
-
             $is_bonus = strpos($pt_component_name, 'bonus') !== false;
             $is_gratuity = strpos($pt_component_name, 'gratuity') !== false;
 
@@ -1055,35 +959,15 @@ while ($staff = $getStaff->fetch()) {
             }
         }
 
-        // ==================================================
-        // PF WAGES: EARNED BASIC + DA ONLY
-        // ==================================================
+        // Keep the existing reimbursement eligibility and calculation.
+        // As in the original code, the last matching reimbursement row wins.
+        if ($component_category === 2 && $amount > 0) {
+            $nonctcamount = $amount;
 
-        if ($component_category == 1) {
-
-            $normalized_component_name = strtolower(trim($name));
-
-            if (in_array($normalized_component_name, [
-                'basic',
-                'basic salary',
-                'basic pay',
-                'da',
-                'dearness allowance',
-                'dearness allowance (da)'
-            ], true)) {
-
-                $pf_wages += $amount;
+            if ((int)$salary['pay_frequency'] === 2) {
+                $nonctcamount *= $total_payable_days;
             }
         }
-
-
-        // ==================================================
-        // STORE COMPONENT AND ADD TO GROSS
-        // ==================================================
-
-        $components[$component_id] = round($amount, 2);
-
-        $gross_total += $amount;
     }
 
 
@@ -1091,12 +975,13 @@ while ($staff = $getStaff->fetch()) {
     // GROSS SALARY BEFORE EMPLOYER CONTRIBUTIONS
     // ======================================================
 
+    $gross_total += $nonctcamount;
     $gross_total += $extra_working_amount;
     $gross_total += $ot_amount;
 
     // OT and extra-working earnings are also PT eligible.
-    $pt_eligible_earnings += $extra_working_amount;
-    $pt_eligible_earnings += $ot_amount;
+    // $pt_eligible_earnings += $extra_working_amount;
+    // $pt_eligible_earnings += $ot_amount;
 
 
     // Keep this amount as the original gross for statutory
@@ -1108,24 +993,11 @@ while ($staff = $getStaff->fetch()) {
     // STATUTORY
     // ======================================================
 
-    $statQry = $pdo->query("
-        SELECT *
-        FROM statutory_compliance
-        WHERE company_id = '$company_id'
-        ORDER BY id DESC
-        LIMIT 1
-    ");
-
-    $stat = $statQry->fetch() ?? [];
-
-
-    $employee_pf =
-    $employer_pf =
-    $admin_charge =
-    $pension = 0;
-
-    $employee_esi =
-    $employer_esi =
+    // Reset all statutory amounts for each staff member.
+    $employee_pf = 0;
+    $employer_pf = 0;
+    $employee_esi = 0;
+    $employer_esi = 0;
     $pt = 0;
 
 
@@ -1145,7 +1017,7 @@ while ($staff = $getStaff->fetch()) {
     ) {
 
         // PF wages = earned Basic + earned DA only
-        $pf_salary = $pf_wages;
+        $pf_salary = $monthly_earned;
 
         // Apply configured PF wage limit when enabled
         if (
@@ -1168,17 +1040,6 @@ while ($staff = $getStaff->fetch()) {
             (float)$stat['employer_contribution']
         ) / 100;
 
-        // PF admin charge
-        $admin_charge = (
-            $pf_salary *
-            (float)$stat['admin_charge']
-        ) / 100;
-
-        // Pension contribution
-        $pension = (
-            $pf_salary *
-            (float)$stat['pension']
-        ) / 100;
     }
 
 
@@ -1195,12 +1056,12 @@ while ($staff = $getStaff->fetch()) {
     ) {
 
         $employee_esi = (
-            $gross_before_employer *
+            $monthly_earned *
             $stat['employee_share']
         ) / 100;
 
         $employer_esi = (
-            $gross_before_employer *
+            $monthly_earned *
             $stat['employer_share']
         ) / 100;
     }
@@ -1381,10 +1242,6 @@ while ($staff = $getStaff->fetch()) {
     $deduction_total =
         $pf_amount
         +
-        $admin_charge
-        +
-        $pension
-        +
         $esi_amount
         +
         $pt
@@ -1399,10 +1256,6 @@ while ($staff = $getStaff->fetch()) {
 
     $net_salary_deduction =
         $pf_amount
-        +
-        $admin_charge
-        +
-        $pension
         +
         $esi_amount
         +
@@ -1429,84 +1282,144 @@ while ($staff = $getStaff->fetch()) {
 
     $result[] = array(
 
-        'sno' => $sno,
+    'sno' => $sno,
 
-        'staff_profile_id' => $staff_profile_id,
-        'staff_id' => $staff['staff_id'],
-        'staff_name' => $staff['staff_name'],
-        'company_name' => $staff['company_name'],
-        'department' => $staff['department'],
-        'designation' => $staff['designation'],
-        'team' => $staff['team'],
+    'staff_profile_id' => $staff_profile_id,
+    'staff_id' => $staff['staff_id'],
+    'staff_name' => $staff['staff_name'],
+    'company_name' => $staff['company_name'],
+    'branch_name' => $staff['branch_name'],
+    'department' => $staff['department'],
+    'designation' => $staff['designation'],
+    'team' => $staff['team'],
 
-        // CTC
-        'total_ctc' => number_format($total_ctc, 2),
+    // CTC
+    'total_ctc' => number_format($total_ctc),
 
-        // ONE DAY SALARY
-        'one_day_salary' => number_format($one_day_salary, 2),
+    // ONE DAY SALARY
+    'one_day_salary' => number_format($one_day_salary, 2),
 
-        // DAYS
-        'total_days' => $total_days,
-        'weekoff' => $weekoff,
-        'holidays' => $total_holidays,
-        'working_days' => $working_days,
-        'present_days' => $present_days,
-        'approved_leave' => $approved_leave,
+    // DAYS
+    'total_days' => $total_days,
+    'weekoff' => $weekoff,
+    'holidays' => $total_holidays,
+    'working_days' => $working_days,
+    'present_days' => $present_days,
+    'approved_leave' => $approved_leave,
 
-        // LOP
-        'lop_days' => round($lop_days, 2),
-        'lop_amount' => number_format($lop_amount, 2),
+    // LOP
+    'lop_days' => round($lop_days, 2),
+    'lop_amount' => number_format($lop_amount, 2),
 
-        // EARNED
-        'earned_for_month' => number_format($earned_for_month, 2),
+    // EARNED
+    'earned_for_month' => number_format($earned_for_month, 2),
 
-        // Monthly amount used for half-year PT accumulation.
-        'pt_eligible_earnings' => number_format($pt_eligible_earnings, 2),
+    // Monthly amount used for half-year PT accumulation
+    'pt_eligible_earnings' => number_format($pt_eligible_earnings, 2),
 
-        // COMPONENTS
-        'components' => $components,
+    // ==================================================
+    // COMPONENTS
+    // ==================================================
+    'components' => $components,
 
-        // EXTRA WORKING
-        'extra_working' => round($extra_working_days, 2),
-        'extra_working_amount' => number_format($extra_working_amount, 2),
+    // ==================================================
+    // PF PERCENTAGE
+    // ==================================================
+    'pf_percentage' => number_format($pf_percentage, 2),
 
-        // OT
-        'ot_hours' => $ot_hours_text,
-        'ot_days' => round($ot_days, 2),
-        'ot_amount' => number_format($ot_amount, 2),
+    // ==================================================
+    // MONTHLY EARNED
+    // 50% of earned_for_month
+    // ==================================================
+    'monthly_earned' => number_format($monthly_earned, 2),
 
-        // EMPLOYER CONTRIBUTIONS IN EARNINGS
-        'employer_pf_earning' => number_format($employer_pf, 2),
-        'employer_esi_earning' => number_format($employer_esi, 2),
+    // ==================================================
+    // OTHERS
+    // earned_for_month - monthly_earned
+    // ==================================================
+    'others' => number_format($others, 2),
+    'nonctcamount' => number_format($nonctcamount, 2),
 
-        // GROSS INCLUDING EMPLOYER CONTRIBUTIONS
-        'gross_total' => number_format($gross_salary_with_employer, 2),
+    // ==================================================
+    // EXTRA WORKING DAYS
+    // ==================================================
+    'extra_working_days' => round($extra_working_days, 2),
 
-        // DEDUCTIONS
-        'pf' => number_format($pf_amount, 2),
-        'admin_charge' => number_format($admin_charge, 2),
-        'pension' => number_format($pension, 2),
-        'esi' => number_format($esi_amount, 2),
-        'pt' => number_format($pt, 2),
+    // EXTRA WORKING DAYS AMOUNT
+    'extra_working_amount' => number_format(
+        $extra_working_amount,
+        2
+    ),
 
-        // OTHER DEDUCTIONS
-        'loan_due' => number_format($loan_due, 2),
-        'salary_advance' => number_format($salary_advance, 2),
-        'attendance_deduction' => number_format($total_attendance_deduction, 2),
+    // ==================================================
+    // OT
+    // ==================================================
+    'ot_hours' => $ot_hours_text,
+    'ot_days' => round($ot_days, 2),
+    'ot_amount' => number_format($ot_amount, 2),
 
-        // EMPLOYER CONTRIBUTIONS SHOWN AFTER DEDUCTIONS
-        'employer_pf_deduction' => number_format($employer_pf, 2),
-        'employer_esi_deduction' => number_format($employer_esi, 2),
+    // ==================================================
+    // EMPLOYER PF
+    // ==================================================
+    'employer_pf' => number_format($employer_pf, 2),
 
-        // TOTAL
-        'deduction_total' => number_format($deduction_total, 2),
+    // ==================================================
+    // EMPLOYER ESI
+    // ==================================================
+    'employer_esi' => number_format($employer_esi, 2),
 
-        // Net Salary
-        'net_salary' => number_format($net_salary, 2),
+    // ==================================================
+    // GROSS INCLUDING EMPLOYER CONTRIBUTIONS
+    // ==================================================
+    'gross_total' => number_format(
+        $gross_salary_with_employer,
+        2
+    ),
 
-        // TAKE HOME
-        'take_home' => number_format($Take_home, 2)
-    );
+    // ==================================================
+    // DEDUCTIONS
+    // ==================================================
+    'pf' => number_format($employee_pf, 2),
+    'esi' => number_format($employee_esi, 2),
+    'pt' => number_format($pt, 2),
+
+    // OTHER DEDUCTIONS
+    'loan_due' => number_format($loan_due, 2),
+    'salary_advance' => number_format($salary_advance, 2),
+    'attendance_deduction' => number_format(
+        $total_attendance_deduction,
+        2
+    ),
+
+    // EMPLOYER CONTRIBUTIONS SHOWN AFTER DEDUCTIONS
+    'employer_pf_deduction' => number_format(
+        $employer_pf,
+        2
+    ),
+
+    'employer_esi_deduction' => number_format(
+        $employer_esi,
+        2
+    ),
+
+    // TOTAL
+    'deduction_total' => number_format(
+        $deduction_total,
+        2
+    ),
+
+    // NET SALARY
+    'net_salary' => number_format(
+        $net_salary,
+        2
+    ),
+
+    // TAKE HOME
+    'take_home' => number_format(
+        $Take_home,
+        2
+    )
+);
 
     $sno++;
 }

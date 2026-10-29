@@ -52,9 +52,13 @@ $(document).ready(function () {
   // Company Change
   $("#company_search").on("change", function () {
     let company_id = $(this).val();
+    let branch_id = $("#branch_search").val();
+    let dept_id = $("#department_search").val();
+    let status = $("#status_search").val();
     if (company_id) {
       getBranchList(company_id, "#branch_search");
       getDepartmentList(company_id, "#department_search", "");
+      getStaffList(company_id,branch_id, dept_id, status);
     } else {
       $("#branch_search")
         .empty()
@@ -110,10 +114,10 @@ $("#view_staff").on("click", function () {
     }
 
     // Either Branch OR Department is compulsory
-    if (!branch_id && !department_id) {
-        swalError("Warning", "Please Select Branch or Department!");
-        return;
-    }
+    // if (!branch_id && !department_id) {
+    //     swalError("Warning", "Please Select Branch or Department!");
+    //     return;
+    // }
 
     // Status is compulsory
     if (!status) {
@@ -472,7 +476,7 @@ async function getDepartmentList(company_id, selector, selected_dept = "") {
 
 async function getStaffList(company_id, branch_id,dept_id, status) {
   // Validation
-  if (company_id == "" || (branch_id == "" && dept_id == "" )|| status == "") {
+  if (company_id == "" || status == "") {
     $("#staff_search").html('<option value="">Select Staff Name</option>');
     return false;
   }
