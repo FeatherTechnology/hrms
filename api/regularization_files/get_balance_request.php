@@ -5,6 +5,7 @@ require "../../ajaxconfig.php";
 
 $req_type     = $_POST['req_type'] ?? '';
 $cmpy_id      = $_POST['cmpy_id'] ?? '';
+$ot_pay      = $_POST['ot_pay'] ?? '';
 $staff_id     = $_POST['staff_id'] ?? '';
 $from_Date    = $_POST['from_date'] ?? '';
 $to_date      = $_POST['to_date'] ?? '';
@@ -50,7 +51,6 @@ if ($req_type == '1') {
             FROM occupation_info
             WHERE staff_profile_id = :staff_id
         )";
-
     } else {
 
         /* ================= NORMAL LEAVE ================= */
@@ -122,9 +122,7 @@ if ($req_type == '1') {
 }
 
 
-/* ================= PERMISSION ================= */
-
-else if ($req_type == '2') {
+/* ================= PERMISSION ================= */ else if ($req_type == '2') {
 
     $query = "SELECT
         sc.start_time,
@@ -265,7 +263,6 @@ else if ($req_type == '2') {
             ELSE 0
 
         END AS permission_exceeded";
-
     }
 
 
@@ -308,9 +305,7 @@ GROUP BY
 }
 
 
-/* ================= WEEK OFF ================= */
-
-else if ($req_type == '3') {
+/* ================= WEEK OFF ================= */ else if ($req_type == '3') {
 
     $query = "SELECT 
         SUM(cw.week_off) AS no_of_days,
@@ -388,34 +383,34 @@ else if ($req_type == '3') {
 }
 
 
-/* ================= OT ================= */
-
-else if ($req_type == '4') {
+/* ================= OT ================= */ else if ($req_type == '4') {
+    $ot_pay = $_POST['ot_pay'] ?? 0;
 
     $query = "SELECT
         sc.start_time,
         sc.end_time,
-
         (
-            SELECT COUNT(id)
+            SELECT
+                CASE
+    WHEN :ot_payment = 1 THEN
+        COALESCE(SUM(total_min), 0)
+    ELSE
+        COUNT(id)
+END
             FROM regularization
             WHERE req_type = :req_type
-            AND staff_profile_id = :staff_id
-            AND company_id = :cmpy_id
-            AND status = 1
-            AND MONTH(from_date) = MONTH(CURDATE())
-            AND YEAR(from_date) = YEAR(CURDATE())
+              AND staff_profile_id = :ot_staff_id
+              AND company_id = :cmpy_id
+              AND status IN (0,1)
+              AND MONTH(from_date) = MONTH(CURDATE())
+              AND YEAR(from_date) = YEAR(CURDATE())
         ) AS current_month_ot_count
-
     FROM occupation_info oi
-
-    INNER JOIN shift_creation sc
-        ON sc.id = oi.shift
-
+    INNER JOIN shift_creation sc ON sc.id = oi.shift
     WHERE oi.id = (
         SELECT MAX(id)
         FROM occupation_info
-        WHERE staff_profile_id = :staff_id
+        WHERE staff_profile_id = :shift_staff_id
     )";
 }
 
@@ -433,7 +428,6 @@ if ($req_type == '1') {
 
         $stmt->bindParam(':staff_id', $staff_id);
         $stmt->bindParam(':cmpy_id', $cmpy_id);
-
     } else {
 
         $stmt->bindParam(':staff_id', $staff_id);
@@ -443,13 +437,11 @@ if ($req_type == '1') {
         $stmt->bindParam(':leave_type', $leave_type);
         $stmt->bindParam(':leave_period', $leave_period, PDO::PARAM_INT);
     }
-
-
 } else if ($req_type == '2') {
 
     $stmt->bindParam(':req_type', $req_type, PDO::PARAM_INT);
     $stmt->bindParam(':cmpy_id', $cmpy_id, PDO::PARAM_INT);
-     $stmt->bindParam(':dep_id', $dep_id);
+    $stmt->bindParam(':dep_id', $dep_id);
     $stmt->bindParam(':staff_id', $staff_id);
 
     /*
@@ -479,8 +471,6 @@ if ($req_type == '1') {
             $to_date
         );
     }
-
-
 } else if ($req_type == '3') {
 
     $stmt->bindParam(':req_type', $req_type, PDO::PARAM_INT);
@@ -497,15 +487,13 @@ if ($req_type == '1') {
             PDO::PARAM_INT
         );
     }
-
-
 } else if ($req_type == '4') {
-
-    $stmt->bindParam(':req_type', $req_type, PDO::PARAM_INT);
-    $stmt->bindParam(':cmpy_id', $cmpy_id, PDO::PARAM_INT);
-    $stmt->bindParam(':staff_id', $staff_id);
+    $stmt->bindValue(':ot_payment', $ot_pay, PDO::PARAM_INT);
+    $stmt->bindValue(':req_type', $req_type, PDO::PARAM_INT);
+    $stmt->bindValue(':ot_staff_id', $staff_id);
+    $stmt->bindValue(':cmpy_id', $cmpy_id, PDO::PARAM_INT);
+    $stmt->bindValue(':shift_staff_id', $staff_id);
 }
-
 
 /* ================= EXECUTE ================= */
 
@@ -638,7 +626,6 @@ if (
 
             $graceMinutes =
                 (int)$graceTime;
-
         } else {
 
             /*
@@ -722,7 +709,6 @@ if (
 
             $result['permission_to'] =
                 $attendanceOnlyTime;
-
         } else {
 
             /*
@@ -761,7 +747,6 @@ if ($req_type == '2' && $result) {
             $result['balance'] =
                 $result['balance'] . ' min';
         }
-
     } else {
 
         $result['ave_balance'] =
@@ -779,4 +764,3 @@ if ($req_type == '2' && $result) {
 /* ================= JSON RESPONSE ================= */
 
 echo json_encode($result);
-?>

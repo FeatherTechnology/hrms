@@ -1,6 +1,6 @@
 <?php
 require_once '../../ajaxconfig.php';
-
+//1-leave,2-permission,3-weekoff,4-OT
 try {
     $staff_profile_id = (int)($_POST['stf_prf_id'] ?? 0);
     $req_type = (int)($_POST['req_type'] ?? 0);
@@ -104,7 +104,7 @@ try {
         SELECT id, req_type, from_date, to_date, leave_period
         FROM regularization
         WHERE staff_profile_id = :staff_profile_id
-          AND req_type IN (1, 2, 3)
+          AND req_type IN (1, 2, 3, 4)
           AND id != :hidden_id
           AND from_date <= :to_date
           AND to_date >= :from_date
@@ -120,6 +120,34 @@ try {
 
     $existingRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // OT versus OT and Permission versus Permission time conflict.
+    if (in_array($req_type, [2, 4], true)) {
+        foreach ($existingRequests as $existing) {
+            $existingType = (int)$existing['req_type'];
+
+            if ($existingType !== $req_type) {
+                continue;
+            }
+
+            $existingStart = new DateTime($existing['from_date']);
+            $existingEnd = new DateTime($existing['to_date']);
+
+            if (
+                $newStart < $existingEnd &&
+                $newEnd > $existingStart
+            ) {
+                $requestName = $req_type === 4 ? 'OT' : 'Permission';
+
+                echo json_encode([
+                    'result' => '5',
+                    'message' => $requestName . ' is already applied during this time. Please select a different time.'
+                ]);
+                exit;
+            }
+        }
+    }
+
+    // Validate Leave, Week Off and Permission conflicts.
     foreach ($existingRequests as $existing) {
         $existingType = (int)$existing['req_type'];
 

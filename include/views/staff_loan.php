@@ -103,7 +103,7 @@
                                             <label for="type">Type</label><span class="text-danger">*</span>
                                             <select class="form-control" id="type" name="type" tabindex="8">
                                                 <option value="">Select Type</option>
-                                                <option value="1">Staff Loan</option>
+                                                <option value="1">Loan</option>
                                                 <option value="2">Salary Advance</option>
                                             </select>
                                         </div>

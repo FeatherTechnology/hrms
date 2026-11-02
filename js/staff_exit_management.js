@@ -83,11 +83,16 @@ $(document).ready(function () {
     }
   });
 
-  $(document).on('click', '.staff_exit_sts', function () {
-    const staff_id = $(this).val();
-    swalConfirm("Are you sure?", "Do you want to Exit this Staff?",
-      updateStaffStatus, staff_id);
-  });
+ $(document).on('click', '.staff_exit_sts', function () {
+  const staff_id = $(this).val();
+
+  swalConfirm(
+    "Are you sure?",
+    "Do you want to exit this staff member?",
+    checkStaffLoanBeforeExit,
+    staff_id
+  );
+});
 
   $("#submit_staff_exit").click(function (event) {
     event.preventDefault();
@@ -539,6 +544,91 @@ function updateStaffStatus(staff_id) {
     },
     error: function () {
       swalError("Error", "Unable to update staff status.");
+    }
+  });
+}
+
+
+function updateStaffStatus(staff_id) {
+  $.ajax({
+    url: "api/staff_creation/update_staff_status.php",
+    type: "POST",
+    dataType: "json",
+    data: { staff_id: staff_id, status: 4 },
+    success: function (response) {
+      if (response.status == 1) {
+        swalSuccessOk('Success', response.message, function () {
+          $('#staff_exit').DataTable().ajax.reload(null, false);
+        });
+      } else {
+        swalError("Error", response.message);
+      }
+    },
+    error: function () {
+      swalError("Error", "Unable to update staff status.");
+    }
+  });
+}
+
+
+
+function checkStaffLoanBeforeExit(staff_id) {
+  $.ajax({
+    url: "api/staff_creation/check_staff_loan_balance.php",
+    type: "POST",
+    dataType: "json",
+    data: { staff_id: staff_id },
+    success: function (response) {
+      if (response.status != 1) {
+        swalError("Error", response.message || "Unable to check loan/advance balance.");
+        return;
+      }
+
+      if (response.loans && response.loans.length > 0) {
+        let loanRows = "";
+
+        response.loans.forEach(function (loan) {
+          loanRows += `
+            <tr>
+              <td>${(loan.loan_type)}</td>
+              <td>${(loan.loan_amount)}</td>
+              <td>${(loan.total_deducted)}</td>
+              <td><strong>${(loan.balance_amount)}</strong></td>
+            </tr>
+          `;
+        });
+
+        Swal.fire({
+          title: "Staff Cannot Exit",
+          html: `
+            <p>This staff member has an outstanding loan/advance balance.</p>
+            <p><strong>Please clear the balance before Staff Exit.</strong></p>
+            <div style="overflow-x:auto;">
+              <table class="table table-bordered table-sm">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Loan Amount</th>
+                    <th>Total Deducted</th>
+                    <th>Outstanding Balance</th>
+                  </tr>
+                </thead>
+                <tbody>${loanRows}</tbody>
+              </table>
+            </div>
+          `,
+          icon: "warning",
+          confirmButtonText: "OK",
+          width: "750px"
+        });
+
+        return;
+      }
+
+      updateStaffStatus(staff_id);
+    },
+    error: function () {
+      swalError("Error", "Unable to check staff loan/advance balance.");
     }
   });
 }

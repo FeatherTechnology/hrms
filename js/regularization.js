@@ -31,7 +31,7 @@ $(document).ready(function () {
     $("#back_btn,#balance_req,.staff_info_div").show();
 
     $(
-      ".add_reg,.regularization_list,.approval_div,.leveType,.bal_req,.ot_req,.Lev_per.leave_day_div,.doc_upload_div.leave_count_div",
+      ".add_reg,.regularization_list,.approval_div,.leveType,.bal_req,.ot_req,.Lev_per.leave_day_div,.doc_upload_div.leave_count_div.ot_pay_div",
     ).hide();
 
     getuserdetails();
@@ -77,14 +77,14 @@ $(document).ready(function () {
 
 
 
-  // Get time whether separator is T or space
-   let fromTime = fromValue.includes("T")
-        ? fromValue.split("T")[1].substring(0, 5)
-        : "";
+    // Get time whether separator is T or space
+    let fromTime = fromValue.includes("T")
+      ? fromValue.split("T")[1].substring(0, 5)
+      : "";
 
     let toTime = toValue.includes("T")
-        ? toValue.split("T")[1].substring(0, 5)
-        : "";
+      ? toValue.split("T")[1].substring(0, 5)
+      : "";
 
     // Shift time
     let shiftStartTime = response.start_time.substring(0, 5);
@@ -92,17 +92,17 @@ $(document).ready(function () {
 
     let formattedStart = formatTime(response.start_time);
     let formattedEnd = formatTime(response.end_time);
-     let fromMinutes = Number(fromTime.split(":")[0]) * 60 +
-                      Number(fromTime.split(":")[1]);
+    let fromMinutes = Number(fromTime.split(":")[0]) * 60 +
+      Number(fromTime.split(":")[1]);
 
     let toMinutes = Number(toTime.split(":")[0]) * 60 +
-                    Number(toTime.split(":")[1]);
+      Number(toTime.split(":")[1]);
 
     let shiftStartMinutes = Number(shiftStartTime.split(":")[0]) * 60 +
-                            Number(shiftStartTime.split(":")[1]);
+      Number(shiftStartTime.split(":")[1]);
 
     let shiftEndMinutes = Number(shiftEndTime.split(":")[0]) * 60 +
-                          Number(shiftEndTime.split(":")[1]);
+      Number(shiftEndTime.split(":")[1]);
 
     // =========================
     // OT Validation
@@ -129,20 +129,20 @@ $(document).ready(function () {
     // Permission Validation
     // =========================
     if (reqType == "2") {
-      
-    if (
+
+      if (
         fromMinutes < shiftStartMinutes ||
         toMinutes > shiftEndMinutes ||
         toMinutes <= fromMinutes
-    ) {
+      ) {
         swalError(
-            "Warning",
-            `Permission can only be applied within the shift timings (${formattedStart} to ${formattedEnd}).`
+          "Warning",
+          `Permission can only be applied within the shift timings (${formattedStart} to ${formattedEnd}).`
         );
 
         $("#from_date, #to_date").val("");
         return;
-    }
+      }
     }
 
     // Calculate difference
@@ -206,6 +206,7 @@ $(document).ready(function () {
       $(".leave_day_div").show();
       $(".doc_upload_div").show();
       $(".ot_req").hide();
+      $(".ot_pay_div").hide();
       $(".shift_time").hide();
       $("#from_date,#to_date").attr("type", "date");
       getcmpyleavelist(cmpy_id);
@@ -215,6 +216,7 @@ $(document).ready(function () {
       $(".shift_time").show();
       $(".leveType").hide();
       $(".ot_req").hide();
+      $(".ot_pay_div").hide();
       $(".leave_day_div").hide();
       $(".leave_count_div").hide();
       $(".doc_upload_div").hide();
@@ -228,6 +230,7 @@ $(document).ready(function () {
       $(".doc_upload_div").hide();
       $(".leave_count_div").hide();
       $(".ot_req").hide();
+      $(".ot_pay_div").hide();
       $(".shift_time").hide();
       $("#from_date,#to_date").attr("type", "date");
       getbalancerequest();
@@ -236,6 +239,7 @@ $(document).ready(function () {
       $(".bal_req").hide();
       $(".leveType").hide();
       $(".ot_req").show();
+      $(".ot_pay_div").hide();
       $(".shift_time").show();
       $(".doc_upload_div").hide();
       $(".leave_day_div").hide();
@@ -310,7 +314,7 @@ $(document).ready(function () {
   });
 
   // submit regularization
-$("#submit_regularization").click(function (event) {
+  $("#submit_regularization").click(function (event) {
     event.preventDefault();
     let collData = {
       stf_prf_id: $("#stf_prf_id").val(),
@@ -334,7 +338,7 @@ $("#submit_regularization").click(function (event) {
       from_date: $("#from_date").val(),
       to_date: $("#to_date").val(),
       leave_days: $("#leave_days").val(),
-      ot_payment: $("#ot_payment").val(),
+      ot_payment: $("#ot_pay").val(),
       total_min: $("#total_min").val(),
       purpose: $("#purpose").val(),
       approval_type: $("#approval_type").val(),
@@ -368,166 +372,166 @@ $("#submit_regularization").click(function (event) {
     }
 
     if (collData["req_type"] == 3) {
-        validationResults.push(
-            validateField($("#leave_period").val(), "leave_period"),
-            validateField($("#ave_balance").val(), "ave_balance"),
-            validateField($("#balance_req").val(), "balance_req"),
-            validateField($("#leave_days").val(), "leave_days")
-        );
+      validationResults.push(
+        validateField($("#leave_period").val(), "leave_period"),
+        validateField($("#ave_balance").val(), "ave_balance"),
+        validateField($("#balance_req").val(), "balance_req"),
+        validateField($("#leave_days").val(), "leave_days")
+      );
     }
 
     if (!validationResults.every((result) => result)) {
-        isValid = false;
+      isValid = false;
     }
 
     if ($(".approval_div").is(":visible")) {
-        let approvalValid = true;
+      let approvalValid = true;
 
-        if ($("#approval_type").val() == "0") {
-            $("#approval_type").css("border", "1px solid red");
-            approvalValid = false;
-        } else {
-            $("#approval_type").css("border", "1px solid #cecece");
-        }
+      if ($("#approval_type").val() == "0") {
+        $("#approval_type").css("border", "1px solid red");
+        approvalValid = false;
+      } else {
+        $("#approval_type").css("border", "1px solid #cecece");
+      }
 
-        if ($("#remarks").val().trim() == "") {
-            $("#remarks").css("border", "1px solid red");
-            approvalValid = false;
-        } else {
-            $("#remarks").css("border", "1px solid #cecece");
-        }
+      if ($("#remarks").val().trim() == "") {
+        $("#remarks").css("border", "1px solid red");
+        approvalValid = false;
+      } else {
+        $("#remarks").css("border", "1px solid #cecece");
+      }
 
-        if (!approvalValid) {
-            swalError("Warning", "Please fill out all mandatory fields.");
-            return false;
-        }
+      if (!approvalValid) {
+        swalError("Warning", "Please fill out all mandatory fields.");
+        return false;
+      }
     }
 
     const req_type = parseInt(collData["req_type"], 10);
     const balance_req = parseFloat(collData["balance_req"]) || 0;
 
     if ([1, 2, 3].includes(req_type) && balance_req < 0) {
-        let excessDays = Math.abs(balance_req);
+      let excessDays = Math.abs(balance_req);
 
-        swalError(
-            "Error",
-            `You don't have enough balance. You have applied ${excessDays} more day(s) than your available balance.`
-        );
+      swalError(
+        "Error",
+        `You don't have enough balance. You have applied ${excessDays} more day(s) than your available balance.`
+      );
 
-        return false;
+      return false;
     }
 
     if (!isValid) {
-        return false;
+      return false;
     }
 
     $.ajax({
-        url: "api/regularization_files/check_regularization_conflict.php",
-        type: "POST",
-        dataType: "json",
-        data: {
-            stf_prf_id: collData.stf_prf_id,
-            req_type: collData.req_type,
-            from_date: collData.from_date,
-            to_date: collData.to_date,
-            leave_period: collData.leave_period,
-            shift_start: collData.shift_start,
-            shift_end: collData.shift_end,
-            hidden_id: collData.hidden_id,
-            total_min: collData.total_min
-        },
-        success: function (response) {
-            if (response.result == "5") {
-                swalError("Warning", response.message);
-                return;
-            }
-
-            if (response.result != "1") {
-                swalError(
-                    "Error",
-                    response.message || "Unable to validate the request."
-                );
-                return;
-            }
-
-            swalConfirm(
-                "Are you sure?",
-                "Do you want to submit this Regularization?",
-                function () {
-                    let formData = new FormData();
-
-                    $.each(collData, function (key, value) {
-                        formData.append(key, value ?? "");
-                    });
-
-                    let uploadFile = $("#upload")[0].files[0];
-
-                    if (uploadFile) {
-                        formData.append("upload", uploadFile);
-                    }
-
-                    $.ajax({
-                        url: "api/regularization_files/submit_regularization.php",
-                        type: "POST",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        dataType: "json",
-                        success: function (response) {
-                            if (response.result == "1") {
-                                swalSuccess(
-                                    "Success",
-                                    "Regularization Updated Successfully."
-                                );
-                                $("#back_btn").trigger("click");
-                            } else if (response.result == "2") {
-                                swalError(
-                                    "Error",
-                                    "Failed to Update Regularization"
-                                );
-                            } else if (response.result == "3") {
-                                swalSuccess(
-                                    "Success",
-                                    "Regularization Inserted Successfully."
-                                );
-                                $("#back_btn").trigger("click");
-                            } else if (response.result == "4") {
-                                swalError(
-                                    "Error",
-                                    "Failed to Insert Regularization"
-                                );
-                            } else if (response.result == "5") {
-                                swalError(
-                                    "Warning",
-                                    "Already regularization request exists for this date"
-                                );
-                            } else {
-                                swalError(
-                                    "Error",
-                                    response.message || "Failed to submit Regularization."
-                                );
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.error(xhr.responseText);
-                            swalError(
-                                "Error",
-                                "Failed to submit Regularization."
-                            );
-                        }
-                    });
-                }
-            );
-        },
-        error: function (xhr, status, error) {
-            console.error(xhr.responseText);
-            swalError(
-                "Error",
-                "Failed to check existing regularization."
-            );
+      url: "api/regularization_files/check_regularization_conflict.php",
+      type: "POST",
+      dataType: "json",
+      data: {
+        stf_prf_id: collData.stf_prf_id,
+        req_type: collData.req_type,
+        from_date: collData.from_date,
+        to_date: collData.to_date,
+        leave_period: collData.leave_period,
+        shift_start: collData.shift_start,
+        shift_end: collData.shift_end,
+        hidden_id: collData.hidden_id,
+        total_min: collData.total_min
+      },
+      success: function (response) {
+        if (response.result == "5") {
+          swalError("Warning", response.message);
+          return;
         }
+
+        if (response.result != "1") {
+          swalError(
+            "Error",
+            response.message || "Unable to validate the request."
+          );
+          return;
+        }
+
+        swalConfirm(
+          "Are you sure?",
+          "Do you want to submit this Regularization?",
+          function () {
+            let formData = new FormData();
+
+            $.each(collData, function (key, value) {
+              formData.append(key, value ?? "");
+            });
+
+            let uploadFile = $("#upload")[0].files[0];
+
+            if (uploadFile) {
+              formData.append("upload", uploadFile);
+            }
+
+            $.ajax({
+              url: "api/regularization_files/submit_regularization.php",
+              type: "POST",
+              data: formData,
+              processData: false,
+              contentType: false,
+              dataType: "json",
+              success: function (response) {
+                if (response.result == "1") {
+                  swalSuccess(
+                    "Success",
+                    "Regularization Updated Successfully."
+                  );
+                  $("#back_btn").trigger("click");
+                } else if (response.result == "2") {
+                  swalError(
+                    "Error",
+                    "Failed to Update Regularization"
+                  );
+                } else if (response.result == "3") {
+                  swalSuccess(
+                    "Success",
+                    "Regularization Inserted Successfully."
+                  );
+                  $("#back_btn").trigger("click");
+                } else if (response.result == "4") {
+                  swalError(
+                    "Error",
+                    "Failed to Insert Regularization"
+                  );
+                } else if (response.result == "5") {
+                  swalError(
+                    "Warning",
+                    "Already regularization request exists for this date"
+                  );
+                } else {
+                  swalError(
+                    "Error",
+                    response.message || "Failed to submit Regularization."
+                  );
+                }
+              },
+              error: function (xhr, status, error) {
+                console.error(xhr.responseText);
+                swalError(
+                  "Error",
+                  "Failed to submit Regularization."
+                );
+              }
+            });
+          }
+        );
+      },
+      error: function (xhr, status, error) {
+        console.error(xhr.responseText);
+        swalError(
+          "Error",
+          "Failed to check existing regularization."
+        );
+      }
     });
-});
+  });
 
   setDateValidation("#from_date", "#to_date");
 
@@ -682,7 +686,7 @@ function getuserdetails() {
       $("#designation").val(response.designation);
       $("#team_id").val(response.team_id);
       $("#team").val(response.team_name);
-      $("#ot_payment").val(response.ot_payment);
+      $("#ot_payment,#ot_pay").val(response.ot_payment);
       $("#req_date").val(
         new Date().toLocaleDateString("en-GB").replace(/\//g, "-"),
       );
@@ -712,8 +716,8 @@ function getedituserdetails(id) {
       if ($("#req_type option").length <= 1) {
         $("#req_type").html(`
     <option value="4">OT</option>
+     <option value="3">Week Off</option>
     <option value="1">Leave</option>
-    <option value="3">Week Off</option>
     <option value="2">Permission</option>
 `);
       }
@@ -750,7 +754,7 @@ function getedituserdetails(id) {
       $("#shift_start").val(response.shift_start);
       $("#shift_end").val(response.shift_end);
       $("#leave_days").val(response.leave_days);
-      $("#ot_payment").val(response.ot_payment);
+      $("#ot_payment,#ot_pay").val(response.ot_payment);
       $("#req_date").val(
         response.req_date.split(" ")[0].split("-").reverse().join("-"),
       );
@@ -778,7 +782,7 @@ function getedituserdetails(id) {
 
       $("#approval_type").val(response.status || 0);
       $("#remarks").val(response.remarks);
-        if (response.req_type != "2") {
+      if (response.req_type != "2") {
         availableBalance = Number(response.ave_balance) || 0;
         remainingBalance = Number(response.balance_req) || 0;
 
@@ -833,9 +837,11 @@ function getedituserdetails(id) {
 
       if (response.req_type == 4) {
         $(".ot_req").show();
+        $(".ot_pay_div").show();
         $("#current_month_ot_count").val(response.current_month_ot_count || 0);
       } else {
         $(".ot_req").hide();
+        $(".ot_pay_div").hide();
       }
 
       $("#upload").val("");
@@ -945,6 +951,7 @@ async function getbalancerequest() {
         to_date: $("#to_date").val(),
         leave_period: $("#leave_period").val(),
         leave_type: $("#leave_type").val(),
+        ot_pay: $("#ot_pay").val(),
       },
       null,
       "json",
@@ -976,7 +983,21 @@ async function getbalancerequest() {
       );
     }
 
-    $("#current_month_ot_count").val(response.current_month_ot_count);
+    const otPay = $("#ot_pay").val();
+    let otCount = Number(response.current_month_ot_count) || 0;
+
+    if (otPay == "1") {
+      const days = Math.floor(otCount / 1440);
+      const remainingMinutes = otCount % 1440;
+      const hours = Math.floor(remainingMinutes / 60);
+      const minutes = remainingMinutes % 60;
+
+      $("#current_month_ot_count").val(
+        `${days} D   ${hours} H   ${minutes} M`
+      );
+    } else {
+      $("#current_month_ot_count").val(otCount);
+    }
     $("#cur_month_lop_count").val(response.cur_month_lop_count);
 
     const startTime = formatTime(response.start_time);
