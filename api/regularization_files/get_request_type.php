@@ -17,8 +17,8 @@ if (!empty($user_id)) {
 
         $requestTypes = [
             4 => 'OT',
-            1 => 'Leave',
             3 => 'Week Off',
+            1 => 'Leave',
             2 => 'Permission',
 
             

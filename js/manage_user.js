@@ -1072,7 +1072,7 @@ function getMenuSubMenuList(userId) {
                 submenu.sub_menu.toLowerCase() === "location access" ||
                 submenu.sub_menu.toLowerCase() === "attendance"
               ) {
-                mappingBasedText = `<span style="color: #f26b35;">(Mapping Based)</span>`;
+                mappingBasedText = `<span style="color: #f26b35;">(Reporting Based)</span>`;
               }
               if (
                 submenu.sub_menu.toLowerCase() === "staff" ||
@@ -1081,7 +1081,7 @@ function getMenuSubMenuList(userId) {
                 submenu.sub_menu.toLowerCase() === "feedback engagement" 
 
               ) {
-                mappingBasedText = `<span style="color: #f26b35;">(User Based)</span>`;
+                mappingBasedText = `<span style="color: #f26b35;">(Mapping Based)</span>`;
               }
 
               submenuHtml = `

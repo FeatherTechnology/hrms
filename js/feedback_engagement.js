@@ -145,7 +145,7 @@ $(document).ready(function () {
       tbodySelector: "#feedback_question_body",
       inputClass: "feedback_question",
       inputName: "feedback_question",
-      placeholder: "Enter Feedback Question",
+      placeholder: "Enter Feedback Criteria",
     });
     clearFeedbackConfigurationFields();
     getFeedbackConfigurationTable(company_id);
@@ -231,7 +231,7 @@ $(document).ready(function () {
       tbodySelector: "#feedback_question_body",
       inputClass: "feedback_question",
       inputName: "feedback_question",
-      placeholder: "Enter Feedback Question",
+      placeholder: "Enter Feedback Criteria",
     });
 
     resetQuestionTable({
@@ -336,13 +336,13 @@ $(document).ready(function () {
     return;
   });
 
-  /* --- Initialize Feedback Question Table --- */
+  /* --- Initialize Feedback Criteria Table --- */
   initializeQuestionTable({
     tbodySelector: "#feedback_question_body",
     inputClass: "feedback_question",
     inputName: "feedback_question",
-    placeholder: "Enter Feedback Question",
-    validationMessage: "Please enter feedback question",
+    placeholder: "Enter Feedback Criteria",
+    validationMessage: "Please enter feedback criteria",
   });
 
   /* --- Initialize Poll Option Table --- */
@@ -499,7 +499,7 @@ $(document).ready(function () {
 
     // Question Validation
     if (feedback_questions.length == 0) {
-      swalError("Warning", "Please enter at least one feedback question");
+      swalError("Warning", "Please enter at least one feedback criteria");
 
       return false;
     }
@@ -550,7 +550,7 @@ $(document).ready(function () {
                 tbodySelector: "#feedback_question_body",
                 inputClass: "feedback_question",
                 inputName: "feedback_question",
-                placeholder: "Enter Feedback Question",
+                placeholder: "Enter Feedback Criteria",
               });
               clearFeedbackConfigurationFields();
               getDepartmentNameDropdown({
@@ -799,6 +799,7 @@ $(document).ready(function () {
     let poll_end_date = $("#poll_end_date").val();
     let poll_title = $("#poll_title").val();
     let poll_description = $("#poll_description").val();
+    let selection_type = $("#selection_type").val();
     let scheduled_feedback_type = $("#scheduled_feedback_type").val();
     let poll_titles_id = $("#poll_titles_id").val();
 
@@ -820,6 +821,7 @@ $(document).ready(function () {
       "poll_end_date",
       "poll_title",
       "poll_description",
+      "selection_type",
       "scheduled_feedback_type",
     ];
 
@@ -867,6 +869,7 @@ $(document).ready(function () {
               poll_end_date,
               poll_title,
               poll_description,
+              selection_type,
               poll_titles_id,
 
               // Pass Array
@@ -944,6 +947,7 @@ $(document).ready(function () {
       $("#poll_end_date").val(response.end_date_time);
       $("#poll_title").val(response.poll_title);
       $("#poll_description").val(response.poll_description);
+      $("#selection_type").val(response.selection_type);
 
       // Clear Old Rows
       $("#poll_question_body").empty();
@@ -1295,6 +1299,7 @@ function getPollTable(company_id) {
         "end_date_time",
         "branch_name",
         "department_name",
+        "selection_type",
         "action",
       ];
       appendDataToTable("#poll_table", response, columnMapping);
@@ -1340,6 +1345,7 @@ function clearPollFields() {
   $("#poll_end_date").val("");
   $("#poll_title").val("");
   $("#poll_description").val("");
+  $("#selection_type").val("");
   $("#poll_titles_id").val("");
 
   // Reset validation borders
@@ -1357,7 +1363,7 @@ resetQuestionTable({
   tbodySelector: "#feedback_question_body",
   inputClass: "feedback_question",
   inputName: "feedback_question",
-  placeholder: "Enter Feedback Question",
+  placeholder: "Enter Feedback Criteria",
 });
 
 resetQuestionTable({

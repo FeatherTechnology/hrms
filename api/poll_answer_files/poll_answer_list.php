@@ -41,10 +41,11 @@ $deptData = $deptStmt->fetch(PDO::FETCH_ASSOC);
 $department = $deptData['department'] ?? '';
 $company_id = $deptData['company_id'] ?? '';
 $branch_id = $deptData['branch_id'] ?? '';
+$selection_tye_arr =[1 =>'Single Selection',2 => 'Multiple Selection'];
 
 /* Get Active Polls */
 $stmt = $pdo->prepare("
-    SELECT pt.id, pt.poll_title
+    SELECT pt.id, pt.poll_title,pt.selection_type
     FROM poll_titles pt
     WHERE pt.company_id = :company_id
       AND pt.poll_status = :poll_status
@@ -85,6 +86,7 @@ if ($stmt->rowCount() > 0) {
             $row['id'],
             $user_id
         ]);
+         $row['selection_type'] = $selection_tye_arr[$row['selection_type']];
 
         $alreadyAnswered = $checkStmt->rowCount();
 

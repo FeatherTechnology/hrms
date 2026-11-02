@@ -143,7 +143,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="feedback_config_branch_name">Branch Name</label><span class="text-danger">*</span>
                                         <input type="hidden" id="feedback_config_branch_name2">
@@ -173,8 +173,8 @@
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
-                                        <label for="feedback_title">Feedback Title</label><span class="text-danger">*</span>
-                                        <input type="text" class="form-control" id="feedback_title" name="feedback_title" placeholder="Enter Feedback Title" tabindex="11">
+                                        <label for="feedback_title">Feedback Category</label><span class="text-danger">*</span>
+                                        <input type="text" class="form-control" id="feedback_title" name="feedback_title" placeholder="Enter Feedback Category" tabindex="11">
                                     </div>
                                 </div>
                                 <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -199,7 +199,7 @@
                                             <thead class="table-success">
                                                 <tr>
                                                     <th>S.No</th>
-                                                    <th>Feedback Questions</th>
+                                                    <th>Feedback Criteria</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
@@ -212,7 +212,7 @@
                                                             type="text"
                                                             class="form-control feedback_question"
                                                             name="feedback_question[]"
-                                                            placeholder="Enter Feedback Question">
+                                                            placeholder="Enter Feedback Criteria">
                                                     </td>
                                                     <td>
                                                         <button
@@ -245,7 +245,7 @@
                                             <thead>
                                                 <tr>
                                                     <th width="20">S.NO</th>
-                                                    <th>Feedback Title</th>
+                                                    <th>Feedback Category</th>
                                                     <th>Start Date & Time</th>
                                                     <th>End Date & Time</th>
                                                     <th>Branch</th>
@@ -344,7 +344,7 @@
                                                     <th>Rating Title</th>
                                                     <th>Start Date & Time</th>
                                                     <th>End Date & Time</th>
-                                                     <th>Branch</th>
+                                                    <th>Branch</th>
                                                     <th>Department</th>
                                                     <!-- <th>Status</th> -->
                                                     <th>Action</th>
@@ -373,7 +373,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="poll_branch_name">Branch Name</label><span class="text-danger">*</span>
                                         <input type="hidden" id="poll_branch_name2">
@@ -411,6 +411,17 @@
                                     <div class="form-group">
                                         <label for="poll_description">Description</label><span class="text-danger">*</span>
                                         <textarea class="form-control custom-form-control" id="poll_description" name="poll_description" tabindex="25" placeholder="Add your description here..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                    <div class="form-group">
+                                        <label for="selection_type">Selection Type</label>
+                                        <span class="text-danger">*</span>
+                                        <select class="form-control" id="selection_type" name="selection_type" tabindex="26" required>
+                                            <option value="">Select Selection Type</option>
+                                            <option value="1">Single Selection</option>
+                                            <option value="2">Multiple Selection</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -485,6 +496,7 @@
                                                     <th>End Date & Time</th>
                                                     <th>Branch</th>
                                                     <th>Department</th>
+                                                    <th>Selection Type</th>
                                                     <!-- <th>Status</th> -->
                                                     <th>Action</th>
                                                 </tr>

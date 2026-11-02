@@ -119,11 +119,13 @@
                         <table id="general_feedback_table" class="table custom-table">
                             <thead>
                                 <th>S.No</th>
+                                <th>Company</th>
                                 <th>Feedback Title</th>
                                 <th>Comments</th>
                                 <th>Submitted By</th>
                                 <th>Visible To</th>
                                 <th>Attachments</th>
+                                <th>Action</th>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -146,10 +148,14 @@
                         <table id="feedback_table" class="table custom-table">
                             <thead>
                                 <th>S.No</th>
-                                <th>Feedback Title</th>
+                                <th>Company</th>
+                                <th>Branch</th>
+                                <th>Department</th>
+                                <th>Feedback Category</th>
                                 <th>Start Date</th>
                                 <th>End Rate Date</th>
                                 <th>Total Response / No of Staff</th>
+                                <th>Responses</th>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -177,10 +183,14 @@
                         <table id="ratings_table" class="table custom-table">
                             <thead>
                                 <th>S.No</th>
+                                <th>Company</th>
+                                <th>Branch</th>
+                                <th>Department</th>
                                 <th>Rating Questions</th>
                                 <th>Start Date</th>
                                 <th>End Rate Date</th>
                                 <th>Total Response / No of Staff</th>
+                                <th>Responses</th>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -207,10 +217,15 @@
                         <table id="polls_table" class="table custom-table">
                             <thead>
                                 <th>S.No</th>
+                                <th>Company</th>
+                                <th>Branch</th>
+                                <th>Department</th>
                                 <th>Poll Questions</th>
+                                <th>Selection Type</th>
                                 <th>Start Date</th>
                                 <th>End Rate Date</th>
                                 <th>Total Response / No of Staff</th>
+                                <th>Responses</th>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -225,46 +240,99 @@
 
 </div>
 
-<div class="modal fade"
-    id="attachmentModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="hierarchyModalTitle"
-    aria-hidden="true">
-
-    <div class="modal-dialog hierarchy-modal-dialog" role="document">
-        <div class="modal-content" style="background-color: white">
+<!-- Feedback Attachment Modal -->
+<div class="modal fade" id="feedbackAttachmentModal" tabindex="-1" aria-labelledby="feedbackAttachmentModalLabel" aria-hidden="true">
+    <!-- Changed to modal-xl (Extra Large) and added max-width to expand the modal width nicely -->
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 90%;">
+        <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="hierarchyModalTitle">
-                    Staff Feedback Attachments
-                </h5>
-                <button type="button"
-                    class="close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close">
+                <h5 class="modal-title" id="feedbackAttachmentModalLabel">Staff Responses</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body table-responsive">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead>
+                        <tr id="attachmentTableHead"></tr>
+                    </thead>
+                    <tbody id="attachmentTableBody"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Attachment Modal -->
+<div class="modal fade" id="attachmentModal" tabindex="-1" aria-labelledby="attachmentModalLabel" aria-hidden="true">
+    <!-- Updated dialog wrapper with custom compact size class -->
+    <div class="modal-dialog modal-dialog-centered attachment-modal-size">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="attachmentModalLabel">Staff Feedback Attachments</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-12" style="overflow-x: auto;">
-                            <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr id="attachmentTableHead"></tr>
-                                </thead>
-                                <tbody id="attachmentTableBody"></tbody>
-                            </table>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+
+                        <div class="row">
+                            <input type="hidden" name="qualification_id" id='qualification_id'>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="modal_company_name">Company Name</label><span class="text-danger">*</span>
+                                    <input class="form-control" name="modal_company_name" id="modal_company_name" readonly tabindex="1">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="modal_feedback_title">Feedback Title</label><span class="text-danger">*</span>
+                                    <input class="form-control" name="modal_feedback_title" id="modal_feedback_title" readonly tabindex="1">
+
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="modal_submitted_by">Submitted By</label><span class="text-danger">*</span>
+                                    <input class="form-control" name="modal_submitted_by" id="modal_submitted_by" readonly tabindex="1">
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="modal_visible_to">Visible To</label><span class="text-danger">*</span>
+                                    <input class="form-control" name="modal_visible_to" id="modal_visible_to" readonly tabindex="1">
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="modal_created_date">Created Date</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" name="modal_created_date" readonly id="modal_created_date" tabindex="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header">
+                        <div class="card-title"> Attached Files </div>
+                    </div>
+                    <div class="card-body">
+
+                        <div id="attachmentList" class="d-flex flex-column">
+                            <!-- Dynamically injected files will appear here -->
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal">
-                    Close
-                </button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -552,6 +620,17 @@
         animation: shine 0.8s ease-in-out;
     }
 
+    /* Hover effect rules you already have */
+    .attachment-item-hover {
+        transition: all 0.2s ease-in-out;
+    }
+
+    .attachment-item-hover:hover {
+        background-color: #e2e8f0 !important;
+        border-color: #cbd5e1 !important;
+        transform: translateY(-1px);
+    }
+
     @keyframes shine {
         from {
             left: -120%;
@@ -561,9 +640,11 @@
             left: 150%;
         }
     }
+
     #attachmentModal .modal-dialog {
-    width: 95%;
-    max-width: 1400px;   /* change to any size you want */
-    margin: 30px auto;
-}
+        width: 95%;
+        max-width: 1400px;
+        /* change to any size you want */
+        margin: 30px auto;
+    }
 </style>

@@ -15,59 +15,77 @@ $(document).ready(function () {
     }
   });
 
-  $("#submit_gen_feedback").click(function (event) {
+  
+$("#submit_gen_feedback").click(function (event) {
     event.preventDefault();
-    //Validation
+
     let feedback_name = $("#feedback_name").val();
     let commants = $("#commants").val();
-    let attachment = $("#attachment")[0].files[0];
+    let attachments = $("#attachment")[0].files;
     let user_name = $("#user_name").val();
 
     var data = ["feedback_name", "commants", "user_name"];
     var isValid = true;
+
     data.forEach(function (entry) {
-      var fieldIsValid = validateField($("#" + entry).val(), entry);
-      if (!fieldIsValid) {
-        isValid = false;
-      }
+        var fieldIsValid = validateField($("#" + entry).val(), entry);
+        if (!fieldIsValid) {
+            isValid = false;
+        }
     });
+
     if (isValid) {
-      swalConfirm(
-        "Are you sure?",
-        "Do you want to submit this Feedback ?",
-        function () {
-          let kycDetail = new FormData();
+        swalConfirm(
+            "Are you sure?",
+            "Do you want to submit this Feedback?",
+            function () {
+                let kycDetail = new FormData();
 
-          kycDetail.append("feedback_name", feedback_name);
-          kycDetail.append("commants", commants);
-          kycDetail.append("attachment", attachment);
-          kycDetail.append("user_name", user_name);
+                kycDetail.append("feedback_name", feedback_name);
+                kycDetail.append("commants", commants);
+                kycDetail.append("user_name", user_name);
 
-          $.ajax({
-            url: "api/feedback/submit_gen_feedback.php",
-            type: "post",
-            data: kycDetail,
-            contentType: false,
-            processData: false,
-            cache: false,
-            success: function (response) {
-              if ((response = "1")) {
-                swalSuccess("Success", "Feedback Added Successfully!");
-                $("#feedback_name").val("");
-                $("#commants").val("");
-                $("#attachment").val("");
-                $('input[name="feedback_type"][value="0"]')
-                  .prop("checked", true)
-                  .trigger("click");
-              } else {
-                swalError("Error", "Error in table");
-              }
-            },
-          });
-        },
-      );
+                for (let i = 0; i < attachments.length; i++) {
+                    kycDetail.append("attachment[]", attachments[i]);
+                }
+
+                $.ajax({
+                    url: "api/feedback/submit_gen_feedback.php",
+                    type: "POST",
+                    data: kycDetail,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    success: function (response) {
+                        let result = response;
+
+                        try {
+                            result = JSON.parse(response);
+                        } catch (e) {}
+
+                        if (result == 1 || result == "1") {
+                            swalSuccess("Success", "Feedback Added Successfully!");
+
+                            $("#feedback_name").val("");
+                            $("#commants").val("");
+                            $("#attachment").val("");
+
+                            $('input[name="feedback_type"][value="0"]')
+                                .prop("checked", true)
+                                .trigger("click");
+                        } else {
+                            swalError("Error", "Error in table");
+                        }
+                    },
+                    error: function () {
+                        swalError("Error", "Unable to submit feedback.");
+                    }
+                });
+            }
+        );
     }
-  });
+});
+
 
   $("#back_btn").click(function () {
     $('input[name="feedback_type"][value="1"]')
@@ -115,8 +133,9 @@ $(document).ready(function () {
                             </div>
 
                             <div class="col-md-3" style="display:flex;flex-direction:column;justify-content:center;">
-                                <label class="form-label mb-1" style="font-size: 12px; color: #6c757d;">Attachment</label>
-                                <input type="file" class="form-control form-control-sm feedback_attachment">
+                             <label class="form-label mb-1" style="font-size:12px;color:#6c757d;">Attachments</label>
+                              <input type="file" class="form-control form-control-sm feedback_attachment" name="attachment[]" multiple
+                               accept="image/*,.pdf,.doc,.docx,audio/*">
                             </div>
 
                         </div>
@@ -139,9 +158,11 @@ $(document).ready(function () {
     );
   });
 
-  $(document).on("click", ".submitFeedbackBtn", function () {
+  
+$(document).on("click", ".submitFeedbackBtn", function () {
     let feedback_configuration_id = $(this).val();
     let formData = new FormData();
+
     formData.append("feedback_configuration_id", feedback_configuration_id);
 
     let isValid = true;
@@ -149,21 +170,23 @@ $(document).ready(function () {
     $(".question-row").each(function (index) {
         let question_id = $(this).attr("data-question-id");
         let answer = $(this).find(".feedback_answer").val().trim();
-        let fileInput = $(this).find(".feedback_attachment")[0].files[0];
+        let files = $(this).find(".feedback_attachment")[0].files;
 
-        if (answer == "") {
+        if (answer === "") {
             isValid = false;
             $(this).find(".feedback_answer").addClass("is-invalid");
         } else {
             $(this).find(".feedback_answer").removeClass("is-invalid");
         }
 
-        // Append text answers and files to FormData
         formData.append(`answerArr[${index}][question_id]`, question_id);
         formData.append(`answerArr[${index}][answer]`, answer);
-        
-        if (fileInput) {
-            formData.append(`answerArr[${index}][attachment]`, fileInput);
+
+        for (let i = 0; i < files.length; i++) {
+            formData.append(
+                `answerArr[${index}][attachment][]`,
+                files[i]
+            );
         }
     });
 
@@ -174,17 +197,22 @@ $(document).ready(function () {
 
     swalConfirm(
         "Are you sure?",
-        "Do you want to submit this Feedback ?",
+        "Do you want to submit this Feedback?",
         function () {
             $.ajax({
                 url: "api/feedback/submit_sch_feedback.php",
                 type: "POST",
                 data: formData,
-                processData: false, // Required for FormData
-                contentType: false, // Required for FormData
+                processData: false,
+                contentType: false,
                 success: function (response) {
-                    if (response == 1) {
-                        swalSuccess("Success", "Feedback Answer Submitted Successfully.");
+                    response = String(response).trim();
+
+                    if (response === "1") {
+                        swalSuccess(
+                            "Success",
+                            "Feedback Answer Submitted Successfully."
+                        );
 
                         $('input[name="feedback_type"][value="1"]')
                             .prop("checked", true)
@@ -192,13 +220,17 @@ $(document).ready(function () {
 
                         $(".feedbackQuestionDiv").html("");
                     } else {
-                        alert("Failed");
+                        alert("Failed to submit feedback.");
                     }
+                },
+                error: function () {
+                    alert("Something went wrong while submitting feedback.");
                 }
             });
-        },
+        }
     );
 });
+
 //Document End
 });
 

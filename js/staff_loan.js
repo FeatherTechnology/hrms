@@ -5,6 +5,7 @@ $(document).ready(function () {
     $(".add_staff_loan,.staff_loan_table_content").hide();
     $("#staff_loan_content,.back_to_list").show();
     $(".deduction_card").hide();
+    $('#staff_loan_id').val('');
     $(".user_info_card,.loan_calculation_card").find("input, select").val("");
     $("#loan_amount,#int_rate,#due_period,#due_start_date").prop("readonly", false)
     $("#company_name,#branch_name,#staff_name,#type").prop("disabled", false);
@@ -170,7 +171,7 @@ $(document).ready(function () {
               swalError("Error", "Error Occurred!");
               return;
             }
-
+            $('#staff_loan_id').val('');
             $(".add_staff_loan,.staff_loan_table_content").show();
             $("#staff_loan_content,.back_to_list").hide();
             getStaffLoanList();
@@ -287,15 +288,20 @@ $(document).ready(function () {
     }
   });
 
-  $("#type").on("change", function () {
+$("#type").on("change", function () {
     let type = $(this).val();
 
     if (type == "1") {
-      $("#amount_label").text("Loan Amount");
+        $("#amount_label").text("Loan Amount");
+        $("#int_rate").val("").prop("readonly", false);
     } else if (type == "2") {
-      $("#amount_label").text("Advance Amount");
+        $("#amount_label").text("Advance Amount");
+        $("#int_rate").val("0").prop("readonly", true);
+    } else {
+       $("#amount_label").text("Loan Amount");
+        $("#int_rate").val("").prop("readonly", false);
     }
-  });
+});
 
 });
 // document end

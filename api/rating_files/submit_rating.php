@@ -54,7 +54,7 @@ if ($rating_titles_id != '') {
 
     // Delete unselected departments
     foreach ($branch_to_delete as $branch_del_id) {
-        $pdo->query("DELETE FROM rating_branch_mapping WHERE rating_titles_id = $rating_titles_id AND department_id	 = $branch_del_id");
+        $pdo->query("DELETE FROM rating_branch_mapping WHERE rating_titles_id = $rating_titles_id AND branch_id = $branch_del_id");
     }
 
     // Insert new departments

@@ -10,63 +10,85 @@ $(document).ready(function () {
     var id = $(this).attr("value");
 
     $.post(
-      "api/poll_answer_files/poll_answer_data.php",
-      { id: id },
+        "api/poll_answer_files/poll_answer_data.php",
+        { id: id },
+        function (response) {
+            swapTableAndCreation();
 
-      function (response) {
-        swapTableAndCreation();
+            $("#poll_titles_id").val(id);
+            $("#selection_type").val(response[0].selection_type);
 
-        $("#poll_titles_id").val(id);
+            $("#poll_question").text("1. " + response[0].poll_title);
 
-        // Set text inside <p>
-        $("#poll_question").text("1. " + response[0].poll_title);
-        polloptions();
-      },
-      "json",
+            polloptions();
+        },
+        "json"
     );
-  });
+});
+
 
   /* --- Submit poll answer --- */
-  $("#submit_poll_question").click(function (event) {
+ // Enforce single-selection behavior if selection_type is 1
+$(document).on("change", "input[name='poll_option']", function () {
+    if ($(this).data("selection-type") == "1") {
+        $("input[name='poll_option']").not(this).prop("checked", false);
+    }
+});
+
+// Submit Click Handler
+$("#submit_poll_question").click(function (event) {
     event.preventDefault();
 
     let poll_titles_id = $("#poll_titles_id").val();
-    let poll_value = $("input[name='poll_option']:checked").val();
+    let selection_type = $("#selection_type").val();
     let reason = $("#reason").val().trim();
+
+    let poll_value;
+    if (selection_type == "1") {
+        poll_value = $("input[name='poll_option']:checked").val();
+    } else {
+        // Gather all checked checkboxes into an array and join them as a comma-separated string
+        let selectedOptions = [];
+        $("input[name='poll_option[]']:checked").each(function () {
+            selectedOptions.push($(this).val());
+        });
+        poll_value = selectedOptions.length > 0 ? selectedOptions.join(",") : undefined;
+    }
 
     // Validation
     if (!poll_value) {
-      swalError("Warning", "Please select a poll option.");
-      return;
+        swalError("Warning", "Please select at least one poll option.");
+        return;
     }
 
     swalConfirm(
-      "Are you sure?",
-      "Do you want to submit this poll?",
-      function () {
-        $.post(
-          "api/poll_answer_files/submit_poll_answer.php",
-          {
-            poll_titles_id: poll_titles_id,
-            poll_value: poll_value,
-            reason: reason,
-          },
+        "Are you sure?",
+        "Do you want to submit this poll?",
+        function () {
+            $.post(
+                "api/poll_answer_files/submit_poll_answer.php",
+                {
+                    poll_titles_id: poll_titles_id,
+                    poll_value: poll_value,
+                    reason: reason,
+                },
+                function (response) {
+                    if (response == "1") {
+                        swalSuccess("Success", "Poll Submitted Successfully!");
+                    } else {
+                        swalError("Error", "Something went wrong!");
+                    }
 
-          function (response) {
-            if (response == "1") {
-              swalSuccess("Success", "Poll Submitted Successfully!");
-            } else {
-              swalError("Error", "Something went wrong!");
-            }
-
-            pollTable();
-            swapTableAndCreation();
-            clearFields();
-          },
-        );
-      },
+                    pollTable();
+                    swapTableAndCreation();
+                    clearFields();
+                }
+            );
+        }
     );
-  });
+});
+
+//DOcument End
 });
 
 /* --- On Load --- */
@@ -92,7 +114,7 @@ function pollTable() {
   $.post(
     "api/poll_answer_files/poll_answer_list.php",
     function (response) {
-      var columnMapping = ["sno", "poll_title", "status", "action"];
+      var columnMapping = ["sno", "poll_title","selection_type", "status", "action"];
       appendDataToTable("#poll_table", response, columnMapping);
       setdtable("#poll_table", "Poll List");
     },
@@ -102,54 +124,48 @@ function pollTable() {
 
 /* --- Get poll options --- */
 function polloptions() {
-  let poll_titles_id = $("#poll_titles_id").val();
+    let poll_titles_id = $("#poll_titles_id").val();
+    let selection_type = $("#selection_type").val();
 
-  $.post(
-    "api/poll_answer_files/poll_options_list.php",
-    { poll_titles_id: poll_titles_id },
+    $.post(
+        "api/poll_answer_files/poll_options_list.php",
+        { poll_titles_id: poll_titles_id },
+        function (response) {
+            let optionHTML = "";
+            // Always use checkbox as inputType so the design stays uniform
+            let inputType = "checkbox"; 
+            let inputName = selection_type == "1" ? "poll_option" : "poll_option[]";
 
-    function (response) {
-      let optionHTML = "";
+            response.forEach(function (option, index) {
+                let optionNumber = index + 1;
 
-      response.forEach(function (option, index) {
-        let optionNumber = index + 1;
-
-        optionHTML += `
-
+                optionHTML += `
                     <div class="poll-option-wrapper">
-
-                        <input 
-                            type="radio"
+                        <input
+                            type="${inputType}"
                             id="opt${option.id}"
-                            name="poll_option"
-                            value="${option.id}">
+                            name="${inputName}"
+                            value="${option.id}"
+                            data-selection-type="${selection_type}">
 
-                        <label 
+                        <label
                             for="opt${option.id}"
                             class="poll-option-label">
 
-                            <span class="opt-num">
-                                ${optionNumber}
-                            </span>
-
-                            <div class="radio-circle"></div>
-
-                            <span class="opt-text">
-                                ${option.poll_options}
-                            </span>
-
+                            <span class="opt-num">${optionNumber}</span>
+                            <div class="checkbox-square"></div>
+                            <span class="opt-text">${option.poll_options}</span>
                         </label>
-
                     </div>
-
                 `;
-      });
+            });
 
-      $("#poll_options_container").html(optionHTML);
-    },
-    "json",
-  );
+            $("#poll_options_container").html(optionHTML);
+        },
+        "json"
+    );
 }
+
 
 /* --- Poll Input Clear Fields --- */
 function clearFields() {

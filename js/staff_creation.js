@@ -1137,11 +1137,16 @@ $('#year_of_passing').on('blur', function () {
     clearStaffProfileForm();
   });
 
-  $(document).on('click', '.staff_status', function () {
-    const staff_id = $(this).val();
-    swalConfirm("Are you sure?", "Do you want to move this staff member to Staff Exit?",
-      updateStaffStatus, staff_id);
-  });
+$(document).on('click', '.staff_status', function () {
+  const staff_id = $(this).val();
+
+  swalConfirm(
+    "Are you sure?",
+    "Do you want to exit this staff member?",
+    checkStaffLoanBalance,
+    staff_id
+  );
+});
 
   $(document).on('click', '#pf_available', function () {
     var pf_available = $(this).val();
@@ -2307,6 +2312,71 @@ function resetStaffData() {
   $(".assigned_branches_div").hide();
 }
 
+function checkStaffLoanBalance(staff_id) {
+  $.ajax({
+    url: "api/staff_creation/check_staff_loan_balance.php",
+    type: "POST",
+    dataType: "json",
+    data: { staff_id: staff_id },
+    success: function (response) {
+      if (response.status != 1) {
+        swalError("Error", response.message || "Unable to check staff loan balance.");
+        return;
+      }
+
+      if (response.loans && response.loans.length > 0) {
+        let loanRows = "";
+
+        response.loans.forEach(function (loan) {
+          loanRows += `
+            <tr>
+              <td>${(loan.loan_type)}</td>
+              <td>${(loan.loan_amount)}</td>
+              <td>${(loan.total_deducted)}</td>
+              <td><strong>${(loan.balance_amount)}</strong></td>
+            </tr>
+          `;
+        });
+
+        Swal.fire({
+          title: "Staff Has Loan / Advance",
+          html: `
+            <p>This staff member has pending loan/advance balances. Please verify before proceeding with Staff Exit.</p>
+            <div style="overflow-x:auto;">
+              <table class="table table-bordered table-sm">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Loan Amount</th>
+                    <th>Total Deducted</th>
+                    <th>Balance</th>
+                  </tr>
+                </thead>
+                <tbody>${loanRows}</tbody>
+              </table>
+            </div>
+            <p>Do you want to continue with Staff Exit?</p>
+          `,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "OK, Move to Staff Exit",
+          cancelButtonText: "Cancel",
+          width: "750px"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            updateStaffStatus(staff_id);
+          }
+        });
+      } else {
+        updateStaffStatus(staff_id);
+      }
+    },
+    error: function () {
+      swalError("Error", "Unable to check staff loan balance.");
+    }
+  });
+}
+
 function updateStaffStatus(staff_id) {
   $.ajax({
     url: "api/staff_creation/update_staff_status.php",
@@ -2318,7 +2388,6 @@ function updateStaffStatus(staff_id) {
         swalSuccessOk('Success', response.message, function () {
           $('#staff_create').DataTable().ajax.reload(null, false);
         });
-
       } else {
         swalError("Error", response.message);
       }

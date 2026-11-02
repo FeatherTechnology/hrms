@@ -201,6 +201,7 @@
                         <div class="row">
                             <input type="hidden" name="leave_type_id" id="leave_type_id" value="" />
                             <input type="hidden" name="total_min" id="total_min" value="" />
+                            <input type="hidden" name="ot_pay" id="ot_pay" value="" />
 
 
                             <!-- Fields -->
@@ -212,7 +213,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 ot_req" style="display: none;">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 ot_pay_div" style="display: none;">
                                 <div class="form-group">
                                     <label for="ot_payment">OT Payment</label><span class="text-danger">*</span>
                                     <select class="form-control" id="ot_payment" name="ot_payment" tabindex="8" disabled>
@@ -220,6 +221,12 @@
                                         <option value="1">CTC Based</option>
                                         <option value="2">Fixed Amount</option>
                                     </select>
+                                </div>
+                            </div>
+                             <div class="col-md-4 col-sm-6 ot_req" style="display: none;">
+                                <div class="form-group">
+                                    <label for="current_month_ot_count">Current Month OT Count</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="current_month_ot_count" name="current_month_ot_count" tabindex="10" readonly>
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-6 shift_time" style="display: none;">
@@ -287,12 +294,6 @@
                                 <div class="form-group">
                                     <label for="cur_month_lop_count">Current Month LOP Count</label><span class="text-danger">*</span>
                                     <input type="text" class="form-control" id="cur_month_lop_count" name="cur_month_lop_count" tabindex="10" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6 ot_req" style="display: none;">
-                                <div class="form-group">
-                                    <label for="current_month_ot_count">Current Month OT Count</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="current_month_ot_count" name="current_month_ot_count" tabindex="10" readonly>
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-6 bal_req" style="display: none;">

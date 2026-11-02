@@ -12,7 +12,7 @@ $id = $_POST['id'];
 
 $result = [];
 
-$stmt = $pdo->prepare("SELECT poll_title FROM poll_titles WHERE id = ?");
+$stmt = $pdo->prepare("SELECT poll_title,selection_type FROM poll_titles WHERE id = ?");
 
 $stmt->execute([$id]);
 

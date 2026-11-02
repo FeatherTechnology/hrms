@@ -1,27 +1,15 @@
 <?php
-
-/** Poll Answer Save **
- * Purpose:
- * - Stores the employee's poll response.
- * - Saves selected poll option and reason for the selected poll.
- * - Maintains user tracking for submitted responses.
- *
- * Return Values:
- * 0 = Failed
- * 1 = Insert Successful
- */
-
 require '../../ajaxconfig.php';
 @session_start();
 
 $poll_titles_id = $_POST['poll_titles_id'];
-$poll_value     = $_POST['poll_value'];
+$poll_value     = $_POST['poll_value']; // Handles single value or comma-separated IDs
 $reason         = $_POST['reason'];
 $user_id        = $_SESSION['user_id'];
 
 $result = 0;
 
-if (!empty($poll_titles_id)) {
+if (!empty($poll_titles_id) && !empty($poll_value)) {
 
     $stmt = $pdo->prepare("INSERT INTO poll_answers
         (
@@ -51,3 +39,4 @@ if (!empty($poll_titles_id)) {
 $pdo = null; // Close Connection
 
 echo json_encode($result);
+?>

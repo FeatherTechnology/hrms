@@ -52,21 +52,29 @@ if ($stmt->rowCount() > 0) {
         // Store Original Date Time
         $row['start_date_time_original'] = $row['start_date_time'];
         $row['end_date_time_original']   = $row['end_date_time'];
-
-        // Current Date Time
-        $current_datetime = date("Y-m-d H:i:s");
-
         // Expired Only When End Date Is Passed
-        $is_expired = ($current_datetime > $row['end_date_time_original']);
+        // Current Date and Month
+        $current_datetime = date("Y-m-d H:i:s");
+        $current_month = date("Y-m");
+        $start_month = !empty($row['start_date_time']) ? date("Y-m", strtotime($row['start_date_time'])): '';
+        $end_month = !empty($row['end_date_time']) ? date("Y-m", strtotime($row['end_date_time'])): '';
+        // Check Expired
+        $is_expired = (
+            !empty($row['end_date_time']) &&
+            $current_datetime > $row['end_date_time']
+        );
 
-        if ($is_expired) {
-
-            $row['feedback_status'] = 'Time Expired';
-        } else {
-
-            $row['feedback_status'] = ($row['feedback_status'] == 0) ? 'Active' : 'In Active';
+        // Hide expired feedback if neither date belongs to current month
+        if ( $is_expired && $start_month != $current_month && $end_month != $current_month) {
+            continue;
         }
 
+        // Set Feedback Status
+        if ($is_expired) {
+            $row['feedback_status'] = 'Time Expired';
+        } else {
+            $row['feedback_status'] = ($row['feedback_status'] == 0) ? 'Active': 'In Active';
+        }
         // Format Date Time
         $row['start_date_time'] = !empty($row['start_date_time'])
             ? date("d-m-Y g:i A", strtotime($row['start_date_time']))
@@ -82,7 +90,7 @@ if ($stmt->rowCount() > 0) {
             $row['action'] = "<span class='text-muted'>Expired</span>";
         } elseif ($row['answer_count'] > 0) {
 
-            $row['action'] = "<span class='text-muted'>Answered</span>";
+            $row['action'] = "<span class='text-muted'>Active</span>";
         } else {
 
             $row['action'] = "
