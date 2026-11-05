@@ -125,7 +125,8 @@ async function getStaffList(company_id, dept_id) {
             data: {
                 cmpy_id: company_id,
                 dep_name: dept_id,
-                request_type: 'department'
+                request_type: 'department',
+                screen :""
             }
         });
 

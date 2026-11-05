@@ -112,9 +112,20 @@ $(document).ready(function () {
         $("#component_category").val(response[0].component_category);
         $("#pay_frequency").val(response[0].pay_frequency);
         $("#status").val(response[0].status);
-          if (response[0].effective_from) {
-                $("#effective_from").val( response[0].effective_from.substring(0, 7)  );
+        if (response[0].effective_from) {
+            let effectiveMonth = response[0].effective_from.substring(0, 7);
+
+            // Get current month in YYYY-MM format
+            let currentMonth = new Date().toISOString().substring(0, 7);
+
+            // If effective month is previous month or earlier,
+            // set current month
+            if (effectiveMonth < currentMonth) {
+                effectiveMonth = currentMonth;
             }
+
+            $("#effective_from").val(effectiveMonth);
+        }
       },
       "json",
     );

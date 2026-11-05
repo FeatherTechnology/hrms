@@ -413,7 +413,8 @@ function getStaffTable(company_id, status, department_id, staff_id,branch_id) {
     status: status,
     department_id: department_id,
     staff_id: staff_id,
-    branch_id:branch_id
+    branch_id:branch_id,
+    screen :""
   };
   serverSideTable(
     "#promotion_transfer_table",

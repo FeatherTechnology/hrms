@@ -76,7 +76,8 @@
                             <th>Team</th>
                             <th>Designation</th>
                             <th>Mobile</th>
-                            <th>Staff Status</th>
+                            <th>Exit Status</th>
+                            <th>Suspention</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -1116,3 +1117,78 @@
     </div>
 </div>
 <!--Experience Modal End-->
+<!-- suspension Info Modal-->
+<div class="modal fade" id="add_Suspension_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg " role="document">
+        <div class="modal-content" style="background-color: white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Suspension Info</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"  tabindex="1">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="experience_form">
+                        <div class="row">
+                            <input type="hidden" name="suspension_id" id='suspension_id'>
+                            <input type="hidden" name="staff_creation_id" id='staff_creation_id'>
+                        
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 experience">
+                                <div class="form-group">
+                                    <label for="suspension_staff_name">Staff Name</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" name="suspension_staff_name" id="suspension_staff_name" readonly tabindex="1" placeholder="Enter Staff Name" >
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 experience">
+                                <div class="form-group">
+                                    <label for="suspension_from_date">From Date</label><span class="text-danger">*</span>
+                                    <input type="date" class="form-control" name="suspension_from_date" id="suspension_from_date" min="<?php echo date('Y-m-01'); ?>" tabindex="1"placeholder="Enter From Date">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 experience">
+                                <div class="form-group">
+                                    <label for="suspension_to_date">To Date</label><span class="text-danger">*</span>
+                                    <input type="date" class="form-control" name="suspension_to_date" id="suspension_to_date" tabindex="1" placeholder="Enter To Date">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 experience">
+                                <div class="form-group">
+                                    <label for="suspension_reason">Reason</label><span class="text-danger">*</span>
+                                    <textarea type="textarea" class="form-control" id="suspension_reason" name="suspension_reason" placeholder="Enter Reason" tabindex="17"></textarea>
+                                </div>
+                            </div> 
+                            
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 experience">
+                                <div class="form-group">
+                                    <label for="" style="visibility:hidden"></label><br>
+                                    <button name="submit_suspension" id="submit_suspension" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    <div class="col-12 overflow-x-cls">
+                        <table id="suspension_table" class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th width="20">S.NO</th>
+                                    <th>Staff Name</th>
+                                    <th>From Date</th>
+                                    <th>To Date</th>
+                                    <th>Reason</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody> </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" >Close</button>
+            </div>
+        </div>
+    </div>
+</div>

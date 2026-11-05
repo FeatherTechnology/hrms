@@ -64,7 +64,7 @@
                                 <th>Mobile</th>
                                 <th>Document Status</th>
                                 <th>Relieve Date</th>
-                                <th>Staff Status</th>
+                                <th>Exit Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
