@@ -184,6 +184,7 @@ $getStaff = $pdo->query("
         sc.staff_id,
         sc.staff_name,
         sc.staff_type,
+        sc.relieve_date,
 
         bc.branch_name,
         depcr.department_name AS department,
@@ -260,25 +261,86 @@ $getStaff = $pdo->query("
         $stff_con
 ");
 
-// These values depend only on the selected company/month, so fetch once.
+// Calculate configured week-offs against the actual selected month.
+// week_off = 5 means up to all 5 occurrences; if the month has only
+// 4 occurrences (for example, 4 Sundays), only those 4 dates are counted.
+// week_off = 4 means only the first 4 occurrences of that weekday.
 $weekoffQry = $pdo->query("
-    SELECT cw.week_off
+    SELECT cw.week_day, cw.week_off
     FROM company_weekoffs cw
     WHERE cw.company_id = '$company_id'
 ");
-$weekoff = $weekoffQry->fetch()['week_off'] ?? 0;
+$weekoffRows = $weekoffQry->fetchAll(PDO::FETCH_ASSOC);
+$weekoffDates = [];
+$weekdayAllowance = [];
 
-$holidayQry = $pdo->query("
-    SELECT IFNULL(SUM(no_of_days), 0) AS total_holidays
+$weekdayMap = [
+    'sunday' => 0, 'sun' => 0,
+    'monday' => 1, 'mon' => 1,
+    'tuesday' => 2, 'tue' => 2, 'tues' => 2,
+    'wednesday' => 3, 'wed' => 3,
+    'thursday' => 4, 'thu' => 4, 'thur' => 4, 'thurs' => 4,
+    'friday' => 5, 'fri' => 5,
+    'saturday' => 6, 'sat' => 6,
+    '0' => 0, '1' => 1, '2' => 2, '3' => 3,
+    '4' => 4, '5' => 5, '6' => 6
+];
+
+foreach ($weekoffRows as $weekoffRow) {
+    $dayName = strtolower(trim((string)$weekoffRow['week_day']));
+    if (!array_key_exists($dayName, $weekdayMap)) {
+        continue;
+    }
+    $weekdayNo = $weekdayMap[$dayName];
+    $weekdayAllowance[$weekdayNo] =
+        ($weekdayAllowance[$weekdayNo] ?? 0) + max(0, (int)$weekoffRow['week_off']);
+}
+
+$weekdayOccurrence = array_fill(0, 7, 0);
+for ($dayTs = strtotime($month_start); $dayTs <= strtotime($month_end); $dayTs += 86400) {
+    $weekdayNo = (int)date('w', $dayTs); // Sunday = 0
+    $weekdayOccurrence[$weekdayNo]++;
+    if ($weekdayOccurrence[$weekdayNo] <= ($weekdayAllowance[$weekdayNo] ?? 0)) {
+        $weekoffDates[date('Y-m-d', $dayTs)] = true;
+    }
+}
+$weekoff = count($weekoffDates);
+
+// Fetch active company holidays and expand each holiday range into unique dates.
+// Using dates (instead of SUM(no_of_days)) prevents double-counting when a
+// holiday overlaps a week-off or when a holiday range crosses month boundaries.
+$holidayQry = $pdo->prepare("
+    SELECT from_date, to_date
     FROM holiday_creation
-    WHERE company_id = '$company_id'
+    WHERE company_id = :company_id
       AND status = 0
-      AND (
-          from_date BETWEEN '$month_start' AND '$month_end'
-          OR to_date BETWEEN '$month_start' AND '$month_end'
-      )
+      AND from_date <= :month_end
+      AND to_date >= :month_start
 ");
-$total_holidays = $holidayQry->fetch()['total_holidays'] ?? 0;
+$holidayQry->execute([
+    ':company_id' => $company_id,
+    ':month_start' => $month_start,
+    ':month_end' => $month_end
+]);
+
+$holidayDates = [];
+while ($holiday = $holidayQry->fetch(PDO::FETCH_ASSOC)) {
+    $holidayStart = max(strtotime($holiday['from_date']), strtotime($month_start));
+    $holidayEnd = min(strtotime($holiday['to_date']), strtotime($month_end));
+
+    for ($holidayTs = $holidayStart; $holidayTs <= $holidayEnd; $holidayTs += 86400) {
+        $holidayDates[date('Y-m-d', $holidayTs)] = true;
+    }
+}
+$total_holidays = count($holidayDates);
+
+// A date that is both a week-off and a holiday is one non-working date, not two.
+$holidays_not_weekoff = 0;
+foreach (array_keys($holidayDates) as $holidayDate) {
+    if (!isset($weekoffDates[$holidayDate])) {
+        $holidays_not_weekoff++;
+    }
+}
 
 // Statutory settings are company-level, so fetch once as well.
 $statQry = $pdo->query("
@@ -301,6 +363,87 @@ while ($staff = $getStaff->fetch()) {
 
     $staff_profile_id = $staff['staff_profile_id'];
 
+    // Suspension dates are unpaid, including dates that are normally week-offs.
+    $suspendedDates = [];
+    $suspensionQry = $pdo->query("
+        SELECT from_date, to_date
+        FROM staff_suspended
+        WHERE staff_profile_id = '$staff_profile_id'
+          AND DATE(from_date) <= '$month_end'
+          AND DATE(to_date) >= '$month_start'
+    ");
+
+    while ($suspension = $suspensionQry->fetch(PDO::FETCH_ASSOC)) {
+        $startTs = max(strtotime(date('Y-m-d', strtotime($suspension['from_date']))), strtotime($month_start));
+        $endTs = min(strtotime(date('Y-m-d', strtotime($suspension['to_date']))), strtotime($month_end));
+        for ($dateTs = $startTs; $dateTs <= $endTs; $dateTs += 86400) {
+            $suspendedDates[date('Y-m-d', $dateTs)] = true;
+        }
+    }
+    $suspension_calendar_days = count($suspendedDates);
+
+    // Relieving date itself is payable. Every calendar date AFTER the
+    // relieving date is unpaid, including week-offs and holidays. Dates
+    // already covered by suspension are excluded here to prevent double LOP.
+    $afterRelievingDates = [];
+    $relieving_calendar_days = 0;
+    $relieving_working_days = 0;
+    $relievingDateKey = null;
+
+    $relieve_date = trim((string)($staff['relieve_date'] ?? ''));
+    if ($relieve_date !== '') {
+        $relieveTimestamp = strtotime($relieve_date);
+
+        if ($relieveTimestamp !== false) {
+            $relieveDateOnly = date('Y-m-d', $relieveTimestamp);
+
+            if (
+                $relieveDateOnly >= $month_start
+                &&
+                $relieveDateOnly <= $month_end
+            ) {
+                $relievingDateKey = $relieveDateOnly;
+            }
+
+            $firstAfterRelieving = max(
+                strtotime($relieveDateOnly . ' +1 day'),
+                strtotime($month_start)
+            );
+
+            for (
+                $relievingTs = $firstAfterRelieving;
+                $relievingTs <= strtotime($month_end);
+                $relievingTs += 86400
+            ) {
+                $relievingDate = date('Y-m-d', $relievingTs);
+                $afterRelievingDates[$relievingDate] = true;
+
+                // Suspension already accounts for this date's unpaid status.
+                if (!isset($suspendedDates[$relievingDate])) {
+                    $relieving_calendar_days++;
+
+                    if (
+                        !isset($weekoffDates[$relievingDate])
+                        &&
+                        !isset($holidayDates[$relievingDate])
+                    ) {
+                        $relieving_working_days++;
+                    }
+                }
+            }
+        }
+    }
+
+    // Only suspended dates that would otherwise be working days reduce the
+    // remaining working-day target. Suspended week-offs and holidays are
+    // already outside that target, but are still unpaid via suspension LOP.
+    $suspended_working_days = 0;
+    foreach (array_keys($suspendedDates) as $suspendedDate) {
+        if (!isset($weekoffDates[$suspendedDate]) && !isset($holidayDates[$suspendedDate])) {
+            $suspended_working_days++;
+        }
+    }
+
     $components = array();
 
     $gross_total = 0;
@@ -315,11 +458,22 @@ while ($staff = $getStaff->fetch()) {
     // WORKING DAYS
     // ======================================================
 
-    $working_days = $total_days - $weekoff - $total_holidays;
+    // Holidays already falling on week-offs are not subtracted a second time.
+    $working_days = $total_days - $weekoff - $holidays_not_weekoff;
 
     if ($working_days < 0) {
         $working_days = 0;
     }
+
+    // Only suspended dates that would otherwise be working days reduce
+    // the working-day target. Suspended week-offs are handled in the
+    // separate suspension LOP count, so they are not double-counted.
+    // Also remove post-relieving working dates from the remaining work target.
+    // Their full calendar-day LOP is added separately below.
+    $effective_working_days = max(
+        0,
+        $working_days - $suspended_working_days - $relieving_working_days
+    );
 
 
     // ======================================================
@@ -358,6 +512,8 @@ while ($staff = $getStaff->fetch()) {
     }
 
     $present_days = 0;
+    $relieving_date_attendance_payable = 0;
+    $relieving_date_leave_payable = 0;
 
     // Attendance deduction
     $total_attendance_deduction = 0;
@@ -398,6 +554,15 @@ while ($staff = $getStaff->fetch()) {
         ");
 
         while ($att = $attQry->fetch()) {
+
+            // Attendance during suspension or after relieving is not payable.
+            if (
+                isset($suspendedDates[$att['att_date']])
+                ||
+                isset($afterRelievingDates[$att['att_date']])
+            ) {
+                continue;
+            }
 
             $shift_start = strtotime(
                 $att['att_date'] . " " . $shift['start_time']
@@ -550,6 +715,14 @@ while ($staff = $getStaff->fetch()) {
             // ADD PRESENT DAYS
             $present_days += $present_for_day;
 
+            if (
+                $relievingDateKey !== null
+                &&
+                $att['att_date'] === $relievingDateKey
+            ) {
+                $relieving_date_attendance_payable += $present_for_day;
+            }
+
             // ATTENDANCE DEDUCTION
             $total_attendance_deduction +=
                 floatval($att['deduction_amount']);
@@ -581,26 +754,45 @@ while ($staff = $getStaff->fetch()) {
     $approved_leave = 0;
 
     while ($leave = $leaveQry->fetch()) {
+        $s = max(strtotime(date('Y-m-d', strtotime($leave['from_date']))), strtotime($month_start));
+        $e = min(strtotime(date('Y-m-d', strtotime($leave['to_date']))), strtotime($month_end));
 
-        $s = strtotime($leave['from_date']);
-        $e = strtotime($leave['to_date']);
+        if ($e < $s) {
+            continue;
+        }
 
-        $ms = strtotime($month_start);
-        $me = strtotime($month_end);
+        // A half-day request applies to a single date. Suspension takes
+        // priority, so approved leave on a suspended date is not payable.
+        if ((int)$leave['leave_period'] === 1 || (int)$leave['leave_period'] === 2) {
+            if ($s === $e) {
+                $leaveDate = date('Y-m-d', $s);
+                if (
+                    !isset($suspendedDates[$leaveDate])
+                    &&
+                    !isset($afterRelievingDates[$leaveDate])
+                ) {
+                    $approved_leave += 0.5;
 
-        $a = max($s, $ms);
-        $b = min($e, $me);
+                    if ($relievingDateKey !== null && $leaveDate === $relievingDateKey) {
+                        $relieving_date_leave_payable += 0.5;
+                    }
+                }
+                continue;
+            }
+        }
 
-        if ($b >= $a) {
-
+        for ($leaveTs = $s; $leaveTs <= $e; $leaveTs += 86400) {
+            $leaveDate = date('Y-m-d', $leaveTs);
             if (
-                $leave['leave_period'] == 1
-                ||
-                $leave['leave_period'] == 2
+                !isset($suspendedDates[$leaveDate])
+                &&
+                !isset($afterRelievingDates[$leaveDate])
             ) {
-                $approved_leave += 0.5;
-            } else {
-                $approved_leave += (($b - $a) / 86400) + 1;
+                $approved_leave += 1;
+
+                if ($relievingDateKey !== null && $leaveDate === $relievingDateKey) {
+                    $relieving_date_leave_payable += 1;
+                }
             }
         }
     }
@@ -610,36 +802,50 @@ while ($staff = $getStaff->fetch()) {
     // TOTAL PAYABLE DAYS
     // ======================================================
 
-    $total_payable_days =
-        $present_days + $approved_leave;
+    // Guarantee that the relieving date itself is payable when it is a
+    // normal working day. Attendance/approved leave already recorded for
+    // that date is credited first, so the date is never counted twice.
+    $relieving_date_payable_credit = 0;
 
+    if (
+        $relievingDateKey !== null
+        &&
+        !isset($suspendedDates[$relievingDateKey])
+        &&
+        !isset($weekoffDates[$relievingDateKey])
+        &&
+        !isset($holidayDates[$relievingDateKey])
+    ) {
+        $relieving_date_recorded_payable = min(
+            1,
+            $relieving_date_attendance_payable + $relieving_date_leave_payable
+        );
 
-    // ======================================================
-    // EXTRA WORKING DAYS
-    // ======================================================
-
-    $extra_working_days = 0;
-
-    if ($total_payable_days > $working_days) {
-        $extra_working_days =
-            $total_payable_days - $working_days;
+        $relieving_date_payable_credit = max(
+            0,
+            1 - $relieving_date_recorded_payable
+        );
     }
 
+    $total_payable_days =
+        $present_days
+        + $approved_leave
+        + $relieving_date_payable_credit;
 
-    // ======================================================
-    // LOP DAYS
-    // ======================================================
+    // Extra work is measured against working days remaining after suspension.
+    $extra_working_days = max(0, $total_payable_days - $effective_working_days);
 
-    $lop_days = $total_days - $present_days;
-    
+    // Normal LOP applies only to working days before suspension/relieving.
+    // Suspension and post-relieving periods add their full unpaid calendar
+    // days, including week-offs and holidays. Overlapping dates are counted
+    // only once because post-relieving dates inside suspension were excluded.
+    $normal_lop_days = max(0, $effective_working_days - $total_payable_days);
+    $lop_days = min(
+        $total_days,
+        $normal_lop_days + $suspension_calendar_days + $relieving_calendar_days
+    );
 
-    // ======================================================
-    // LOP AMOUNT
-    // ======================================================
-
-    $lop_amount =
-        $lop_days * $one_day_salary;
-
+    $lop_amount = $lop_days * $one_day_salary;
 
     // ======================================================
     // EARNED FOR MONTH
@@ -711,6 +917,18 @@ $others =
 
         $ot_start = strtotime($ot['from_date']);
         $ot_end   = strtotime($ot['to_date']);
+
+        // OT on/after the relieving date is allowed only through the end
+        // of the relieving date. All later OT time is unpaid.
+        if ($relieve_date !== '' && isset($relieveTimestamp) && $relieveTimestamp !== false) {
+            $relievingDayEnd = strtotime(date('Y-m-d', $relieveTimestamp) . ' 23:59:59');
+
+            if ($ot_start > $relievingDayEnd) {
+                continue;
+            }
+
+            $ot_end = min($ot_end, $relievingDayEnd);
+        }
 
         if ($ot_end > $ot_start) {
             $total_ot_minutes += ($ot_end - $ot_start) / 60;
@@ -1302,8 +1520,11 @@ $others =
     // DAYS
     'total_days' => $total_days,
     'weekoff' => $weekoff,
+    'suspension_days' => $suspension_calendar_days,
+    'relieving_days' => $relieving_calendar_days,
     'holidays' => $total_holidays,
     'working_days' => $working_days,
+    'effective_working_days' => $effective_working_days,
     'present_days' => $present_days,
     'approved_leave' => $approved_leave,
 

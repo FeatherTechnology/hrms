@@ -181,6 +181,7 @@ function getStaffTable(company_id, branch_id, department_id) {
     branch_id: branch_id,
     department_id: department_id,
     status: status,
+    screen :""
   };
   serverSideTable(
     "#staff_exit",

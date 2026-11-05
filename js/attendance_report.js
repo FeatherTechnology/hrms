@@ -120,7 +120,7 @@ function getDepartmentList(cmpy_id) {
 
 // to get the staff list
 function getstaffList(cmpy_id, dep_name, branch_name) {
-  $.post("api/attendance_files/get_staff_list.php",{cmpy_id: cmpy_id,dep_name: dep_name,branch_name: branch_name,request_type: 'branch'},
+  $.post("api/attendance_files/get_staff_list.php",{cmpy_id: cmpy_id,dep_name: dep_name,branch_name: branch_name,request_type: 'branch',screen :""},
     function (response) {
     $("#stf_name").empty();
     $("#stf_name").append($("<option>", {value: "",text: "Select Staff Name" }));

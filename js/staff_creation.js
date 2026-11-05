@@ -1159,6 +1159,105 @@ $(document).on('click', '.staff_status', function () {
     
   });
 
+  $(document).on('click', '.suspension_delete', function () {
+    var suspension_id = $(this).attr("value");
+    swalConfirm("Are you sure?", "Do you want to Delete This Suspension ?",
+      deleteSuspension, suspension_id);
+  });
+
+    $(document).on('click', '.staff_suspend_btn', function () {
+    var staff_id = $(this).val();
+    $("#suspension_reason,#suspension_from_date,#suspension_to_date").val('');
+    $("#staff_creation_id").val(staff_id);
+    getSuspensionTable(staff_id);
+  });
+
+  
+$(document).on("click", ".suspension_edit", function () {
+    var suspension_id = $(this).attr("value");
+    $("#suspension_id").val(suspension_id);
+
+    $.post(
+        "api/staff_creation/get_suspension_data.php",
+        { suspension_id: suspension_id },
+        function (response) {
+
+            let from_date = response[0].from_date.split(" ")[0];
+            let to_date = response[0].to_date.split(" ")[0];
+
+            $("#suspension_from_date").val(from_date);
+            $("#suspension_to_date").val(to_date);
+            $("#suspension_reason").val(response[0].reason);
+
+        },
+        "json"
+    );
+});
+
+  $("#submit_suspension").click(function (event) {
+    event.preventDefault();
+    //Validation
+    let staff_creation_id = $("#staff_creation_id").val();
+    let suspension_id = $("#suspension_id").val();
+    let from_date = $("#suspension_from_date").val();
+    let to_date = $("#suspension_to_date").val();
+    let reason = $("#suspension_reason").val();
+
+    var data = ["suspension_from_date", "suspension_to_date","suspension_reason"];
+    var isValid = true;
+    data.forEach(function (entry) {
+      var fieldIsValid = validateField($("#" + entry).val(), entry);
+      if (!fieldIsValid) {
+        isValid = false;
+      }
+    });
+    if (isValid) {
+      let docDetail = new FormData();
+      docDetail.append("staff_creation_id", staff_creation_id);
+      docDetail.append("suspension_id", suspension_id);
+      docDetail.append("from_date", from_date);
+      docDetail.append("to_date", to_date);
+      docDetail.append("reason", reason);
+
+      $.ajax({
+        url: "api/staff_creation/submit_staff_suspension.php",
+        type: "post",
+        data: docDetail,
+        contentType: false,
+        processData: false,
+        cache: false,
+        success: function (response) {
+          if (response == 2) {
+            swalSuccess("Success", "Staff Suspension Added Successfully!");
+          } else if (response ==1) {
+            swalSuccess("Success", "staff Suspension Updated Successfully!");
+          }else if (response == 3) {
+            swalError("Suspension dates are already overlapping for this staff!");
+          }else {
+            swalError("Error", "Error in Suspension Table");
+          }
+          $("#suspension_from_date,#suspension_to_date,#suspension_reason,#suspension_id").val("");
+          getSuspensionTable(staff_creation_id);
+        },
+      });
+    }
+  });
+
+$("#suspension_from_date").on("change", function () {
+    let from_date = $(this).val();
+    let minDate = $(this).attr("min");
+    let selectedDate = $(this).val();
+    if (selectedDate && selectedDate < minDate) {
+        swalError("Previous month dates are not allowed!");
+        $(this).val("");
+    }
+    $("#suspension_to_date").val('');
+
+    $("#suspension_to_date").attr("min", from_date);
+
+});
+ 
+
   // DOcument Ready End
 });
 
@@ -1174,12 +1273,59 @@ function getStaffTable(company_id, branch_id, department_id) {
     branch_id: branch_id,
     department_id: department_id,
     status: status,
+    screen :"staff_creation"
   };
   serverSideTable(
     "#staff_create",
     params,
     "api/staff_creation/staff_list.php",
     " Staff List",
+  );
+}
+
+async function getSuspensionTable(staff_id) {
+    try {
+        let response = await $.ajax({
+            url: "api/staff_creation/suspension_list.php",
+            type: "POST",
+            data: { staff_id: staff_id },
+            dataType: "json",
+        });
+
+        // Set Staff Name
+        $("#suspension_staff_name").val(response.staff_name);
+
+        var columnMapping = [
+            "sno",
+            "staff_name",
+            "from_date",
+            "to_date",
+            "reason",
+            "action"
+        ];
+
+        appendDataToTable("#suspension_table", response.suspension_list, columnMapping);
+        setdtable("#suspension_table", "Suspension Info List", [[0, "asc"]]);
+
+    } catch (error) {
+        console.error("Suspension Info Table Error:", error);
+    }
+}
+
+function deleteSuspension(suspension_id) {
+  var staff_id = $("#staff_creation_id").val();
+  $.post(
+    "api/staff_creation/delete_suspension.php",
+    { suspension_id },
+    function (response) {
+      if (response == "0") {
+        swalError("Warning", "Failed to Delete Document");
+      } else if (response == "1") {
+        swalSuccess("Success", "Document Info Deleted Successfully!");
+        getSuspensionTable(staff_id);
+      }
+    },
+    "json",
   );
 }
 
