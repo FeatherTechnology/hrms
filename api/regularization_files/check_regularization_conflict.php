@@ -23,7 +23,35 @@ try {
         ]);
         exit;
     }
+    // Check whether the staff member is suspended during the requested dates.
+    $suspendStmt = $pdo->prepare("
+    SELECT from_date, to_date
+    FROM staff_suspended
+    WHERE staff_profile_id = :staff_profile_id
+      AND from_date <= :to_date
+      AND (to_date IS NULL OR to_date >= :from_date)
+    LIMIT 1
+");
 
+    $suspendStmt->execute([
+        ':staff_profile_id' => $staff_profile_id,
+        ':from_date' => $newFromDate = date('Y-m-d 00:00:00', strtotime($from_date)),
+        ':to_date' => $newToDate = date('Y-m-d 23:59:59', strtotime($to_date))
+    ]);
+
+    $suspension = $suspendStmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($suspension) {
+        echo json_encode([
+            'result' => '5',
+            'message' => 'Staff is suspended from ' .
+                date('d-m-Y', strtotime($suspension['from_date'])) .
+                ' to ' .
+                ($suspension['to_date'] ? date('d-m-Y', strtotime($suspension['to_date'])) : 'Present') .
+                '. Request not allowed.'
+        ]);
+        exit;
+    }
     // OT does not require leave/permission/week-off conflict validation.
     if ($req_type === 4) {
         echo json_encode(['result' => '1']);
@@ -277,7 +305,6 @@ try {
     }
 
     echo json_encode(['result' => '1']);
-
 } catch (Throwable $e) {
     error_log($e->getMessage());
 
@@ -286,4 +313,3 @@ try {
         'message' => 'Unable to validate existing regularization requests.'
     ]);
 }
-?>

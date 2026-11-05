@@ -307,79 +307,77 @@ GROUP BY
 
 /* ================= WEEK OFF ================= */ else if ($req_type == '3') {
 
-    $query = "SELECT 
-        SUM(cw.week_off) AS no_of_days,
+    $query = "SELECT
+        COALESCE((
+            SELECT SUM(cw.week_off)
+            FROM company_weekoffs cw
+            WHERE cw.company_id = :weekoff_company_id
+        ), 0) AS no_of_days,
         sc.start_time,
         sc.end_time,
-
-        COALESCE(
-            SUM(
+        COALESCE((
+            SELECT SUM(
                 CASE
                     WHEN reg.leave_period IN (1,2) THEN 0.5
                     ELSE DATEDIFF(reg.to_date, reg.from_date) + 1
                 END
-            ), 0
-        ) AS used_count,
-
-        (
-            SUM(cw.week_off)
+            )
+            FROM regularization reg
+            WHERE reg.company_id = :used_company_id
+                AND reg.req_type = 3
+                AND reg.staff_profile_id = :used_staff_id
+                AND MONTH(reg.from_date) = MONTH(CURDATE())
+                AND YEAR(reg.from_date) = YEAR(CURDATE())
+                AND reg.status IN (0,1)
+        ), 0) AS used_count,
+        GREATEST(
+            COALESCE((
+                SELECT SUM(cw.week_off)
+                FROM company_weekoffs cw
+                WHERE cw.company_id = :balance_company_id
+            ), 0)
             -
-            COALESCE(
-                SUM(
+            COALESCE((
+                SELECT SUM(
                     CASE
                         WHEN reg.leave_period IN (1,2) THEN 0.5
                         ELSE DATEDIFF(reg.to_date, reg.from_date) + 1
                     END
-                ), 0
-            )
-        ) AS ave_balance";
+                )
+                FROM regularization reg
+                WHERE reg.company_id = :balance_used_company_id
+                    AND reg.req_type = 3
+                    AND reg.staff_profile_id = :balance_staff_id
+                    AND MONTH(reg.from_date) = MONTH(CURDATE())
+                    AND YEAR(reg.from_date) = YEAR(CURDATE())
+                    AND reg.status IN (0,1)
+            ), 0),
+            0
+        ) AS ave_balance
+    FROM occupation_info oi
+    INNER JOIN shift_creation sc ON sc.id = oi.shift
+    WHERE oi.id = (
+        SELECT MAX(id)
+        FROM occupation_info
+        WHERE staff_profile_id = :shift_staff_id
+    )";
 
     if (!empty($from_Date) && !empty($to_date)) {
-
-        $query .= ",
-        (
-            SUM(cw.week_off)
-            -
-            (
-                COALESCE(
-                    SUM(
-                        CASE
-                            WHEN reg.leave_period IN (1,2) THEN 0.5
-                            ELSE DATEDIFF(reg.to_date, reg.from_date) + 1
-                        END
-                    ), 0
-                )
-                +
-                CASE
-                    WHEN :leave_period IN (1,2) THEN 0.5
-                    ELSE DATEDIFF(:to_date, :from_date) + 1
-                END
-            )
-        ) AS balance";
+        $query = str_replace(
+            'GREATEST(
+            COALESCE((',
+            'GREATEST(
+            COALESCE((',
+            $query
+        );
+        $query = str_replace(
+            '), 0
+        ) AS ave_balance',
+            '), 0
+        ) AS ave_balance',
+            $query
+        );
     }
-
-    $query .= "
-    FROM company_weekoffs cw
-
-    LEFT JOIN regularization reg
-        ON reg.company_id = cw.company_id
-        AND reg.req_type = :req_type
-        AND reg.staff_profile_id = :staff_id
-        AND MONTH(reg.from_date) = MONTH(CURDATE())
-        AND YEAR(reg.from_date) = YEAR(CURDATE())
-        AND reg.status IN (0,1)
-
-    LEFT JOIN occupation_info oi
-        ON oi.id = (
-            SELECT MAX(id)
-            FROM occupation_info
-            WHERE staff_profile_id = :staff_id
-        )
-
-    INNER JOIN shift_creation sc
-        ON sc.id = oi.shift
-
-    WHERE cw.company_id = :cmpy_id";
 }
 
 
@@ -473,20 +471,13 @@ if ($req_type == '1') {
     }
 } else if ($req_type == '3') {
 
-    $stmt->bindParam(':req_type', $req_type, PDO::PARAM_INT);
-    $stmt->bindParam(':cmpy_id', $cmpy_id, PDO::PARAM_INT);
-    $stmt->bindParam(':staff_id', $staff_id);
-
-    if (!empty($from_Date) && !empty($to_date)) {
-
-        $stmt->bindParam(':from_date', $from_Date);
-        $stmt->bindParam(':to_date', $to_date);
-        $stmt->bindParam(
-            ':leave_period',
-            $leave_period,
-            PDO::PARAM_INT
-        );
-    }
+    $stmt->bindValue(':weekoff_company_id', $cmpy_id, PDO::PARAM_INT);
+    $stmt->bindValue(':used_company_id', $cmpy_id, PDO::PARAM_INT);
+    $stmt->bindValue(':used_staff_id', $staff_id, PDO::PARAM_INT);
+    $stmt->bindValue(':balance_company_id', $cmpy_id, PDO::PARAM_INT);
+    $stmt->bindValue(':balance_used_company_id', $cmpy_id, PDO::PARAM_INT);
+    $stmt->bindValue(':balance_staff_id', $staff_id, PDO::PARAM_INT);
+    $stmt->bindValue(':shift_staff_id', $staff_id, PDO::PARAM_INT);
 } else if ($req_type == '4') {
     $stmt->bindValue(':ot_payment', $ot_pay, PDO::PARAM_INT);
     $stmt->bindValue(':req_type', $req_type, PDO::PARAM_INT);
@@ -500,6 +491,137 @@ if ($req_type == '1') {
 $stmt->execute();
 
 $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+
+/* ================= WEEK OFF SUSPENSION DEDUCTION ================= */
+
+if ($req_type == '3' && $result) {
+
+    $monthStart = date('Y-m-01');
+    $monthEnd = date('Y-m-t');
+
+    $totalWeekoff = (float)($result['no_of_days'] ?? 0);
+    $usedCount = (float)($result['used_count'] ?? 0);
+
+    // Read configured weekday entitlements for this company.
+    $weekoffStmt = $pdo->prepare("
+        SELECT week_day, week_off
+        FROM company_weekoffs
+        WHERE company_id = :company_id
+    ");
+    $weekoffStmt->execute([':company_id' => $cmpy_id]);
+    $weekoffRows = $weekoffStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Weekday values use MySQL DAYOFWEEK numbering: Sunday=1 ... Saturday=7.
+    $weekdayMap = [
+        'sunday' => 1, 'sun' => 1,
+        'monday' => 2, 'mon' => 2,
+        'tuesday' => 3, 'tue' => 3, 'tues' => 3,
+        'wednesday' => 4, 'wed' => 4,
+        'thursday' => 5, 'thu' => 5, 'thur' => 5,
+        'friday' => 6, 'fri' => 6,
+        'saturday' => 7, 'sat' => 7
+    ];
+
+    $configuredWeekoffs = [];
+
+    foreach ($weekoffRows as $weekoff) {
+        $day = strtolower(trim((string)($weekoff['week_day'] ?? '')));
+
+        if (is_numeric($day)) {
+            $dayNumber = (int)$day;
+        } else {
+            $dayNumber = $weekdayMap[$day] ?? 0;
+        }
+
+        if ($dayNumber >= 1 && $dayNumber <= 7) {
+            $configuredWeekoffs[$dayNumber] = (int)$weekoff['week_off'];
+        }
+    }
+
+    // Find suspensions that overlap the current month.
+    $suspensionStmt = $pdo->prepare("
+        SELECT
+            GREATEST(DATE(from_date), :month_start) AS suspension_from,
+            LEAST(DATE(to_date), :month_end) AS suspension_to
+        FROM staff_suspended
+        WHERE staff_profile_id = :staff_id
+            AND DATE(from_date) <= :month_end_check
+            AND DATE(to_date) >= :month_start_check
+    ");
+
+    $suspensionStmt->execute([
+        ':month_start' => $monthStart,
+        ':month_end' => $monthEnd,
+        ':staff_id' => $staff_id,
+        ':month_end_check' => $monthEnd,
+        ':month_start_check' => $monthStart
+    ]);
+
+    $suspensions = $suspensionStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Keep each suspended calendar date once, even if suspension periods overlap.
+    $suspendedDates = [];
+
+    foreach ($suspensions as $suspension) {
+        if (empty($suspension['suspension_from']) || empty($suspension['suspension_to'])) {
+            continue;
+        }
+
+        $startDate = new DateTimeImmutable($suspension['suspension_from']);
+        $endDate = new DateTimeImmutable($suspension['suspension_to']);
+
+        for ($date = $startDate; $date <= $endDate; $date = $date->modify('+1 day')) {
+            $suspendedDates[$date->format('Y-m-d')] = $date;
+        }
+    }
+
+    // Count suspension dates that fall on configured weekoff weekdays.
+    $suspendedWeekoffCounts = [];
+
+    foreach ($suspendedDates as $date) {
+        // PHP format 'w': Sunday=0 ... Saturday=6; convert to Sunday=1 ... Saturday=7.
+        $dayNumber = (int)$date->format('w') + 1;
+
+        if (isset($configuredWeekoffs[$dayNumber])) {
+            $suspendedWeekoffCounts[$dayNumber] =
+                ($suspendedWeekoffCounts[$dayNumber] ?? 0) + 1;
+        }
+    }
+
+    // Do not deduct more than the configured monthly entitlement for each weekday.
+    $suspensionDeduction = 0;
+
+    foreach ($suspendedWeekoffCounts as $dayNumber => $count) {
+        $suspensionDeduction += min(
+            $count,
+            $configuredWeekoffs[$dayNumber] ?? 0
+        );
+    }
+
+    $availableWeekoffs = max(0, $totalWeekoff - $suspensionDeduction);
+
+    $result['suspension_deduction'] = $suspensionDeduction;
+    $result['available_days'] = $availableWeekoffs;
+    $result['ave_balance'] = max(0, $availableWeekoffs - $usedCount);
+
+    // Calculate remaining balance after including the selected request.
+    if (!empty($from_Date) && !empty($to_date)) {
+        if (in_array((int)$leave_period, [1, 2], true)) {
+            $requestedDays = 0.5;
+        } else {
+            $requestStart = new DateTimeImmutable($from_Date);
+            $requestEnd = new DateTimeImmutable($to_date);
+            $requestedDays = $requestStart->diff($requestEnd)->days + 1;
+        }
+
+        $result['balance'] = max(
+            0,
+            $availableWeekoffs - $usedCount - $requestedDays
+        );
+    }
+}
+
 
 
 /* =========================================================
