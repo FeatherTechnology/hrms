@@ -327,6 +327,7 @@ function setdtable(table_id, excelTitle, defaultOrder = [[0, "desc"]]) {
             cell.innerHTML = i + 1;
           });
         searchFunction(table_id.replace(/^#/, ""));
+        paginationFunction(table_id.replace(/^#/, ''));
       },
       dom: "lBfrtip",
       buttons: buttons,
@@ -375,6 +376,7 @@ function appendDataToTable(tableSelector, response, columnMapping) {
 // / Function to initialize DataTable with conditional Excel button
 function serverSideTable(tableSelector, params, apiUrl, excelTitle) {
   // Fetch user access and initialize DataTable based on it
+   const tableId = tableSelector.replace(/^#/, '');
   getUserAccess(function (downloadAccess) {
     let buttons = [];
 
@@ -409,34 +411,60 @@ function serverSideTable(tableSelector, params, apiUrl, excelTitle) {
       collectionLayout: "fixed four-column",
     });
 
-    // Destroy existing DataTable instance
-    $(tableSelector).DataTable().destroy();
+     // Destroy existing DataTable
+        if ($.fn.DataTable.isDataTable(tableSelector)) {
+            $(tableSelector).DataTable().destroy();
+        }
+
+        // Remove old events
+        $(tableSelector).off(
+            'preXhr.dt xhr.dt error.dt draw.dt'
+        );
+
+        // Loader
+        $(tableSelector).on('preXhr.dt', function () {
+            showOverlay();
+        });
+
+        $(tableSelector).on('xhr.dt', function () {
+            hideOverlay();
+        });
+
+        $(tableSelector).on('error.dt', function () {
+            hideOverlay();
+        });
 
     // Initialize DataTable with conditional buttons
-    $(tableSelector).DataTable({
-      order: [[0, "desc"]],
-      processing: true,
-      serverSide: true,
-      serverMethod: "post",
-      ajax: {
-        url: apiUrl,
-        data: function (data) {
-          var search = $("input[type=search]").val();
-          data.search = search;
-          data.params = params;
-        },
-      },
-      dom: "lBfrtip",
-      buttons: buttons,
-      lengthMenu: [
-        [10, 25, 50, -1],
-        [10, 25, 50, "All"],
-      ],
-      drawCallback: function () {
-        searchFunction(tableSelector.replace(/^#/, ""));
-        setDropdownScripts();
-      },
-    });
+     const table = $(tableSelector).DataTable({
+            ...getStateSaveConfig(tableId),
+            order: [[0, "desc"]],
+            processing: true,
+            serverSide: true,
+            serverMethod: 'post',
+            ajax: {
+                url: apiUrl,
+                data: function (data) {
+                    let searchValue = data.search.value;
+                    if (!searchValue) {
+                        searchValue = $('input[type=search]').val();
+                    }
+                    data.search = searchValue;
+                    data.params = params;
+                }
+            },
+            dom: 'lBfrtip',
+            buttons: buttons,
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, "All"]
+            ],
+            drawCallback: function () {
+                setDropdownScripts();
+                searchFunction(tableId);
+                paginationFunction(tableId);
+                initColVisFeatures(table,tableId);
+            }
+        });
   });
 }
 
@@ -888,4 +916,364 @@ function swalSuccessOk(title, text, callback) {
 			callback(); // ✅ run only after OK
 		}
 	});
+}
+
+
+//////////////////////////////////// Pagination  Start ////////////////////////////////////
+
+function paginationFunction(tableId) {
+    const table = $(`#${tableId}`).DataTable();
+    const pagination = $(`#${tableId}_paginate`);
+    const pageInfo = table.page.info();
+
+    // If current page is greater than available pages,
+    // automatically move to first page
+    if (pageInfo.pages > 0 && pageInfo.page >= pageInfo.pages) {
+        localStorage.removeItem(`${tableId}_currentPage`);
+        table.page(0).draw('page');
+        return;
+    }
+
+    // If no data
+    if (pageInfo.pages === 0) {
+        pagination.html(
+            '<span class="paginate_button disabled">No pages</span>'
+        );
+        return;
+    }
+
+    const currentPage = pageInfo.page;
+    const totalPages = pageInfo.pages;
+    const maxVisible = 6;
+
+    // Save current page
+    localStorage.setItem(
+        `${tableId}_currentPage`,
+        currentPage
+    );
+
+    pagination.empty();
+
+    // Add pagination button
+    const addButton = (
+        label,
+        pageNum,
+        isActive = false,
+        isDisabled = false
+    ) => {
+        const classList = ['paginate_button'];
+
+        if (isActive) {
+            classList.push('current');
+        }
+
+        if (isDisabled) {
+            classList.push('disabled');
+        }
+
+        pagination.append(`
+            <span
+                class="${classList.join(' ')}"
+                data-page="${pageNum}"
+            >
+                ${label}
+            </span>
+        `);
+    };
+
+    // Previous
+    addButton(
+        'Previous',
+        currentPage - 1,
+        false,
+        currentPage === 0
+    );
+
+    // First page
+    addButton(
+        1,
+        0,
+        currentPage === 0
+    );
+
+    // Middle pages
+    if (totalPages > 1) {
+
+        let start = Math.max(
+            1,
+            currentPage - Math.floor(maxVisible / 2)
+        );
+
+        let end = start + maxVisible - 1;
+
+        // Keep last page visible
+        if (end >= totalPages - 1) {
+            end = totalPages - 2;
+
+            start = Math.max(
+                1,
+                end - maxVisible + 1
+            );
+        }
+
+        // Left ellipsis
+        if (start > 1) {
+            pagination.append(
+                '<span class="paginate_ellipsis">...</span>'
+            );
+        }
+
+        // Page numbers
+        for (let i = start; i <= end; i++) {
+
+            addButton(
+                i + 1,
+                i,
+                currentPage === i
+            );
+        }
+
+        // Right ellipsis
+        if (end < totalPages - 2) {
+            pagination.append(
+                '<span class="paginate_ellipsis">...</span>'
+            );
+        }
+
+        // Last page
+        addButton(
+            totalPages,
+            totalPages - 1,
+            currentPage === totalPages - 1
+        );
+    }
+
+    // Next
+    addButton(
+        'Next',
+        currentPage + 1,
+        false,
+        currentPage === totalPages - 1 || totalPages === 1
+    );
+
+    // Jump to page input
+    if ($(`#${tableId}_jumpToPage`).length === 0) {
+
+        pagination.append(`
+            <input
+                type="number"
+                id="${tableId}_jumpToPage"
+                min="1"
+                max="${totalPages}"
+                placeholder="Page"
+                style="
+                    width: 60px;
+                    height: 30px;
+                    margin-left: 10px;
+                "
+            />
+        `);
+
+    } else {
+
+        // Update max when total pages changes
+        $(`#${tableId}_jumpToPage`)
+            .attr('max', totalPages)
+            .val('');
+    }
+
+    // Pagination button click
+    pagination
+        .off('click')
+        .on(
+            'click',
+            '.paginate_button',
+            function () {
+
+                if ($(this).hasClass('disabled')) {
+                    return;
+                }
+
+                const page = parseInt(
+                    $(this).attr('data-page'),
+                    10
+                );
+
+                if (!isNaN(page)) {
+
+                    table
+                        .page(page)
+                        .draw('page');
+                }
+            }
+        );
+
+    // Jump to page
+    $(`#${tableId}_jumpToPage`)
+        .off('keypress')
+        .on('keypress', function (e) {
+
+            if (e.which === 13 || e.which === 9) {
+
+                const inputPage = parseInt(
+                    $(this).val(),
+                    10
+                );
+
+                if (
+                    !isNaN(inputPage) &&
+                    inputPage > 0 &&
+                    inputPage <= totalPages
+                ) {
+
+                    table
+                        .page(inputPage - 1)
+                        .draw('page');
+
+                } else {
+
+                    alert(
+                        `Please enter a valid page number (1 - ${totalPages})`
+                    );
+                }
+            }
+        });
+}
+
+/*
+ * Get saved page when DataTable is initialized
+ */
+  const isPageReloaded = performance.getEntriesByType("navigation")[0]?.type === "reload";
+function getDisplayStart(tableId, pageLength = 10) {
+
+    if (isPageReloaded) {
+
+        localStorage.removeItem(
+            `${tableId}_currentPage`
+        );
+
+        return 0;
+    }
+
+    const savedPage = localStorage.getItem(
+        `${tableId}_currentPage`
+    );
+
+    if (
+        savedPage !== null &&
+        !isNaN(parseInt(savedPage, 10))
+    ) {
+
+        return parseInt(savedPage, 10) * pageLength;
+    }
+
+    return 0;
+}
+
+//////////////////////////////////// Pagination  End ////////////////////////////////////
+function getStateSaveConfig(tableId) {
+
+    return {
+
+        // Keep DataTables state save
+        stateSave: true,
+
+        // Save only column visibility in our custom localStorage
+        stateSaveParams: function (settings, data) {
+
+            const visibility = settings.aoColumns.map(
+                col => col.bVisible
+            );
+
+            localStorage.setItem(
+                tableId + "_colVis",
+                JSON.stringify(visibility)
+            );
+        },
+
+        // Restore column visibility
+        stateLoadParams: function (settings, data) {
+
+            const saved = localStorage.getItem(
+                tableId + "_colVis"
+            );
+
+            if (!saved) {
+                return;
+            }
+
+            const visibility = JSON.parse(saved);
+
+            visibility.forEach((isVisible, index) => {
+
+                if (settings.aoColumns[index]) {
+                    settings.aoColumns[index].bVisible =
+                        isVisible;
+                }
+            });
+        }
+    };
+}
+
+function initColVisFeatures(table, tableId) {
+
+	const STORAGE_KEY = tableId + "_colVis";
+	const COLLECTION_SELECTOR = '.dt-button-collection .buttons-columnVisibility';
+
+	// 1. Sync ColVis button active state with column
+	function syncButtonActiveState() {
+		table.buttons('.buttons-columnVisibility').each(function (idx) {
+			const btn = table.button(idx);
+			const colIdx = btn.conf?._fnInit?.columns;
+			if (colIdx === undefined) return;
+			btn.active(table.column(colIdx).visible());
+		});
+	}
+
+	// 2. Apply green/red color classes
+	function updateColVisColors() {
+		$(COLLECTION_SELECTOR).each(function () {
+			const isActive = $(this).hasClass('active');
+			$(this)
+				.toggleClass('active-column', isActive)
+				.toggleClass('inactive-column', !isActive);
+		});
+	}
+
+	// 3. One master fix (state + color)
+	function fixColVisUI() {
+		syncButtonActiveState();
+		updateColVisColors();
+	}
+
+	// 4. Restore column visibility from localStorage
+	function applySavedVisibility() {
+		const saved = localStorage.getItem(STORAGE_KEY);
+		if (!saved) return;
+
+		JSON.parse(saved).forEach((isVisible, i) => {
+			table.column(i).visible(isVisible, false);
+		});
+
+		table.columns.adjust();
+	}
+
+	// 5. Event bindings
+	function bindColVisEvents() {
+		table.on('buttons-collection.dt column-visibility.dt', fixColVisUI);
+
+		$(document)
+			.off('click.colvisFix_' + tableId)
+			.on('click.colvisFix_' + tableId, '.buttons-collection', fixColVisUI);
+	}
+
+	// 6. Execution order (DO NOT CHANGE)
+	applySavedVisibility(); // restore actual column state
+	bindColVisEvents(); // attach listeners
+	fixColVisUI(); // initial correction
+}
+
+// Reusable DataTables info callback. - Overrides the default info text and displays only the current range and total filtered entries.
+function customDataTableInfo(settings, start, end, max, total, pre) {
+    return 'Showing ' + start + ' to ' + end + ' of ' + total + ' entries';
 }

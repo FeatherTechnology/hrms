@@ -4,6 +4,7 @@ $(document).ready(function () {
     $("#branch_reset_btn").show();
     $("#branch_code").val("");
     swapTableAndCreation();
+    getCompanyName();
   });
 
   /* --- Branch Creation On Change Events --- */
