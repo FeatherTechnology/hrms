@@ -38,9 +38,7 @@ $(document).ready(function () {
 
   $(document).on("click", ".staffLoanDeleteBtn", function () {
     let dueStartDate = $(this).attr("data-id");
-    // Current month and year
     let currentDate = new Date();
-
     let currentMonth = currentDate.getMonth() + 1;
     let currentYear = currentDate.getFullYear();
 
@@ -50,13 +48,15 @@ $(document).ready(function () {
     let dueMonth = parseInt(dateParts[1]);
     let dueYear = parseInt(dateParts[2]);
 
-    if (dueMonth >= currentMonth && dueYear >= currentYear) {
-      deleteStaffLoan($(this).attr("value"));
+    if (
+        dueYear > currentYear ||
+        (dueYear === currentYear && dueMonth > currentMonth)
+    ) {
+        deleteStaffLoan($(this).attr("value"));
     } else {
-      // Date mismatched
-      swalError("Warning", "Loan due started. Deletion not allowed...");
+        swalError("Warning", "Loan due started. Deletion not allowed...");
     }
-  });
+});
 
   $("#submit_staff_loan").click(function (event) {
     event.preventDefault();

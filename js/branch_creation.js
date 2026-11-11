@@ -204,19 +204,16 @@ function swapTableAndCreation() {
 
 /* --- Branch Creation Outer List Table --- */
 function getBranchTable() {
-  serverSideTable(
-    "#branch_create",
-    "",
-    "api/branch_creation/branch_creation_list.php",
-    "Branch Creation List",
-  );
+    serverSideTable("#branch_create","",
+        "api/branch_creation/branch_creation_list.php",
+        "Branch Creation List"
+    );
 
-  let table = $("#branch_create").DataTable();
+    $(document).off("xhr.dt.branchLimit", "#branch_create");
 
-  table.on("xhr.dt", function () {
-    // Whenever the DataTable AJAX request finishes and receives data from the server, execute getBranchLimit()."
-    getBranchLimit();
-  });
+    $(document).on("xhr.dt.branchLimit", "#branch_create", function () {
+        getBranchLimit();
+    });
 }
 
 /* --- Get Branch Limit --- */
