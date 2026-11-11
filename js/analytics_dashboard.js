@@ -145,7 +145,7 @@ $(document).on("click", ".view-attachments-btn", function () {
       return;
     }
 
-    let fileUrl = "/hrms/uploads/general_feedback/" + encodeURIComponent(file);
+    let fileUrl = "uploads/general_feedback/" + encodeURIComponent(file);
 
     html += `
         <a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">

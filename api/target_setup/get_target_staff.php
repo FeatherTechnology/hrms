@@ -62,7 +62,7 @@ if (!empty($dept_id)) {
 
 // Either Branch OR Department
 if (!empty($filterConditions)) {
-    $where .= " AND (" . implode(' OR ', $filterConditions) . ") ";
+    $where .= " AND (" . implode(' AND ', $filterConditions) . ") ";
 }
 
 $sql = "
@@ -82,7 +82,6 @@ $sql = "
     $where
     ORDER BY sc.staff_name ASC
 ";
-
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 
