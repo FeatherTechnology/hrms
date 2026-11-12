@@ -58,7 +58,6 @@ $(document).ready(function () {
   });
 
   $("#from_date, #to_date").on("change", async function () {
-
     let reqType = $("#req_type").val();
 
     if (!$("#from_date").val() || !$("#to_date").val()) {
@@ -75,8 +74,6 @@ $(document).ready(function () {
     let fromValue = $("#from_date").val();
     let toValue = $("#to_date").val();
 
-
-
     // Get time whether separator is T or space
     let fromTime = fromValue.includes("T")
       ? fromValue.split("T")[1].substring(0, 5)
@@ -92,31 +89,31 @@ $(document).ready(function () {
 
     let formattedStart = formatTime(response.start_time);
     let formattedEnd = formatTime(response.end_time);
-    let fromMinutes = Number(fromTime.split(":")[0]) * 60 +
-      Number(fromTime.split(":")[1]);
+    let fromMinutes =
+      Number(fromTime.split(":")[0]) * 60 + Number(fromTime.split(":")[1]);
 
-    let toMinutes = Number(toTime.split(":")[0]) * 60 +
-      Number(toTime.split(":")[1]);
+    let toMinutes =
+      Number(toTime.split(":")[0]) * 60 + Number(toTime.split(":")[1]);
 
-    let shiftStartMinutes = Number(shiftStartTime.split(":")[0]) * 60 +
+    let shiftStartMinutes =
+      Number(shiftStartTime.split(":")[0]) * 60 +
       Number(shiftStartTime.split(":")[1]);
 
-    let shiftEndMinutes = Number(shiftEndTime.split(":")[0]) * 60 +
+    let shiftEndMinutes =
+      Number(shiftEndTime.split(":")[0]) * 60 +
       Number(shiftEndTime.split(":")[1]);
 
     // =========================
     // OT Validation
     // =========================
     if (reqType == "4") {
-
       let isBeforeShift = toTime <= shiftStartTime;
       let isAfterShift = fromTime >= shiftEndTime;
 
       if (!(isBeforeShift || isAfterShift)) {
-
         swalError(
           "Warning",
-          `OT can only be applied before the shift starts (${formattedStart}) or after the shift ends (${formattedEnd}).`
+          `OT can only be applied before the shift starts (${formattedStart}) or after the shift ends (${formattedEnd}).`,
         );
 
         $("#from_date, #to_date").val("");
@@ -129,7 +126,6 @@ $(document).ready(function () {
     // Permission Validation
     // =========================
     if (reqType == "2") {
-
       if (
         fromMinutes < shiftStartMinutes ||
         toMinutes > shiftEndMinutes ||
@@ -137,7 +133,7 @@ $(document).ready(function () {
       ) {
         swalError(
           "Warning",
-          `Permission can only be applied within the shift timings (${formattedStart} to ${formattedEnd}).`
+          `Permission can only be applied within the shift timings (${formattedStart} to ${formattedEnd}).`,
         );
 
         $("#from_date, #to_date").val("");
@@ -146,13 +142,8 @@ $(document).ready(function () {
     }
 
     // Calculate difference
-    calculateDateDiff(
-      "#from_date",
-      "#to_date",
-      "#total_min",
-      "#total_days"
-    );
-    getLeaveDays()
+    calculateDateDiff("#from_date", "#to_date", "#total_min", "#total_days");
+    getLeaveDays();
   });
 
   // edit regularization
@@ -327,8 +318,14 @@ $(document).ready(function () {
       team_id: $("#team_id").val(),
       req_type: $("#req_type").val(),
       leave_type: $("#leave_type").val(),
-      ave_balance: $("#req_type").val() == "2" ? availableBalance : $("#ave_balance").val(),
-      balance_req: $("#req_type").val() == "2" ? remainingBalance : $("#balance_req").val(),
+      ave_balance:
+        $("#req_type").val() == "2"
+          ? availableBalance
+          : $("#ave_balance").val(),
+      balance_req:
+        $("#req_type").val() == "2"
+          ? remainingBalance
+          : $("#balance_req").val(),
       shift_end: $("#shift_end").val(),
       shift_start: $("#shift_start").val(),
       leave_period: $("#leave_period").val(),
@@ -367,7 +364,7 @@ $(document).ready(function () {
     if (collData["req_type"] == 2) {
       validationResults.push(
         validateField($("#ave_balance").val(), "ave_balance"),
-        validateField($("#balance_req").val(), "balance_req")
+        validateField($("#balance_req").val(), "balance_req"),
       );
     }
 
@@ -376,7 +373,7 @@ $(document).ready(function () {
         validateField($("#leave_period").val(), "leave_period"),
         validateField($("#ave_balance").val(), "ave_balance"),
         validateField($("#balance_req").val(), "balance_req"),
-        validateField($("#leave_days").val(), "leave_days")
+        validateField($("#leave_days").val(), "leave_days"),
       );
     }
 
@@ -415,7 +412,7 @@ $(document).ready(function () {
 
       swalError(
         "Error",
-        `You don't have enough balance. You have applied ${excessDays} more day(s) than your available balance.`
+        `You don't have enough balance. You have applied ${excessDays} more day(s) than your available balance.`,
       );
 
       return false;
@@ -438,7 +435,7 @@ $(document).ready(function () {
         shift_start: collData.shift_start,
         shift_end: collData.shift_end,
         hidden_id: collData.hidden_id,
-        total_min: collData.total_min
+        total_min: collData.total_min,
       },
       success: function (response) {
         if (response.result == "5") {
@@ -449,7 +446,7 @@ $(document).ready(function () {
         if (response.result != "1") {
           swalError(
             "Error",
-            response.message || "Unable to validate the request."
+            response.message || "Unable to validate the request.",
           );
           return;
         }
@@ -481,55 +478,43 @@ $(document).ready(function () {
                 if (response.result == "1") {
                   swalSuccess(
                     "Success",
-                    "Regularization Updated Successfully."
+                    "Regularization Updated Successfully.",
                   );
                   $("#back_btn").trigger("click");
                 } else if (response.result == "2") {
-                  swalError(
-                    "Error",
-                    "Failed to Update Regularization"
-                  );
+                  swalError("Error", "Failed to Update Regularization");
                 } else if (response.result == "3") {
                   swalSuccess(
                     "Success",
-                    "Regularization Inserted Successfully."
+                    "Regularization Inserted Successfully.",
                   );
                   $("#back_btn").trigger("click");
                 } else if (response.result == "4") {
-                  swalError(
-                    "Error",
-                    "Failed to Insert Regularization"
-                  );
+                  swalError("Error", "Failed to Insert Regularization");
                 } else if (response.result == "5") {
                   swalError(
                     "Warning",
-                    "Already regularization request exists for this date"
+                    "Already regularization request exists for this date",
                   );
                 } else {
                   swalError(
                     "Error",
-                    response.message || "Failed to submit Regularization."
+                    response.message || "Failed to submit Regularization.",
                   );
                 }
               },
               error: function (xhr, status, error) {
                 console.error(xhr.responseText);
-                swalError(
-                  "Error",
-                  "Failed to submit Regularization."
-                );
-              }
+                swalError("Error", "Failed to submit Regularization.");
+              },
             });
-          }
+          },
         );
       },
       error: function (xhr, status, error) {
         console.error(xhr.responseText);
-        swalError(
-          "Error",
-          "Failed to check existing regularization."
-        );
-      }
+        swalError("Error", "Failed to check existing regularization.");
+      },
     });
   });
 
@@ -636,6 +621,22 @@ function getregularizationlist(type) {
       collectionLayout: "fixed four-column",
     });
 
+    // Remove old events
+    $("#regularization_table").off("preXhr.dt xhr.dt error.dt draw.dt");
+
+    // Loader
+    $("#regularization_table").on("preXhr.dt", function () {
+      showOverlay();
+    });
+
+    $("#regularization_table").on("xhr.dt", function () {
+      hideOverlay();
+    });
+
+    $("#regularization_table").on("error.dt", function () {
+      hideOverlay();
+    });
+
     $("#regularization_table").DataTable({
       order: [[0, "desc"]],
       processing: true,
@@ -656,9 +657,10 @@ function getregularizationlist(type) {
         [10, 25, 50, "All"],
       ],
 
-      // Call searchFunction after DataTable is drawn
+      // Call searchFunction and paginationFunction after DataTable is drawn
       drawCallback: function () {
         searchFunction("regularization_table");
+        paginationFunction("regularization_table");
       },
     });
   });
@@ -730,7 +732,10 @@ function getedituserdetails(id) {
           .attr("data-shift", response.shift || "")
           .attr("data-staff_id", response.stf_prf_id || "")
           .attr("data-staff_name", response.staff_name || "")
-          .attr("data-date", (response.att_date || response.from_date || "").split(/[ T]/)[0]);
+          .attr(
+            "data-date",
+            (response.att_date || response.from_date || "").split(/[ T]/)[0],
+          );
       } else {
         $("#approval_attendance_chart").hide();
       }
@@ -797,11 +802,11 @@ function getedituserdetails(id) {
         $("#permission_type").val(permissionType);
 
         $("#ave_balance").val(
-          formatPermissionBalance(response.ave_balance, permissionType)
+          formatPermissionBalance(response.ave_balance, permissionType),
         );
 
         $("#balance_req").val(
-          formatPermissionBalance(response.balance_req, permissionType)
+          formatPermissionBalance(response.balance_req, permissionType),
         );
       }
       if (response.req_type == 1) {
@@ -855,7 +860,7 @@ function getedituserdetails(id) {
             target="_blank"
             rel="noopener noreferrer">
             <i class="fa fa-file"></i> View Uploaded Document
-        </a>`
+        </a>`,
         );
 
         $("#upload").prop("disabled", true);
@@ -921,12 +926,12 @@ function getcmpyleavelist(cmpy_id) {
 
         $("#leave_type").append(
           "<option value='" +
-          val["id"] +
-          "' " +
-          selected +
-          ">" +
-          val["leave_type"] +
-          "</option>",
+            val["id"] +
+            "' " +
+            selected +
+            ">" +
+            val["leave_type"] +
+            "</option>",
         );
       });
     },
@@ -957,7 +962,6 @@ async function getbalancerequest() {
       "json",
     );
 
-
     const reqType = $("#req_type").val();
 
     if (reqType != "2") {
@@ -975,11 +979,11 @@ async function getbalancerequest() {
       $("#permission_type").val(permissionType);
 
       $("#ave_balance").val(
-        formatPermissionBalance(response.ave_balance, permissionType)
+        formatPermissionBalance(response.ave_balance, permissionType),
       );
 
       $("#balance_req").val(
-        formatPermissionBalance(response.balance, permissionType)
+        formatPermissionBalance(response.balance, permissionType),
       );
     }
 
@@ -992,9 +996,7 @@ async function getbalancerequest() {
       const hours = Math.floor(remainingMinutes / 60);
       const minutes = remainingMinutes % 60;
 
-      $("#current_month_ot_count").val(
-        `${days} D   ${hours} H   ${minutes} M`
-      );
+      $("#current_month_ot_count").val(`${days} D   ${hours} H   ${minutes} M`);
     } else {
       $("#current_month_ot_count").val(otCount);
     }
@@ -1009,18 +1011,11 @@ async function getbalancerequest() {
     shiftStart = response.start_time;
     shiftEnd = response.end_time;
 
-
     /* =====================================================
        PERMISSION LATE ENTRY
        ===================================================== */
 
-    if (
-      $("#req_type").val() == "2" &&
-      response.late_entry == 1
-    ) {
-
-
-
+    if ($("#req_type").val() == "2" && response.late_entry == 1) {
       const requiredFrom = response.permission_from
         ? response.permission_from.substring(0, 5)
         : "";
@@ -1029,7 +1024,6 @@ async function getbalancerequest() {
         ? response.permission_to.substring(0, 5)
         : "";
 
-
       const selectedFrom = $("#from_date").val();
       const selectedTo = $("#to_date").val();
 
@@ -1037,15 +1031,12 @@ async function getbalancerequest() {
       let selectedToTime = "";
 
       if (selectedFrom) {
-        selectedFromTime =
-          selectedFrom.split("T")[1]?.substring(0, 5) || "";
+        selectedFromTime = selectedFrom.split("T")[1]?.substring(0, 5) || "";
       }
 
       if (selectedTo) {
-        selectedToTime =
-          selectedTo.split("T")[1]?.substring(0, 5) || "";
+        selectedToTime = selectedTo.split("T")[1]?.substring(0, 5) || "";
       }
-
 
       /*
         EXACT MATCH CHECK
@@ -1057,40 +1048,29 @@ async function getbalancerequest() {
         show warning.
       */
 
-      if (
-        selectedFromTime !== requiredFrom ||
-        selectedToTime !== requiredTo
-      ) {
+      if (selectedFromTime !== requiredFrom || selectedToTime !== requiredTo) {
+        const requiredFromDisplay = formatTime(response.permission_from);
 
-        const requiredFromDisplay =
-          formatTime(response.permission_from);
-
-        const requiredToDisplay =
-          formatTime(response.permission_to);
+        const requiredToDisplay = formatTime(response.permission_to);
 
         swalError(
           "Warning",
-          `You have Later Entry on that day. Please take the permission from "${requiredFromDisplay}" to "${requiredToDisplay}".`
+          `You have Later Entry on that day. Please take the permission from "${requiredFromDisplay}" to "${requiredToDisplay}".`,
         );
 
-        $("#from_date,#to_date,#total_days,#balance_req").val('');
+        $("#from_date,#to_date,#total_days,#balance_req").val("");
         return null;
       }
     }
-
 
     /* =====================================================
        PERMISSION BALANCE CHECK
        ===================================================== */
 
-    if (
-      $("#req_type").val() == "2" &&
-      response.permission_exceeded == 1
-    ) {
-
+    if ($("#req_type").val() == "2" && response.permission_exceeded == 1) {
       swalError(
         "Warning",
-        "You have exceeded the available permission balance."
+        "You have exceeded the available permission balance.",
       );
 
       $("#from_date, #to_date,#total_days,#balance_req").val("");
@@ -1098,14 +1078,10 @@ async function getbalancerequest() {
       return null;
     }
     return response;
-
   } catch (error) {
-
     console.error(error);
-
   }
 }
-
 
 // to delete the applied regularization
 function deleteregularization(id) {
@@ -1476,23 +1452,23 @@ function userTypeIdentification() {
       if (user_type == "1") {
         $('input[name="regularization_type"][value="Approval"]').prop(
           "checked",
-          true
+          true,
         );
         getregularizationlist("Approval");
       } else if (hasRequestPermission) {
         $('input[name="regularization_type"][value="Request"]').prop(
           "checked",
-          true
+          true,
         );
         getregularizationlist("Request");
       } else {
         $('input[name="regularization_type"][value="Approval"]').prop(
           "checked",
-          true
+          true,
         );
         getregularizationlist("Approval");
       }
-    }
+    },
   );
 }
 
@@ -1529,12 +1505,10 @@ function getLeaveDays() {
   $("#leave_days").val(days.join(", "));
 }
 
-
-
 function loadChart(company_id, shift_id, staff_id, date) {
   $.post(
     "api/attendance_ot_monitor_chart_files/get_staff_info.php",
-    { company_id, shift_id, staff_id, date, type: 'attendance' },
+    { company_id, shift_id, staff_id, date, type: "attendance" },
     function (response) {
       drawChart(response, date);
     },
@@ -1675,7 +1649,6 @@ function drawChart(chartData, selectedDate) {
 
   let timeline = new vis.Timeline(container, items, groups, options);
 }
-
 
 function formatPermissionBalance(value, permissionType) {
   const balance = Math.max(0, parseFloat(value) || 0);

@@ -327,7 +327,7 @@ function setdtable(table_id, excelTitle, defaultOrder = [[0, "desc"]]) {
             cell.innerHTML = i + 1;
           });
         searchFunction(table_id.replace(/^#/, ""));
-        paginationFunction(table_id.replace(/^#/, ''));
+        paginationFunction(table_id.replace(/^#/, ""));
       },
       dom: "lBfrtip",
       buttons: buttons,
@@ -376,7 +376,7 @@ function appendDataToTable(tableSelector, response, columnMapping) {
 // / Function to initialize DataTable with conditional Excel button
 function serverSideTable(tableSelector, params, apiUrl, excelTitle) {
   // Fetch user access and initialize DataTable based on it
-   const tableId = tableSelector.replace(/^#/, '');
+  const tableId = tableSelector.replace(/^#/, "");
   getUserAccess(function (downloadAccess) {
     let buttons = [];
 
@@ -411,60 +411,58 @@ function serverSideTable(tableSelector, params, apiUrl, excelTitle) {
       collectionLayout: "fixed four-column",
     });
 
-     // Destroy existing DataTable
-        if ($.fn.DataTable.isDataTable(tableSelector)) {
-            $(tableSelector).DataTable().destroy();
-        }
+    // Destroy existing DataTable
+    if ($.fn.DataTable.isDataTable(tableSelector)) {
+      $(tableSelector).DataTable().destroy();
+    }
 
-        // Remove old events
-        $(tableSelector).off(
-            'preXhr.dt xhr.dt error.dt draw.dt'
-        );
+    // Remove old events
+    $(tableSelector).off("preXhr.dt xhr.dt error.dt draw.dt");
 
-        // Loader
-        $(tableSelector).on('preXhr.dt', function () {
-            showOverlay();
-        });
+    // Loader
+    $(tableSelector).on("preXhr.dt", function () {
+      showOverlay();
+    });
 
-        $(tableSelector).on('xhr.dt', function () {
-            hideOverlay();
-        });
+    $(tableSelector).on("xhr.dt", function () {
+      hideOverlay();
+    });
 
-        $(tableSelector).on('error.dt', function () {
-            hideOverlay();
-        });
+    $(tableSelector).on("error.dt", function () {
+      hideOverlay();
+    });
 
     // Initialize DataTable with conditional buttons
-     const table = $(tableSelector).DataTable({
-            ...getStateSaveConfig(tableId),
-            order: [[0, "desc"]],
-            processing: true,
-            serverSide: true,
-            serverMethod: 'post',
-            ajax: {
-                url: apiUrl,
-                data: function (data) {
-                    let searchValue = data.search.value;
-                    if (!searchValue) {
-                        searchValue = $('input[type=search]').val();
-                    }
-                    data.search = searchValue;
-                    data.params = params;
-                }
-            },
-            dom: 'lBfrtip',
-            buttons: buttons,
-            lengthMenu: [
-                [10, 25, 50, -1],
-                [10, 25, 50, "All"]
-            ],
-            drawCallback: function () {
-                setDropdownScripts();
-                searchFunction(tableId);
-                paginationFunction(tableId);
-                initColVisFeatures(table,tableId);
-            }
-        });
+    const table = $(tableSelector).DataTable({
+      ...getStateSaveConfig(tableId),
+      order: [[0, "desc"]],
+      processing: true,
+      serverSide: true,
+      serverMethod: "post",
+      ajax: {
+        url: apiUrl,
+        data: function (data) {
+          let searchValue = data.search.value;
+          if (!searchValue) {
+            searchValue = $("input[type=search]").val();
+          }
+          data.search = searchValue;
+          data.params = params;
+        },
+      },
+      dom: "lBfrtip",
+      buttons: buttons,
+      lengthMenu: [
+        [10, 25, 50, -1],
+        [10, 25, 50, "All"],
+      ],
+      drawCallback: function () {
+        setDropdownScripts();
+        searchFunction(tableId);
+        paginationFunction(tableId);
+        initColVisFeatures(table, tableId);
+      },
+    });
   });
 }
 
@@ -734,58 +732,155 @@ function moneyFormatIndia(num) {
   return isNegative ? "-" + thecash : thecash;
 }
 
-///////////////////////////////////////////////////////////////////// Session Logut Time Start /////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// Session Logout Time Start ////////////////////////////////////
 
+/* ---------------- CONFIG ---------------- */
 let warningTimeout, logoutTimeout;
 let swalOpen = false;
-const idleTime = 60 * 10 * 1000; // 5 minutes
-const warningDuration = 10 * 1000; // 10 seconds warning
+let isLoggingOut = false;
+
+// const idleTime = 10 * 60 * 1000; // 10 minutes;
+const idleTime = 30 * 1000; // 10 minutes;
+const warningDuration = 10 * 1000; // 10 seconds
+const STORAGE_KEY = "last-activity";
+const FORCE_LOGOUT_KEY = "force-logout";
+const LOGOUT_URL = "logout.php";
+
+/* ---------------- HELPERS ---------------- */
+const now = () => Date.now();
+
+const getLastActivity = () =>
+	Number(localStorage.getItem(STORAGE_KEY)) || now();
+
+const setLastActivity = () =>
+	localStorage.setItem(STORAGE_KEY, now());
+
+// Timer should run only on logged-in pages (body.php has #main-container)
+const isLoggedInPage = () => !!document.getElementById("main-container");
+
+/* ---------------- LOGOUT (ALL TABS) ---------------- */
+// Called from the tab where the user clicks Log Out, or when idle time ends.
+// Writing a new value to localStorage fires the "storage" event in all OTHER tabs.
+function logoutAllTabs() {
+	if (isLoggingOut) return;
+	isLoggingOut = true;
+
+	clearTimeout(warningTimeout);
+	clearTimeout(logoutTimeout);
+
+	localStorage.setItem(FORCE_LOGOUT_KEY, Date.now());
+	localStorage.removeItem(STORAGE_KEY);
+	window.location.href = LOGOUT_URL;
+}
+
+/* ---------------- TIMER LOGIC ---------------- */
 function startTimers() {
-  clearTimeout(warningTimeout);
-  clearTimeout(logoutTimeout);
-  // Start warning 10 seconds before logout
-  warningTimeout = setTimeout(showWarning, idleTime - warningDuration);
+	clearTimeout(warningTimeout);
+	clearTimeout(logoutTimeout);
+
+	if (!isLoggedInPage()) return;
+
+	const idle = now() - getLastActivity();
+	const remaining = idleTime - idle;
+
+	if (remaining <= 0) {
+		showWarning();
+		return;
+	}
+
+	warningTimeout = setTimeout(showWarning, remaining);
 }
 
+/* ---------------- ACTIVITY ---------------- */
 function resetTimers() {
-  // If user interacts during warning period, cancel logout
-  if (swalOpen) {
-    hideWarning(); // this sets swalOpen = false and closes alert
-  }
-  clearTimeout(warningTimeout);
-  clearTimeout(logoutTimeout);
-  startTimers();
+	if (isLoggingOut || !isLoggedInPage()) return;
+	if (swalOpen) hideWarning();
+	setLastActivity();
+	startTimers();
 }
 
+/* ---------------- ALERT ---------------- */
 function showWarning() {
-  swalOpen = true;
-  swalError("Warning", "Session will expire in 10 seconds due to inactivity");
-  logoutTimeout = setTimeout(() => {
-    if (swalOpen) {
-      window.location.href = "logout.php";
-    }
-  }, warningDuration);
+	if (swalOpen || isLoggingOut || !isLoggedInPage()) return;
+
+	swalOpen = true;
+
+	Swal.fire({
+		icon: 'warning',
+		title: 'Warning',
+		text: 'Session will expire in 10 seconds due to inactivity',
+		timer: warningDuration,
+		timerProgressBar: true,
+		allowOutsideClick: false,
+		allowEscapeKey: false,
+		showConfirmButton: false
+	}).then(() => {
+		swalOpen = false;
+	});
+
+	logoutTimeout = setTimeout(() => {
+		logoutAllTabs();
+	}, warningDuration);
 }
 
 function hideWarning() {
-  swalOpen = false;
-  Swal.close();
+	swalOpen = false;
+	Swal.close();
 }
-// Detect all user activity
-window.onload = startTimers;
-// Mouse, scroll, click
-["mousemove", "click", "scroll"].forEach((evt) => {
-  window.addEventListener(evt, resetTimers);
-});
-// Keys (handled through a unified function)
-function handleKeyEvent(e) {
-  resetTimers();
-}
-["keydown", "keypress", "keyup"].forEach((evt) => {
-  window.addEventListener(evt, handleKeyEvent);
+
+/* ---------------- EVENT BINDINGS ---------------- */
+
+// Initial load
+window.addEventListener("load", () => {
+	// Clear any old force-logout flag left from a previous session
+	localStorage.removeItem(FORCE_LOGOUT_KEY);
+
+	if (!isLoggedInPage()) return;
+
+	setLastActivity();
+	startTimers();
 });
 
-//////////////////////////////////////////////////////////// Session Logut Time End ////////////////////////////////////////////////////////////////////////////////////
+// Keyboard (capture phase → works with SweetAlert)
+document.addEventListener("keydown", resetTimers, true);
+
+// Other activity
+window.addEventListener("mousemove", resetTimers);
+document.addEventListener("mousedown", resetTimers);
+document.addEventListener("scroll", resetTimers, true);
+document.addEventListener("touchstart", resetTimers);
+
+// Click: manual logout link OR normal activity
+document.addEventListener("click", (e) => {
+	const link = e.target.closest(".logout-link");
+	if (link) {
+		e.preventDefault();
+		logoutAllTabs();
+		return;
+	}
+	resetTimers();
+});
+
+// STORAGE SYNC (IDLE + FORCE LOGOUT) – fires only in the OTHER tabs
+window.addEventListener("storage", (e) => {
+
+	// Idle activity sync
+	if (e.key === STORAGE_KEY) {
+		if (isLoggingOut || !e.newValue) return;
+		if (swalOpen) hideWarning();
+		startTimers();
+	}
+
+	// Force logout across all tabs
+	if (e.key === FORCE_LOGOUT_KEY && e.newValue) {
+		isLoggingOut = true;
+		clearTimeout(warningTimeout);
+		clearTimeout(logoutTimeout);
+		window.location.href = LOGOUT_URL;
+	}
+});
+
+//////////////////////////////////// Session Logout Time End ////////////////////////////////////
 
 //////////////////////////////////////////////////////////// Generate Excel Title Start ////////////////////////////////////////////////////////////////////////////////
 
@@ -902,378 +997,279 @@ function searchFunction(table_name) {
 }
 
 function swalSuccessOk(title, text, callback) {
-	Swal.fire({
-		icon: 'success',
-		title: title,
-		text: text,
-		showConfirmButton: true,
-		confirmButtonText: 'OK',
-		confirmButtonColor: "var(--primary-color)",
-		allowOutsideClick: false,
-		allowEscapeKey: false
-	}).then((result) => {
-		if (result.isConfirmed && typeof callback === "function") {
-			callback(); // ✅ run only after OK
-		}
-	});
+  Swal.fire({
+    icon: "success",
+    title: title,
+    text: text,
+    showConfirmButton: true,
+    confirmButtonText: "OK",
+    confirmButtonColor: "var(--primary-color)",
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+  }).then((result) => {
+    if (result.isConfirmed && typeof callback === "function") {
+      callback(); // ✅ run only after OK
+    }
+  });
 }
-
 
 //////////////////////////////////// Pagination  Start ////////////////////////////////////
 
 function paginationFunction(tableId) {
-    const table = $(`#${tableId}`).DataTable();
-    const pagination = $(`#${tableId}_paginate`);
-    const pageInfo = table.page.info();
 
-    // If current page is greater than available pages,
-    // automatically move to first page
-    if (pageInfo.pages > 0 && pageInfo.page >= pageInfo.pages) {
-        localStorage.removeItem(`${tableId}_currentPage`);
-        table.page(0).draw('page');
-        return;
+  
+  const table = $(`#${tableId}`).DataTable();
+  const pagination = $(`#${tableId}_paginate`);
+  const pageInfo = table.page.info();
+
+  // If current page is greater than available pages,
+  // automatically move to first page
+  if (pageInfo.pages > 0 && pageInfo.page >= pageInfo.pages) {
+    localStorage.removeItem(`${tableId}_currentPage`);
+    table.page(0).draw("page");
+    return;
+  }
+
+  // If no data
+  if (pageInfo.pages === 0) {
+    pagination.html('<span class="paginate_button disabled">No pages</span>');
+    return;
+  }
+
+  const currentPage = pageInfo.page;
+  const totalPages = pageInfo.pages;
+  const maxVisible = 6;
+
+  // Save current page
+  localStorage.setItem(`${tableId}_currentPage`, currentPage);
+
+  pagination.empty();
+
+  // Add pagination button
+  const addButton = (label, pageNum, isActive = false, isDisabled = false) => {
+    const classList = ["paginate_button"];
+
+    if (isActive) {
+      classList.push("current");
     }
 
-    // If no data
-    if (pageInfo.pages === 0) {
-        pagination.html(
-            '<span class="paginate_button disabled">No pages</span>'
-        );
-        return;
+    if (isDisabled) {
+      classList.push("disabled");
     }
 
-    const currentPage = pageInfo.page;
-    const totalPages = pageInfo.pages;
-    const maxVisible = 6;
-
-    // Save current page
-    localStorage.setItem(
-        `${tableId}_currentPage`,
-        currentPage
-    );
-
-    pagination.empty();
-
-    // Add pagination button
-    const addButton = (
-        label,
-        pageNum,
-        isActive = false,
-        isDisabled = false
-    ) => {
-        const classList = ['paginate_button'];
-
-        if (isActive) {
-            classList.push('current');
-        }
-
-        if (isDisabled) {
-            classList.push('disabled');
-        }
-
-        pagination.append(`
+    pagination.append(`
             <span
-                class="${classList.join(' ')}"
+                class="${classList.join(" ")}"
                 data-page="${pageNum}"
             >
                 ${label}
             </span>
         `);
-    };
+  };
 
-    // Previous
-    addButton(
-        'Previous',
-        currentPage - 1,
-        false,
-        currentPage === 0
-    );
+  // Previous
+  addButton("Previous", currentPage - 1, false, currentPage === 0);
 
-    // First page
-    addButton(
-        1,
-        0,
-        currentPage === 0
-    );
+  // First page
+  addButton(1, 0, currentPage === 0);
 
-    // Middle pages
-    if (totalPages > 1) {
+  // Middle pages
+  if (totalPages > 1) {
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
 
-        let start = Math.max(
-            1,
-            currentPage - Math.floor(maxVisible / 2)
-        );
+    let end = start + maxVisible - 1;
 
-        let end = start + maxVisible - 1;
+    // Keep last page visible
+    if (end >= totalPages - 1) {
+      end = totalPages - 2;
 
-        // Keep last page visible
-        if (end >= totalPages - 1) {
-            end = totalPages - 2;
-
-            start = Math.max(
-                1,
-                end - maxVisible + 1
-            );
-        }
-
-        // Left ellipsis
-        if (start > 1) {
-            pagination.append(
-                '<span class="paginate_ellipsis">...</span>'
-            );
-        }
-
-        // Page numbers
-        for (let i = start; i <= end; i++) {
-
-            addButton(
-                i + 1,
-                i,
-                currentPage === i
-            );
-        }
-
-        // Right ellipsis
-        if (end < totalPages - 2) {
-            pagination.append(
-                '<span class="paginate_ellipsis">...</span>'
-            );
-        }
-
-        // Last page
-        addButton(
-            totalPages,
-            totalPages - 1,
-            currentPage === totalPages - 1
-        );
+      start = Math.max(1, end - maxVisible + 1);
     }
 
-    // Next
-    addButton(
-        'Next',
-        currentPage + 1,
-        false,
-        currentPage === totalPages - 1 || totalPages === 1
-    );
-
-    // Jump to page input
-    if ($(`#${tableId}_jumpToPage`).length === 0) {
-
-        pagination.append(`
-            <input
-                type="number"
-                id="${tableId}_jumpToPage"
-                min="1"
-                max="${totalPages}"
-                placeholder="Page"
-                style="
-                    width: 60px;
-                    height: 30px;
-                    margin-left: 10px;
-                "
-            />
-        `);
-
-    } else {
-
-        // Update max when total pages changes
-        $(`#${tableId}_jumpToPage`)
-            .attr('max', totalPages)
-            .val('');
+    // Left ellipsis
+    if (start > 1) {
+      pagination.append('<span class="paginate_ellipsis">...</span>');
     }
 
-    // Pagination button click
-    pagination
-        .off('click')
-        .on(
-            'click',
-            '.paginate_button',
-            function () {
+    // Page numbers
+    for (let i = start; i <= end; i++) {
+      addButton(i + 1, i, currentPage === i);
+    }
 
-                if ($(this).hasClass('disabled')) {
-                    return;
-                }
+    // Right ellipsis
+    if (end < totalPages - 2) {
+      pagination.append('<span class="paginate_ellipsis">...</span>');
+    }
 
-                const page = parseInt(
-                    $(this).attr('data-page'),
-                    10
-                );
+    // Last page
+    addButton(totalPages, totalPages - 1, currentPage === totalPages - 1);
+  }
 
-                if (!isNaN(page)) {
+  // Next
+  addButton(
+    "Next",
+    currentPage + 1,
+    false,
+    currentPage === totalPages - 1 || totalPages === 1,
+  );
 
-                    table
-                        .page(page)
-                        .draw('page');
-                }
-            }
-        );
+  // Jump to page input
+  if ($(`#${tableId}_jumpToPage`).length === 0) {
+    pagination.append(`
+    <input
+        type="number"
+        id="${tableId}_jumpToPage"
+        class="jump-page-input"
+        min="1"
+        max="${totalPages}"
+        placeholder="Page"
+    />
+`);
+  } else {
+    // Update max when total pages changes
+    $(`#${tableId}_jumpToPage`).attr("max", totalPages).val("");
+  }
 
-    // Jump to page
-    $(`#${tableId}_jumpToPage`)
-        .off('keypress')
-        .on('keypress', function (e) {
+  // Pagination button click
+  pagination.off("click").on("click", ".paginate_button", function () {
+    if ($(this).hasClass("disabled")) {
+      return;
+    }
 
-            if (e.which === 13 || e.which === 9) {
+    const page = parseInt($(this).attr("data-page"), 10);
 
-                const inputPage = parseInt(
-                    $(this).val(),
-                    10
-                );
+    if (!isNaN(page)) {
+      table.page(page).draw("page");
+    }
+  });
 
-                if (
-                    !isNaN(inputPage) &&
-                    inputPage > 0 &&
-                    inputPage <= totalPages
-                ) {
+  // Jump to page
+  $(`#${tableId}_jumpToPage`)
+    .off("keypress")
+    .on("keypress", function (e) {
+      if (e.which === 13 || e.which === 9) {
+        const inputPage = parseInt($(this).val(), 10);
 
-                    table
-                        .page(inputPage - 1)
-                        .draw('page');
-
-                } else {
-
-                    alert(
-                        `Please enter a valid page number (1 - ${totalPages})`
-                    );
-                }
-            }
-        });
+        if (!isNaN(inputPage) && inputPage > 0 && inputPage <= totalPages) {
+          table.page(inputPage - 1).draw("page");
+        } else {
+          alert(`Please enter a valid page number (1 - ${totalPages})`);
+        }
+      }
+    });
 }
 
 /*
  * Get saved page when DataTable is initialized
  */
-  const isPageReloaded = performance.getEntriesByType("navigation")[0]?.type === "reload";
+const isPageReloaded =
+  performance.getEntriesByType("navigation")[0]?.type === "reload";
 function getDisplayStart(tableId, pageLength = 10) {
-
-    if (isPageReloaded) {
-
-        localStorage.removeItem(
-            `${tableId}_currentPage`
-        );
-
-        return 0;
-    }
-
-    const savedPage = localStorage.getItem(
-        `${tableId}_currentPage`
-    );
-
-    if (
-        savedPage !== null &&
-        !isNaN(parseInt(savedPage, 10))
-    ) {
-
-        return parseInt(savedPage, 10) * pageLength;
-    }
+  if (isPageReloaded) {
+    localStorage.removeItem(`${tableId}_currentPage`);
 
     return 0;
+  }
+
+  const savedPage = localStorage.getItem(`${tableId}_currentPage`);
+
+  if (savedPage !== null && !isNaN(parseInt(savedPage, 10))) {
+    return parseInt(savedPage, 10) * pageLength;
+  }
+
+  return 0;
 }
 
 //////////////////////////////////// Pagination  End ////////////////////////////////////
 function getStateSaveConfig(tableId) {
+  return {
+    // Keep DataTables state save
+    stateSave: true,
 
-    return {
+    // Save only column visibility in our custom localStorage
+    stateSaveParams: function (settings, data) {
+      const visibility = settings.aoColumns.map((col) => col.bVisible);
 
-        // Keep DataTables state save
-        stateSave: true,
+      localStorage.setItem(tableId + "_colVis", JSON.stringify(visibility));
+    },
 
-        // Save only column visibility in our custom localStorage
-        stateSaveParams: function (settings, data) {
+    // Restore column visibility
+    stateLoadParams: function (settings, data) {
+      const saved = localStorage.getItem(tableId + "_colVis");
 
-            const visibility = settings.aoColumns.map(
-                col => col.bVisible
-            );
+      if (!saved) {
+        return;
+      }
 
-            localStorage.setItem(
-                tableId + "_colVis",
-                JSON.stringify(visibility)
-            );
-        },
+      const visibility = JSON.parse(saved);
 
-        // Restore column visibility
-        stateLoadParams: function (settings, data) {
-
-            const saved = localStorage.getItem(
-                tableId + "_colVis"
-            );
-
-            if (!saved) {
-                return;
-            }
-
-            const visibility = JSON.parse(saved);
-
-            visibility.forEach((isVisible, index) => {
-
-                if (settings.aoColumns[index]) {
-                    settings.aoColumns[index].bVisible =
-                        isVisible;
-                }
-            });
+      visibility.forEach((isVisible, index) => {
+        if (settings.aoColumns[index]) {
+          settings.aoColumns[index].bVisible = isVisible;
         }
-    };
+      });
+    },
+  };
 }
 
 function initColVisFeatures(table, tableId) {
+  const STORAGE_KEY = tableId + "_colVis";
+  const COLLECTION_SELECTOR = ".dt-button-collection .buttons-columnVisibility";
 
-	const STORAGE_KEY = tableId + "_colVis";
-	const COLLECTION_SELECTOR = '.dt-button-collection .buttons-columnVisibility';
+  // 1. Sync ColVis button active state with column
+  function syncButtonActiveState() {
+    table.buttons(".buttons-columnVisibility").each(function (idx) {
+      const btn = table.button(idx);
+      const colIdx = btn.conf?._fnInit?.columns;
+      if (colIdx === undefined) return;
+      btn.active(table.column(colIdx).visible());
+    });
+  }
 
-	// 1. Sync ColVis button active state with column
-	function syncButtonActiveState() {
-		table.buttons('.buttons-columnVisibility').each(function (idx) {
-			const btn = table.button(idx);
-			const colIdx = btn.conf?._fnInit?.columns;
-			if (colIdx === undefined) return;
-			btn.active(table.column(colIdx).visible());
-		});
-	}
+  // 2. Apply green/red color classes
+  function updateColVisColors() {
+    $(COLLECTION_SELECTOR).each(function () {
+      const isActive = $(this).hasClass("active");
+      $(this)
+        .toggleClass("active-column", isActive)
+        .toggleClass("inactive-column", !isActive);
+    });
+  }
 
-	// 2. Apply green/red color classes
-	function updateColVisColors() {
-		$(COLLECTION_SELECTOR).each(function () {
-			const isActive = $(this).hasClass('active');
-			$(this)
-				.toggleClass('active-column', isActive)
-				.toggleClass('inactive-column', !isActive);
-		});
-	}
+  // 3. One master fix (state + color)
+  function fixColVisUI() {
+    syncButtonActiveState();
+    updateColVisColors();
+  }
 
-	// 3. One master fix (state + color)
-	function fixColVisUI() {
-		syncButtonActiveState();
-		updateColVisColors();
-	}
+  // 4. Restore column visibility from localStorage
+  function applySavedVisibility() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
 
-	// 4. Restore column visibility from localStorage
-	function applySavedVisibility() {
-		const saved = localStorage.getItem(STORAGE_KEY);
-		if (!saved) return;
+    JSON.parse(saved).forEach((isVisible, i) => {
+      table.column(i).visible(isVisible, false);
+    });
 
-		JSON.parse(saved).forEach((isVisible, i) => {
-			table.column(i).visible(isVisible, false);
-		});
+    table.columns.adjust();
+  }
 
-		table.columns.adjust();
-	}
+  // 5. Event bindings
+  function bindColVisEvents() {
+    table.on("buttons-collection.dt column-visibility.dt", fixColVisUI);
 
-	// 5. Event bindings
-	function bindColVisEvents() {
-		table.on('buttons-collection.dt column-visibility.dt', fixColVisUI);
+    $(document)
+      .off("click.colvisFix_" + tableId)
+      .on("click.colvisFix_" + tableId, ".buttons-collection", fixColVisUI);
+  }
 
-		$(document)
-			.off('click.colvisFix_' + tableId)
-			.on('click.colvisFix_' + tableId, '.buttons-collection', fixColVisUI);
-	}
-
-	// 6. Execution order (DO NOT CHANGE)
-	applySavedVisibility(); // restore actual column state
-	bindColVisEvents(); // attach listeners
-	fixColVisUI(); // initial correction
+  // 6. Execution order (DO NOT CHANGE)
+  applySavedVisibility(); // restore actual column state
+  bindColVisEvents(); // attach listeners
+  fixColVisUI(); // initial correction
 }
 
 // Reusable DataTables info callback. - Overrides the default info text and displays only the current range and total filtered entries.
 function customDataTableInfo(settings, start, end, max, total, pre) {
-    return 'Showing ' + start + ' to ' + end + ' of ' + total + ' entries';
+  return "Showing " + start + " to " + end + " of " + total + " entries";
 }

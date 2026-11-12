@@ -9591,3 +9591,22 @@ table.dataTable th {
         0 0 10px rgba(1, 96, 145, 0.4),
         0 0 20px rgba(1, 96, 145, 0.2);
 }
+
+.jump-page-input {
+    width: 60px;
+    height: 30px;
+    margin-left: 10px;
+    padding: 4px 6px;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    outline: none;
+    box-shadow: none;
+    box-sizing: border-box;
+}
+
+/* Black border on all four sides when clicked */
+.jump-page-input:focus {
+    border: 1px solid #000 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
