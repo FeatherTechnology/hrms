@@ -1,9 +1,8 @@
-// ==========================
-// MODULE MAPPING (ONLY ONCE)
-// ==========================
+// 1. MODULE MAPPING
 const moduleMapping = {
   home_page: "home",
   dashboard: "dashboard",
+
   company_creation: "organization",
   branch_creation: "organization",
   team_creation: "organization",
@@ -11,30 +10,43 @@ const moduleMapping = {
   statutory_compliance: "organization",
   leave_master: "organization",
   holiday_creation: "organization",
+
   director_creation: "administration",
   staff_creation: "administration",
   reporting_person_mapping: "administration",
   staff_exit_management: "administration",
+
   staff_loan: "employee_loans_advances",
   staff_salary_advance: "employee_loans_advances",
+
   manage_user: "manage_user",
+
   regularization: "regularization",
+
   location_access: "attendance_Management",
   attendance: "attendance_Management",
+
   promotion_transfer: "promotion_transfer",
+
   payroll_processing: "payroll_management",
   pay_slip: "payroll_management",
+
   analytics_dashboard: "feedback_management",
   feedback_engagement: "feedback_management",
+
   feedback: "my_feedbacks",
   rating: "my_feedbacks",
   poll: "my_feedbacks",
+
   monitoring_chart: "monitoring_chart",
+
   target_setup: "target",
   target_evaluation: "target",
   target_incentive: "target",
+
   performance_analysis: "performance_traning",
   training_solution: "performance_traning",
+
   staff_report: "reports",
   regularization_report: "reports",
   promotion_transfer_report: "reports",
@@ -43,160 +55,289 @@ const moduleMapping = {
   attendance_report: "reports",
 };
 
-// ==========================
-// DOCUMENT READY
-// ==========================
+// 2. DOCUMENT READY
 $(document).ready(function () {
-  const current_page = localStorage.getItem("currentPage");
-  const current_module = moduleMapping[current_page] || "home_page";
-
-  // highlight AFTER DOM ready
-  toggleSidebarSubmenus(current_module);
-
   getLeftbarMenuList();
 });
 
-// ==========================
-// GET MENU LIST
-// ==========================
+// 3. GET CURRENT PAGE
+function getCurrentPage() {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  return (
+    urlParams.get("page") || localStorage.getItem("currentPage") || "home_page"
+  );
+}
+
+// 4. GET LEFTBAR MENU LIST
 function getLeftbarMenuList() {
   $.post(
     "api/base_api/menulist.php",
+
     function (response) {
-      if (response.length > 0) {
+      if (response && response.length != 0) {
         createSidebarMenu(response);
       }
-
-      // bind dropdown ONCE
-      $(document)
-        .off("click.sidebarDropdown")
-        .on("click.sidebarDropdown", ".sidebar-dropdown > a", function () {
-          $(".sidebar-submenu").slideUp(200);
-
-          if ($(this).parent().hasClass("active")) {
-            $(".sidebar-dropdown").removeClass("active");
-            $(this).parent().removeClass("active");
-          } else {
-            $(".sidebar-dropdown").removeClass("active");
-            $(this).next(".sidebar-submenu").slideDown(200);
-            $(this).parent().addClass("active");
-          }
-        });
     },
+
     "json",
   );
 }
 
-// ==========================
-// CREATE SIDEBAR MENU
-// ==========================
+// 5. CREATE SIDEBAR MENU
 function createSidebarMenu(response) {
   $(".sidebar-menu").empty();
 
-  let sidebar = $("<ul></ul>");
+  var sidebar = $("<ul></ul>");
 
-  let grouped = {};
+  var grouped = {};
 
-  response.forEach((item) => {
+  /*--- Group submenus by main menu ---*/
+  response.forEach(function (item) {
     if (!grouped[item.main_menu]) {
       grouped[item.main_menu] = [];
     }
+
     grouped[item.main_menu].push(item);
   });
 
-  for (let mainMenu in grouped) {
-    let mainMenuLi = $(`
-      <li class="sidebar-dropdown ${grouped[mainMenu][0].main_menu_link}">
-      </li>
-    `);
+  /*--- Create main menu ---*/
+  for (var mainMenu in grouped) {
+    var mainMenuItems = grouped[mainMenu];
 
-    let mainMenuLink = $('<a href="javascript:void(0)"></a>').appendTo(
-      mainMenuLi,
+    var mainMenuLi = $(
+      '<li class="sidebar-dropdown ' +
+        mainMenuItems[0].main_menu_link +
+        '"></li>',
     );
+
+    /*--- Main menu link ---*/
+    var mainMenuLink = $('<a href="javascript:void(0)"></a>');
 
     mainMenuLink.append(
-      `<i class="icon-${grouped[mainMenu][0].main_menu_icon}"></i>`,
+      '<i class="icon-' + mainMenuItems[0].main_menu_icon + '"></i>',
     );
 
-    mainMenuLink.append(`<span class="menu-text">${mainMenu}</span>`);
+    mainMenuLink.append('<span class="menu-text">' + mainMenu + "</span>");
 
-    let submenuDiv = $('<div class="sidebar-submenu"></div>').appendTo(
-      mainMenuLi,
-    );
-    let submenuUl = $("<ul></ul>").appendTo(submenuDiv);
+    mainMenuLi.append(mainMenuLink);
 
-    grouped[mainMenu].forEach((subItem) => {
-      let subLi = $("<li></li>").appendTo(submenuUl);
+    /*--- Submenu container ---*/
+    var submenuDiv = $('<div class="sidebar-submenu"></div>');
 
-      let subLink = $(`
-        <a href="${subItem.sub_menu_link}" class="clickevent"></a>
-      `).appendTo(subLi);
+    var submenuUl = $("<ul></ul>");
 
-      subLink.append(`<i class="icon-${subItem.sub_menu_icon}"></i>`);
-      subLink.append(subItem.sub_menu);
+    submenuDiv.append(submenuUl);
+
+    mainMenuLi.append(submenuDiv);
+
+    /*--- Create submenu items ---*/
+    mainMenuItems.forEach(function (subItem) {
+      var subLi = $("<li></li>");
+
+      var subLink = $('<a class="clickevent"></a>');
+
+      /*--- Screen URL ---*/
+      var pageUrl =
+        "home.php?page=" + encodeURIComponent(subItem.sub_menu_link);
+
+      subLink.attr("href", pageUrl);
+
+      /*--- Screen name ---*/
+      subLink.attr(
+        "data-page",
+
+        subItem.sub_menu_link,
+      );
+
+      /*--- Submenu icon ---*/
+      subLink.append('<i class="icon-' + subItem.sub_menu_icon + '"></i>');
+
+      /*--- Submenu name ---*/
+      subLink.append($("<span></span>").text(subItem.sub_menu));
+
+      /*--- Append submenu link ---*/
+      subLi.append(subLink);
+
+      /*--- Append submenu list item ---*/
+      submenuUl.append(subLi);
     });
 
+    /*--- Append main menu ---*/
     sidebar.append(mainMenuLi);
   }
 
+  /* --- Append sidebar ----*/
   $(".sidebar-menu").append(sidebar);
 
-  // ==========================
-  // CLICK EVENT (OPTIMIZED)
-  // ==========================
-  $(document)
-    .off("click.clickevent")
-    .on("click.clickevent", ".clickevent", function (event) {
+  /* --- Initialize dropdown menu ---*/
+  initializeSidebarDropdown();
+
+  /* --- Initialize screen navigation ---*/
+  initializeSidebarNavigation();
+
+  /* --- Highlight current screen ---*/
+  toggleSidebarSubmenus();
+}
+
+// 6. SIDEBAR DROPDOWN
+function initializeSidebarDropdown() {
+  $(".sidebar-dropdown > a")
+    .off("click.sidebarDropdown")
+
+    .on("click.sidebarDropdown", function (event) {
       event.preventDefault();
-      setlocalvariable(this);
+
+      var parent = $(this).parent();
+
+      /*--- Close other menus ---*/
+      $(".sidebar-dropdown")
+        .not(parent)
+
+        .removeClass("active");
+
+      $(".sidebar-submenu")
+        .not(parent.find(".sidebar-submenu"))
+
+        .stop(true, true)
+
+        .slideUp(200);
+
+      /*--- Toggle current menu ---*/
+      if (parent.hasClass("active")) {
+        parent.removeClass("active");
+
+        parent
+          .find(".sidebar-submenu")
+
+          .stop(true, true)
+
+          .slideUp(200);
+      } else {
+        parent.addClass("active");
+
+        parent
+          .find(".sidebar-submenu")
+
+          .stop(true, true)
+
+          .slideDown(200);
+      }
     });
-
-  // ==========================
-  // HIGHLIGHT AFTER MENU LOAD
-  // ==========================
-  const current_page = localStorage.getItem("currentPage");
-  const current_module = moduleMapping[current_page] || "home_page";
-
-  toggleSidebarSubmenus(current_module);
 }
 
-// ==========================
-// SAVE PAGE + REDIRECT
-// ==========================
-function setlocalvariable(element) {
-  const hrefValue = $(element).attr("href");
-  localStorage.setItem("currentPage", hrefValue);
-  window.location.href = "home.php";
+// 7. SIDEBAR SCREEN NAVIGATION
+function initializeSidebarNavigation() {
+  $(".clickevent")
+    .off("click.sidebarNavigation")
+
+    .on("click.sidebarNavigation", function (event) {
+      var currentPage = $(this).attr("data-page");
+
+      if (!currentPage) {
+        console.error("Page link is missing");
+
+        return;
+      }
+
+      /*--- Ctrl + Click, Meta + Click, Shift + Click, Middle Click Allow browser native behavior ---*/
+      if (
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        event.button === 1
+      ) {
+        return;
+      }
+
+      /*--- Normal navigation ---*/
+      event.preventDefault();
+
+      setlocalvariable(currentPage);
+    });
 }
 
-// ==========================
-// SIDEBAR HIGHLIGHT
-// ==========================
-function toggleSidebarSubmenus(current_module) {
-  // open correct parent menu
-  document.querySelectorAll(".sidebar-submenu").forEach((submenu) => {
-    let parentLi = submenu.closest("li");
+// 8. SET CURRENT PAGE
+function setlocalvariable(currentPage) {
+  if (!currentPage) {
+    console.error("Current page is missing");
 
-    if (parentLi && parentLi.classList.contains(current_module)) {
-      let mainmenu = submenu.closest(".sidebar-dropdown");
-      mainmenu.classList.add("active");
+    return;
+  }
+
+  /*--- Remember last selected screen ---*/
+  localStorage.setItem(
+    "currentPage",
+
+    currentPage,
+  );
+
+  /*--- Navigate to selected screen ---*/
+  window.location.href = "home.php?page=" + encodeURIComponent(currentPage);
+}
+
+// 9. TOGGLE SIDEBAR SUBMENUS
+function toggleSidebarSubmenus() {
+  /*--- Current screen ---*/
+  var current_page = getCurrentPage();
+
+  /*--- Current module ---*/
+  var current_module = moduleMapping[current_page] || "home";
+
+  /*--- Reset sidebar ---*/
+  $(".sidebar-dropdown").removeClass("active");
+
+  $(".sidebar-submenu").hide();
+
+  $(".clickevent").css({
+    background: "",
+    color: "",
+  });
+
+  $(".clickevent").find("i").css("color", "");
+
+  $(".sidebar-dropdown > a").css("background", "");
+
+  /*--- Open current module ---*/
+  $(".sidebar-dropdown").each(function () {
+    var parentLi = $(this);
+
+    if (parentLi.hasClass(current_module)) {
+      parentLi.addClass("active");
+
+      parentLi.find(".sidebar-submenu").show();
     }
   });
 
-  // highlight active link
-  const current_page = localStorage.getItem("currentPage");
+  /*--- Highlight current screen ---*/
+  $(".clickevent").each(function () {
+    var linkPage = $(this).attr("data-page");
 
-  document
-    .querySelectorAll(".sidebar-menu .sidebar-submenu ul li a")
-    .forEach((link) => {
-      if (link.getAttribute("href") === current_page) {
-        link.style.background =
-          "linear-gradient(90deg, #adadad 0%, rgb(96, 101, 105) 50%, #2a3740 100%)";
-        link.style.color = "#fff";
-        const icon = link.querySelector("i");
-        if (icon) {
-          icon.style.color = "#f26b35";
-        }
+    if (linkPage === current_page) {
+      /*--- Highlight submenu ---*/
+      $(this).css({
+        background:
+          "linear-gradient(90deg, #adadad 0%, rgb(96, 101, 105) 50%, #2a3740 100%)",
+        color: "#fff",
+      });
+
+      /*--- Highlight submenu icon ---*/
+      var icon = $(this).find("i");
+
+      if (icon.length) {
+        icon.css("color", "#f26b35");
       }
-    });
+
+      /*--- Highlight main menu ---*/
+      $(this)
+        .closest(".sidebar-dropdown")
+        .find("> a")
+        .css("backgroundColor", "rgba(253, 253, 253, 0.2)");
+    }
+  });
+
+  /*--- Dashboard highlight ---*/
+  if (current_page === "dashboard") {
+    $(".dashboard").css("backgroundColor", "rgba(253, 253, 253, 0.2)");
+  }
 }

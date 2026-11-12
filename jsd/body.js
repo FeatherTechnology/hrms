@@ -6,22 +6,26 @@ $(document).ready(function () {
       if (response != null) {
         $("#search_screens").click(function () {
           let search_input = $("#search_input_").val();
+
           if (search_input != "") {
             $.post(
               "api/base_api/getScreens.php",
               { search_input },
               function (response) {
                 let append = "";
+
                 $.each(response, function (index, val) {
                   if (val.display_name != undefined) {
                     append +=
-                      "<li class='dropdown-contents'><a href='" +
+                      "<li class='dropdown-contents'>" +
+                      "<a href='" +
                       val.module_name +
                       "'>" +
                       val.display_name +
                       "</a></li>";
                   }
                 });
+
                 $("#search_ul").empty().append(append);
               },
               "json",
@@ -34,28 +38,23 @@ $(document).ready(function () {
         getBodyContentPage();
         getNotifications();
       } else {
-        const current_page = localStorage.getItem("currentPage");
-
-        if (current_page != "index.php" && current_page != "") {
-          window.location.href = "index.php";
-        }
+        window.location.href = "index.php";
       }
     },
     "json",
   );
 
- $(document).on("mouseenter", ".notification-row", function (e) {
-
+  $(document).on("mouseenter", ".notification-row", function (e) {
     let module = $(this).data("module");
 
     // Only show tooltip for Regularization
     if (module !== "Regularization") {
-        $("#notificationTooltip").hide();
-        return;
+      $("#notificationTooltip").hide();
+      return;
     }
 
     let filteredData = notificationSummary.filter(
-        item => item.module == module
+      (item) => item.module == module,
     );
 
     let html = `
@@ -71,22 +70,17 @@ $(document).ready(function () {
     `;
 
     if (filteredData.length) {
-
-        $.each(filteredData, function (i, row) {
-
-            html += `
+      $.each(filteredData, function (i, row) {
+        html += `
                 <tr>
                     <td>${row.request_type}</td>
                     <td class="text-center">${row.today_count}</td>
                     <td class="text-center">${row.total_count}</td>
                 </tr>
             `;
-
-        });
-
+      });
     } else {
-
-        html += `
+      html += `
             <tr>
                 <td colspan="3" style="text-align:center">
                     No Data Found
@@ -101,25 +95,36 @@ $(document).ready(function () {
     `;
 
     $("#notificationTooltip")
-        .appendTo("body")
-        .html(html)
-        .css({
-            display: "block",
-            top: e.clientY + "px",
-            left: e.clientX + 15 + "px"
-        });
-
-});
+      .appendTo("body")
+      .html(html)
+      .css({
+        display: "block",
+        top: e.clientY + "px",
+        left: e.clientX + 15 + "px",
+      });
+  });
 
   $(document).on("mouseleave", ".notification-row", function () {
     $("#notificationTooltip").hide();
   });
 });
 
+function getCurrentPage() {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  return (
+    urlParams.get("page") || localStorage.getItem("currentPage") || "home_page"
+  );
+}
+
 function getPageHeaderName() {
+  const current_page = getCurrentPage();
+
   $.post(
     "api/base_api/getPageHeaderName.php",
-    { current_page: localStorage.getItem("currentPage") },
+    {
+      current_page: current_page,
+    },
     function (response) {
       if (response.length != 0) {
         $("#pageHeaderName").text(" - " + response.sub_menu);
@@ -140,23 +145,34 @@ function getHeaderUserName() {
 }
 
 function getBodyContentPage() {
-  const current_page = localStorage.getItem("currentPage");
+  const current_page = getCurrentPage();
+
   $.post(
     "api/base_api/getBodyContentPage.php",
-    { current_page: current_page },
+    {
+      current_page: current_page,
+    },
     function (response) {
       $("#main-container").html(response);
+
       if ($("#main-container").find(".error").length > 0) {
-        //removed the page header name when 404 called
         $("#pageHeaderName").text("");
       }
+
       $.post(
         "api/base_api/getCurrentJs.php",
-        { current_page: current_page },
+        {
+          current_page: current_page,
+        },
         function (response) {
-          $("footer").append(
-            `<script type="text/javascript" src="` + response + `"></script>`,
-          );
+          if (response) {
+            $("footer").append(
+              $("<script>", {
+                type: "text/javascript",
+                src: response,
+              }),
+            );
+          }
         },
       );
     },
@@ -164,31 +180,28 @@ function getBodyContentPage() {
 }
 
 function getNotifications() {
+  $.post(
+    "api/base_api/getNotifications.php",
+    function (response) {
+      notificationSummary = response;
 
-    $.post(
-        "api/base_api/getNotifications.php",
-        function (response) {
+      let moduleTotals = {};
 
-            notificationSummary = response;
+      // STEP 1: Group by module
+      $.each(response, function (i, item) {
+        if (!moduleTotals[item.module]) {
+          moduleTotals[item.module] = {
+            today: 0,
+            total: 0,
+          };
+        }
 
-            let moduleTotals = {};
+        moduleTotals[item.module].today += parseInt(item.today_count) || 0;
+        moduleTotals[item.module].total += parseInt(item.total_count) || 0;
+      });
 
-            // STEP 1: Group by module
-            $.each(response, function (i, item) {
-
-                if (!moduleTotals[item.module]) {
-                    moduleTotals[item.module] = {
-                        today: 0,
-                        total: 0
-                    };
-                }
-
-                moduleTotals[item.module].today += parseInt(item.today_count) || 0;
-                moduleTotals[item.module].total += parseInt(item.total_count) || 0;
-            });
-
-            // STEP 2: Build HTML
-            let html = `
+      // STEP 2: Build HTML
+      let html = `
                 <table class="notification-table">
                     <thead>
                         <tr>
@@ -200,27 +213,23 @@ function getNotifications() {
                     <tbody>
             `;
 
-            let totalNotification = 0;
+      let totalNotification = 0;
 
-            $.each(moduleTotals, function (module, data) {
+      $.each(moduleTotals, function (module, data) {
+        // Convert module name to display name
+        let label = module;
 
-                // Convert module name to display name
-                let label = module;
+        if (module === "Regularization") {
+          label = "Regularization";
+        } else if (module === "Feedback") {
+          label = "My Feedback";
+        } else if (module === "rating") {
+          label = "Rating";
+        } else if (module === "poll") {
+          label = "Poll";
+        }
 
-                if (module === "Regularization") {
-                    label = "Regularization";
-                }
-                else if (module === "Feedback") {
-                    label = "My Feedback";
-                }
-                else if (module === "rating") {
-                    label = "Rating";
-                }
-                else if (module === "poll") {
-                    label = "Poll";
-                }
-
-                html += `
+        html += `
                     <tr class="notification-row" data-module="${module}">
                         <td>${label}</td>
                         <td class="text-center">${data.today}</td>
@@ -228,28 +237,27 @@ function getNotifications() {
                     </tr>
                 `;
 
-                totalNotification += data.total;
-            });
+        totalNotification += data.total;
+      });
 
-            html += `
+      html += `
                     </tbody>
                 </table>
             `;
 
-            $(".header-notifications").html(html);
+      $(".header-notifications").html(html);
 
-            // Total notification count
-            $(".count-label").text(totalNotification);
+      // Total notification count
+      $(".count-label").text(totalNotification);
 
-            if (totalNotification == 0) {
-                $(".count-label").hide();
-            } else {
-                $(".count-label").show();
-            }
-
-        },
-        "json"
-    );
+      if (totalNotification == 0) {
+        $(".count-label").hide();
+      } else {
+        $(".count-label").show();
+      }
+    },
+    "json",
+  );
 }
 
 // let notificationStaff = {};
