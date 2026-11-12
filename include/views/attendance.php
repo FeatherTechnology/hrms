@@ -222,13 +222,13 @@
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="form-group">
-                            <label for="shift_start">Staff Type</label>
+                            <label for="shift_start">Shift Start Time</label>
                             <input type="text" class="form-control" id="shift_start" name="shift_start" placeholder="Staff Start Time" tabindex="13" readonly>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="form-group">
-                            <label for="shift_end">Staff Type</label>
+                            <label for="shift_end">Shift End Time</label>
                             <input type="text" class="form-control" id="shift_end" name="shift_end" placeholder="Staff End Time" tabindex="13" readonly>
                         </div>
                     </div>
@@ -317,7 +317,7 @@
 
                     <!-- Advance Attendance -->
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #c4f3bf; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #13A89E; border-radius: 3px;"></div>
                         <span>Advance Attendance / Late Exit</span>
                     </div>
 
@@ -338,7 +338,7 @@
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #02756a; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #686868; border-radius: 3px;"></div>
                         <span>Paid Leave</span>
                     </div>
 

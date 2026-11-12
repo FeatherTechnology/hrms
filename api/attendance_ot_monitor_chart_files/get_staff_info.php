@@ -166,7 +166,7 @@ try {
             $response[] = [
                 'staff_name' => $row['staff_name'],
                 'type'       => 'Advance Attendance',
-                'color'      => '#c4f3bf',
+                'color'      => '#13A89E',
                 'start'      => date('Y-m-d H:i:s',$entry_time),
                 'end'        => date('Y-m-d H:i:s', $shift_start)
             ];
@@ -254,7 +254,7 @@ try {
                     $response[] = [
                         'staff_name' => $row['staff_name'],
                         'type' => $leaveName,
-                        'color' => ( $reg['req_type'] == 1) ? '#02756a' : '#9E9E9E',
+                        'color' => ( $reg['req_type'] == 1) ? '#686868' : '#9E9E9E',
                         'start' => date('Y-m-d H:i:s',$leaveStart),
                         'end' => date('Y-m-d H:i:s',$leaveEnd)
                     ];
@@ -502,7 +502,7 @@ try {
                 $response[] = [
                     'staff_name' => $row['staff_name'],
                     'type'       => 'Late Exit',
-                    'color'      => '#c4f3bf',
+                    'color'      => '#13A89E',
                     'start'      => date(
                         'Y-m-d H:i:s',
                         $shift_end
@@ -742,7 +742,7 @@ try {
         $response[] = [
             'staff_name' =>  $leaveRow['staff_name'],
             'type' =>  ($leaveRow['req_type'] == 1)? $leaveRow['leave_name']  : 'Week Off',
-            'color' => ($leaveRow['req_type'] == 1) ? '#02756a' : '#9E9E9E',
+            'color' => ($leaveRow['req_type'] == 1) ? '#686868' : '#9E9E9E',
             'start' => date( 'Y-m-d H:i:s', $leaveStart),
             'end' => date( 'Y-m-d H:i:s',$leaveEnd)
         ];

@@ -431,7 +431,7 @@
 
                     <!-- Advance Attendance -->
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #c4f3bf; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #13A89E; border-radius: 3px;"></div>
                         <span>Advance Attendance / Late Exit</span>
                     </div>
 
@@ -452,7 +452,7 @@
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 20px; height: 20px; background-color: #02756a; border-radius: 3px;"></div>
+                        <div style="width: 20px; height: 20px; background-color: #686868; border-radius: 3px;"></div>
                         <span>Paid Leave</span>
                     </div>
 
