@@ -403,6 +403,7 @@ function getStaffLoanList() {
       var columnMapping = [
         "sno",
         "company_name",
+        "branch_name",
         "staff_name",
         "loan_amount",
         "intrest_rate",

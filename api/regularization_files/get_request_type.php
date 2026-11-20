@@ -19,12 +19,10 @@ if (!empty($user_id)) {
             4 => 'OT',
             3 => 'Week Off',
             1 => 'Leave',
-            2 => 'Permission',
-
-            
+            2 => 'Permission'
         ];
 
-         $ids = array_map('trim', explode(',', $user['allowed_request_type']));
+        $ids = array_map('trim', explode(',', $user['allowed_request_type']));
 
         foreach ($requestTypes as $id => $name) {
             if (in_array((string)$id, $ids, true)) {
@@ -35,7 +33,14 @@ if (!empty($user_id)) {
             }
         }
     }
+
+    // Add Holiday at the last for everyone
+    $result[] = [
+        'id' => '5',
+        'request_type' => 'Holiday'
+    ];
 }
 
 echo json_encode($result);
 $pdo = null;
+?>

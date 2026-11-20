@@ -367,7 +367,7 @@ while ($staff = $getStaff->fetch()) {
     $suspendedDates = [];
     $suspensionQry = $pdo->query("
         SELECT from_date, to_date
-        FROM staff_suspended
+        FROM staff_suspension
         WHERE staff_profile_id = '$staff_profile_id'
           AND DATE(from_date) <= '$month_end'
           AND DATE(to_date) >= '$month_start'

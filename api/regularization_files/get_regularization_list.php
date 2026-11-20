@@ -50,7 +50,7 @@ $director_company   = $userData['director_company'] ?? '';
 $director_id        = $userData['director_name'] ?? 0;
 
 /* ---------- Mappings ---------- */
-$Req_type = [1 => 'Leave', 2 => 'Permission', 3 => 'Week Off', 4 => 'OT'];
+$Req_type = [1 => 'Leave', 2 => 'Permission', 3 => 'Week Off', 4 => 'OT',5 => 'Holiday'];
 $reg_status = [0 => 'Pending', 1 => 'Approved', 2 => 'Cancel'];
 $leave_period = [1 => 'First Half', 2 => 'Second Half', 3 => 'Full Day'];
 
@@ -423,13 +423,13 @@ $data[] = [
     $row['company_name'],
     $row['branch_name'],
     $row['department_name'],
-    $row['designation'],
     $row['team_name'],
+    $row['designation'],
     !empty($row['req_date']) ? date('d-m-Y', strtotime($row['req_date'])) : '',
     $Req_type[$row['req_type']] ?? '',
     $leave_period[$row['leave_period']] ?? '',
-        !empty($row['from_date']) ? date(in_array($row['req_type'], [1, 3]) ? 'd-m-Y' : 'd-m-Y h:i A', strtotime($row['from_date'])) : '',
-        !empty($row['to_date']) ? date(in_array($row['req_type'], [1, 3]) ? 'd-m-Y' : 'd-m-Y h:i A', strtotime($row['to_date'])) : '',
+        !empty($row['from_date']) ? date(in_array($row['req_type'], [1, 3, 5]) ? 'd-m-Y' : 'd-m-Y h:i A', strtotime($row['from_date'])) : '',
+        !empty($row['to_date']) ? date(in_array($row['req_type'], [1, 3, 5]) ? 'd-m-Y' : 'd-m-Y h:i A', strtotime($row['to_date'])) : '',
         $duration,
         $statusBadge,
         $remarks,

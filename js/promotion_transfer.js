@@ -999,6 +999,7 @@ function getStaffInfo() {
   );
 }
 
+
 function getIncrementHistory(staff_profile_id) {
     $.ajax({
         url: "api/promotion_transfer/ctc_chart.php",
@@ -1012,7 +1013,7 @@ function getIncrementHistory(staff_profile_id) {
 
             if (!response.success) {
                 $("#increment_history_header").html(
-                    "<th>Effective From</th><th>Total CTC</th>"
+                    "<th>Effective From</th><th>Duration</th><th>CTC Amount</th><th>Total CTC</th>"
                 );
 
                 $("#increment_history_table tbody").html(
@@ -1021,19 +1022,17 @@ function getIncrementHistory(staff_profile_id) {
                 return;
             }
 
-            // Destroy existing DataTable if initialized
+            // Destroy existing DataTable
             if ($.fn.DataTable.isDataTable("#increment_history_table")) {
                 $("#increment_history_table").DataTable().destroy();
             }
 
             // Build table header
             let header = "<th>Effective From</th>";
-
-            // Total CTC comes first
+            header += "<th>Duration</th>";
             header += "<th>CTC Amount</th>";
             header += "<th>Total CTC</th>";
 
-            // Add dynamic salary component headers
             response.columns.forEach(function (column) {
                 header += "<th>" + column.title + "</th>";
             });
@@ -1043,12 +1042,42 @@ function getIncrementHistory(staff_profile_id) {
             // Build table rows
             let rows = "";
 
-            response.data.forEach(function (record) {
+            response.data.forEach(function (record, index) {
                 rows += "<tr>";
 
-                // Format effective date as DD-MM-YYYY
                 let date = record.effective_from || "";
+                let duration = "--";
 
+                // Calculate duration from previous effective date
+                if (index < response.data.length - 1) {
+
+                    let currentDate = new Date(
+                        record.effective_from + "T00:00:00"
+                    );
+
+                    let previousDate = new Date(
+                        response.data[index + 1].effective_from + "T00:00:00"
+                    );
+
+                    let years = currentDate.getFullYear() -
+                                previousDate.getFullYear();
+
+                    let months = currentDate.getMonth() -
+                                 previousDate.getMonth();
+
+                    if (currentDate.getDate() < previousDate.getDate()) {
+                        months--;
+                    }
+
+                    if (months < 0) {
+                        years--;
+                        months += 12;
+                    }
+
+                    duration = years + " Y " + months + " M";
+                }
+
+                // Format date DD-MM-YYYY
                 if (date) {
                     let parts = date.split("-");
 
@@ -1060,13 +1089,16 @@ function getIncrementHistory(staff_profile_id) {
                 // Effective From
                 rows += "<td>" + date + "</td>";
 
+                // Duration
+                rows += "<td>" + duration + "</td>";
+
                 // CTC Amount
                 rows += "<td>" + (record.ctc_amount ?? 0) + "</td>";
 
                 // Total CTC
                 rows += "<td>" + (record.total_ctc ?? 0) + "</td>";
 
-                // Salary component amounts
+                // Dynamic salary components
                 response.columns.forEach(function (column) {
                     let amount = record[column.data] ?? 0;
                     rows += "<td>" + amount + "</td>";
@@ -1076,6 +1108,15 @@ function getIncrementHistory(staff_profile_id) {
             });
 
             $("#increment_history_table tbody").html(rows);
+
+            // Initialize DataTable
+            $("#increment_history_table").DataTable({
+                ordering: false,
+                searching: true,
+                paging: true,
+                pageLength: 10,
+                responsive: true
+            });
         },
 
         error: function (xhr) {
@@ -1084,4 +1125,5 @@ function getIncrementHistory(staff_profile_id) {
         }
     });
 }
+
 

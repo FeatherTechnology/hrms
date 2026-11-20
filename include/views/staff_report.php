@@ -11,6 +11,11 @@
             <select class="toggle-button" name='department_id' id='department_id'>
                 <option value=''>Select Department</option>
             </select>
+            <select class="toggle-button" name='status' id='status'>
+                <option value=''>Select Status</option>
+                <option value='1'>Active</option>
+                <option value='2'>Exit</option>
+            </select>
             <input type="button" id='staff_btn' name='staff_btn' class="toggle-button btn-primary" style="background-color: #f26b35;color:white" value='Search'>
         </div> <br> <br>
         <!-- Staff report Start -->

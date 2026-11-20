@@ -310,6 +310,15 @@ if (in_array($screen, ['staff_creation'], true)) {
         ? "style='opacity:0.4;cursor:not-allowed;pointer-events:none;' title='Edit disabled - Exit in Progress'"
         : '';
 
+    // $sub_array[] = "<button type='button'
+    //         class='btn btn-outline-secondary stf_loan_advance_btn'
+    //         value='{$row['id']}'
+    //         title='Staff Loan And Advance'
+    //         data-toggle='modal'
+    //         data-target='#view_staff_loan'>
+    //         View
+    //     </button>";
+
     $sub_array[] = "<span class='icon-border_color staffEditBtn'
         value='{$row['id']}'
         $edit_style></span>";

@@ -17,12 +17,14 @@ $(document).ready(function () {
     let company_id = $("#company_id").val();
     let branch_id = $("#branch_id").val();
     let department_id = $("#department_id").val();
+    let status = $("#status").val();
 
-    if (company_id != "" || branch_id != "" || department_id != "") {
+    if ((company_id != "" || branch_id != "" || department_id != "") && status !="") {
       let data = {
         company_id: company_id,
         branch_id: branch_id,
         department_id: department_id,
+        status: status,
       };
 
       serverSideTable(

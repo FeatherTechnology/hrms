@@ -93,8 +93,8 @@
                                 <th>Company</th>
                                 <th>Branch</th>
                                 <th>Department</th>
-                                <th>Designation</th>
                                 <th>Team</th>
+                                <th>Designation</th>
                                 <th>Request Date</th>
                                 <th>Request Type</th>
                                 <th>Leave Period</th>

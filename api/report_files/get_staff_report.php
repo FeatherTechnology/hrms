@@ -23,6 +23,7 @@ if ($user_type == 2) {
 $company_id = $_POST['params']['company_id'] ?? '';
 $branch_id = $_POST['params']['branch_id'] ?? '';
 $department_id = $_POST['params']['department_id'] ?? '';
+$status = $_POST['params']['status'] ?? '';
 
 $staff_type = [1 => 'Employer', 2 => 'Employee'];
 $gender_type = [1 => 'Male', 2 => 'Female'];
@@ -141,6 +142,12 @@ if (!empty($branch_id)) {
 if (!empty($department_id)) {
     $baseQuery .= " AND oc.department = :department_id";
     $params[':department_id'] = $department_id;
+}
+
+if ($status == 1) {
+    $baseQuery .= " AND sc.status IN (1, 2, 3)";
+} else {
+    $baseQuery .= " AND sc.status IN (4)";
 }
 
 $search = '';
