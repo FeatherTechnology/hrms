@@ -254,7 +254,10 @@ function showOverlay() {
 // Function to remove the overlay and clear the timer
 function hideOverlay() {
   var overlayDiv = document.querySelector(".overlay");
-  overlayDiv.remove();
+
+  if (overlayDiv) {
+    overlayDiv.remove();
+  }
 }
 function getUserAccess(callback) {
   $.ajax({
@@ -739,8 +742,8 @@ let warningTimeout, logoutTimeout;
 let swalOpen = false;
 let isLoggingOut = false;
 
-// const idleTime = 10 * 60 * 1000; // 10 minutes;
-const idleTime = 30 * 1000; // 10 minutes;
+const idleTime = 10 * 60 * 1000; // 10 minutes;
+// const idleTime = 30 * 1000; // 10 minutes;
 const warningDuration = 10 * 1000; // 10 seconds
 const STORAGE_KEY = "last-activity";
 const FORCE_LOGOUT_KEY = "force-logout";

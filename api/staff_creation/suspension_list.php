@@ -23,7 +23,7 @@ $staff_name = $staff_stmt->fetchColumn();
 // Get Suspension Details
 $stmt = $pdo->prepare("
     SELECT ss.id, ss.staff_profile_id, ss.from_date, ss.to_date, ss.reason
-    FROM staff_suspended ss
+    FROM staff_suspension ss
     WHERE ss.staff_profile_id = :staff_id
 ");
 
@@ -33,8 +33,8 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
     $suspension_list_arr[$i]['id'] = $row['id'];
     $suspension_list_arr[$i]['staff_name'] = $staff_name;
-  $suspension_list_arr[$i]['from_date'] = date('d-m-Y', strtotime($row['from_date']));
-$suspension_list_arr[$i]['to_date'] = date('d-m-Y', strtotime($row['to_date']));
+    $suspension_list_arr[$i]['from_date'] = date('d-m-Y', strtotime($row['from_date']));
+    $suspension_list_arr[$i]['to_date'] = date('d-m-Y', strtotime($row['to_date']));
     $suspension_list_arr[$i]['reason'] = $row['reason'];
 
     // Check whether suspension belongs to current or future month

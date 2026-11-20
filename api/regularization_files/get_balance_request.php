@@ -411,6 +411,134 @@ END
         WHERE staff_profile_id = :shift_staff_id
     )";
 }
+else if ($req_type == '5') {
+
+    $query = "SELECT
+
+        sh.start_time,
+        sh.end_time,
+
+        COALESCE((
+            SELECT SUM(
+                DATEDIFF(
+                    LEAST(DATE(hc.to_date), LAST_DAY(CURDATE())),
+                    GREATEST(
+                        DATE(hc.from_date),
+                        DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                    )
+                ) + 1
+            )
+            FROM holiday_creation hc
+            WHERE hc.company_id = :holiday_company_id
+                AND DATE(hc.from_date) <= LAST_DAY(CURDATE())
+                AND DATE(hc.to_date) >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+        ), 0) AS no_of_days,
+
+        COALESCE((
+            SELECT SUM(
+                CASE
+                    WHEN reg.leave_period IN (1,2) THEN 0.5
+                    ELSE DATEDIFF(reg.to_date, reg.from_date) + 1
+                END
+            )
+            FROM regularization reg
+            WHERE reg.company_id = :used_holiday_company_id
+                AND reg.staff_profile_id = :holiday_staff_id
+                AND reg.req_type = 5
+                AND YEAR(reg.from_date) = YEAR(CURDATE())
+                AND MONTH(reg.from_date) = MONTH(CURDATE())
+                AND reg.status IN (0,1)
+        ), 0) AS used_count,
+
+        GREATEST(
+            COALESCE((
+                SELECT SUM(
+                    DATEDIFF(
+                        LEAST(DATE(hc.to_date), LAST_DAY(CURDATE())),
+                        GREATEST(
+                            DATE(hc.from_date),
+                            DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                        )
+                    ) + 1
+                )
+                FROM holiday_creation hc
+                WHERE hc.company_id = :balance_holiday_company_id
+                    AND DATE(hc.from_date) <= LAST_DAY(CURDATE())
+                    AND DATE(hc.to_date) >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+            ), 0)
+            -
+            COALESCE((
+                SELECT SUM(
+                    CASE
+                        WHEN reg.leave_period IN (1,2) THEN 0.5
+                        ELSE DATEDIFF(reg.to_date, reg.from_date) + 1
+                    END
+                )
+                FROM regularization reg
+                WHERE reg.company_id = :balance_used_company_id
+                    AND reg.staff_profile_id = :balance_holiday_staff_id
+                    AND reg.req_type = 5
+                    AND YEAR(reg.from_date) = YEAR(CURDATE())
+                    AND MONTH(reg.from_date) = MONTH(CURDATE())
+                    AND reg.status IN (0,1)
+            ), 0),
+            0
+        ) AS ave_balance,
+                GREATEST(
+            COALESCE((
+                SELECT SUM(
+                    DATEDIFF(
+                        LEAST(DATE(hc.to_date), LAST_DAY(CURDATE())),
+                        GREATEST(
+                            DATE(hc.from_date),
+                            DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                        )
+                    ) + 1
+                )
+                FROM holiday_creation hc
+                WHERE hc.company_id = :balance_holiday_company_id_2
+                    AND DATE(hc.from_date) <= LAST_DAY(CURDATE())
+                    AND DATE(hc.to_date) >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+            ), 0)
+            -
+            COALESCE((
+                SELECT SUM(
+                    CASE
+                        WHEN reg.leave_period IN (1,2) THEN 0.5
+                        ELSE DATEDIFF(reg.to_date, reg.from_date) + 1
+                    END
+                )
+                FROM regularization reg
+                WHERE reg.company_id = :balance_used_company_id_2
+                    AND reg.staff_profile_id = :balance_holiday_staff_id_2
+                    AND reg.req_type = 5
+                    AND YEAR(reg.from_date) = YEAR(CURDATE())
+                    AND MONTH(reg.from_date) = MONTH(CURDATE())
+                    AND reg.status IN (0,1)
+            ), 0)
+            -
+            CASE
+                WHEN :leave_period IN (1,2) THEN 0.5
+                ELSE DATEDIFF(:to_date, :from_date) + 1
+            END,
+            0
+        ) AS balance
+
+    FROM staff_creation sc
+
+    LEFT JOIN occupation_info oi
+        ON oi.id = (
+            SELECT MAX(oi2.id)
+            FROM occupation_info oi2
+            WHERE oi2.staff_profile_id = sc.id
+              AND oi2.effective_from <= NOW()
+        )
+
+    LEFT JOIN shift_creation sh
+        ON sh.id = oi.shift
+
+    WHERE sc.id = :shift_staff_id";
+}
 
 
 /* ================= PREPARE ================= */
@@ -484,8 +612,36 @@ if ($req_type == '1') {
     $stmt->bindValue(':ot_staff_id', $staff_id);
     $stmt->bindValue(':cmpy_id', $cmpy_id, PDO::PARAM_INT);
     $stmt->bindValue(':shift_staff_id', $staff_id);
-}
+}else if ($req_type == '5') {
 
+    $stmt->bindValue(':holiday_company_id', $cmpy_id, PDO::PARAM_INT);
+
+    $stmt->bindValue(':used_holiday_company_id', $cmpy_id, PDO::PARAM_INT);
+
+    $stmt->bindValue(':holiday_staff_id', $staff_id, PDO::PARAM_INT);
+
+    $stmt->bindValue(':balance_holiday_company_id', $cmpy_id, PDO::PARAM_INT);
+
+    $stmt->bindValue(':balance_used_company_id', $cmpy_id, PDO::PARAM_INT);
+
+    $stmt->bindValue(':balance_holiday_staff_id', $staff_id, PDO::PARAM_INT);
+
+    $stmt->bindValue(':shift_staff_id', $staff_id, PDO::PARAM_INT);
+
+    // Additional bindings for remaining balance
+
+    $stmt->bindValue(':balance_holiday_company_id_2', $cmpy_id, PDO::PARAM_INT);
+
+    $stmt->bindValue(':balance_used_company_id_2', $cmpy_id, PDO::PARAM_INT);
+
+    $stmt->bindValue(':balance_holiday_staff_id_2', $staff_id, PDO::PARAM_INT);
+
+    $stmt->bindValue(':leave_period', $leave_period, PDO::PARAM_INT);
+
+    $stmt->bindValue(':from_date', $from_Date);
+
+    $stmt->bindValue(':to_date', $to_date);
+}
 /* ================= EXECUTE ================= */
 
 $stmt->execute();
@@ -544,7 +700,7 @@ if ($req_type == '3' && $result) {
         SELECT
             GREATEST(DATE(from_date), :month_start) AS suspension_from,
             LEAST(DATE(to_date), :month_end) AS suspension_to
-        FROM staff_suspended
+        FROM staff_suspension
         WHERE staff_profile_id = :staff_id
             AND DATE(from_date) <= :month_end_check
             AND DATE(to_date) >= :month_start_check

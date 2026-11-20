@@ -18,10 +18,12 @@ if ($user) {
         SELECT
             sl.*,
             cc.company_name,
-            sc.staff_name
+            sc.staff_name,bc.branch_name
         FROM staff_loan sl
         LEFT JOIN company_creation cc ON cc.id = sl.company_id
         LEFT JOIN staff_creation sc ON sc.id = sl.staff_id
+        LEFT JOIN branch_creation bc
+        ON bc.id = sl.branch_id
     ";
 
     $params = [];

@@ -15,6 +15,7 @@
                                 <tr>
                                     <th>S.No.</th>
                                     <th>Company Name</th>
+                                    <th>Branch Name</th>
                                     <th>Staff Name</th>
                                     <th>Loan Amount</th>
                                     <th>Intrest Rate</th>

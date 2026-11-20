@@ -53,6 +53,7 @@ const moduleMapping = {
   location_access_report: "reports",
   feedback_report: "reports",
   attendance_report: "reports",
+  staff_loan_advance_report: "reports",
 };
 
 // 2. DOCUMENT READY

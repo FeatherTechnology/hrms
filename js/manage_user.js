@@ -1060,6 +1060,7 @@ function getMenuSubMenuList(userId) {
                           <option value="2">Permission</option>
                           <option value="3">Week Off</option>
                           <option value="4">OT</option>
+                          <option value="5">Holiday</option>
                       </select>
                   </div>
               </div>

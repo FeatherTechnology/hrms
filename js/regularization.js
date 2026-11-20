@@ -240,7 +240,45 @@ $(document).ready(function () {
       ).val("");
       $("#from_date,#to_date").attr("type", "datetime-local");
       getbalancerequest();
-    }
+    } else if (value == "5") {
+    $(".Lev_per").show();
+    $(".bal_req").show();
+    $(".leveType").hide();
+    $(".leave_day_div").show();
+    $(".doc_upload_div").hide();
+    $(".leave_count_div").hide();
+    $(".ot_req").hide();
+    $(".ot_pay_div").hide();
+    $(".shift_time").hide();
+
+    // Allow only current month's dates
+    let today = new Date();
+
+    let firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    let lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    let formatDate = (date) => {
+        let year = date.getFullYear();
+        let month = String(date.getMonth() + 1).padStart(2, '0');
+        let day = String(date.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    };
+
+    let minDate = formatDate(firstDay);
+    let maxDate = formatDate(lastDay);
+
+    $("#from_date, #to_date").attr({
+        type: "date",
+        min: minDate,
+        max: maxDate
+    });
+
+    // Reset dates if outside current month
+    $("#from_date, #to_date").val("");
+
+    getbalancerequest();
+}
 
     $("#request_form input").css("border", "1px solid #cecece");
     $("#request_form select").css("border", "1px solid #cecece");
@@ -721,6 +759,7 @@ function getedituserdetails(id) {
      <option value="3">Week Off</option>
     <option value="1">Leave</option>
     <option value="2">Permission</option>
+    <option value="5">Holiday</option>
 `);
       }
       // Show Attendance Chart only for Permission (2) and OT (4)
@@ -1002,14 +1041,19 @@ async function getbalancerequest() {
     }
     $("#cur_month_lop_count").val(response.cur_month_lop_count);
 
-    const startTime = formatTime(response.start_time);
-    const endTime = formatTime(response.end_time);
+const startTime = response?.start_time
+  ? formatTime(response.start_time)
+  : "";
 
-    $("#shift_start").val(startTime);
-    $("#shift_end").val(endTime);
+const endTime = response?.end_time
+  ? formatTime(response.end_time)
+  : "";
 
-    shiftStart = response.start_time;
-    shiftEnd = response.end_time;
+$("#shift_start").val(startTime);
+$("#shift_end").val(endTime);
+
+shiftStart = response?.start_time || "";
+shiftEnd = response?.end_time || "";
 
     /* =====================================================
        PERMISSION LATE ENTRY
@@ -1149,7 +1193,7 @@ function calculateDateDiff(
 
   let leave_period = $("#leave_period").val();
   if (
-    (reqType == "1" || reqType == "3") &&
+    (reqType == "1" || reqType == "3" || reqType=="5") &&
     (leave_period == "1" || leave_period == "2")
   ) {
     let start = new Date(`1970-01-01T${shiftStart}`);

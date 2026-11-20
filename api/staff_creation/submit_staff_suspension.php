@@ -16,7 +16,7 @@ $result = 0;
 // Check whether the selected dates are overlapping
 $check = $pdo->prepare("
     SELECT COUNT(*)
-    FROM staff_suspended
+    FROM staff_suspension
     WHERE staff_profile_id = :staff_id
     AND from_date <= :to_date
     AND to_date >= :from_date
@@ -42,7 +42,7 @@ if ($overlap_count > 0) {
     if ($suspension_id != '') {
 
         $qry = $pdo->prepare("
-            UPDATE staff_suspended SET
+            UPDATE staff_suspension SET
                 staff_profile_id = :staff_id,
                 from_date = :from_date,
                 to_date = :to_date,
@@ -67,7 +67,7 @@ if ($overlap_count > 0) {
 
         // Insert new suspension
         $qry = $pdo->prepare("
-            INSERT INTO staff_suspended
+            INSERT INTO staff_suspension
             (
                 staff_profile_id,
                 from_date,

@@ -126,8 +126,8 @@
                                 <th>Company</th>
                                 <th>Branch</th>
                                 <th>Department</th>
-                                <th>Designation</th>
                                 <th>Team</th>
+                                <th>Designation</th>
                                 <th>Staff Type</th>
                                 <th>Entry Time</th>
                                 <th>Updated By</th>

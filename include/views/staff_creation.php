@@ -77,7 +77,8 @@
                             <th>Designation</th>
                             <th>Mobile</th>
                             <th>Exit Status</th>
-                            <th>Suspention</th>
+                            <th>Suspension</th>
+                            <!-- <th>Loan & Advance</th> -->
                             <th>Action</th>
                         </tr>
                     </thead>

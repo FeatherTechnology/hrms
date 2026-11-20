@@ -13,7 +13,7 @@ try {
 
     if (
         !$staff_profile_id ||
-        !in_array($req_type, [1, 2, 3, 4], true) ||
+        !in_array($req_type, [1, 2, 3, 4,5], true) ||
         !$from_date ||
         !$to_date
     ) {
@@ -26,7 +26,7 @@ try {
     // Check whether the staff member is suspended during the requested dates.
     $suspendStmt = $pdo->prepare("
     SELECT from_date, to_date
-    FROM staff_suspended
+    FROM staff_suspension
     WHERE staff_profile_id = :staff_profile_id
       AND from_date <= :to_date
       AND (to_date IS NULL OR to_date >= :from_date)
